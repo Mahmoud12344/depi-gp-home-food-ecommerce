@@ -3181,7 +3181,7 @@
     ]
   },
   "packageFolders": {
-    "/home/epic_dev/.local/share/dotnet/.nuget/packages/": {}
+    "/home/epic_dev/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
@@ -3189,12 +3189,12 @@
       "projectUniqueName": "/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/depiR5gp.csproj",
       "projectName": "depiR5gp",
       "projectPath": "/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/depiR5gp.csproj",
-      "packagesPath": "/home/epic_dev/.local/share/dotnet/.nuget/packages/",
+      "packagesPath": "/home/epic_dev/.nuget/packages/",
       "outputPath": "/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/obj/",
       "projectStyle": "PackageReference",
       "centralPackageVersionsManagementEnabled": true,
       "configFilePaths": [
-        "/home/epic_dev/.local/share/dotnet/.nuget/NuGet/NuGet.Config"
+        "/home/epic_dev/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
@@ -3205,6 +3205,7 @@
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {}
         }
@@ -3226,6 +3227,7 @@
     },
     "frameworks": {
       "net10.0": {
+        "framework": "net10.0",
         "targetAlias": "net10.0",
         "dependencies": {
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {

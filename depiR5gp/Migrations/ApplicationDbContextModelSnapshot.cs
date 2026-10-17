@@ -16,10 +16,39 @@ namespace depiR5gp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("depiR5gp.Models.TestModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TestModels");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "first test"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "second test"
+                        });
+                });
 #pragma warning restore 612, 618
         }
     }
