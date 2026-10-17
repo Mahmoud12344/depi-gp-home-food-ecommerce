@@ -51,32 +51,32 @@
           "dependencies": {
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[10.0.0, )",
+              "version": "[10.0.12, )",
               "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "target": "Package",
-              "version": "[10.0.0, )",
+              "version": "[10.0.12, )",
               "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[10.0.0, )",
+              "version": "[10.0.12, )",
               "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "target": "Package",
-              "version": "[10.0.0, )",
+              "version": "[10.0.12, )",
               "versionCentrallyManaged": true
             }
           },
           "centralPackageVersions": {
-            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "10.0",
-            "Microsoft.AspNetCore.Identity.UI": "10.0",
-            "Microsoft.EntityFrameworkCore": "10.0.111",
-            "Microsoft.EntityFrameworkCore.Design": "10.0",
-            "Microsoft.EntityFrameworkCore.SqlServer": "10.0",
-            "Microsoft.EntityFrameworkCore.Tools": "10.0"
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "10.0.12",
+            "Microsoft.AspNetCore.Identity.UI": "10.0.12",
+            "Microsoft.EntityFrameworkCore": "10.0.12",
+            "Microsoft.EntityFrameworkCore.Design": "10.0.12",
+            "Microsoft.EntityFrameworkCore.SqlServer": "10.0.12",
+            "Microsoft.EntityFrameworkCore.Tools": "10.0.12"
           },
           "imports": [
             "net461",
