@@ -15,6 +15,7 @@ var dbServer = builder.Configuration["DbServer"];
 var dbUser = builder.Configuration["DbUser"];
 var dbPassword = builder.Configuration["DbPassword"];
 
+
 if (!string.IsNullOrEmpty(dbServer))
 {
     connectionBuilder.IntegratedSecurity = false;
