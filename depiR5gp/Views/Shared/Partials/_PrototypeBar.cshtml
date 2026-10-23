@@ -1,0 +1,202 @@
+@*
+  Prototype Bar Component Partial
+  Source: home_chef/src/components/common/PrototypeBar.tsx
+*@
+<div x-data="{ assumptionsOpen: false, minimized: false }">
+    <!-- Sleek Floating Prototype Bar -->
+    <aside aria-label="Prototype Navigation"
+           class="fixed bottom-3 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
+        <div class="pointer-events-auto bg-neutral-900/95 dark:bg-neutral-900/95 text-neutral-100 border border-white/10 rounded-full shadow-2xl backdrop-blur-md px-3.5 py-1.5 flex items-center gap-2 sm:gap-3 text-xs max-w-full overflow-x-auto">
+            <!-- Role Pills -->
+            <div class="flex items-center gap-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 pe-1.5 border-e border-neutral-700 hidden sm:inline">
+                    ROLE:
+                </span>
+
+                <button @@click="$store.app.setRole('customer'); window.location.hash = '#home';"
+                        :class="$store.app.role === 'customer' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user-check"></use></svg>
+                    <span class="whitespace-nowrap">Customer</span>
+                </button>
+
+                <button @@click="$store.app.setRole('chef'); window.location.hash = '#chef/dashboard';"
+                        :class="$store.app.role === 'chef' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                    <span class="whitespace-nowrap">Chef Portal</span>
+                </button>
+
+                <button @@click="$store.app.setRole('admin'); window.location.hash = '#admin';"
+                        :class="$store.app.role === 'admin' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
+                    <span class="whitespace-nowrap">Admin</span>
+                </button>
+
+                <button @@click="$store.app.setRole('support'); window.location.hash = '#support';"
+                        :class="$store.app.role === 'support' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#help-circle"></use></svg>
+                    <span class="whitespace-nowrap">Support</span>
+                </button>
+
+                <button @@click="$store.app.setRole('guest'); window.location.hash = '#home';"
+                        :class="$store.app.role === 'guest' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user-check"></use></svg>
+                    <span class="whitespace-nowrap">Guest</span>
+                </button>
+            </div>
+
+            <div class="h-4 w-px bg-neutral-700 shrink-0"></div>
+
+            <!-- Quick Language Toggle -->
+            <button @@click="$store.app.setLanguage($store.app.language === 'en' ? 'ar' : 'en')"
+                    title="Toggle Arabic (RTL) / English"
+                    class="p-1.5 hover:bg-neutral-800 text-neutral-200 rounded-full transition-colors cursor-pointer shrink-0 font-bold text-[11px]"
+                    x-text="$store.app.language === 'en' ? 'عربي' : 'EN'">
+                عربي
+            </button>
+
+            <!-- Theme Toggle -->
+            <button @@click="$store.app.toggleTheme()"
+                    title="Toggle Dark / Light Theme"
+                    class="p-1.5 hover:bg-neutral-800 text-neutral-200 rounded-full transition-colors cursor-pointer shrink-0">
+                <svg x-show="$store.app.theme === 'light'" class="w-3.5 h-3.5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#moon"></use></svg>
+                <svg x-show="$store.app.theme === 'dark'" class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><use href="#sun"></use></svg>
+            </button>
+
+            <!-- Quick AI Assistant Page Button -->
+            <a href="#ai-assistant"
+               :class="$store.app.currentRoute === '#ai-assistant' ? 'bg-[var(--color-primary)] text-white shadow-sm' : 'bg-purple-500/25 hover:bg-purple-500/35 text-purple-300 border border-purple-500/50'"
+               class="px-3 py-1 rounded-full text-[13px] font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 transition-all"
+               title="Open Dedicated AI Assistant Page">
+                <span>✨ AI Assistant</span>
+            </a>
+
+            <!-- Quick Dish Preview Buttons -->
+            <a href="#dish/dish-1"
+               class="px-3 py-1 bg-amber-500/25 hover:bg-amber-500/35 text-amber-300 border border-amber-500/50 rounded-full text-[13px] font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+               title="Preview Dish Detail Page V3 (Vertical Gallery)">
+                <span>🍲 Dish V3 (Vertical)</span>
+            </a>
+
+            <a href="#dish-v1/dish-1"
+               class="px-2.5 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700 rounded-full text-[13px] font-semibold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+               title="Preview Dish Detail Page V1 (Original Stack)">
+                <span>Dish V1</span>
+            </a>
+
+            <a href="#dish-v2/dish-1"
+               class="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-full text-[13px] font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+               title="Preview Dish Detail Page V2 (3D Drum Gallery)">
+                <span>✨ Dish V2 (3D)</span>
+            </a>
+
+            <!-- Prototype Assumptions Note -->
+            <button @@click="assumptionsOpen = true"
+                    class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-full text-[10px] font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#info"></use></svg>
+                <span class="hidden sm:inline">Spec (==)</span>
+            </button>
+
+            <!-- Reset Mock Data -->
+            <button @@click="$store.app.resetAllMockData()"
+                    title="Reset Mock Data"
+                    class="p-1.5 text-neutral-400 hover:text-rose-400 rounded-full transition-colors cursor-pointer shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#rotate-ccw"></use></svg>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Assumptions Modal -->
+    <div x-show="assumptionsOpen"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         style="display: none;"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+        <div @@click.outside="assumptionsOpen = false"
+             class="relative w-full max-w-2xl bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                    <h3 class="text-base font-bold uppercase tracking-wide text-[var(--color-text)]">
+                        Prototype Assumptions Log (Spec Open Questions "==")
+                    </h3>
+                </div>
+                <button @@click="assumptionsOpen = false"
+                        class="p-1 text-neutral-400 hover:text-[var(--color-text)] cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <p class="text-xs text-[var(--color-text-muted)] mb-4 leading-relaxed">
+                As mandated by the Product Backlog Specification, unresolved items (marked with "==" in Jira) are implemented following the simplest baseline option with transparent assumptions recorded below:
+            </p>
+
+            <div class="space-y-3 text-xs">
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] rounded-2xl">
+                    <span class="font-bold text-[var(--color-primary)]">1. Hand-over &amp; Logistics:</span>
+                    <p class="text-[var(--color-text)] mt-0.5">
+                        NO delivery. Pickup only from domestic kitchens. All UI copy references "Pickup" and kitchen pickup counters rather than shipping.
+                    </p>
+                </div>
+
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] rounded-2xl">
+                    <span class="font-bold text-[var(--color-primary)]">2. Currency &amp; Locale:</span>
+                    <p class="text-[var(--color-text)] mt-0.5">
+                        Egyptian Pounds (EGP) is the standardized platform currency. Arabic uses right-to-left (RTL) layout with Tajawal typography and CSS logical properties.
+                    </p>
+                </div>
+
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] rounded-2xl">
+                    <span class="font-bold text-[var(--color-primary)]">3. Single-Chef Cart Policy:</span>
+                    <p class="text-[var(--color-text)] mt-0.5">
+                        A cart can hold dishes from one chef only. Adding from a second chef prompts a "Start new cart / Keep current cart" resolution modal (SCRUM-193).
+                    </p>
+                </div>
+
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] rounded-2xl">
+                    <span class="font-bold text-[var(--color-primary)]">4. Platform Commission:</span>
+                    <p class="text-[var(--color-text)] mt-0.5">
+                        Fixed agreed baseline at 15% deducted upon order completion into an internal simulated ledger.
+                    </p>
+                </div>
+
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] rounded-2xl">
+                    <span class="font-bold text-[var(--color-primary)]">5. Customer-First Refunds:</span>
+                    <p class="text-[var(--color-text)] mt-0.5">
+                        Refunds are full amount only. Card orders simulate Stripe test reversal; cash refunds are coordinated via Support.
+                    </p>
+                </div>
+
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] rounded-2xl">
+                    <span class="font-bold text-[var(--color-primary)]">6. Review Moderation:</span>
+                    <p class="text-[var(--color-text)] mt-0.5">
+                        Customer reviews are published upon submission, and Platform Admins can moderate/delete flagged feedback (recalculating average ratings). Chefs have read-only access with no replies.
+                    </p>
+                </div>
+
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] rounded-2xl">
+                    <span class="font-bold text-[var(--color-primary)]">7. Special Instructions Limit:</span>
+                    <p class="text-[var(--color-text)] mt-0.5">
+                        Dish notes have a strict 200-character limit with live counter (0/200) and cannot alter pricing.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button @@click="assumptionsOpen = false"
+                        class="bg-[var(--color-primary)] text-white text-xs font-semibold px-5 py-2.5 uppercase tracking-wider rounded-full cursor-pointer hover:bg-[var(--color-primary-hover)] transition-colors">
+                    Close Log
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

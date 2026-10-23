@@ -1,0 +1,121 @@
+<!-- Views/Shared/Partials/_Circular3DGallery.cshtml -->
+<!-- Source: home_chef/components/ui/circular-3d-gallery.tsx -->
+<!-- Uses vanilla JS module: ~/js/components/circular3DGallery.js -->
+
+<div x-data="{
+    cards: [
+        {
+            id: 'c1',
+            title: 'Duck Molokhia',
+            subtitle: 'Amina\'s Heritage Kitchen · Maadi',
+            credit: 'Cooked with 100% Baladi Ghee',
+            badge: 'Top Seller',
+            image: 'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=800&auto=format&fit=crop&q=80',
+            dishId: 'dish-1'
+        },
+        {
+            id: 'c2',
+            title: 'Oxtail Tagine',
+            subtitle: 'Om Nabil Casseroles · Zamalek',
+            credit: 'Slow-roasted for 4.5 hours in clay',
+            badge: 'Chef Choice',
+            image: 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=800&auto=format&fit=crop&q=80',
+            dishId: 'dish-2'
+        },
+        {
+            id: 'c3',
+            title: 'Baladi Meshaltet Feteer',
+            subtitle: 'Hajjah Fatma Bakery · Heliopolis',
+            credit: 'Pure country flaky pastry & clover honey',
+            badge: 'Fresh Daily',
+            image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80',
+            dishId: 'dish-4'
+        },
+        {
+            id: 'c4',
+            title: 'Cream Om Ali',
+            subtitle: 'Hajjah Fatma Bakery · Heliopolis',
+            credit: 'Buffalo milk cream & Aleppo pistachios',
+            badge: 'Sweet Tradition',
+            image: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=800&auto=format&fit=crop&q=80',
+            dishId: 'dish-6'
+        },
+        {
+            id: 'c5',
+            title: 'Alexandrian Kebda',
+            subtitle: 'Abo Ashraf Pan & Liver · Dokki',
+            credit: 'Seared on iron griddle with green chili',
+            badge: 'Fast Pickup',
+            image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80',
+            dishId: 'dish-5'
+        }
+    ],
+    fullScreenCard: null
+}"
+     x-init="window.initGallery3D && window.initGallery3D($el, { initialIndex: 0 })"
+     class="relative w-full rounded-2xl overflow-hidden bg-radial from-[#1e1e24] via-[#111114] to-[#0a0a0c] border border-white/10 shadow-2xl select-none"
+     style="min-height: 520px;">
+
+    <!-- Subtle radial ambient glow -->
+    <div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_rgba(0,0,0,0.7)]"></div>
+
+    <!-- Optional Header -->
+    <div class="absolute top-6 inset-x-0 text-center z-30 pointer-events-none px-4">
+        <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-md"
+            x-text="$store.app.language === 'ar' ? 'معرض الأطباق التراثية ثلاثي الأبعاد' : '3D Heirloom Dishes Gallery'">
+            3D Heirloom Dishes Gallery
+        </h2>
+        <p class="text-xs sm:text-sm text-neutral-400 mt-1 drop-shadow"
+           x-text="$store.app.language === 'ar' ? 'اسحب أفقياً أو حرّك العجلة لاستكشاف تفاصيل الأطباق الحقيقية' : 'Drag or scroll to rotate through freshly cooked kitchen signature dishes'">
+            Drag or scroll to rotate through freshly cooked kitchen signature dishes
+        </p>
+    </div>
+
+    <!-- 3D Scene Viewport -->
+    <div tabindex="0"
+         role="region"
+         aria-label="3D Carousel Gallery. Use arrow keys or scroll to rotate."
+         class="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center justify-center cursor-grab active:cursor-grabbing focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+         style="perspective: 1400px;">
+
+        <ul data-gallery-ring
+            class="relative w-[280px] sm:w-[340px] lg:w-[400px] h-[380px] sm:h-[460px] lg:h-[530px] list-none p-0 m-0"
+            style="transform-style: preserve-3d;">
+
+            <template x-for="(card, i) in cards" :key="card.id">
+                <li data-gallery-card
+                    @@click="$store.app.navigate('#dish/' + card.dishId)"
+                    class="absolute inset-0 rounded-2xl overflow-hidden cursor-pointer backface-hidden transition-[filter,opacity] duration-150"
+                    style="transform-style: preserve-3d; backface-visibility: hidden;">
+
+                    <figure class="relative w-full h-full rounded-2xl overflow-hidden border border-white/15 bg-neutral-900 shadow-2xl">
+                        <img :src="card.image"
+                             :alt="card.title"
+                             class="w-full h-full object-cover select-none pointer-events-none" />
+
+                        <!-- Badge if present -->
+                        <template x-if="card.badge">
+                            <span class="absolute top-4 start-4 bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md z-10 pointer-events-none"
+                                  x-text="card.badge">
+                            </span>
+                        </template>
+
+                        <!-- Gradient Overlay across bottom -->
+                        <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/95 via-black/70 to-transparent pointer-events-none z-10"></div>
+
+                        <!-- Caption text -->
+                        <figcaption class="absolute inset-x-0 bottom-0 p-5 sm:p-6 z-20 pointer-events-none flex flex-col gap-1">
+                            <span class="text-xl sm:text-2xl font-bold text-white leading-tight drop-shadow-md"
+                                  x-text="card.title"></span>
+                            <span class="text-xs sm:text-sm italic font-normal text-neutral-300 drop-shadow"
+                                  x-text="card.subtitle"></span>
+                            <span class="text-[11px] sm:text-xs text-white/80 mt-1 font-medium drop-shadow"
+                                  x-text="card.credit"></span>
+                        </figcaption>
+                    </figure>
+                </li>
+            </template>
+        </ul>
+    </div>
+</div>
+

@@ -1,0 +1,297 @@
+<!-- Views/Shared/Partials/_LoginModal.cshtml -->
+<!-- Source: home_chef/src/components/common/LoginModal.tsx -->
+<!-- TODO [Backend]: Integrate with ASP.NET Core Identity / Cookie Authentication -->
+
+<div x-cloak
+     x-show="$store.app.loginModalOpen"
+     x-data="{
+         email: '',
+         password: '',
+         name: '',
+         phone: '',
+         registerRole: 'customer',
+         forgotPasswordOpen: false,
+         resetSent: false,
+         error: '',
+         close() {
+             $store.app.loginModalOpen = false;
+             this.forgotPasswordOpen = false;
+             this.resetSent = false;
+             this.error = '';
+         },
+         handleLogin() {
+             if (!this.email || !this.password) {
+                 this.error = $store.app.language === 'ar' ? 'يرجى إدخال البريد الإلكتروني وكلمة المرور' : 'Please provide both email and password.';
+                 return;
+             }
+             let detectedRole = 'customer';
+             if (this.email.includes('chef') || this.email.includes('amina')) {
+                 detectedRole = 'chef';
+             } else if (this.email.includes('admin') || this.email.includes('karim')) {
+                 detectedRole = 'admin';
+             } else if (this.email.includes('support') || this.email.includes('layla')) {
+                 detectedRole = 'support';
+             }
+             $store.app.setRole(detectedRole);
+             this.close();
+             $store.app.showToast('success', $store.app.language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : ('Signed in successfully as ' + detectedRole.toUpperCase() + '!'));
+         },
+         handleRegister() {
+             if (!this.name || !this.email || !this.password || !this.phone) {
+                 this.error = $store.app.language === 'ar' ? 'يرجى استكمال جميع الحقول المطلوبة' : 'Please fill in all required fields.';
+                 return;
+             }
+             $store.app.setRole(this.registerRole);
+             const userName = this.name;
+             this.close();
+             $store.app.showToast('success', $store.app.language === 'ar' ? ('أهلاً بك يا ' + userName + '! تم إنشاء حسابك بنجاح.') : ('Welcome ' + userName + '! Your account has been created.'));
+             if (this.registerRole === 'chef') {
+                 $store.app.navigate('#chef/onboarding');
+             }
+         },
+         handleForgotPassword() {
+             if (!this.email) {
+                 this.error = $store.app.language === 'ar' ? 'يرجى إدخال بريدك الإلكتروني' : 'Please enter your registered email address.';
+                 return;
+             }
+             this.resetSent = true;
+             $store.app.showToast('info', $store.app.language === 'ar' ? 'تم إرسال رابط استعادة كلمة المرور لبريدك الإلكتروني (محاكاة).' : 'Password reset link sent to your email (simulated).');
+         }
+     }"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0 scale-95"
+     x-transition:enter-end="opacity-100 scale-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100 scale-100"
+     x-transition:leave-end="opacity-0 scale-95"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+
+    <div class="relative w-full max-w-md bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl shadow-2xl p-6 sm:p-8"
+         @@click.away="close()">
+
+        <!-- Close Button -->
+        <button type="button"
+                @@click="close()"
+                class="absolute top-4 end-4 p-1.5 text-neutral-400 hover:text-[var(--color-text)] transition-colors cursor-pointer"
+                aria-label="Close">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="#x"></use>
+            </svg>
+        </button>
+
+        <!-- Forgot password sub-view -->
+        <div x-show="forgotPasswordOpen">
+            <h3 class="text-lg font-bold uppercase tracking-tight text-[var(--color-text)] mb-2"
+                x-text="$store.app.language === 'ar' ? 'استعادة كلمة المرور' : 'Reset Password'">
+                Reset Password
+            </h3>
+            <p class="text-xs text-[var(--color-text-muted)] mb-5"
+               x-text="$store.app.language === 'ar' ? 'أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور الخاصة بك.' : 'Enter your registered email and we will send instructions to set a new password.'">
+                Enter your registered email and we will send instructions to set a new password.
+            </p>
+
+            <div x-show="resetSent" class="bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-700 p-4 rounded-2xl text-xs text-emerald-900 dark:text-emerald-100 text-center space-y-2">
+                <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#check-circle-2"></use>
+                </svg>
+                <p class="font-bold" x-text="$store.app.language === 'ar' ? 'تم إرسال رابط التعيين بنجاح' : 'Reset instructions sent!'">
+                    Reset instructions sent!
+                </p>
+                <p class="text-[11px] text-emerald-800 dark:text-emerald-200"
+                   x-text="$store.app.language === 'ar' ? 'تفقد صندوق الوارد في بريدك الإلكتروني.' : 'Check your inbox to regain account access.'">
+                    Check your inbox to regain account access.
+                </p>
+                <button type="button"
+                        @@click="forgotPasswordOpen = false"
+                        class="mt-3 text-xs font-semibold text-[var(--color-primary)] hover:underline block mx-auto cursor-pointer"
+                        x-text="$store.app.language === 'ar' ? 'العودة لتسجيل الدخول' : 'Back to Login'">
+                    Back to Login
+                </button>
+            </div>
+
+            <!-- TODO [Backend]: POST /Account/ForgotPassword (Email) generating reset token and dispatching email recovery instructions -->
+            <form x-show="!resetSent" @@submit.prevent="handleForgotPassword()" class="space-y-4">
+                <p x-show="error" x-text="error" class="text-xs font-medium text-rose-900 dark:text-rose-100 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 p-3 rounded-xl"></p>
+
+                <div>
+                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1"
+                           x-text="$store.app.language === 'ar' ? 'البريد الإلكتروني' : 'Email address'">
+                        Email address
+                    </label>
+                    <input type="email"
+                           x-model="email"
+                           placeholder="name@example.com"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                </div>
+
+                <button type="submit"
+                        class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] focus-visible:outline-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/20">
+                    <span x-text="$store.app.language === 'ar' ? 'إرسال رابط الاستعادة' : 'Send Recovery Link'">Send Recovery Link</span>
+                </button>
+
+                <button type="button"
+                        @@click="forgotPasswordOpen = false"
+                        class="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] block text-center mx-auto mt-2 cursor-pointer"
+                        x-text="$store.app.language === 'ar' ? 'إلغاء والعودة' : 'Cancel and return'">
+                    Cancel and return
+                </button>
+            </form>
+        </div>
+
+        <!-- Normal Tabs View -->
+        <div x-show="!forgotPasswordOpen">
+            <!-- Tabs -->
+            <div class="flex border-b border-[var(--color-border)] mb-6">
+                <button type="button"
+                        @@click="$store.app.loginModalTab = 'login'; error = '';"
+                        :class="$store.app.loginModalTab === 'login' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                        class="flex-1 pb-3 text-sm font-bold uppercase tracking-wider text-center border-b-2 transition-colors cursor-pointer"
+                        x-text="$store.app.language === 'ar' ? 'تسجيل الدخول' : 'Login'">
+                    Login
+                </button>
+                <button type="button"
+                        @@click="$store.app.loginModalTab = 'register'; error = '';"
+                        :class="$store.app.loginModalTab === 'register' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                        class="flex-1 pb-3 text-sm font-bold uppercase tracking-wider text-center border-b-2 transition-colors cursor-pointer"
+                        x-text="$store.app.language === 'ar' ? 'حساب جديد' : 'Register'">
+                    Register
+                </button>
+            </div>
+
+            <p x-show="error" x-text="error" class="text-xs font-semibold text-rose-900 dark:text-rose-100 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 p-3 rounded-xl mb-4"></p>
+
+            <!-- Login Form -->
+            <!-- TODO [Backend]: POST /Account/Login (Email, Password, RememberMe) validating credentials via SignInManager<ApplicationUser> -->
+            <form x-show="$store.app.loginModalTab === 'login'" @@submit.prevent="handleLogin()" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1"
+                           x-text="$store.app.language === 'ar' ? 'البريد الإلكتروني' : 'Email address'">
+                        Email address
+                    </label>
+                    <input type="email"
+                           x-model="email"
+                           placeholder="tamer.zaki@example.com"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                    <div class="flex items-center gap-2 mt-1.5 text-[10px] text-[var(--color-text-muted)]">
+                        <span x-text="$store.app.language === 'ar' ? 'نصيحة تجربة:' : 'Demo tip:'">Demo tip:</span>
+                        <button type="button" @@click="email = 'amina.chef@example.com'" class="text-[var(--color-primary)] underline hover:opacity-80">
+                            amina.chef&#64;...
+                        </button>
+                        <span>·</span>
+                        <button type="button" @@click="email = 'karim.admin@homechef.eg'" class="text-[var(--color-primary)] underline hover:opacity-80">
+                            karim.admin&#64;...
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-semibold text-[var(--color-text)]"
+                               x-text="$store.app.language === 'ar' ? 'كلمة المرور' : 'Password'">
+                            Password
+                        </label>
+                        <button type="button"
+                                @@click="forgotPasswordOpen = true"
+                                class="text-[11px] text-[var(--color-primary)] hover:underline cursor-pointer"
+                                x-text="$store.app.language === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot password?'">
+                            Forgot password?
+                        </button>
+                    </div>
+                    <input type="password"
+                           x-model="password"
+                           placeholder="••••••••"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                </div>
+
+                <button type="submit"
+                        class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] focus-visible:outline-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/20">
+                    <span x-text="$store.app.language === 'ar' ? 'تسجيل الدخول' : 'Sign In'">Sign In</span>
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <!-- TODO [Backend]: POST /Account/Register (Name, Email, Phone, Role, Password) creating ApplicationUser, generating email confirmation, and redirecting role to onboarding -->
+            <form x-show="$store.app.loginModalTab === 'register'" @@submit.prevent="handleRegister()" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1"
+                           x-text="$store.app.language === 'ar' ? 'نوع الحساب' : 'Account Type'">
+                        Account Type
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button"
+                                @@click="registerRole = 'customer'"
+                                :class="registerRole === 'customer' ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]' : 'border-[var(--color-border)] text-[var(--color-text-muted)]'"
+                                class="text-xs py-2 px-3 border rounded-full font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+                                x-text="$store.app.language === 'ar' ? 'زبون / متذوق' : 'Customer'">
+                            Customer
+                        </button>
+                        <button type="button"
+                                @@click="registerRole = 'chef'"
+                                :class="registerRole === 'chef' ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]' : 'border-[var(--color-border)] text-[var(--color-text-muted)]'"
+                                class="text-xs py-2 px-3 border rounded-full font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+                                x-text="$store.app.language === 'ar' ? 'شيف منزلي' : 'Home Chef'">
+                            Home Chef
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1"
+                           x-text="$store.app.language === 'ar' ? 'الاسم بالكامل' : 'Full Name'">
+                        Full Name
+                    </label>
+                    <input type="text"
+                           x-model="name"
+                           :placeholder="$store.app.language === 'ar' ? 'مثال: سارة أحمد' : 'e.g. Sara Ahmed'"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1"
+                           x-text="$store.app.language === 'ar' ? 'البريد الإلكتروني' : 'Email Address'">
+                        Email Address
+                    </label>
+                    <input type="email"
+                           x-model="email"
+                           placeholder="sara@example.com"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1"
+                           x-text="$store.app.language === 'ar' ? 'رقم الهاتف (للتواصل أثناء الاستلام)' : 'Phone Number (for pickup calls)'">
+                        Phone Number (for pickup calls)
+                    </label>
+                    <input type="tel"
+                           x-model="phone"
+                           placeholder="+20 100 000 0000"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1"
+                           x-text="$store.app.language === 'ar' ? 'كلمة المرور' : 'Password'">
+                        Password
+                    </label>
+                    <input type="password"
+                           x-model="password"
+                           placeholder="••••••••"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                </div>
+
+                <button type="submit"
+                        class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] focus-visible:outline-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/20">
+                    <span x-text="$store.app.language === 'ar' ? 'إنشاء الحساب' : 'Create Account'">Create Account</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+

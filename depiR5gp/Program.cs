@@ -34,10 +34,17 @@ builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 // 2. Auto-apply EF Core Migrations on startup (Works locally & on Azure!)
-using (var scope = app.Services.CreateScope())
+try
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        db.Database.Migrate();
+    }
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning("⚠️ Could not connect to SQL Server to auto-apply migrations on startup ({Message}). The application will continue running in offline/mock mode.", ex.Message);
 }
 
 if (!app.Environment.IsDevelopment())

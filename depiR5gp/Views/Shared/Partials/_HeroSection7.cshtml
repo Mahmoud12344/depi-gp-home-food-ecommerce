@@ -1,0 +1,108 @@
+<!-- Views/Shared/Partials/_HeroSection7.cshtml -->
+<!-- Source: home_chef/components/ui/hero-section-7.tsx & home_chef/src/pages/HomePageV2.tsx -->
+<!-- TODO [Backend]: Bind dynamic search queries and featured dishes/chefs -->
+
+<section class="relative w-full min-h-[60vh] lg:min-h-[75vh] flex items-center justify-center overflow-hidden bg-[var(--color-bg)] py-16 md:py-28">
+    <!-- Decorative background swirl lines -->
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <svg class="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 text-[var(--color-primary)]/10 dark:text-[var(--color-primary)]/15 pointer-events-none"
+             width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M515.266 181.33C377.943 51.564 128.537 136.256 50.8123 293.565C-26.9127 450.874 125.728 600 125.728 600"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <svg class="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 text-[var(--color-primary)]/10 dark:text-[var(--color-primary)]/15 pointer-events-none"
+             width="700" height="700" viewBox="0 0 700 700" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M26.8838 528.274C193.934 689.816 480.051 637.218 594.397 451.983C708.742 266.748 543.953 2.22235 543.953 2.22235"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+    </div>
+
+    <!-- Floating Food Images with CSS float animations -->
+    <div class="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+        <img src="https://cdn.21st.dev/assets/mirror/cc/cc7d7fbb538d93322e189b55ae4c6eed95aab7da267a9a095b39216070ef65b0.png"
+             alt="Heirloom Slow-Cooked Meat"
+             class="absolute object-contain drop-shadow-xl select-none w-36 sm:w-52 md:w-60 lg:w-68 top-6 left-3 sm:left-8 md:top-14 md:left-14 animate-float" />
+        <img src="https://cdn.21st.dev/assets/mirror/95/95bc0d9d69e76d3729ca42f9525bafd449fd27fa41c9393d1deccb85d79b0639.png"
+             alt="Artisan Steamed Dishes"
+             class="absolute object-contain drop-shadow-xl select-none w-24 sm:w-36 md:w-44 top-6 right-3 sm:right-8 md:top-12 md:right-14 animate-float"
+             style="animation-delay: 300ms;" />
+        <img src="https://cdn.21st.dev/assets/mirror/6e/6e4600ac05444d9dc0396906da4174dcfe42a64c14082d939f0f57cb2ed8113d.png"
+             alt="Home-Baked Crust & Feteer"
+             class="absolute object-contain drop-shadow-xl select-none w-28 sm:w-40 md:w-52 bottom-6 right-4 sm:right-10 md:bottom-12 md:right-16 animate-float"
+             style="animation-delay: 600ms;" />
+        <img src="https://cdn.21st.dev/assets/mirror/8e/8ec4fbab8445c1769d3200d674cd3731a0550b21c87bb8bc6938cb3a05932e5b.png"
+             alt="Fresh Basil Herb"
+             class="absolute object-contain drop-shadow-xl select-none w-7 sm:w-10 top-1/4 left-1/4 animate-float"
+             style="animation-delay: 900ms;" />
+        <img src="https://cdn.21st.dev/assets/mirror/e7/e758e9c35a8360f201c40d0bf3e3433c2b6ff3f759763eb697cbc3803af80e18.png"
+             alt="Ripe Baladi Tomato Slice"
+             class="absolute object-contain drop-shadow-xl select-none w-7 sm:w-9 top-1/3 right-1/4 animate-float"
+             style="animation-delay: 1200ms;" />
+        <img src="https://cdn.21st.dev/assets/mirror/e7/e758e9c35a8360f201c40d0bf3e3433c2b6ff3f759763eb697cbc3803af80e18.png"
+             alt="Garnish Slice"
+             class="absolute object-contain drop-shadow-xl select-none w-7 sm:w-9 bottom-12 left-1/5 animate-float"
+             style="animation-delay: 1500ms;" />
+    </div>
+
+    <!-- Text Content -->
+    <div class="relative z-20 container mx-auto px-4 text-center max-w-3xl space-y-6">
+        <h1 class="text-3xl font-extrabold tracking-tight text-[var(--color-primary)] sm:text-5xl md:text-6xl font-serif uppercase">
+            <template x-if="$store.app.language === 'ar'">
+                <span>
+                    نصنع أشهى الوجبات <br class="hidden sm:inline" />
+                    <span class="text-[var(--color-primary)]">بنكهة بيتية أصيلة</span>
+                </span>
+            </template>
+            <template x-if="$store.app.language !== 'ar'">
+                <span>
+                    Better Food For More People, <br class="hidden sm:inline" />
+                    <span class="text-[var(--color-primary)]">Crafted In Real Homes</span>
+                </span>
+            </template>
+        </h1>
+
+        <p class="mt-4 text-sm sm:text-lg leading-relaxed text-[var(--color-text-muted)] max-w-2xl mx-auto"
+           x-text="$store.app.language === 'ar'
+               ? 'اطلب مباشرة من أمهر طهاة البيوت في حيك. وصفات عائلية متوارثة محضرة بالسمن البلدي الطبيعي واللحوم الطازجة، مع استلام مباشر ساخن وبدون رسوم توصيل.'
+               : 'For over a decade, we enable food lovers to discover heirloom recipes crafted with 100% pure baladi ghee, direct domestic kitchen counter pickup, and zero delivery markups.'">
+            For over a decade, we enable food lovers to discover heirloom recipes crafted with 100% pure baladi ghee, direct domestic kitchen counter pickup, and zero delivery markups.
+        </p>
+
+        <!-- Actions -->
+        <div class="space-y-6 pt-2">
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-3.5">
+                <a href="#dishes"
+                   class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] focus-visible:outline-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/20">
+                    <span x-text="$store.app.language === 'ar' ? 'استعرض أطباق اليوم' : 'Order Fresh Today'">Order Fresh Today</span>
+                    <svg class="w-4 h-4" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#arrow-right"></use>
+                    </svg>
+                </a>
+
+                <a href="#chefs"
+                   class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white focus-visible:outline-[var(--color-primary)]">
+                    <span x-text="$store.app.language === 'ar' ? 'تعرف على طهاة الحي' : 'Meet The Chefs'">Meet The Chefs</span>
+                </a>
+            </div>
+
+            <!-- Search Bar pill -->
+            <form @@submit.prevent="if ($store.app.searchQuery.trim()) { $store.app.navigate('#dishes'); }" class="max-w-md mx-auto">
+                <div class="relative flex items-center bg-white dark:bg-neutral-900 rounded-full border-2 border-[var(--color-border)] p-1.5 shadow-lg focus-within:border-[var(--color-primary)] transition-all">
+                    <svg class="w-5 h-5 text-[var(--color-primary)] ms-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#search"></use>
+                    </svg>
+                    <input type="text"
+                           x-model="$store.app.searchQuery"
+                           :placeholder="$store.app.language === 'ar' ? 'ابحث عن ملوخية، طواجن، فطير، كبدة...' : 'Search Molokhia, Oxtail Tagine, Feteer...'"
+                           class="w-full text-xs sm:text-sm px-3 py-1.5 bg-transparent text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-hidden font-semibold" />
+                    <button type="submit"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all cursor-pointer shadow-md shrink-0">
+                        <span x-text="$store.app.language === 'ar' ? 'بحث' : 'Find'">Find</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
