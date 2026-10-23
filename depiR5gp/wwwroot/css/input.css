@@ -1,0 +1,209 @@
+@import "tailwindcss";
+
+/* Direct Tailwind v4 Scanner to scan all Razor views and JS files */
+@source "../../Views/**/*.cshtml";
+@source "../js/**/*.js";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Jost', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+@layer base {
+  :root {
+    --color-primary: #7d4630;
+    --color-primary-hover: #673522;
+    --color-primary-light: #f5ebe6;
+    --color-primary-rgb: 125, 70, 48;
+    
+    --color-bg: #f7f7f3;
+    --color-card-bg: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-subtle: #f0eee9;
+    
+    --color-text: #2d2a28;
+    --color-text-muted: #78736d;
+    --color-border: #e6e2dd;
+    --color-border-light: #f1ede8;
+    
+    --color-sale: #dc2626;
+    --color-discount-stamp: #f97316;
+    --color-coral: #ff7e6b;
+    --color-coral-text: #1f1b19;
+    --color-star: #e5a524;
+    
+    --color-secondary-btn: #333333;
+    --color-secondary-hover: #1f1f1f;
+    
+    /* Lifecycle Status Colors */
+    --status-pending-bg: #fef3c7;
+    --status-pending-text: #92400e;
+    --status-accepted-bg: #dbeafe;
+    --status-accepted-text: #1e40af;
+    --status-preparing-bg: #ede9fe;
+    --status-preparing-text: #5b21b6;
+    --status-ready-bg: #ccfbf1;
+    --status-ready-text: #115e59;
+    --status-completed-bg: #dcfce7;
+    --status-completed-text: #166534;
+    --status-cancelled-bg: #fee2e2;
+    --status-cancelled-text: #991b1b;
+    --status-rejected-bg: #ffe4e6;
+    --status-rejected-text: #9f1239;
+    
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --radius-full: 9999px;
+    
+    --shadow-soft: 0 4px 20px -2px rgba(125, 70, 48, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+    --shadow-hover: 0 12px 32px -4px rgba(125, 70, 48, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+    
+    --font-sans: 'Jost', system-ui, -apple-system, sans-serif;
+  }
+
+  [data-theme="dark"] {
+    --color-primary: #e28a68;
+    --color-primary-hover: #f09f7f;
+    --color-primary-light: rgba(226, 138, 104, 0.2);
+    --color-primary-rgb: 226, 138, 104;
+    
+    --color-bg: #141311;
+    --color-card-bg: #1e1c19;
+    --color-surface: #1e1c19;
+    --color-surface-subtle: #292622;
+    
+    --color-text: #fcfbf9;
+    --color-text-muted: #bab3ab;
+    --color-border: #443e37;
+    --color-border-light: #322d27;
+    
+    --color-sale: #f87171;
+    --color-discount-stamp: #fb923c;
+    --color-star: #facc15;
+    
+    --color-secondary-btn: #453f39;
+    --color-secondary-hover: #585049;
+    
+    --status-pending-bg: #451a03;
+    --status-pending-text: #fef08a;
+    --status-accepted-bg: #172554;
+    --status-accepted-text: #93c5fd;
+    --status-preparing-bg: #3b0764;
+    --status-preparing-text: #e9d5ff;
+    --status-ready-bg: #042f2e;
+    --status-ready-text: #5eead4;
+    --status-completed-bg: #052e16;
+    --status-completed-text: #86efac;
+    --status-cancelled-bg: #450a0a;
+    --status-cancelled-text: #fca5a5;
+    --status-rejected-bg: #4c0519;
+    --status-rejected-text: #fda4af;
+  }
+
+  html, body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a, label {
+    font-family: inherit;
+  }
+
+  /* Minimum font size 13px requirement across UI */
+  .text-xs {
+    font-size: 13px !important;
+    line-height: 1.25rem !important;
+  }
+
+  /* Universal High Contrast Input and Form Control Rules */
+  input, select, textarea {
+    color: var(--color-text) !important;
+    background-color: var(--color-card-bg);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--color-text-muted) !important;
+    opacity: 0.85;
+  }
+
+  [dir="rtl"] html,
+  [dir="rtl"] body,
+  [lang="ar"] html,
+  [lang="ar"] body {
+    font-family: 'Tajawal', var(--font-sans);
+  }
+}
+
+/* Marquee continuous scroll animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-rtl {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(50%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 28s linear infinite;
+}
+
+[dir="rtl"] .animate-marquee {
+  animation: marquee-rtl 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Starburst Discount Stamp */
+.discount-burst {
+  position: relative;
+  background: var(--color-discount-stamp);
+  color: #fff;
+  clip-path: polygon(
+    50% 0%, 63% 13%, 81% 6%, 86% 24%, 100% 29%, 95% 47%,
+    100% 65%, 85% 73%, 81% 91%, 63% 86%, 50% 100%, 37% 86%,
+    19% 91%, 15% 73%, 0% 65%, 5% 47%, 0% 29%, 14% 24%,
+    19% 6%, 37% 13%
+  );
+}
+
+/* Clean scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Floating Food Hero Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+

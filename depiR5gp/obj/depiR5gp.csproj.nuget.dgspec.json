@@ -1,21 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/depiR5gp.csproj": {}
+    "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/depiR5gp.csproj": {}
   },
   "projects": {
-    "/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/depiR5gp.csproj": {
+    "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/depiR5gp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/depiR5gp.csproj",
+        "projectUniqueName": "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/depiR5gp.csproj",
         "projectName": "depiR5gp",
-        "projectPath": "/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/depiR5gp.csproj",
-        "packagesPath": "/home/epic_dev/.local/share/dotnet/.nuget/packages/",
-        "outputPath": "/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/obj/",
+        "projectPath": "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/depiR5gp.csproj",
+        "packagesPath": "/tmp/dotnet/.nuget/packages/",
+        "outputPath": "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/obj/",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
-          "/home/epic_dev/.local/share/dotnet/.nuget/NuGet/NuGet.Config"
+          "/tmp/dotnet/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"

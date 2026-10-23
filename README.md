@@ -97,3 +97,70 @@ When you are ready to write code, follow this exact workflow:
    ```
 5. **Open a Pull Request:**
    Go to GitHub, open a PR from `feature/my-awesome-feature` into `main`, request review, and merge it once approved!
+
+---
+
+## 🚀 Running the Project in Development
+
+The project uses **ASP.NET Core MVC (.NET 10)** paired with **Tailwind CSS v4 Standalone CLI** and **Alpine.js**. Razor views automatically hot-reload and Tailwind scans all `.cshtml` and `.js` files for class changes.
+
+### Initial Frontend Setup (First Time Only)
+Navigate into the web application folder and install the local Tailwind CLI and dev tools:
+```bash
+cd depiR5gp
+npm install
+```
+*(Note: Zero CDNs are used. Tailwind CLI, Alpine.js, and the Lucide SVG sprite are 100% self-hosted inside `wwwroot/`)*.
+
+---
+
+### Running Locally (Two Ways)
+
+#### Option 1: Single-Command Concurrent Watch (Recommended)
+Run both the .NET server with hot-reload and the Tailwind CSS file watcher simultaneously in a single terminal:
+```bash
+cd depiR5gp
+npm run dev
+```
+This runs:
+- `[dotnet]` → `dotnet watch run` (ASP.NET Core with Hot Reload)
+- `[tailwind]` → `@tailwindcss/cli -i ./wwwroot/css/input.css -o ./wwwroot/css/site.css --watch`
+
+Open your browser at:
+👉 `http://localhost:5249` or `https://localhost:7101`
+
+---
+
+#### Option 2: Separate Terminals
+If you prefer keeping your build logs separate:
+
+**Terminal 1: Start Tailwind CSS Watcher**
+```bash
+cd depiR5gp
+npm run css:watch
+```
+
+**Terminal 2: Launch ASP.NET Core MVC**
+```bash
+cd depiR5gp
+dotnet watch run
+```
+
+---
+
+### Production Build / CI/CD Deployment
+For production builds (Azure App Service / GitHub Actions), compile the minified stylesheet before publishing:
+```bash
+cd depiR5gp
+npm run css:build
+dotnet publish -c Release -o ./publish
+```
+
+---
+
+## 🧭 Architecture & Navigation Blueprint
+
+- **Client-Side Routing:** The frontend mirrors the prototype's instant routing via hash fragments (`#home`, `#dishes`, `#dish/{id}`, `#chefs`, `#chef/{id}`, `#cart`, `#checkout`, `#orders`, `#profile`, `#admin`, `#support`, `#style-guide`, `#ai-assistant`). All screen partials are located under `Views/*/Partials/` and orchestrated in `Views/Home/Index.cshtml`.
+- **State & Localization:** Global state (language, RTL direction, dark mode, role switcher, cart storage, and toasts) is managed through `wwwroot/js/store.js` via Alpine.js (`$store.app`).
+- **Icons:** 66 local SVG vector symbols in `wwwroot/icons/sprite.svg` invoked cleanly via `<svg><use href="/icons/sprite.svg#icon-name"></use></svg>`.
+- **Backend Data-Binding Notes:** All views contain explicit, granular `<!-- TODO [Backend]: ... -->` markers indicating where to bind Entity Framework Core queries, ASP.NET Core Identity authentication, and SignalR real-time hubs.

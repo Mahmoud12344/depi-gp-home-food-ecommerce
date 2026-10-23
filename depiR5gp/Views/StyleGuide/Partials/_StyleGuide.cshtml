@@ -1,0 +1,599 @@
+<!-- Views/StyleGuide/Partials/_StyleGuide.cshtml -->
+<!-- Source: home_chef/src/pages/StyleGuidePage.tsx -->
+<!-- Complete Banno Bakery Design System & Style Guide Specification -->
+
+<div x-data="{
+    dishCardViewMode: 'grid',
+    colorTokens: [
+        { name: 'Primary Brown', cssVar: '--color-primary', hex: '#7d4630', description: 'Main brand color for buttons, announcement bar, prices, active tabs', textColor: 'text-white' },
+        { name: 'Primary Hover', cssVar: '--color-primary-hover', hex: '#673522', description: 'Hover and active button states', textColor: 'text-white' },
+        { name: 'Primary Light Tint', cssVar: '--color-primary-light', hex: '#f5ebe6', description: 'Selected option pills, subtle highlights', textColor: 'text-[var(--color-primary)]' },
+        { name: 'Page Background', cssVar: '--color-bg', hex: '#f7f7f3', description: 'Warm off-white base page background', textColor: 'text-[var(--color-text)]', border: true },
+        { name: 'Card Background', cssVar: '--color-card-bg', hex: '#ffffff', description: 'Pure white background for product and chef cards', textColor: 'text-[var(--color-text)]', border: true },
+        { name: 'Dark Text', cssVar: '--color-text', hex: '#2d2a28', description: 'High-contrast typography for headings and prices', textColor: 'text-white' },
+        { name: 'Muted Gray Text', cssVar: '--color-text-muted', hex: '#78736d', description: 'Subtitles, secondary labels, review counts, breadcrumbs', textColor: 'text-white' },
+        { name: 'SALE Red Tag', cssVar: '--color-sale', hex: '#d9383a', description: 'Red badge on sale items and promotion tags', textColor: 'text-white' },
+        { name: 'Discount Stamp Orange', cssVar: '--color-discount-stamp', hex: '#d96224', description: 'Starburst 12-point discount stamp from Banno banner', textColor: 'text-white' },
+        { name: 'Rating Gold Star', cssVar: '--color-star', hex: '#e5a524', description: 'Verified reviews and customer ratings', textColor: 'text-neutral-900' },
+        { name: 'Secondary Button Dark', cssVar: '--color-secondary-btn', hex: '#333333', description: 'Card hover action buttons and secondary checkout actions', textColor: 'text-white' },
+        { name: 'Border Warm Neutral', cssVar: '--color-border', hex: '#e6e2dd', description: 'Card outlines, table dividers, input borders', textColor: 'text-[var(--color-text)]', border: true }
+    ],
+    sampleAvailableDish: {
+        id: 'dish-1',
+        name: 'Baladi Duck Molokhia with Vermicelli Rice',
+        nameAr: 'ملوخية بالبط البلدي مع أرز بالشعرية',
+        price: 240,
+        originalPrice: 280,
+        rating: 4.9,
+        reviewCount: 48,
+        prepTimeMinutes: 45,
+        kitchenName: 'Amina\'s Heritage Kitchen',
+        kitchenNameAr: 'مطبخ أمينة التراثي',
+        category: 'Traditional Egyptian',
+        pickupArea: 'Maadi, Cairo',
+        isAvailable: true,
+        isSale: true,
+        discountPercentage: 15,
+        image: 'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80',
+        description: 'Minced fresh molokhia leaves whipped with golden baladi garlic and coriander ta\'sheya, paired with roasted heritage duck and Egyptian vermicelli rice.'
+    },
+    sampleUnavailableDish: {
+        id: 'dish-5',
+        name: 'Baladi Charcoal Hawawshi Trio',
+        nameAr: 'حواوشي بلدي على الفحم (٣ رغيف)',
+        price: 180,
+        originalPrice: 210,
+        rating: 4.8,
+        reviewCount: 39,
+        prepTimeMinutes: 30,
+        kitchenName: 'Hany\'s Gourmet Grills',
+        kitchenNameAr: 'مشويات هاني الفاخرة',
+        category: 'Grills & Hawawshi',
+        pickupArea: 'Zamalek, Cairo',
+        isAvailable: false,
+        isSale: false,
+        discountPercentage: 0,
+        image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&auto=format&fit=crop&q=80',
+        description: 'Crisp artisanal baladi bread stuffed with spiced Egyptian minced beef and char-grilled over lump charcoal.'
+    },
+    sampleChef: {
+        id: 'chef-1',
+        chefName: 'Amina Mansour',
+        chefNameAr: 'أمينة منصور',
+        kitchenName: 'Amina\'s Heritage Kitchen',
+        kitchenNameAr: 'مطبخ أمينة التراثي',
+        photo: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600&auto=format&fit=crop&q=80',
+        rating: 4.9,
+        reviewCount: 128,
+        specialties: ['Molokhia', 'Baladi Duck', 'Feteer Meshaltet', 'Mahshi'],
+        specialtiesAr: ['ملوخية بالبط', 'فطير مشلتت', 'محاشي مشكلة'],
+        pickupArea: 'Degla, Maadi',
+        isVerified: true,
+        bio: 'Cooking heritage Egyptian family recipes passed down through three generations using 100% baladi ghee.',
+        bioAr: 'طهي منزلي أصيل موروث عبر ٣ أجيال، نستخدم السمن البلدي الفلاحي النقي ١٠٠٪ واللحوم الطازجة يومياً.'
+    }
+}" class="min-h-screen pb-20">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative bg-gradient-to-r from-[var(--color-primary-light)] via-[var(--color-bg)] to-[var(--color-primary-light)] dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 border-b border-[var(--color-border)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto space-y-2">
+            <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 flex-wrap">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#chevron-right"></use>
+                </svg>
+                <span class="text-[var(--color-primary)] font-semibold" x-text="$store.app.language === 'ar' ? 'دليل التصميم' : 'Design System & Style Guide'">Design System & Style Guide</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                x-text="$store.app.language === 'ar' ? 'المرحلة ١: دليل التصميم ورموز النظام' : 'Phase 1: Design Tokens & Shared Layout'">
+                Phase 1: Design Tokens & Shared Layout
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-3xl"
+               x-text="$store.app.language === 'ar' ? 'المكتبة المرجعية المستخلصة من هوية Banno Bakery، متوافقة مع متطلبات الـ ASP.NET Core MVC Razor Views' : 'Visual design system extracted directly from Banno Bakery theme, prepared for ASP.NET Core MVC Razor views conversion.'">
+                Visual design system extracted directly from Banno Bakery theme, prepared for ASP.NET Core MVC Razor views conversion.
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-16">
+        <!-- Phase 1 Overview Callout -->
+        <section class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-sm p-6 sm:p-8 shadow-xs">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="space-y-2 max-w-3xl">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200 text-xs font-bold uppercase tracking-wider">
+                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
+                        <span>Phase 1 Verification Milestone</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'الهوية البصرية والمكونات المشتركة' : 'Banno Theme Visual Foundation'">
+                        Banno Theme Visual Foundation
+                    </h2>
+                    <p class="text-xs sm:text-sm text-[var(--color-text-muted)] leading-relaxed"
+                       x-text="$store.app.language === 'ar' ? 'تم تطبيق جميع عناصر الهوية البصرية من لقطات الشاشة: شريط الإعلانات البني المتحرك، ترويسة الموقع مع اللوجو والأزرار الدائرية، خط Jost وTajawal العربي، أزرار الإجراءات السريعة الداكنة المربعة عند التمرير، وشارات الحالات السبع لدورة حياة الطلب.' : 'Complete implementation of the Banno Bakery visual language: marquee announcement bar, white header with centered logo and circular badges, Jost & Tajawal fonts, brown primary (#7d4630) buttons with uppercase tracking, dark square hover actions, and bilingual RTL support.'">
+                        Complete implementation of the Banno Bakery visual language: marquee announcement bar, white header with centered logo and circular badges, Jost & Tajawal fonts, brown primary (#7d4630) buttons with uppercase tracking, dark square hover actions, and bilingual RTL support.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <button @@click="$store.app.toggleLanguage()"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors flex items-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#globe"></use></svg>
+                        <span x-text="$store.app.language === 'en' ? 'Switch to Arabic (RTL)' : 'التبديل إلى الإنجليزية'"></span>
+                    </button>
+
+                    <button @@click="$store.app.toggleTheme()"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
+                            x-text="$store.app.theme === 'light' ? 'Dark Theme' : 'Light Theme'">
+                        Dark Theme
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1. Design Tokens: Colors & CSS Variables -->
+        <section class="space-y-6">
+            <div class="flex items-baseline justify-between border-b border-[var(--color-border)] pb-3">
+                <div>
+                    <span class="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-widest">
+                        Section 01
+                    </span>
+                    <h2 class="text-lg sm:text-xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        Color Palette & CSS Variables
+                    </h2>
+                </div>
+                <span class="text-xs text-[var(--color-text-muted)] font-mono">
+                    Root CSS custom properties
+                </span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                <template x-for="(token, idx) in colorTokens" :key="idx">
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-sm overflow-hidden p-3 shadow-2xs flex flex-col justify-between">
+                        <div>
+                            <div class="w-full h-16 rounded-xs mb-3 flex items-end justify-between p-2 font-mono text-[10px]"
+                                 :class="[token.border ? 'border border-neutral-300' : '', token.textColor]"
+                                 :style="`backgroundColor: var(${token.cssVar})`">
+                                <span class="font-bold" x-text="token.hex"></span>
+                                <span class="opacity-80 font-sans text-[9px] uppercase">Swatch</span>
+                            </div>
+                            <h3 class="text-xs font-bold text-[var(--color-text)]" x-text="token.name"></h3>
+                            <code class="text-[10px] text-[var(--color-primary)] font-mono block mt-0.5" x-text="token.cssVar"></code>
+                        </div>
+                        <p class="text-[11px] text-[var(--color-text-muted)] mt-2 leading-tight" x-text="token.description"></p>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <!-- 2. Typography Hierarchy -->
+        <section class="space-y-6">
+            <div class="flex items-baseline justify-between border-b border-[var(--color-border)] pb-3">
+                <div>
+                    <span class="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-widest">
+                        Section 02
+                    </span>
+                    <h2 class="text-lg sm:text-xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        Typography System (Jost & Tajawal)
+                    </h2>
+                </div>
+                <span class="text-xs text-[var(--color-text-muted)]">
+                    Headings uppercase · Tight letter spacing
+                </span>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-sm p-6 sm:p-8 space-y-6">
+                <div class="space-y-1 border-b border-[var(--color-border-light)] pb-4">
+                    <span class="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest">
+                        Hero Heading 1 (Uppercase, Bold, Tight Tracking)
+                    </span>
+                    <h1 class="text-2xl sm:text-4xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        WE MAKE LIFE SWEET & AUTHENTIC
+                    </h1>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-[var(--color-text)] font-sans">
+                        نصنع أشهى الوجبات المنزلية بأيدي طهاة الحي
+                    </h1>
+                </div>
+
+                <div class="space-y-1 border-b border-[var(--color-border-light)] pb-4">
+                    <span class="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest">
+                        Section Heading 2 (Uppercase)
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        POPULAR EGYPTIAN HOME SPECIALS
+                    </h2>
+                </div>
+
+                <div class="space-y-1 border-b border-[var(--color-border-light)] pb-4">
+                    <span class="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest">
+                        Kicker & Category Subtitle
+                    </span>
+                    <p class="text-xs uppercase font-medium text-[var(--color-text-muted)] tracking-wider">
+                        Egyptian Traditional / <span class="text-[var(--color-primary)] font-bold">Chef Amina Heritage Kitchen</span>
+                    </p>
+                </div>
+
+                <div class="space-y-1">
+                    <span class="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest">
+                        Body Copy (Readable, Warm Contrast)
+                    </span>
+                    <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-2xl leading-relaxed">
+                        All meals are prepared to order in inspected domestic kitchens across Cairo and Giza. We use certified butchery, pure country butter, and fresh seasonal vegetables with direct kitchen counter pickup.
+                    </p>
+                    <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-2xl leading-relaxed mt-2 font-sans">
+                        يتم إعداد جميع الوجبات طازجة بناءً على طلبك في مطابخ منزلية معتمدة، باستخدام السمن البلدي الطبيعي وأجود اللحوم البلدية بدون أي إضافات صناعية.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Button Matrix -->
+        <section class="space-y-6">
+            <div class="flex items-baseline justify-between border-b border-[var(--color-border)] pb-3">
+                <div>
+                    <span class="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-widest">
+                        Section 03
+                    </span>
+                    <h2 class="text-lg sm:text-xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        Button Matrix & Interactive States
+                    </h2>
+                </div>
+                <span class="text-xs text-[var(--color-text-muted)]">
+                    Solid brown · Dark grey · Outline · Soft shadow
+                </span>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-sm p-6 sm:p-8 space-y-8">
+                <!-- Variants -->
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">
+                        Variants (Standard Size)
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-colors cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'شراء الآن' : 'Shop Now / Primary'">Shop Now / Primary</span>
+                        </button>
+                        <button class="bg-[var(--color-secondary-btn)] hover:bg-black text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-colors cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'زر ثانوي داكن' : 'Buy It Now / Secondary'">Buy It Now / Secondary</span>
+                        </button>
+                        <button class="border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-[var(--color-text)] text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-colors cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'إضافة للسلة' : 'Add to Cart / Outline'">Add to Cart / Outline</span>
+                        </button>
+                        <button class="text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-subtle)] text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-colors cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'زر شفاف' : 'Ghost Action'">Ghost Action</span>
+                        </button>
+                        <button class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-colors cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'إلغاء الطلب' : 'Cancel Order'">Cancel Order</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sizes -->
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">
+                        Sizes (sm, md, lg)
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer">
+                            Small Button
+                        </button>
+                        <button class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-colors cursor-pointer">
+                            Medium (Default)
+                        </button>
+                        <button class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-colors cursor-pointer">
+                            Large Hero Button
+                        </button>
+                    </div>
+                </div>
+
+                <!-- States: Loading & Disabled -->
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">
+                        States (Loading & Disabled)
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button class="bg-[var(--color-primary)] text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full opacity-80 cursor-wait flex items-center gap-2" disabled>
+                            <svg class="animate-spin -ms-1 me-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span>Placing Order</span>
+                        </button>
+                        <button class="border border-[var(--color-border)] text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full opacity-80 cursor-wait flex items-center gap-2" disabled>
+                            <svg class="animate-spin -ms-1 me-2 h-4 w-4 text-neutral-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span>Updating Cart</span>
+                        </button>
+                        <button class="bg-[var(--color-primary)] text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full opacity-50 cursor-not-allowed" disabled>
+                            Disabled Solid
+                        </button>
+                        <button class="border border-[var(--color-border)] text-[var(--color-text-muted)] text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full opacity-50 cursor-not-allowed" disabled>
+                            Disabled Outline
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Badges & Order Lifecycle Statuses -->
+        <section class="space-y-6">
+            <div class="flex items-baseline justify-between border-b border-[var(--color-border)] pb-3">
+                <div>
+                    <span class="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-widest">
+                        Section 04
+                    </span>
+                    <h2 class="text-lg sm:text-xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        Badges & Order Lifecycle Statuses
+                    </h2>
+                </div>
+                <span class="text-xs text-[var(--color-text-muted)]">
+                    Pending → Accepted → Preparing → Ready → Completed
+                </span>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-sm p-6 sm:p-8 space-y-6">
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">
+                        The 7 Complete Order Lifecycle States
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <span class="inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border bg-amber-100 text-amber-950 border-amber-300 dark:bg-amber-950/80 dark:text-amber-100 dark:border-amber-700 px-3 py-1 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            <span>Pending</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border bg-blue-100 text-blue-950 border-blue-300 dark:bg-blue-950/80 dark:text-blue-100 dark:border-blue-700 px-3 py-1 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            <span>Accepted</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border bg-purple-100 text-purple-950 border-purple-300 dark:bg-purple-950/80 dark:text-purple-100 dark:border-purple-700 px-3 py-1 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>
+                            <span>Preparing</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border bg-emerald-100 text-emerald-950 border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-100 dark:border-emerald-700 px-3 py-1 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            <span>Ready</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border bg-teal-100 text-teal-950 border-teal-300 dark:bg-teal-950/80 dark:text-teal-100 dark:border-teal-700 px-3 py-1 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            <span>Completed</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border bg-rose-100 text-rose-950 border-rose-300 dark:bg-rose-950/80 dark:text-rose-100 dark:border-rose-700 px-3 py-1 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            <span>Cancelled</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border bg-rose-100 text-rose-950 border-rose-300 dark:bg-rose-950/80 dark:text-rose-100 dark:border-rose-700 px-3 py-1 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            <span>Rejected</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="border-t border-[var(--color-border-light)] pt-6">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">
+                        Commercial Badges & Discount Stamps
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-4">
+                        <span class="bg-[var(--color-sale)] text-white text-[11px] font-bold px-3 py-1 uppercase tracking-wider rounded-xs">
+                            SALE TAG
+                        </span>
+
+                        <div class="discount-burst w-12 h-12 flex items-center justify-center text-center shadow-xs select-none">
+                            <span class="text-[11px] font-bold leading-tight">
+                                38%<br />OFF
+                            </span>
+                        </div>
+
+                        <div class="discount-burst w-12 h-12 flex items-center justify-center text-center shadow-xs select-none">
+                            <span class="text-[11px] font-bold leading-tight">
+                                20%<br />OFF
+                            </span>
+                        </div>
+
+                        <span class="inline-flex items-center gap-1.5 text-xs font-medium bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1 rounded-full">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span>Verified Domestic Kitchen</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Product & Chef Components Showcase -->
+        <section class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-[var(--color-border)] pb-3 gap-2">
+                <div>
+                    <span class="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-widest">
+                        Section 05
+                    </span>
+                    <h2 class="text-lg sm:text-xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        Core Marketplace Components
+                    </h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-[var(--color-text-muted)]">View layout:</span>
+                    <button @@click="dishCardViewMode = 'grid'"
+                            class="text-xs px-2.5 py-1 rounded-xs uppercase font-semibold cursor-pointer"
+                            :class="dishCardViewMode === 'grid' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)]'">
+                        Grid (4 Col)
+                    </button>
+                    <button @@click="dishCardViewMode = 'list'"
+                            class="text-xs px-2.5 py-1 rounded-xs uppercase font-semibold cursor-pointer"
+                            :class="dishCardViewMode === 'list' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)]'">
+                        List View
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Dish Card: Available & On Sale -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] block mb-2">
+                        Dish Card (Available & Sale Tag)
+                    </span>
+                    @await Html.PartialAsync("~/Views/Shared/Partials/_DishCard.cshtml")
+                </div>
+
+                <!-- Dish Card: Unavailable -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] block mb-2">
+                        Dish Card (Unavailable & Greyed Out - SCRUM-127)
+                    </span>
+                    <div class="opacity-60 grayscale pointer-events-none">
+                        @await Html.PartialAsync("~/Views/Shared/Partials/_DishCard.cshtml")
+                    </div>
+                </div>
+
+                <!-- Chef Card -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] block mb-2">
+                        Chef Profile Card (SCRUM-116)
+                    </span>
+                    @await Html.PartialAsync("~/Views/Shared/Partials/_ChefCard.cshtml")
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Interactive Modal & Drawer Triggers -->
+        <section class="space-y-6">
+            <div class="flex items-baseline justify-between border-b border-[var(--color-border)] pb-3">
+                <div>
+                    <span class="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-widest">
+                        Section 06
+                    </span>
+                    <h2 class="text-lg sm:text-xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        Interactive Modals & Drawers
+                    </h2>
+                </div>
+                <span class="text-xs text-[var(--color-text-muted)]">
+                    Click to preview live overlays
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Trigger 1: Filter Drawer -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] p-4 rounded-sm flex flex-col justify-between">
+                    <div>
+                        <svg class="w-6 h-6 text-[var(--color-primary)] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sliders"></use></svg>
+                        <h3 class="text-xs font-bold uppercase text-[var(--color-text)]">
+                            Filter Slide-In Drawer
+                        </h3>
+                        <p class="text-[11px] text-[var(--color-text-muted)] mt-1 mb-4">
+                            Cuisines, area filters, and min/max price slider.
+                        </p>
+                    </div>
+                    <button @@click="$store.app.setFilterDrawerOpen(true)"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer">
+                        Open Filter Drawer
+                    </button>
+                </div>
+
+                <!-- Trigger 2: Options Dialog -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] p-4 rounded-sm flex flex-col justify-between">
+                    <div>
+                        <svg class="w-6 h-6 text-[var(--color-primary)] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#flame"></use></svg>
+                        <h3 class="text-xs font-bold uppercase text-[var(--color-text)]">
+                            Presets & Options Dialog
+                        </h3>
+                        <p class="text-[11px] text-[var(--color-text-muted)] mt-1 mb-4">
+                            Radio/checkbox presets, live pricing, and 0/200 note counter.
+                        </p>
+                    </div>
+                    <button @@click="$store.app.setOptionsModalDish(sampleAvailableDish)"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer">
+                        Open Options Dialog
+                    </button>
+                </div>
+
+                <!-- Trigger 3: Login Modal -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] p-4 rounded-sm flex flex-col justify-between">
+                    <div>
+                        <svg class="w-6 h-6 text-[var(--color-primary)] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#toggle-left"></use></svg>
+                        <h3 class="text-xs font-bold uppercase text-[var(--color-text)]">
+                            Login & Register Modal
+                        </h3>
+                        <p class="text-[11px] text-[var(--color-text-muted)] mt-1 mb-4">
+                            Tabs for Login / Register with inline validation.
+                        </p>
+                    </div>
+                    <button @@click="$store.app.setLoginModalOpen(true)"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer">
+                        Open Auth Modal
+                    </button>
+                </div>
+
+                <!-- Trigger 4: Cart Conflict Simulation -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] p-4 rounded-sm flex flex-col justify-between">
+                    <div>
+                        <svg class="w-6 h-6 text-amber-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
+                        <h3 class="text-xs font-bold uppercase text-[var(--color-text)]">
+                            One-Chef Cart Conflict
+                        </h3>
+                        <p class="text-[11px] text-[var(--color-text-muted)] mt-1 mb-4">
+                            Attempting to add a dish from Chef Hany when cart has Chef Amina.
+                        </p>
+                    </div>
+                    <button @@click="$store.app.addToCart(sampleUnavailableDish, 1, [], '')"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer">
+                        Trigger Cart Conflict
+                    </button>
+                </div>
+            </div>
+
+            <!-- Toast Triggers -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] p-5 rounded-sm">
+                <h3 class="text-xs font-bold uppercase text-[var(--color-text)] mb-2">
+                    System Toast Feedback Triggers
+                </h3>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button @@click="$store.app.showToast('success', 'Your order was accepted by the kitchen!')"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer">
+                        Success Toast
+                    </button>
+                    <button @@click="$store.app.showToast('error', 'Card payment simulation declined.')"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer">
+                        Error Toast
+                    </button>
+                    <button @@click="$store.app.showToast('warning', 'Order preparation begins in 10 minutes.')"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer">
+                        Warning Toast
+                    </button>
+                    <button @@click="$store.app.showToast('info', 'Customer Support replied to Case #CASE-7701.')"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer">
+                        Info Toast
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. ASP.NET Core MVC Razor Compatibility Notes -->
+        <section class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-sm p-6 sm:p-8 space-y-4">
+            <div class="flex items-center gap-2 text-[var(--color-primary)]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                <h3 class="text-sm font-bold uppercase tracking-wider">
+                    ASP.NET Core MVC Razor Views Implementation Mapping
+                </h3>
+            </div>
+            <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+                All HTML markup in this prototype follows semantic, clean element structures designed for direct mapping to Razor Views:
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono text-[var(--color-text)]">
+                <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xs border border-[var(--color-border-light)]">
+                    <span class="font-bold text-[var(--color-primary)]">Layout & Partials:</span>
+                    <ul class="mt-1 space-y-0.5 text-[11px] text-[var(--color-text-muted)]">
+                        <li>• `Views/Shared/_Layout.cshtml` → Header, Footer, Marquee, PrototypeBar</li>
+                        <li>• `Views/Shared/_DishCard.cshtml` → Reusable dish component</li>
+                        <li>• `Views/Shared/_ChefCard.cshtml` → Reusable chef card</li>
+                        <li>• `Views/Shared/_StatusBadge.cshtml` → Tag helper for OrderStatus</li>
+                    </ul>
+                </div>
+                <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xs border border-[var(--color-border-light)]">
+                    <span class="font-bold text-[var(--color-primary)]">CSS Architecture:</span>
+                    <ul class="mt-1 space-y-0.5 text-[11px] text-[var(--color-text-muted)]">
+                        <li>• Variables in `:root` and `[data-theme="dark"]` for instant ASP.NET bundle reuse</li>
+                        <li>• Logical CSS properties (`margin-inline-start`, `padding-inline`) for zero-duplication Arabic RTL</li>
+                        <li>• Standard forms with clean client-side validation attributes</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+

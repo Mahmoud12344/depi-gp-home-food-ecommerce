@@ -1,0 +1,10 @@
+@*
+  Reusable Sprite Icon Partial
+  Parameters passed via ViewData:
+  - Name: string (e.g. "chef-hat", "shopping-bag")
+  - Class: string (e.g. "w-5 h-5 text-white")
+*@
+<svg class="@(ViewData["Class"] ?? "w-4 h-4") shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <use href="#@ViewData["Name"]"></use>
+</svg>
+

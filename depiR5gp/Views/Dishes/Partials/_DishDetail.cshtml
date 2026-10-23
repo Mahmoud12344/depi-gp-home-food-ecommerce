@@ -1,0 +1,424 @@
+<!-- Views/Dishes/Partials/_DishDetail.cshtml -->
+<!-- Source: home_chef/src/pages/DishDetailPageV3.tsx & DishDetailPageV2.tsx -->
+<!-- TODO [Backend]: Bind dish model, dynamic reviews, and option groups from database -->
+
+<div x-data="{
+    dishId: 'dish-1',
+    activeImageIndex: 0,
+    lightboxOpen: false,
+    quantity: 1,
+    selectedOptions: {
+        'Duck Portion': [{ groupName: 'Duck Portion', valueName: 'Duck Thigh & Drumstick (ورك بط)', priceModifier: 0 }]
+    },
+    note: '',
+    activeAccordion: 'description',
+    dish: {
+        id: 'dish-1',
+        name: 'Baladi Duck Molokhia with Vermicelli Rice',
+        nameAr: 'ملوخية بالبط البلدي مع أرز بالشعرية',
+        price: 240,
+        originalPrice: 280,
+        rating: 4.9,
+        reviewCount: 48,
+        prepTimeMinutes: 45,
+        kitchenName: 'Amina\'s Heritage Kitchen',
+        kitchenNameAr: 'مطبخ أمينة التراثي',
+        category: 'Traditional Egyptian',
+        categoryAr: 'أكلات مصرية تقليدية',
+        pickupArea: 'Maadi, Cairo',
+        pickupAreaAr: 'المعادي، القاهرة',
+        address: 'Villa 14, Road 9, Degla, Maadi, Cairo',
+        isAvailable: true,
+        isSale: true,
+        discountPercentage: 15,
+        image: 'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80',
+        images: [
+            'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=1000&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=1000&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1544025162-d76694265947?w=1000&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1000&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1000&auto=format&fit=crop&q=80'
+        ],
+        description: 'Minced fresh molokhia leaves whipped with golden baladi garlic and coriander ta\'sheya, paired with roasted heritage duck and Egyptian vermicelli rice.',
+        descriptionAr: 'ملوخية خضراء طازجة مخروطة يدوياً مع طشة الثوم البلدي والكزبرة الجافة، تقدم مع نصف بطة محمرة في الفرن وأرز مصري بالشعرية.'
+    },
+    get isV2Gallery() {
+        return $store.app.currentRoute.startsWith('#dish-v2');
+    },
+    get allSelected() {
+        return Object.values(this.selectedOptions).flat();
+    },
+    get optionsExtra() {
+        return this.allSelected.reduce((sum, opt) => sum + (opt.priceModifier || 0), 0);
+    },
+    get unitPrice() {
+        return this.dish.price + this.optionsExtra;
+    },
+    get totalPrice() {
+        return this.unitPrice * this.quantity;
+    },
+    handleAddToCart() {
+        if (!this.dish.isAvailable) return;
+        $store.app.addToCart(this.dish, this.quantity, this.allSelected, this.note.trim());
+    },
+    handleBuyItNow() {
+        if (!this.dish.isAvailable) return;
+        const added = $store.app.addToCart(this.dish, this.quantity, this.allSelected, this.note.trim());
+        if (added) {
+            $store.app.navigate('#checkout');
+        }
+    }
+}"
+     class="w-full pb-36">
+
+    <!-- 1. Single 56px Breadcrumb Line -->
+    <div class="w-full h-14 min-h-[56px] bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] flex items-center">
+        <div class="max-w-[1600px] mx-auto px-[8px] w-full">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#chevron-right"></use>
+                </svg>
+                <a href="#dishes" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium"
+                   x-text="$store.app.language === 'ar' ? 'قائمة الأطباق' : 'Dishes'">Dishes</a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#chevron-right"></use>
+                </svg>
+                <span class="text-[var(--color-text)] font-semibold truncate max-w-[260px] sm:max-w-md"
+                      x-text="$store.app.language === 'ar' ? dish.nameAr : dish.name">
+                </span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Product Showcase Grid -->
+    <div class="w-full mx-auto pt-6 space-y-16"
+         style="padding-inline-start: 8px; padding-inline-end: 8px; maxWidth: 1600px;">
+
+        <!-- Conditional V2 3D Circular Drum Gallery if route is #dish-v2 -->
+        <template x-if="isV2Gallery">
+            <div class="mb-10">
+                <partial name="Partials/_Circular3DGallery" />
+            </div>
+        </template>
+
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,36.5%)_minmax(0,1fr)] items-start gap-16">
+            <!-- Left Column: Gallery Frame (Vertical Image Stack for V3/Default) -->
+            <div class="lg:sticky lg:top-24 self-start space-y-4">
+                <div class="relative w-full h-[540px] sm:h-[580px] flex items-center justify-center overflow-hidden bg-[var(--color-surface)] rounded-[24px] border border-[var(--color-border)] select-none shadow-sm"
+                     x-data="{
+                         isDragging: false,
+                         startY: 0,
+                         navigate(dir) {
+                             if (dir > 0) {
+                                 activeImageIndex = (activeImageIndex + 1) % dish.images.length;
+                             } else {
+                                 activeImageIndex = (activeImageIndex - 1 + dish.images.length) % dish.images.length;
+                             }
+                         },
+                         getCardStyle(idx) {
+                             const total = dish.images.length;
+                             let diff = idx - activeImageIndex;
+                             if (diff > total / 2) diff -= total;
+                             if (diff < -total / 2) diff += total;
+
+                             const stepY = 140;
+                             const step2Y = Math.round(stepY * 1.82);
+
+                             if (diff === 0) {
+                                 return { y: 0, scale: 1, opacity: 1, zIndex: 5, rotateX: 0, visible: true };
+                             } else if (diff === -1) {
+                                 return { y: -stepY, scale: 0.86, opacity: 0.65, zIndex: 4, rotateX: 7, visible: true };
+                             } else if (diff === -2) {
+                                 return { y: -step2Y, scale: 0.74, opacity: 0.35, zIndex: 3, rotateX: 13, visible: true };
+                             } else if (diff === 1) {
+                                 return { y: stepY, scale: 0.86, opacity: 0.65, zIndex: 4, rotateX: -7, visible: true };
+                             } else if (diff === 2) {
+                                 return { y: step2Y, scale: 0.74, opacity: 0.35, zIndex: 3, rotateX: -13, visible: true };
+                             } else {
+                                 return { y: diff > 0 ? 360 : -360, scale: 0.62, opacity: 0, zIndex: 0, rotateX: diff > 0 ? -16 : 16, visible: false };
+                             }
+                         }
+                     }"
+                     @@pointerdown="isDragging = true; startY = $event.clientY; $el.setPointerCapture($event.pointerId)"
+                     @@pointerup="if (!isDragging) return; isDragging = false; const dy = $event.clientY - startY; if (dy < -35) navigate(1); else if (dy > 35) navigate(-1);"
+                     @@wheel.passive="const now = Date.now(); if (now - ($el._lastWheel || 0) > 350) { $el._lastWheel = now; if ($event.deltaY > 0) navigate(1); else if ($event.deltaY < 0) navigate(-1); }">
+
+                    <!-- Ambient Glow -->
+                    <div class="pointer-events-none absolute inset-0">
+                        <div class="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-primary)]/8 blur-3xl"></div>
+                    </div>
+
+                    <!-- 3D Card Stack Container -->
+                    <div class="relative flex items-center justify-center w-full"
+                         style="perspective: 1200px; width: 360px; max-width: 100%; height: 500px;">
+                        
+                        <template x-for="(imgSrc, idx) in dish.images" :key="idx">
+                            <div class="absolute cursor-grab active:cursor-grabbing transition-all duration-400 ease-out"
+                                 :style="(() => {
+                                     const s = getCardStyle(idx);
+                                     return `transform: translate3d(0, ${s.y}px, 0) scale(${s.scale}) rotateX(${s.rotateX}deg); opacity: ${s.opacity}; z-index: ${s.zIndex}; visibility: ${s.visible ? 'visible' : 'hidden'}; pointer-events: ${s.zIndex === 5 ? 'auto' : 'none'}; transform-style: preserve-3d;`;
+                                 })()">
+                                <div class="relative h-[320px] sm:h-[370px] w-[300px] sm:w-[360px] overflow-hidden rounded-[24px] bg-[var(--color-card-bg)] border border-[var(--color-border)] shadow-xl">
+                                    <div class="absolute inset-0 z-10 rounded-[24px] bg-gradient-to-b from-white/10 via-transparent to-black/25 pointer-events-none"></div>
+                                    <img :src="imgSrc"
+                                         :alt="dish.name + ' Photo ' + (idx + 1)"
+                                         class="object-cover w-full h-full pointer-events-none select-none" />
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Navigation Dots -->
+                    <div class="absolute end-4 sm:end-6 top-1/2 flex -translate-y-1/2 flex-col gap-2 z-20">
+                        <template x-for="(imgSrc, idx) in dish.images" :key="'dot-' + idx">
+                            <button type="button"
+                                    @@click="activeImageIndex = idx"
+                                    class="w-2.5 h-2.5 rounded-full transition-all cursor-pointer"
+                                    :class="activeImageIndex === idx ? 'bg-[var(--color-primary)] scale-125' : 'bg-neutral-400/40 hover:bg-neutral-400'"></button>
+                        </template>
+                    </div>
+
+                    <!-- SALE tag -->
+                    <template x-if="dish.isSale">
+                        <span class="absolute top-4 start-4 bg-[#dc2626] text-white text-[13px] font-bold px-3 py-1 uppercase tracking-wider rounded-full shadow-md z-30 pointer-events-none">
+                            SALE
+                        </span>
+                    </template>
+
+                    <!-- Discount stamp -->
+                    <template x-if="dish.discountPercentage">
+                        <div class="absolute top-4 end-16 sm:end-20 discount-burst bg-[#f97316] text-white w-14 h-14 flex items-center justify-center text-center shadow-lg select-none z-30 pointer-events-none">
+                            <span class="text-[13px] font-bold leading-tight">
+                                <span x-text="dish.discountPercentage + '%'"></span><br />OFF
+                            </span>
+                        </div>
+                    </template>
+
+                    <!-- Top-Right Expand Icon -->
+                    <button type="button"
+                            @@click="lightboxOpen = true"
+                            class="absolute top-4 end-4 p-2.5 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-xs transition-colors cursor-pointer z-30 shadow-md"
+                            aria-label="Expand photo">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#maximize-2"></use></svg>
+                    </button>
+                </div>
+
+                <!-- 64px Thumbnail Row Below -->
+                <div class="flex items-center gap-3 overflow-x-auto py-1 px-0.5 no-scrollbar">
+                    <template x-for="(imgSrc, idx) in dish.images" :key="idx">
+                        <button type="button"
+                                @@click="activeImageIndex = idx"
+                                :class="activeImageIndex === idx ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/30 scale-102 shadow-sm' : 'border-[var(--color-border)] opacity-70 hover:opacity-100 hover:border-neutral-400'"
+                                class="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden border-2 transition-all cursor-pointer">
+                            <img :src="imgSrc" class="w-full h-full object-cover" />
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Right Column: Customization & Details -->
+            <div class="space-y-6">
+                <div>
+                    <!-- Category & Chef Kicker -->
+                    <!-- TODO [Backend]: Bind Dish category and Chef Kitchen profile from database (Model.Dish) -->
+                    <div class="flex items-center gap-2 text-[13px] text-[var(--color-text-muted)] mb-2 font-medium">
+                        <span x-text="$store.app.language === 'ar' ? dish.categoryAr : dish.category"></span>
+                        <span>·</span>
+                        <a href="#chef/chef-1" class="text-[var(--color-primary)] font-bold hover:underline cursor-pointer"
+                           x-text="$store.app.language === 'ar' ? dish.kitchenNameAr : dish.kitchenName"></a>
+                    </div>
+
+                    <!-- Title -->
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight text-[var(--color-text)] [text-wrap:balance]"
+                        x-text="$store.app.language === 'ar' ? dish.nameAr : dish.name">
+                    </h1>
+
+                    <!-- Star Rating with partial fill -->
+                    <div class="flex items-center gap-2.5 mt-3">
+                        <div class="flex items-center text-[var(--color-star)]">
+                            <template x-for="i in 5" :key="i">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            </template>
+                        </div>
+                        <span class="text-[13px] text-[var(--color-text-muted)] font-semibold">
+                            4.9 (48 <span x-text="$store.app.language === 'ar' ? 'تقييم زبائن' : 'reviews'">reviews</span>)
+                        </span>
+                    </div>
+
+                    <!-- Price display -->
+                    <div class="flex items-baseline gap-3 my-4">
+                        <span class="text-2xl sm:text-3xl font-bold text-[var(--color-primary)]"
+                              x-text="unitPrice.toFixed(2) + ' EGP'"></span>
+                        <span class="text-[14px] text-[var(--color-text-muted)] line-through">280.00 EGP</span>
+                    </div>
+
+                    <!-- Availability & Prep Info -->
+                    <div class="flex flex-wrap items-center gap-4 text-[13px] text-[var(--color-text-muted)] pb-4 border-b border-[var(--color-border)]">
+                        <span class="flex items-center gap-1.5 font-medium">
+                            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                            <span>45 <span x-text="$store.app.language === 'ar' ? 'دقيقة تحضير يدوي' : 'mins fresh cook time'">mins fresh cook time</span></span>
+                        </span>
+                        <span>·</span>
+                        <span class="flex items-center gap-1.5 font-medium">
+                            <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? dish.pickupAreaAr : dish.pickupArea"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Option Groups Preset -->
+                <!-- TODO [Backend]: Iterate through Model.Dish.OptionGroups (portions, extra sides, spices) and bind price modifiers -->
+                <div class="space-y-6 pt-1">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between text-[13px]">
+                            <span class="font-bold uppercase tracking-wider text-[var(--color-text)]"
+                                  x-text="$store.app.language === 'ar' ? 'قطعة البط المفضلة:' : 'Duck Portion:'">Duck Portion:</span>
+                            <span class="text-[13px] text-[var(--color-primary)] font-bold uppercase"
+                                  x-text="$store.app.language === 'ar' ? 'إجباري' : 'Required'">Required</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="w-full flex items-center justify-between p-3.5 rounded-xl text-[13px] border border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 text-[var(--color-text)] shadow-xs font-semibold">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-5 h-5 rounded-full border border-[var(--color-primary)] bg-[var(--color-primary)] text-white flex items-center justify-center">
+                                        <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check"></use></svg>
+                                    </span>
+                                    <span x-text="$store.app.language === 'ar' ? 'ورك بط بلدي محمر' : 'Duck Thigh & Drumstick'">Duck Thigh & Drumstick</span>
+                                </div>
+                                <span class="text-[var(--color-text-muted)] text-[13px]" x-text="$store.app.language === 'ar' ? 'مشمول' : 'Included'">Included</span>
+                            </div>
+                            <div class="w-full flex items-center justify-between p-3.5 rounded-xl text-[13px] border border-[var(--color-border)] bg-[var(--color-card-bg)] text-[var(--color-text)] font-medium">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-5 h-5 rounded-full border border-[var(--color-border)] bg-transparent"></span>
+                                    <span x-text="$store.app.language === 'ar' ? 'صدر بط بلدي كبير' : 'Whole Duck Breast'">Whole Duck Breast</span>
+                                </div>
+                                <span class="text-[var(--color-primary)] font-semibold text-[13px]">+35.00 EGP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Special Instructions Note -->
+                <div class="space-y-1.5 pt-2">
+                    <div class="flex items-center justify-between text-[13px]">
+                        <label for="chef-special-note-v3" class="font-bold uppercase tracking-wider text-[var(--color-text)]"
+                               x-text="$store.app.language === 'ar' ? 'ملاحظة خاصة للشيف' : 'Special Kitchen Instructions'">
+                            Special Kitchen Instructions
+                        </label>
+                        <span class="font-mono text-[13px] text-[var(--color-text-muted)]" x-text="note.length + '/200'">0/200</span>
+                    </div>
+                    <textarea id="chef-special-note-v3"
+                              rows="2"
+                              maxlength="200"
+                              x-model="note"
+                              :placeholder="$store.app.language === 'ar' ? 'مثال: بدون بصل، الطشة خفيفة، حار جداً، تغليف محكم للاستلام...' : 'e.g. Extra crispy duck skin, mild spice, hot packing for pickup...'"
+                              class="w-full text-[13px] p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-2xl focus:border-[var(--color-primary)] focus:outline-hidden resize-none font-medium"></textarea>
+                </div>
+
+                <!-- Quantity Stepper & Buttons -->
+                <!-- TODO [Backend]: POST /api/cart or CartController.Add(dishId, quantity, selectedOptionIds, notes) -->
+                <div class="space-y-3 pt-3">
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center border border-[var(--color-border)] rounded-full bg-white dark:bg-neutral-800 p-1">
+                            <button type="button" @@click="quantity = Math.max(1, quantity - 1)" class="w-8 h-8 rounded-full flex items-center justify-center font-bold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer text-[14px]">−</button>
+                            <span class="w-10 text-center font-bold text-[13px]" x-text="quantity">1</span>
+                            <button type="button" @@click="quantity = quantity + 1" class="w-8 h-8 rounded-full flex items-center justify-center font-bold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer text-[14px]">+</button>
+                        </div>
+
+                        <button type="button"
+                                @@click="handleAddToCart()"
+                                class="flex-1 inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-[13px] px-6 py-2.5 gap-2 shadow-xs bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white focus-visible:outline-[var(--color-primary)]">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                            <span><span x-text="$store.app.language === 'ar' ? 'إضافة للسلة' : 'Add to Cart'">Add to Cart</span> · <span x-text="totalPrice.toFixed(2) + ' EGP'"></span></span>
+                        </button>
+
+                        <button type="button"
+                                @@click="$store.app.toggleFavorite('dish-1')"
+                                class="p-3 border border-[var(--color-border)] hover:border-rose-400 rounded-full transition-colors cursor-pointer text-[var(--color-text)] hover:text-rose-500">
+                            <svg class="w-5 h-5" :class="$store.app.isFavorite('dish-1') ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#heart"></use></svg>
+                        </button>
+                    </div>
+
+                    <button type="button"
+                            @@click="handleBuyItNow()"
+                            class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-[13px] px-6 py-3 gap-2 shadow-xs bg-[var(--color-secondary-btn)] text-white hover:bg-[var(--color-secondary-hover)] active:scale-[0.98] focus-visible:outline-neutral-700 hover:shadow-md">
+                        <span x-text="$store.app.language === 'ar' ? 'شراء فوري ومتابعة الدفع' : 'Buy It Now (Fast Checkout)'">Buy It Now (Fast Checkout)</span>
+                    </button>
+                </div>
+
+                <!-- Chef Kitchen Counter Info Box -->
+                <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] rounded-2xl p-4 flex items-center justify-between text-[13px]">
+                    <div class="space-y-0.5">
+                        <span class="font-bold text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? dish.kitchenNameAr : dish.kitchenName">Amina's Heritage Kitchen</span>
+                        <p class="text-[13px] text-[var(--color-text-muted)]" x-text="dish.address">Villa 14, Road 9, Degla, Maadi, Cairo</p>
+                    </div>
+                    <a href="#messages" class="text-[var(--color-primary)] hover:underline font-semibold flex items-center gap-1.5 cursor-pointer text-[13px]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#message-circle"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'محادثة' : 'Chat'">Chat</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordions -->
+        <div class="border-t border-[var(--color-border)] pt-8 space-y-4 max-w-4xl mx-auto">
+            <!-- Description -->
+            <div class="border border-[var(--color-border)] rounded-2xl overflow-hidden">
+                <button type="button"
+                        @@click="activeAccordion = (activeAccordion === 'description' ? '' : 'description')"
+                        class="w-full p-5 text-start font-bold uppercase tracking-wider text-[14px] flex items-center justify-between bg-[var(--color-card-bg)] cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'وصف الطبق والمكونات' : 'Dish Description & Ingredients'">Dish Description & Ingredients</span>
+                    <svg class="w-4 h-4 transition-transform" :class="activeAccordion === 'description' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-down"></use></svg>
+                </button>
+                <div x-show="activeAccordion === 'description'" class="p-5 pt-0 text-[13px] sm:text-sm text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-card-bg)] space-y-3">
+                    <p x-text="$store.app.language === 'ar' ? dish.descriptionAr : dish.description"></p>
+                    <ul class="list-disc list-inside space-y-1 text-[13px] pt-2">
+                        <li x-text="$store.app.language === 'ar' ? 'سمن بلدي طبيعي فلاحي 100%' : '100% pure Egyptian baladi ghee'">100% pure Egyptian baladi ghee</li>
+                        <li x-text="$store.app.language === 'ar' ? 'بهارات وتوابل محمصة ومطحونة طازجة' : 'Whole spices freshly toasted and ground in-house'">Whole spices freshly toasted and ground in-house</li>
+                        <li x-text="$store.app.language === 'ar' ? 'بدون أي مكسبات طعم أو مواد حافظة' : 'Zero artificial flavor enhancers or preservatives'">Zero artificial flavor enhancers or preservatives</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Kitchen Pickup Policies -->
+            <div class="border border-[var(--color-border)] rounded-2xl overflow-hidden">
+                <button type="button"
+                        @@click="activeAccordion = (activeAccordion === 'pickup' ? '' : 'pickup')"
+                        class="w-full p-5 text-start font-bold uppercase tracking-wider text-[14px] flex items-center justify-between bg-[var(--color-card-bg)] cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'معلومات الاستلام والضمان' : 'Kitchen Pickup & Food Safety Guarantee'">Kitchen Pickup & Food Safety Guarantee</span>
+                    <svg class="w-4 h-4 transition-transform" :class="activeAccordion === 'pickup' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-down"></use></svg>
+                </button>
+                <div x-show="activeAccordion === 'pickup'" class="p-5 pt-0 text-[13px] text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-card-bg)] space-y-2">
+                    <p x-text="$store.app.language === 'ar' ? 'الاستلام مباشر من شباك/بوابة مطبخ الشيف المحدد في المعادي. سيتم إرسال إشعار فوري عند خروج الوجبة من الفرن لتستلمها ساخنة وجاهزة.' : 'Direct counter pickup from the chef domestic kitchen. You will receive real-time notifications as soon as your meal is packed hot.'"></p>
+                    <p class="font-semibold text-[var(--color-primary)]"
+                       x-text="$store.app.language === 'ar' ? 'سياسة استرداد تركز على الزبون في حال وجود أي تأخير أو خلل.' : 'Customer-first refund policy supported by our customer service team.'"></p>
+                </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="border border-[var(--color-border)] rounded-2xl overflow-hidden">
+                <button type="button"
+                        @@click="activeAccordion = (activeAccordion === 'reviews' ? '' : 'reviews')"
+                        class="w-full p-5 text-start font-bold uppercase tracking-wider text-[14px] flex items-center justify-between bg-[var(--color-card-bg)] cursor-pointer">
+                    <span><span x-text="$store.app.language === 'ar' ? 'تقييمات الزبائن' : 'Customer Love & Reviews'">Customer Love & Reviews</span> (48)</span>
+                    <svg class="w-4 h-4 transition-transform" :class="activeAccordion === 'reviews' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-down"></use></svg>
+                </button>
+                <div x-show="activeAccordion === 'reviews'" class="p-5 pt-0 space-y-4 bg-[var(--color-card-bg)]">
+                    <div class="border border-[var(--color-border-light)] p-4 rounded-xl space-y-1">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-bold text-[var(--color-text)]">Karim El-Gohary</span>
+                            <span class="text-amber-500 font-bold">★★★★★</span>
+                        </div>
+                        <p class="text-xs text-[var(--color-text-muted)] italic leading-relaxed">
+                            “The Molokhia with duck was outstanding. Truly authentic grandmother style recipe with generous portions and hot pickup ready on the minute.”
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

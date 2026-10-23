@@ -1,0 +1,44 @@
+@*
+  Toast Container Component Partial
+  Source: home_chef/src/components/common/ToastContainer.tsx
+*@
+<div class="fixed bottom-20 end-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+     x-show="$store.app.toasts.length > 0"
+     style="display: none;">
+    <template x-for="toast in $store.app.toasts" :key="toast.id">
+        <div class="pointer-events-auto flex items-start gap-3 p-3.5 rounded-sm border shadow-lg transition-all duration-200 bg-white dark:bg-neutral-900"
+             :class="{
+                'border-emerald-200 dark:border-emerald-800': toast.type === 'success',
+                'border-rose-200 dark:border-rose-800': toast.type === 'error',
+                'border-blue-200 dark:border-blue-800': toast.type === 'info',
+                'border-amber-200 dark:border-amber-800': toast.type === 'warning'
+             }">
+            <template x-if="toast.type === 'success'">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+            </template>
+            <template x-if="toast.type === 'error'">
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-circle"></use></svg>
+            </template>
+            <template x-if="toast.type === 'info'">
+                <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#info"></use></svg>
+            </template>
+            <template x-if="toast.type === 'warning'">
+                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
+            </template>
+
+            <div class="flex-1 min-w-0">
+                <template x-if="toast.title">
+                    <h4 class="text-xs font-bold text-[var(--color-text)]" x-text="toast.title"></h4>
+                </template>
+                <p class="text-xs text-[var(--color-text)] leading-snug" x-text="toast.message"></p>
+            </div>
+
+            <button @@click="$store.app.dismissToast(toast.id)"
+                    class="text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer"
+                    aria-label="Dismiss toast">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+            </button>
+        </div>
+    </template>
+</div>
+
