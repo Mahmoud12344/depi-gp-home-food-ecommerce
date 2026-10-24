@@ -1,0 +1,71 @@
+<!-- Views/Shared/Partials/_BreadcrumbBanner.cshtml -->
+<!-- Source: home_chef/src/components/common/BreadcrumbBanner.tsx -->
+<!-- TODO [Backend]: Bind breadcrumb items and current page title dynamically -->
+
+@{
+    var title = ViewData["Title"]?.ToString();
+    var subtitle = ViewData["Subtitle"]?.ToString();
+    var singleLine = ViewData["SingleLine"] as bool? ?? false;
+}
+
+@if (singleLine || string.IsNullOrEmpty(title))
+{
+    <div class="w-full h-14 min-h-[56px] bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] flex items-center">
+        <div class="max-w-[1600px] mx-auto px-[8px] w-full">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#home"></use>
+                    </svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#chevron-right"></use>
+                </svg>
+
+                <span class="text-[var(--color-text)] font-semibold truncate max-w-[260px] sm:max-w-md">
+                    @(title ?? "Explore")
+                </span>
+            </nav>
+        </div>
+    </div>
+}
+else
+{
+    <section class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
+             style="background-image: radial-gradient(var(--color-primary) 1.5px, transparent 1.5px); background-size: 24px 24px;"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#home"></use>
+                    </svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#chevron-right"></use>
+                </svg>
+
+                <span class="text-[var(--color-text)] font-semibold truncate max-w-[260px] sm:max-w-md">
+                    @title
+                </span>
+            </nav>
+
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                @title
+            </h1>
+
+            @if (!string.IsNullOrEmpty(subtitle))
+            {
+                <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 max-w-2xl leading-relaxed">
+                    @subtitle
+                </p>
+            }
+        </div>
+    </section>
+}
+

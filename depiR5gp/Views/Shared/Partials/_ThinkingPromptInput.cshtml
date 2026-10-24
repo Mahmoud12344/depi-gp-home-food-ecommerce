@@ -1,0 +1,85 @@
+<!-- Views/Shared/Partials/_ThinkingPromptInput.cshtml -->
+<!-- Source: home_chef/components/ui/thinking-prompt-input.tsx -->
+<!-- Uses vanilla JS module: ~/js/components/thinkingPromptInput.js -->
+
+<div x-data="{
+    status: 'idle',
+    prompt: '',
+    steps: [
+        { id: '1', text: 'Analyzing dietary preferences and area...' },
+        { id: '2', text: 'Checking live domestic kitchen capacity...' },
+        { id: '3', text: 'Matching fresh heirloom recipes...' }
+    ],
+    answer: '',
+    handlePromptSubmit() {
+        if (!this.prompt.trim()) return;
+        this.status = 'thinking';
+        this.answer = '';
+        if (window.initThinkingPrompt) {
+            window.initThinkingPrompt(this.$el, {
+                steps: this.steps,
+                stepDelay: 700,
+                onComplete: () => {
+                    this.status = 'done';
+                    this.answer = $store.app.language === 'ar'
+                        ? 'بناءً على طلبك، وجدنا لك طاجن عكاوي بلدي مع ملوخية طازجة من مطبخ أمينة التراثي في المعادي، متاح للاستلام الساخن خلال 45 دقيقة.'
+                        : 'Based on your craving, we found fresh Baladi Duck Molokhia and Oxtail Tagine from Amina\'s Heritage Kitchen in Maadi, ready for hot pickup in 45 minutes.';
+                }
+            });
+        }
+    }
+}"
+     class="w-full max-w-2xl mx-auto bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 shadow-xl">
+
+    <!-- Header bar -->
+    <div class="flex items-center justify-between pb-3 border-b border-[var(--color-border-light)] mb-4">
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--color-primary)]">
+            <svg class="w-4 h-4 text-amber-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="#sparkles"></use>
+            </svg>
+            <span x-text="$store.app.language === 'ar' ? 'مساعد التفكير واقتراح الوجبات' : 'AI Reasoning Food Explorer'">AI Reasoning Food Explorer</span>
+        </div>
+        <span data-thinking-badge class="text-[11px] font-mono text-[var(--color-text-muted)]">
+            Ready
+        </span>
+    </div>
+
+    <!-- Thinking steps container -->
+    <div x-show="status === 'thinking'" class="mb-4 bg-[var(--color-surface-subtle)] p-3 rounded-2xl border border-[var(--color-border-light)] space-y-2">
+        <div data-thinking-steps class="space-y-1.5 text-xs">
+            <template x-for="(s, idx) in steps" :key="s.id">
+                <div :data-step-index="idx" class="flex items-center gap-2 opacity-40 transition-opacity duration-300">
+                    <span data-step-icon class="w-4 h-4 flex items-center justify-center">
+                        <span class="w-2 h-2 rounded-full bg-neutral-400"></span>
+                    </span>
+                    <span x-text="s.text"></span>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Answer preview -->
+    <div x-show="answer" class="mb-4 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-900 dark:text-emerald-100 leading-relaxed">
+        <p x-text="answer"></p>
+        <div class="mt-3 flex gap-2">
+            <a href="#dishes" class="text-xs font-bold text-[var(--color-primary)] hover:underline inline-flex items-center gap-1">
+                <span x-text="$store.app.language === 'ar' ? 'عرض الأطباق المقترحة' : 'View Recommended Dishes'">View Recommended Dishes</span> →
+            </a>
+        </div>
+    </div>
+
+    <!-- Input Form -->
+    <form @@submit.prevent="handlePromptSubmit()" class="relative flex items-center">
+        <input type="text"
+               x-model="prompt"
+               :placeholder="$store.app.language === 'ar' ? 'صف وجبتك المفضلة اليوم (مثال: أكل بيتي دسم ومناسب للعائلة)...' : 'Describe what you feel like eating today...'"
+               class="w-full text-xs sm:text-sm p-3.5 pe-12 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium shadow-inner" />
+        <button type="submit"
+                class="absolute end-2 w-9 h-9 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white flex items-center justify-center transition-all cursor-pointer shadow-md">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="#arrow-up"></use>
+            </svg>
+        </button>
+    </form>
+</div>
+

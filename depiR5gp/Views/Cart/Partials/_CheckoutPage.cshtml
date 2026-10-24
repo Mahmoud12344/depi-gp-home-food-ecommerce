@@ -1,0 +1,248 @@
+<!-- Views/Cart/Partials/_CheckoutPage.cshtml -->
+<!-- Source: home_chef/src/pages/CheckoutPage.tsx -->
+<!-- TODO [Backend]: Integrate with Payment Gateway (e.g. Stripe, Paymob) and Order Placement API -->
+
+<div x-data="{
+    paymentMethod: 'card',
+    stripeSimValue: '1',
+    pickupSlot: 'asap',
+    redeemPoints: false,
+    customerName: 'Tamer Zaki',
+    customerPhone: '+20 100 234 5678',
+    customerEmail: 'tamer.zaki@example.com',
+    paymentError: '',
+    isSubmitting: false,
+    get loyaltyDiscount() {
+        return this.redeemPoints ? 20 : 0;
+    },
+    get grandTotal() {
+        return Math.max(0, ($store.app.cart.subtotal || 0) - this.loyaltyDiscount);
+    },
+    handlePlaceOrder() {
+        this.paymentError = '';
+        if ($store.app.cart.items.length === 0) {
+            $store.app.showToast('error', 'Your cart is empty.');
+            $store.app.navigate('#dishes');
+            return;
+        }
+
+        this.isSubmitting = true;
+        setTimeout(() => {
+            if (this.paymentMethod === 'card') {
+                if (this.stripeSimValue === '2') {
+                    this.isSubmitting = false;
+                    this.paymentError = $store.app.language === 'ar'
+                        ? 'تم رفض بطاقة الائتمان التجريبية (محاكاة فشل الدفع). يرجى المحاولة بقيمة 1 للموافقة.'
+                        : 'Card was declined (simulated decline). Please select option 1 to simulate approval.';
+                    return;
+                }
+                if (this.stripeSimValue === '3') {
+                    this.isSubmitting = false;
+                    this.paymentError = $store.app.language === 'ar'
+                        ? 'حدث خطأ في بوابة الدفع (محاكاة العطل). يرجى اختيار الدفع نقداً أو بطاقة مقبولة.'
+                        : 'Gateway connection failure (simulated error). Please retry or choose Cash on pickup.';
+                    return;
+                }
+            }
+
+            const generatedRef = 'HC-2026-' + Math.floor(1000 + Math.random() * 9000);
+            $store.app.clearCart();
+            this.isSubmitting = false;
+            $store.app.showToast('success', $store.app.language === 'ar' ? 'تم تأكيد طلبك بنجاح!' : 'Order confirmed successfully!');
+            $store.app.navigate('#order-confirmation/' + generatedRef);
+        }, 1200);
+    }
+}"
+     class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="#cart" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium" x-text="$store.app.language === 'ar' ? 'السلة' : 'Cart'">Cart</a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'إتمام الطلب' : 'Checkout'">Checkout</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                x-text="$store.app.language === 'ar' ? 'إتمام الطلب والدفع' : 'Checkout & Pickup'">
+                Checkout & Pickup
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed"
+               x-text="$store.app.language === 'ar' ? 'راجع تفاصيل طلبك وبيانات الاستلام' : 'Review pickup counter & select payment method'">
+                Review pickup counter & select payment method
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        <form @@submit.prevent="handlePlaceOrder()" class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <!-- Left Column: Form Details -->
+            <div class="lg:col-span-7 space-y-8">
+                <!-- 1. Contact Information -->
+                <!-- TODO [Backend]: Pre-populate customer name, phone, and email from authenticated User Claims / CustomerProfile -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)] flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center text-xs">1</span>
+                        <span x-text="$store.app.language === 'ar' ? 'بيانات التواصل للاستلام' : 'Contact Information'">Contact Information</span>
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                                   x-text="$store.app.language === 'ar' ? 'الاسم بالكامل' : 'Your Full Name'">Your Full Name</label>
+                            <input type="text" required x-model="customerName"
+                                   class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                                   x-text="$store.app.language === 'ar' ? 'رقم الهاتف (للتنسيق عند الوصول)' : 'Mobile Phone (for pickup calls)'">Mobile Phone</label>
+                            <input type="tel" required x-model="customerPhone"
+                                   class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                                   x-text="$store.app.language === 'ar' ? 'البريد الإلكتروني للإيصال والتتبع' : 'Email Address'">Email Address</label>
+                            <input type="email" required x-model="customerEmail"
+                                   class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Kitchen Pickup Details -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)] flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center text-xs">2</span>
+                        <span x-text="$store.app.language === 'ar' ? 'موقع وموعد الاستلام المباشر' : 'Direct Kitchen Pickup Counter'">Direct Kitchen Pickup Counter</span>
+                    </h2>
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-2">
+                        <div class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                            <div>
+                                <span class="font-bold text-[var(--color-text)] block" x-text="$store.app.cart.chefName || 'Amina\'s Heritage Kitchen'"></span>
+                                <span class="text-[var(--color-text-muted)]">Bldg 14, Road 9, Degla, Maadi, Cairo (Ground Floor Domestic Kitchen Gate)</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-medium pt-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'استلام طازج ومجاني - بدون أي مصاريف توصيل' : 'Free direct kitchen counter pickup (0.00 EGP delivery)'">Free direct kitchen counter pickup (0.00 EGP delivery)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Payment Method -->
+                <!-- TODO [Backend]: Initialize Stripe PaymentIntent / Paymob session for Card payment, or register CashOnPickup transaction -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)] flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center text-xs">3</span>
+                        <span x-text="$store.app.language === 'ar' ? 'طريقة الدفع' : 'Payment Method'">Payment Method</span>
+                    </h2>
+
+                    <p x-show="paymentError" x-text="paymentError" class="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-800 rounded-xl text-xs"></p>
+
+                    <div class="space-y-3">
+                        <!-- Card (Stripe Test Mode) -->
+                        <div :class="paymentMethod === 'card' ? 'border-[var(--color-primary)] bg-[var(--color-card-bg)]' : 'border-[var(--color-border)]'"
+                             class="border rounded-2xl p-4 transition-colors">
+                            <label @@click="paymentMethod = 'card'" class="flex items-center justify-between cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded-full border flex items-center justify-center"
+                                         :class="paymentMethod === 'card' ? 'border-[var(--color-primary)]' : 'border-neutral-400'">
+                                        <div x-show="paymentMethod === 'card'" class="w-2 h-2 rounded-full bg-[var(--color-primary)]"></div>
+                                    </div>
+                                    <span class="text-xs font-bold uppercase text-[var(--color-text)]"
+                                          x-text="$store.app.language === 'ar' ? 'بطاقة بنكية (وضع Stripe التجريبي)' : 'Credit Card (Stripe Test Mode)'">Credit Card (Stripe Test Mode)</span>
+                                </div>
+                                <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#credit-card"></use></svg>
+                            </label>
+
+                            <!-- Testing instructions buttons -->
+                            <div x-show="paymentMethod === 'card'" class="mt-3.5 pt-3 border-t border-[var(--color-border-light)] text-xs text-[var(--color-text-muted)] space-y-2">
+                                <p class="font-semibold text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? 'تعليمات فحص الدفع التجريبي:' : 'Testing Instruction (Select simulation):'"></p>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button type="button" @@click="stripeSimValue = '1'"
+                                            :class="stripeSimValue === '1' ? 'border-emerald-500 bg-emerald-100 text-emerald-950 dark:bg-emerald-950/90 dark:text-emerald-100' : 'border-[var(--color-border)]'"
+                                            class="p-2.5 rounded-xl border text-[11px] font-bold text-center cursor-pointer transition-all"
+                                            x-text="$store.app.language === 'ar' ? '١: نجاح العملية' : '1: Approved'">1: Approved</button>
+                                    <button type="button" @@click="stripeSimValue = '2'"
+                                            :class="stripeSimValue === '2' ? 'border-rose-500 bg-rose-100 text-rose-950 dark:bg-rose-950/90 dark:text-rose-100' : 'border-[var(--color-border)]'"
+                                            class="p-2.5 rounded-xl border text-[11px] font-bold text-center cursor-pointer transition-all"
+                                            x-text="$store.app.language === 'ar' ? '٢: رفض البطاقة' : '2: Declined'">2: Declined</button>
+                                    <button type="button" @@click="stripeSimValue = '3'"
+                                            :class="stripeSimValue === '3' ? 'border-amber-500 bg-amber-100 text-amber-950 dark:bg-amber-950/90 dark:text-amber-100' : 'border-[var(--color-border)]'"
+                                            class="p-2.5 rounded-xl border text-[11px] font-bold text-center cursor-pointer transition-all"
+                                            x-text="$store.app.language === 'ar' ? '٣: عطل بالبوابة' : '3: Gateway Error'">3: Gateway Error</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cash On Pickup -->
+                        <div :class="paymentMethod === 'cash' ? 'border-[var(--color-primary)] bg-[var(--color-card-bg)]' : 'border-[var(--color-border)]'"
+                             class="border rounded-2xl p-4 transition-colors">
+                            <label @@click="paymentMethod = 'cash'" class="flex items-center justify-between cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded-full border flex items-center justify-center"
+                                         :class="paymentMethod === 'cash' ? 'border-[var(--color-primary)]' : 'border-neutral-400'">
+                                        <div x-show="paymentMethod === 'cash'" class="w-2 h-2 rounded-full bg-[var(--color-primary)]"></div>
+                                    </div>
+                                    <span class="text-xs font-bold uppercase text-[var(--color-text)]"
+                                          x-text="$store.app.language === 'ar' ? 'الدفع نقداً عند استلام الوجبة' : 'Cash On Pickup'">Cash On Pickup</span>
+                                </div>
+                                <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#banknote"></use></svg>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Order Summary Card -->
+            <!-- TODO [Backend]: POST /api/orders / CheckoutController.CreateOrder(dto) saving Order, OrderItems, PaymentRecord, and dispatching SignalR alert -->
+            <div class="lg:col-span-5 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-xs space-y-6 lg:sticky lg:top-24">
+                <h3 class="text-base font-bold uppercase tracking-tight text-[var(--color-text)]"
+                    x-text="$store.app.language === 'ar' ? 'ملخص الطلب' : 'Order Summary'">
+                    Order Summary
+                </h3>
+
+                <!-- Cart Items List preview -->
+                <div class="divide-y divide-[var(--color-border-light)] text-xs space-y-2">
+                    <template x-for="item in $store.app.cart.items" :key="item.id">
+                        <div class="pt-2 flex items-center justify-between">
+                            <div>
+                                <span class="font-bold text-[var(--color-text)]" x-text="item.dish?.name || 'Dish'"></span>
+                                <span class="text-[var(--color-text-muted)] text-[11px]" x-text="' × ' + item.quantity"></span>
+                            </div>
+                            <span class="font-semibold text-[var(--color-text)]" x-text="(item.lineTotal || 0).toFixed(2) + ' EGP'"></span>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Price breakdown -->
+                <div class="border-t border-[var(--color-border)] pt-4 space-y-2 text-xs">
+                    <div class="flex justify-between text-[var(--color-text-muted)]">
+                        <span x-text="$store.app.language === 'ar' ? 'المجموع الفرعي:' : 'Subtotal:'">Subtotal:</span>
+                        <span x-text="($store.app.cart.subtotal || 0).toFixed(2) + ' EGP'"></span>
+                    </div>
+                    <div class="flex justify-between text-emerald-600 font-semibold">
+                        <span x-text="$store.app.language === 'ar' ? 'رسوم التوصيل والاستلام:' : 'Pickup & Handover Fee:'">Pickup Fee:</span>
+                        <span>0.00 EGP (FREE)</span>
+                    </div>
+                    <div class="flex justify-between text-base font-bold text-[var(--color-primary)] border-t border-[var(--color-border-light)] pt-3">
+                        <span x-text="$store.app.language === 'ar' ? 'الإجمالي النهائي:' : 'Total Payable:'">Total Payable:</span>
+                        <span x-text="grandTotal.toFixed(2) + ' EGP'"></span>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        :disabled="isSubmitting"
+                        class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-8 py-3.5 gap-2.5 shadow-md bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98]">
+                    <span x-show="!isSubmitting" x-text="$store.app.language === 'ar' ? 'تأكيد وإرسال الطلب للمطبخ' : 'Place Order & Confirm Pickup'">Place Order & Confirm Pickup</span>
+                    <span x-show="isSubmitting" x-text="$store.app.language === 'ar' ? 'جاري تأكيد الطلب...' : 'Confirming Order...'">Confirming Order...</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+

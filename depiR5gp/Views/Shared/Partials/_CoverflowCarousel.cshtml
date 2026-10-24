@@ -1,0 +1,414 @@
+@*
+  CoverflowCarousel Component Partial
+  Used in: Views/Home/Partials/_HomePageV2.cshtml (Section 3: Fresh From Home Ovens)
+  Provides an interactive 3D coverflow carousel with drag/touch support, keyboard navigation,
+  and active dish captions with instant cart and favorite actions.
+*@
+
+<div x-data="{
+    slides: [
+        {
+            id: 'dish-2',
+            title: 'Oxtail Tagine with Caramelized Onions',
+            titleAr: 'طاجن عكاوي بلدي بالبصل القاورما المكرمل',
+            subtitle: 'Om Nabil Casseroles · Zamalek',
+            subtitleAr: 'طواجن أم نبيل · الزمالك',
+            chefId: 'chef-2',
+            kitchenName: 'Om Nabil Casseroles',
+            price: 310,
+            originalPrice: 350,
+            rating: 5.0,
+            reviewCount: 36,
+            prepTime: '60m',
+            src: 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=800&auto=format&fit=crop&q=80',
+            alt: 'Oxtail Tagine with Baby Caramelized Onions'
+        },
+        {
+            id: 'dish-4',
+            title: 'Authentic Baladi Meshaltet Feteer (Large)',
+            titleAr: 'فطير مشلتت فلاحي بالسمن البلدي (كبير)',
+            subtitle: 'Hajjah Fatma Bakery · Heliopolis',
+            subtitleAr: 'مخبوزات الحاجة فاطمة · مصر الجديدة',
+            chefId: 'chef-3',
+            kitchenName: 'Hajjah Fatma Bakery',
+            price: 180,
+            originalPrice: 210,
+            rating: 4.9,
+            reviewCount: 52,
+            prepTime: '35m',
+            src: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80',
+            alt: 'Authentic Baladi Meshaltet Feteer'
+        },
+        {
+            id: 'dish-6',
+            title: 'Baladi Cream Om Ali with Pistachios',
+            titleAr: 'أم علي بالقشطة البلدي والمكسرات',
+            subtitle: 'Hajjah Fatma Bakery · Heliopolis',
+            subtitleAr: 'مخبوزات الحاجة فاطمة · مصر الجديدة',
+            chefId: 'chef-3',
+            kitchenName: 'Hajjah Fatma Bakery',
+            price: 110,
+            originalPrice: 130,
+            rating: 4.8,
+            reviewCount: 64,
+            prepTime: '25m',
+            src: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=800&auto=format&fit=crop&q=80',
+            alt: 'Baladi Cream Om Ali'
+        },
+        {
+            id: 'dish-1',
+            title: 'Slow-Cooked Duck Tagine with Molokhia',
+            titleAr: 'طاجن بط بلدي بالمرقة والملوخية الخضراء',
+            subtitle: 'Amina\'s Heritage Kitchen · Maadi',
+            subtitleAr: 'مطبخ أمينة التراثي · المعادي',
+            chefId: 'chef-1',
+            kitchenName: 'Amina\'s Heritage Kitchen',
+            price: 280,
+            originalPrice: 320,
+            rating: 4.9,
+            reviewCount: 88,
+            prepTime: '55m',
+            src: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80',
+            alt: 'Duck Tagine with Molokhia'
+        },
+        {
+            id: 'dish-5',
+            title: 'Egyptian Stuffed Pigeon (Hamam Mahshi)',
+            titleAr: 'حمام بلدي محشي بالفريك البلدي والمكسرات',
+            subtitle: 'Om Nabil Casseroles · Zamalek',
+            subtitleAr: 'طواجن أم نبيل · الزمالك',
+            chefId: 'chef-2',
+            kitchenName: 'Om Nabil Casseroles',
+            price: 290,
+            originalPrice: 330,
+            rating: 4.9,
+            reviewCount: 42,
+            prepTime: '50m',
+            src: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80',
+            alt: 'Egyptian Stuffed Pigeon'
+        },
+        {
+            id: 'dish-3',
+            title: 'Crispy Baladi Beef Hawawshi',
+            titleAr: 'حواوشي بلدي مقرمش باللحم المتبل والبهارات',
+            subtitle: 'Amina\'s Heritage Kitchen · Maadi',
+            subtitleAr: 'مطبخ أمينة التراثي · المعادي',
+            chefId: 'chef-1',
+            kitchenName: 'Amina\'s Heritage Kitchen',
+            price: 150,
+            originalPrice: 175,
+            rating: 4.8,
+            reviewCount: 75,
+            prepTime: '30m',
+            src: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&auto=format&fit=crop&q=80',
+            alt: 'Crispy Baladi Beef Hawawshi'
+        }
+    ],
+    pos: 0,
+    target: 0,
+    selected: 0,
+    count: 6,
+    rotate: 44,
+    depth: 0.6,
+    perspective: 3,
+    falloff: 0.56,
+    fade: 0.12,
+    gap: 0.08,
+    loop: true,
+    cardWidthPx: 250,
+    raf: null,
+    drag: null,
+
+    init() {
+        this.count = this.slides.length;
+        this.measure();
+        window.addEventListener('resize', () => {
+            this.measure();
+            this.paint();
+        });
+        this.$nextTick(() => {
+            this.measure();
+            this.paint();
+        });
+    },
+
+    measure() {
+        const card = this.$refs.cards?.children?.[0];
+        if (card) {
+            this.cardWidthPx = card.offsetWidth || 250;
+        }
+    },
+
+    paint() {
+        const pitch = this.cardWidthPx * (1 + this.gap);
+        const pos = this.pos;
+        const cards = this.$refs.cards?.children;
+        if (!cards) return;
+
+        for (let index = 0; index < this.count; index++) {
+            const card = cards[index];
+            if (!card) continue;
+
+            let offset = index - pos;
+            if (this.loop) {
+                offset = ((offset % this.count) + this.count) % this.count;
+                if (offset > this.count / 2) offset -= this.count;
+            }
+
+            const distance = Math.abs(offset);
+            const ramp = Math.pow(distance, this.falloff);
+            const tilt = Math.min(this.rotate * ramp, 82) * Math.sign(offset);
+
+            card.style.transform = `translateX(calc(-50% + ${offset * pitch}px)) translateZ(${-this.depth * this.cardWidthPx * ramp}px) rotateY(${-tilt}deg)`;
+
+            const edge = this.loop ? Math.min(1, Math.max(0, this.count / 2 - distance)) : 1;
+            card.style.opacity = String(Math.max(0, 1 - this.fade * distance) * edge);
+            card.style.zIndex = String(100 - Math.round(distance));
+        }
+    },
+
+    settle(target) {
+        if (this.raf) cancelAnimationFrame(this.raf);
+        this.target = target;
+        this.selected = ((Math.round(target) % this.count) + this.count) % this.count;
+
+        const step = () => {
+            const remaining = this.target - this.pos;
+            if (Math.abs(remaining) < 0.0004) {
+                this.pos = this.target;
+                this.paint();
+                this.raf = null;
+                return;
+            }
+            this.pos += remaining * 0.16;
+            this.paint();
+            this.raf = requestAnimationFrame(step);
+        };
+        this.raf = requestAnimationFrame(step);
+    },
+
+    clamp(pos) {
+        return this.loop ? pos : Math.max(0, Math.min(this.count - 1, pos));
+    },
+
+    goTo(index) {
+        const target = this.loop
+            ? index + Math.round((this.target - index) / this.count) * this.count
+            : index;
+        this.settle(this.clamp(target));
+    },
+
+    nudge(by) {
+        this.settle(this.clamp(Math.round(this.target) + by));
+    },
+
+    onPointerDown(event) {
+        if (this.raf) {
+            cancelAnimationFrame(this.raf);
+            this.raf = null;
+        }
+        try { event.currentTarget.setPointerCapture(event.pointerId); } catch(e) {}
+        this.target = this.pos;
+        this.drag = {
+            id: event.pointerId,
+            x: event.clientX,
+            pos: this.pos,
+            v: 0,
+            t: performance.now()
+        };
+    },
+
+    onPointerMove(event) {
+        if (!this.drag || this.drag.id !== event.pointerId) return;
+        const pitch = this.cardWidthPx * (1 + this.gap);
+        if (!pitch) return;
+        const now = performance.now();
+        const previous = this.pos;
+        this.pos = this.clamp(this.drag.pos - (event.clientX - this.drag.x) / pitch);
+        this.drag.v = ((this.pos - previous) / Math.max(now - this.drag.t, 1)) * 1000;
+        this.drag.t = now;
+
+        const index = ((Math.round(this.pos) % this.count) + this.count) % this.count;
+        if (index !== this.selected) this.selected = index;
+        this.paint();
+    },
+
+    endDrag(event) {
+        if (!this.drag || this.drag.id !== event.pointerId) return;
+        const carried = Math.max(-2, Math.min(2, (this.drag.v || 0) * 0.18));
+        this.drag = null;
+        this.settle(this.clamp(Math.round(this.pos + carried)));
+    },
+
+    get active() {
+        return this.slides[this.selected] || this.slides[0];
+    }
+}"
+     class="w-full select-none"
+     style="--cf-card: clamp(180px, 26vw, 300px);"
+     role="region"
+     aria-label="Fresh From Home Ovens 3D Coverflow Carousel">
+
+    <!-- 3D Viewport Stage -->
+    <div class="relative w-full">
+        <div tabindex="0"
+             @@pointerdown="onPointerDown($event)"
+             @@pointermove="onPointerMove($event)"
+             @@pointerup="endDrag($event)"
+             @@pointercancel="endDrag($event)"
+             @@keydown.left.prevent="nudge(-1)"
+             @@keydown.right.prevent="nudge(1)"
+             class="cf-carousel-viewport cursor-grab active:cursor-grabbing py-8 sm:py-12 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-3xl"
+             style="perspective: calc(var(--cf-card) * 3); touch-action: pan-y;">
+
+            <!-- Carousel Ring Track -->
+            <div x-ref="cards"
+                 class="cf-carousel-track"
+                 style="height: var(--cf-card); transform-style: preserve-3d;">
+                
+                <template x-for="(slide, index) in slides" :key="slide.id">
+                    <div role="group"
+                         :aria-label="slide.title"
+                         @@click="if (selected === index) { $store.app.navigate('#dish/' + slide.id); } else { goTo(index); }"
+                         class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow hover:shadow-[var(--color-primary)]/20"
+                         style="width: var(--cf-card); transform-style: preserve-3d;">
+                        
+                        <!-- Food Photography -->
+                        <img :src="slide.src"
+                             :alt="slide.alt"
+                             draggable="false"
+                             class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108 pointer-events-none select-none" />
+
+                        <!-- Dark Scrim Gradient for Depth -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none"></div>
+
+                        <!-- Card Badges -->
+                        <div class="absolute top-3 start-3 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-white/15 pointer-events-none">
+                            <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <span x-text="slide.rating.toFixed(1)"></span>
+                        </div>
+
+                        <!-- Bottom Tag & Price On Card -->
+                        <div class="absolute bottom-3 inset-x-3 z-10 text-white pointer-events-none">
+                            <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-300 block truncate"
+                                  x-text="$store.app.language === 'ar' ? slide.subtitleAr : slide.subtitle"></span>
+                            <p class="text-xs sm:text-sm font-bold truncate text-white leading-tight mt-0.5"
+                               x-text="$store.app.language === 'ar' ? slide.titleAr : slide.title"></p>
+                            <span class="inline-block mt-1 font-bold text-xs text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-md shadow-xs"
+                                  x-text="slide.price + ' EGP'"></span>
+                        </div>
+
+                        <!-- Active Ring Indicator Glow -->
+                        <div x-show="selected === index"
+                             class="absolute inset-0 rounded-1.25rem ring-4 ring-[var(--color-primary)] pointer-events-none"></div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button type="button"
+                aria-label="Previous slide"
+                @@click="nudge(-1)"
+                style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); z-index: 200;"
+                class="rounded-full w-11 h-11 sm:w-12 sm:h-12 bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white border-2 border-neutral-400 dark:border-neutral-600 shadow-2xl flex items-center justify-center transition-all hover:scale-110 hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)] cursor-pointer active:scale-95">
+            <svg class="w-6 h-6 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="#chevron-left"></use>
+            </svg>
+        </button>
+
+        <button type="button"
+                aria-label="Next slide"
+                @@click="nudge(1)"
+                style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); z-index: 200;"
+                class="rounded-full w-11 h-11 sm:w-12 sm:h-12 bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white border-2 border-neutral-400 dark:border-neutral-600 shadow-2xl flex items-center justify-center transition-all hover:scale-110 hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)] cursor-pointer active:scale-95">
+            <svg class="w-6 h-6 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="#chevron-right"></use>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Active Slide Caption & Quick Action Center -->
+    <div class="mt-4 max-w-2xl mx-auto bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-lg transition-all duration-300 text-center">
+        <div class="space-y-3">
+            <!-- Kitchen / Subtitle -->
+            <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]"
+               x-text="$store.app.language === 'ar' ? active.subtitleAr : active.subtitle">
+            </p>
+
+            <!-- Main Dish Title -->
+            <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors"
+                @@click="$store.app.navigate('#dish/' + active.id)"
+                x-text="$store.app.language === 'ar' ? active.titleAr : active.title">
+            </h3>
+
+            <!-- Dish Meta Information -->
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
+                <!-- Rating -->
+                <div class="inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <span x-text="active.rating"></span>
+                    <span class="text-amber-700 dark:text-amber-300 font-normal" x-text="'(' + active.reviewCount + ')'"></span>
+                </div>
+
+                <!-- Prep Time -->
+                <div class="inline-flex items-center gap-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1 rounded-full text-[var(--color-text)] font-semibold">
+                    <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span x-text="active.prepTime"></span>
+                </div>
+
+                <!-- Price Pill -->
+                <div class="inline-flex items-baseline gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 font-bold text-emerald-800 dark:text-emerald-200">
+                    <span class="text-sm font-black" x-text="active.price + ' EGP'"></span>
+                    <span class="text-[11px] line-through text-neutral-400 font-normal" x-text="active.originalPrice + ' EGP'"></span>
+                </div>
+            </div>
+
+            <!-- Action Buttons: Add to Cart, Favorite & View Dish -->
+            <div class="pt-4 flex flex-wrap items-center justify-center gap-3 border-t border-[var(--color-border-light)]">
+                <!-- Favorite Heart Button -->
+                <button type="button"
+                        @@click="$store.app.toggleFavorite(active.id)"
+                        class="p-3 rounded-full border border-[var(--color-border)] hover:border-rose-400 text-[var(--color-text)] hover:text-rose-500 transition-colors cursor-pointer shadow-xs"
+                        title="Favorite this dish">
+                    <svg class="w-4 h-4" :class="$store.app.isFavorite(active.id) ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#heart"></use>
+                    </svg>
+                </button>
+
+                <!-- Add to Cart CTA -->
+                <button type="button"
+                        @@click="$store.app.addToCart({ id: active.id, name: active.title, price: active.price, chefId: active.chefId, kitchenName: active.kitchenName, isAvailable: true })"
+                        class="chef-menu-btn inline-flex items-center gap-2 px-6 sm:px-8 py-3 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#shopping-bag"></use>
+                    </svg>
+                    <span x-text="$store.app.language === 'ar' ? 'أضف إلى السلة' : 'Add to Cart'">Add to Cart</span>
+                </button>
+
+                <!-- View Dish Page -->
+                <button type="button"
+                        @@click="$store.app.navigate('#dish/' + active.id)"
+                        class="inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white font-bold uppercase tracking-wider text-xs sm:text-sm transition-all cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'تفاصيل الطبق' : 'Dish Details'">Dish Details</span>
+                    <svg class="w-4 h-4" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#arrow-right"></use>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination Dots -->
+    <div class="mt-6 flex items-center justify-center gap-2">
+        <template x-for="(slide, index) in slides" :key="'dot-' + slide.id">
+            <button type="button"
+                    :aria-label="'Go to slide ' + (index + 1)"
+                    @@click="goTo(index)"
+                    :class="selected === index ? 'w-8 bg-[var(--color-primary)]' : 'w-2.5 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400'"
+                    class="h-2.5 rounded-full transition-all duration-300 cursor-pointer">
+            </button>
+        </template>
+    </div>
+</div>
+
