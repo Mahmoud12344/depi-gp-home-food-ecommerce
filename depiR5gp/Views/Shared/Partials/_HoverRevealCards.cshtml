@@ -1,0 +1,176 @@
+@*
+  HoverRevealCards Component Partial
+  Used in: Views/Home/Partials/_HomePageV2.cshtml
+  Displays interactive culinary category cards with a focus/hover-reveal depth effect.
+*@
+
+<!-- TODO [Backend]: Loop through active categories (e.g., Model.Categories); bind CategoryId, CategoryName, CategoryNameAr, ImageUrl, and DishesCount -->
+<div role="list"
+     aria-label="Handcrafted Dishes By Category"
+     class="hover-reveal-group group grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+
+    <!-- 1. Traditional Egyptian -->
+    <div role="listitem"
+         tabindex="0"
+         @@click="$store.app.selectedCuisine = 'egyptian'; $store.app.navigate('#dishes')"
+         @@keydown.enter="$store.app.selectedCuisine = 'egyptian'; $store.app.navigate('#dishes')"
+         @@keydown.space.prevent="$store.app.selectedCuisine = 'egyptian'; $store.app.navigate('#dishes')"
+         aria-label="Traditional Egyptian, 12 Dishes"
+         class="hover-reveal-card relative h-80 cursor-pointer overflow-hidden rounded-2xl bg-neutral-900 shadow-xl transition-all duration-500 ease-in-out border border-black/10 dark:border-white/10">
+
+        <!-- Thumbnail Image -->
+        <img src="https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=800&auto=format&fit=crop&q=80"
+             alt="Traditional Egyptian Cuisine"
+             loading="lazy"
+             class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-transform duration-700 ease-out" />
+
+        <!-- Gradient Overlay for Guaranteed Text Readability -->
+        <div class="absolute inset-0 pointer-events-none"
+             style="background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%);">
+        </div>
+
+        <!-- Card Typography: Category name first from bottom, number of dishes above it -->
+        <div class="absolute bottom-0 inset-x-0 p-6 text-white text-start z-10 pointer-events-none flex flex-col justify-end">
+            <p class="text-xs font-semibold uppercase tracking-widest text-amber-300 mb-1 drop-shadow-sm"
+               x-text="$store.app.language === 'ar' ? '12 طبق جاهز' : '12 Dishes'">
+                12 Dishes
+            </p>
+            <h3 class="text-xl font-bold uppercase tracking-tight text-white drop-shadow-md leading-tight"
+                x-text="$store.app.language === 'ar' ? 'أكلات مصرية' : 'Traditional Egyptian'">
+                Traditional Egyptian
+            </h3>
+        </div>
+    </div>
+
+    <!-- 2. Clay Tagines -->
+    <div role="listitem"
+         tabindex="0"
+         @@click="$store.app.selectedCuisine = 'tagines'; $store.app.navigate('#dishes')"
+         @@keydown.enter="$store.app.selectedCuisine = 'tagines'; $store.app.navigate('#dishes')"
+         @@keydown.space.prevent="$store.app.selectedCuisine = 'tagines'; $store.app.navigate('#dishes')"
+         aria-label="Clay Tagines, 8 Dishes"
+         class="hover-reveal-card relative h-80 cursor-pointer overflow-hidden rounded-2xl bg-neutral-900 shadow-xl transition-all duration-500 ease-in-out border border-black/10 dark:border-white/10">
+
+        <!-- Thumbnail Image -->
+        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80"
+             alt="Clay Tagines"
+             loading="lazy"
+             class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-transform duration-700 ease-out" />
+
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 pointer-events-none"
+             style="background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%);">
+        </div>
+
+        <!-- Card Typography: Category name first from bottom, number of dishes above it -->
+        <div class="absolute bottom-0 inset-x-0 p-6 text-white text-start z-10 pointer-events-none flex flex-col justify-end">
+            <p class="text-xs font-semibold uppercase tracking-widest text-amber-300 mb-1 drop-shadow-sm"
+               x-text="$store.app.language === 'ar' ? '8 طواجن فخار' : '8 Dishes'">
+                8 Dishes
+            </p>
+            <h3 class="text-xl font-bold uppercase tracking-tight text-white drop-shadow-md leading-tight"
+                x-text="$store.app.language === 'ar' ? 'طواجن فخار' : 'Clay Tagines'">
+                Clay Tagines
+            </h3>
+        </div>
+    </div>
+
+    <!-- 3. Artisan Bakery -->
+    <div role="listitem"
+         tabindex="0"
+         @@click="$store.app.selectedCuisine = 'bakery'; $store.app.navigate('#dishes')"
+         @@keydown.enter="$store.app.selectedCuisine = 'bakery'; $store.app.navigate('#dishes')"
+         @@keydown.space.prevent="$store.app.selectedCuisine = 'bakery'; $store.app.navigate('#dishes')"
+         aria-label="Artisan Bakery, 9 Dishes"
+         class="hover-reveal-card relative h-80 cursor-pointer overflow-hidden rounded-2xl bg-neutral-900 shadow-xl transition-all duration-500 ease-in-out border border-black/10 dark:border-white/10">
+
+        <!-- Thumbnail Image -->
+        <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80"
+             alt="Artisan Bakery & Feteer"
+             loading="lazy"
+             class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-transform duration-700 ease-out" />
+
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 pointer-events-none"
+             style="background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%);">
+        </div>
+
+        <!-- Card Typography: Category name first from bottom, number of dishes above it -->
+        <div class="absolute bottom-0 inset-x-0 p-6 text-white text-start z-10 pointer-events-none flex flex-col justify-end">
+            <p class="text-xs font-semibold uppercase tracking-widest text-amber-300 mb-1 drop-shadow-sm"
+               x-text="$store.app.language === 'ar' ? '9 مخبوزات وفطير' : '9 Dishes'">
+                9 Dishes
+            </p>
+            <h3 class="text-xl font-bold uppercase tracking-tight text-white drop-shadow-md leading-tight"
+                x-text="$store.app.language === 'ar' ? 'مخبوزات وفطير' : 'Artisan Bakery'">
+                Artisan Bakery
+            </h3>
+        </div>
+    </div>
+
+    <!-- 4. Alexandrian Seafood -->
+    <div role="listitem"
+         tabindex="0"
+         @@click="$store.app.selectedCuisine = 'alexandrian'; $store.app.navigate('#dishes')"
+         @@keydown.enter="$store.app.selectedCuisine = 'alexandrian'; $store.app.navigate('#dishes')"
+         @@keydown.space.prevent="$store.app.selectedCuisine = 'alexandrian'; $store.app.navigate('#dishes')"
+         aria-label="Alexandrian Seafood, 6 Dishes"
+         class="hover-reveal-card relative h-80 cursor-pointer overflow-hidden rounded-2xl bg-neutral-900 shadow-xl transition-all duration-500 ease-in-out border border-black/10 dark:border-white/10">
+
+        <!-- Thumbnail Image -->
+        <img src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=800&auto=format&fit=crop&q=80"
+             alt="Alexandrian Seafood & Liver"
+             loading="lazy"
+             class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-transform duration-700 ease-out" />
+
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 pointer-events-none"
+             style="background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%);">
+        </div>
+
+        <!-- Card Typography: Category name first from bottom, number of dishes above it -->
+        <div class="absolute bottom-0 inset-x-0 p-6 text-white text-start z-10 pointer-events-none flex flex-col justify-end">
+            <p class="text-xs font-semibold uppercase tracking-widest text-amber-300 mb-1 drop-shadow-sm"
+               x-text="$store.app.language === 'ar' ? '6 مأكولات بحرية' : '6 Dishes'">
+                6 Dishes
+            </p>
+            <h3 class="text-xl font-bold uppercase tracking-tight text-white drop-shadow-md leading-tight"
+                x-text="$store.app.language === 'ar' ? 'مأكولات إسكندراني' : 'Alexandrian Seafood'">
+                Alexandrian Seafood
+            </h3>
+        </div>
+    </div>
+
+    <!-- 5. Oriental Desserts -->
+    <div role="listitem"
+         tabindex="0"
+         @@click="$store.app.selectedCuisine = 'desserts'; $store.app.navigate('#dishes')"
+         @@keydown.enter="$store.app.selectedCuisine = 'desserts'; $store.app.navigate('#dishes')"
+         @@keydown.space.prevent="$store.app.selectedCuisine = 'desserts'; $store.app.navigate('#dishes')"
+         aria-label="Oriental Desserts, 14 Dishes"
+         class="hover-reveal-card relative h-80 cursor-pointer overflow-hidden rounded-2xl bg-neutral-900 shadow-xl transition-all duration-500 ease-in-out border border-black/10 dark:border-white/10">
+
+        <!-- Thumbnail Image -->
+        <img src="https://images.unsplash.com/photo-1587314168485-3236d6710814?w=800&auto=format&fit=crop&q=80"
+             alt="Oriental Desserts"
+             loading="lazy"
+             class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-transform duration-700 ease-out" />
+
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 pointer-events-none"
+             style="background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%);">
+        </div>
+
+        <!-- Card Typography: Category name first from bottom, number of dishes above it -->
+        <div class="absolute bottom-0 inset-x-0 p-6 text-white text-start z-10 pointer-events-none flex flex-col justify-end">
+            <p class="text-xs font-semibold uppercase tracking-widest text-amber-300 mb-1 drop-shadow-sm"
+               x-text="$store.app.language === 'ar' ? '14 صنف حلو' : '14 Dishes'">
+                14 Dishes
+            </p>
+            <h3 class="text-xl font-bold uppercase tracking-tight text-white drop-shadow-md leading-tight"
+                x-text="$store.app.language === 'ar' ? 'حلويات شرقية' : 'Oriental Desserts'">
+                Oriental Desserts
+            </h3>
+        </div>
+    </div>
+</div>

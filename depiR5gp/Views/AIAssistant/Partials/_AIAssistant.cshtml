@@ -239,7 +239,7 @@
     }
 }" class="w-full min-h-[calc(100vh-160px)] bg-[var(--color-bg)] py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
 
-    <div class="max-w-6xl mx-auto space-y-8">
+    <div class="max-w-[1520px] w-full mx-auto space-y-6">
         <!-- 1. Breadcrumb banner -->
         <div class="flex items-center gap-2 text-xs text-[var(--color-text-muted)] font-medium">
             <a href="#home" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer"
@@ -251,46 +251,11 @@
             </span>
         </div>
 
-        <!-- 2. Page Hero Header -->
-        <div class="bg-gradient-to-br from-amber-500/10 via-[var(--color-card-bg)] to-[var(--color-primary)]/10 rounded-3xl p-6 sm:p-8 border border-[var(--color-border)] shadow-sm relative overflow-hidden">
-            <div class="max-w-3xl space-y-3">
-                <div class="inline-flex items-center gap-2 bg-[var(--color-primary)]/10 text-[var(--color-primary)] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
-                    <span x-text="$store.app.language === 'ar' ? 'ذكاء اصطناعي ذواقة متصل بالمطابخ الحية' : 'AI Culinary Assistant · Real Domestic Kitchen Grounding'">AI Culinary Assistant · Real Domestic Kitchen Grounding</span>
-                </div>
-
-                <h1 class="text-2xl sm:text-4xl font-serif font-bold text-[var(--color-text)] tracking-tight text-balance"
-                    x-text="$store.app.language === 'ar' ? 'استشر مساعد الذواقة: أطباق بيتية أصيلة بالسمن البلدي' : 'Meet Your Personal HomeChef AI Culinary Concierge'">
-                    Meet Your Personal HomeChef AI Culinary Concierge
-                </h1>
-
-                <p class="text-xs sm:text-sm text-[var(--color-text-muted)] leading-relaxed"
-                   x-text="$store.app.language === 'ar' ? 'خطط لعزومتك، اختر أشهى الطواجن، أو اكتشف أسرار المطبخ المصري المتوارث من طهاة الحي المعتمدين مع إمكانية التفكير المنطقي خطوة بخطوة.' : 'Plan your family feasts, pair traditional clay casseroles, check fresh ghee ingredients, or explore chef kitchen specials with live step-by-step reasoning.'">
-                    Plan your family feasts, pair traditional clay casseroles, check fresh ghee ingredients, or explore chef kitchen specials with live step-by-step reasoning.
-                </p>
-
-                <div class="pt-2 flex flex-wrap items-center gap-4 text-xs font-medium text-[var(--color-text-muted)]">
-                    <div class="flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
-                        <span x-text="$store.app.language === 'ar' ? 'مطابخ منزلية مفتشة ومعتمدة' : 'Verified Domestic Kitchens'">Verified Domestic Kitchens</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
-                        <span x-text="$store.app.language === 'ar' ? 'سمن بلدي مصري 100%' : '100% Pure Egyptian Baladi Ghee'">100% Pure Egyptian Baladi Ghee</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
-                        <span x-text="$store.app.language === 'ar' ? 'استلام مباشر طازج وساخن' : 'Fresh Counter Pickup'">Fresh Counter Pickup</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. Main Interactive Workspace: 2-Column Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- 2. Main Interactive Workspace: 2-Column Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
             <!-- Left / Center Column: Thinking Prompt Input Component -->
-            <div class="lg:col-span-7 space-y-6">
+            <div class="lg:col-span-8 space-y-6">
 
                 <!-- Thinking Prompt Card Container -->
                 <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 sm:p-7 shadow-lg flex flex-col min-h-[560px]">
@@ -411,7 +376,7 @@
 
             <!-- Right Column: Grounded Recommended Dishes Panel -->
             <!-- TODO [Backend]: Bind catalog dishes grounded in LLM context vector embeddings (e.g. Model.GroundedDishes); bind DishId, Name, Price, KitchenName, ImageUrl, and AddToCart action -->
-            <div class="lg:col-span-5 space-y-6">
+            <div class="lg:col-span-4 space-y-6">
 
                 <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 sm:p-6 shadow-sm">
                     <div class="flex items-center justify-between pb-3 mb-4 border-b border-[var(--color-border)]">

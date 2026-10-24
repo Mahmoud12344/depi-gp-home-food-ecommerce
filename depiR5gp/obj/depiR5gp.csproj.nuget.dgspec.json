@@ -1,21 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/depiR5gp.csproj": {}
+    "/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/depiR5gp.csproj": {}
   },
   "projects": {
-    "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/depiR5gp.csproj": {
+    "/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/depiR5gp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/depiR5gp.csproj",
+        "projectUniqueName": "/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/depiR5gp.csproj",
         "projectName": "depiR5gp",
-        "projectPath": "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/depiR5gp.csproj",
-        "packagesPath": "/tmp/dotnet/.nuget/packages/",
-        "outputPath": "/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/obj/",
+        "projectPath": "/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/depiR5gp.csproj",
+        "packagesPath": "/home/mariam.gamal/.nuget/packages/",
+        "outputPath": "/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/obj/",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
-          "/tmp/dotnet/.nuget/NuGet/NuGet.Config"
+          "/home/mariam.gamal/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -97,7 +97,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/10.0.111/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/10.0.109/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

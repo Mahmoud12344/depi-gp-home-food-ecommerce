@@ -138,8 +138,99 @@
             </div>
         </div>
 
-        <!-- Chef Cards Grid -->
+        <!-- Chef List View -->
         <!-- TODO [Backend]: Loop through verified domestic chefs (Model.Chefs or /api/chefs?area=&search=); bind Chef.Id, PhotoUrl, IsVerified, IsAvailable, KitchenName, ChefName, Rating, ReviewCount, Bio, PickupArea, and WorkingHours -->
+        <div class="chef-list-container">
+            <template x-for="c in filteredChefs" :key="c.id">
+                <div @@click="$store.app.navigate('#chef/' + c.id)" class="chef-list-item">
+                    <!-- Chef Thumbnail -->
+                    <div class="chef-list-thumb">
+                        <img :src="c.photoUrl"
+                             :alt="c.kitchenName"
+                             loading="lazy" />
+
+                        @* Preserved (removed per user request):
+                        <!-- Verified Kitchen Badge -->
+                        <div class="absolute top-2.5 start-2.5 bg-neutral-950/90 text-white border border-white/20 backdrop-blur-xs text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+                            <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'مطبخ منزلي معتمد' : 'Verified Kitchen'">Verified Kitchen</span>
+                        </div>
+                        *@
+
+                        <!-- Favorite Heart Button -->
+                        <button type="button"
+                                @@click.stop="$store.app.toggleFavorite(c.id)"
+                                class="chef-list-fav"
+                                title="Favorite this chef">
+                            <svg class="w-4 h-4" :class="$store.app.isFavorite(c.id) ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#heart"></use>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Chef Body / Details -->
+                    <div class="chef-list-body">
+                        <!-- Header Row: Title, Subtitle, Rating & Status -->
+                        <div class="chef-list-header">
+                            <div>
+                                <h3 class="chef-list-title" x-text="$store.app.language === 'ar' ? c.kitchenNameAr : c.kitchenName"></h3>
+                                <p class="chef-list-subtitle" x-text="$store.app.language === 'ar' ? c.chefNameAr : c.chefName"></p>
+                            </div>
+                            <div class="chef-list-badges">
+                                <div class="chef-list-rating">
+                                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                    <span class="font-bold" x-text="c.rating.toFixed(1)"></span>
+                                    <span class="opacity-75" x-text="'(' + c.reviewCount + ')'"></span>
+                                </div>
+                                <span class="chef-list-status">
+                                    <span class="chef-list-pulse"></span>
+                                    <span x-text="$store.app.language === 'ar' ? 'متاح للطلب الآن' : 'Taking Orders Now'">Taking Orders Now</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Bio Description -->
+                        <p class="chef-list-bio" x-text="$store.app.language === 'ar' ? c.bioAr : c.bio"></p>
+
+                        <!-- Location & Hours Meta -->
+                        <div class="chef-list-meta">
+                            <div class="chef-list-meta-item">
+                                <svg class="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? c.pickupAreaAr : c.pickupArea"></span>
+                            </div>
+                            <div class="chef-list-meta-item">
+                                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? c.workingHoursAr : c.workingHours"></span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons Row -->
+                        <div class="chef-list-actions">
+                            <button type="button" class="chef-menu-btn chef-list-btn-primary">
+                                <span x-text="$store.app.language === 'ar' ? 'عرض قائمة المطبخ' : 'View Kitchen Menu'">View Kitchen Menu</span>
+                                <svg class="w-3.5 h-3.5" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#arrow-right"></use>
+                                </svg>
+                            </button>
+
+                            <a href="#messages" @@click.stop class="chef-list-btn-chat">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#message-circle"></use>
+                                </svg>
+                                <span x-text="$store.app.language === 'ar' ? 'محادثة الشيف' : 'Chat with Chef'">Chat with Chef</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        @*
+        ======================================================================
+        PRESERVED CODE: Original 3-Column Chef Cards Grid
+        Commented out per user request (do not delete).
+        ======================================================================
+        <!-- Chef Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <template x-for="c in filteredChefs" :key="c.id">
                 <div @@click="$store.app.navigate('#chef/' + c.id)"
@@ -202,6 +293,7 @@
                 </div>
             </template>
         </div>
+        *@
     </div>
 </div>
 

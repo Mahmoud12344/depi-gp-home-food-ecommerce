@@ -6,6 +6,15 @@
     dishId: 'dish-1',
     activeImageIndex: 0,
     lightboxOpen: false,
+    isZoomed: false,
+    openLightbox() {
+        this.lightboxOpen = true;
+        this.isZoomed = false;
+    },
+    closeLightbox() {
+        this.lightboxOpen = false;
+        this.isZoomed = false;
+    },
     quantity: 1,
     selectedOptions: {
         'Duck Portion': [{ groupName: 'Duck Portion', valueName: 'Duck Thigh & Drumstick (ورك بط)', priceModifier: 0 }]
@@ -95,8 +104,8 @@
     </div>
 
     <!-- Main Product Showcase Grid -->
-    <div class="w-full mx-auto pt-6 space-y-16"
-         style="padding-inline-start: 8px; padding-inline-end: 8px; maxWidth: 1600px;">
+    <div class="w-full mx-auto pt-6 space-y-16 max-w-[1600px]"
+         style="padding-left: 8px; padding-right: 8px; margin-left: auto; margin-right: auto;">
 
         <!-- Conditional V2 3D Circular Drum Gallery if route is #dish-v2 -->
         <template x-if="isV2Gallery">
@@ -105,10 +114,18 @@
             </div>
         </template>
 
-        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,36.5%)_minmax(0,1fr)] items-start gap-16">
-            <!-- Left Column: Gallery Frame (Vertical Image Stack for V3/Default) -->
-            <div class="lg:sticky lg:top-24 self-start space-y-4">
-                <div class="relative w-full h-[540px] sm:h-[580px] flex items-center justify-center overflow-hidden bg-[var(--color-surface)] rounded-[24px] border border-[var(--color-border)] select-none shadow-sm"
+        <!-- Active Layout matching exact user specifications:
+             Gallery Column: 36.5%
+             Details Column: 63.5% (Ratio 1 : 1.74)
+             Gallery Frame Height: 690px
+             Photo Card Dimensions: 420px × 520px (Ratio 1 : 1.24)
+             Column Gap: 64px
+             Page Side Margins (Left/Right): 8px -->
+        <div class="dish-detail-grid items-start" style="gap: 64px;">
+            <!-- Left Column: Gallery Frame (36.5%) -->
+            <div class="lg:sticky lg:top-24 self-start space-y-4 w-full">
+                <div class="dish-gallery-frame-690 relative w-full flex items-center justify-center overflow-hidden bg-[var(--color-surface)] rounded-[24px] border border-[var(--color-border)] select-none shadow-sm"
+                     style="height: 690px;"
                      x-data="{
                          isDragging: false,
                          startY: 0,
@@ -125,36 +142,36 @@
                              if (diff > total / 2) diff -= total;
                              if (diff < -total / 2) diff += total;
 
-                             const stepY = 140;
-                             const step2Y = Math.round(stepY * 1.82);
+                             const stepY = 125;
+                             const step2Y = Math.round(stepY * 1.8);
 
                              if (diff === 0) {
                                  return { y: 0, scale: 1, opacity: 1, zIndex: 5, rotateX: 0, visible: true };
                              } else if (diff === -1) {
-                                 return { y: -stepY, scale: 0.86, opacity: 0.65, zIndex: 4, rotateX: 7, visible: true };
+                                 return { y: -stepY, scale: 0.88, opacity: 0.7, zIndex: 4, rotateX: 6, visible: true };
                              } else if (diff === -2) {
-                                 return { y: -step2Y, scale: 0.74, opacity: 0.35, zIndex: 3, rotateX: 13, visible: true };
+                                 return { y: -step2Y, scale: 0.76, opacity: 0.35, zIndex: 3, rotateX: 12, visible: true };
                              } else if (diff === 1) {
-                                 return { y: stepY, scale: 0.86, opacity: 0.65, zIndex: 4, rotateX: -7, visible: true };
+                                 return { y: stepY, scale: 0.88, opacity: 0.7, zIndex: 4, rotateX: -6, visible: true };
                              } else if (diff === 2) {
-                                 return { y: step2Y, scale: 0.74, opacity: 0.35, zIndex: 3, rotateX: -13, visible: true };
+                                 return { y: step2Y, scale: 0.76, opacity: 0.35, zIndex: 3, rotateX: -12, visible: true };
                              } else {
-                                 return { y: diff > 0 ? 360 : -360, scale: 0.62, opacity: 0, zIndex: 0, rotateX: diff > 0 ? -16 : 16, visible: false };
+                                 return { y: diff > 0 ? 400 : -400, scale: 0.65, opacity: 0, zIndex: 0, rotateX: diff > 0 ? -16 : 16, visible: false };
                              }
                          }
                      }"
-                     @@pointerdown="isDragging = true; startY = $event.clientY; $el.setPointerCapture($event.pointerId)"
+                     @@pointerdown="if ($event.target.closest('button')) return; isDragging = true; startY = $event.clientY; $el.setPointerCapture($event.pointerId)"
                      @@pointerup="if (!isDragging) return; isDragging = false; const dy = $event.clientY - startY; if (dy < -35) navigate(1); else if (dy > 35) navigate(-1);"
                      @@wheel.passive="const now = Date.now(); if (now - ($el._lastWheel || 0) > 350) { $el._lastWheel = now; if ($event.deltaY > 0) navigate(1); else if ($event.deltaY < 0) navigate(-1); }">
 
                     <!-- Ambient Glow -->
                     <div class="pointer-events-none absolute inset-0">
-                        <div class="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-primary)]/8 blur-3xl"></div>
+                        <div class="absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-primary)]/8 blur-3xl"></div>
                     </div>
 
-                    <!-- 3D Card Stack Container -->
+                    <!-- 3D Card Stack Container (Holds 420px × 520px Photo Cards) -->
                     <div class="relative flex items-center justify-center w-full"
-                         style="perspective: 1200px; width: 360px; max-width: 100%; height: 500px;">
+                         style="perspective: 1200px; width: 420px; max-width: 100%; height: 600px;">
                         
                         <template x-for="(imgSrc, idx) in dish.images" :key="idx">
                             <div class="absolute cursor-grab active:cursor-grabbing transition-all duration-400 ease-out"
@@ -162,7 +179,8 @@
                                      const s = getCardStyle(idx);
                                      return `transform: translate3d(0, ${s.y}px, 0) scale(${s.scale}) rotateX(${s.rotateX}deg); opacity: ${s.opacity}; z-index: ${s.zIndex}; visibility: ${s.visible ? 'visible' : 'hidden'}; pointer-events: ${s.zIndex === 5 ? 'auto' : 'none'}; transform-style: preserve-3d;`;
                                  })()">
-                                <div class="relative h-[320px] sm:h-[370px] w-[300px] sm:w-[360px] overflow-hidden rounded-[24px] bg-[var(--color-card-bg)] border border-[var(--color-border)] shadow-xl">
+                                <div class="dish-photo-card-420-520 relative overflow-hidden rounded-[24px] bg-[var(--color-card-bg)] border border-[var(--color-border)] shadow-xl"
+                                     style="width: 420px; height: 520px; max-width: 100%; max-height: 100%;">
                                     <div class="absolute inset-0 z-10 rounded-[24px] bg-gradient-to-b from-white/10 via-transparent to-black/25 pointer-events-none"></div>
                                     <img :src="imgSrc"
                                          :alt="dish.name + ' Photo ' + (idx + 1)"
@@ -198,12 +216,20 @@
                         </div>
                     </template>
 
-                    <!-- Top-Right Expand Icon -->
+                    <!-- Top-Right Zoom In Icon -->
                     <button type="button"
-                            @@click="lightboxOpen = true"
-                            class="absolute top-4 end-4 p-2.5 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-xs transition-colors cursor-pointer z-30 shadow-md"
-                            aria-label="Expand photo">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#maximize-2"></use></svg>
+                            @@pointerdown.stop
+                            @@pointerup.stop
+                            @@click.stop="openLightbox()"
+                            class="absolute top-4 end-4 p-2.5 rounded-full bg-black/60 hover:bg-black/85 text-white backdrop-blur-xs transition-colors cursor-pointer z-40 shadow-md hover:scale-110 active:scale-95"
+                            aria-label="Zoom in"
+                            title="Zoom in">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            <line x1="11" y1="8" x2="11" y2="14"></line>
+                            <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>
                     </button>
                 </div>
 
@@ -220,8 +246,8 @@
                 </div>
             </div>
 
-            <!-- Right Column: Customization & Details -->
-            <div class="space-y-6">
+            <!-- Right Column: Customization & Details (63.5%) -->
+            <div class="space-y-6 w-full">
                 <div>
                     <!-- Category & Chef Kicker -->
                     <!-- TODO [Backend]: Bind Dish category and Chef Kitchen profile from database (Model.Dish) -->
@@ -420,5 +446,75 @@
             </div>
         </div>
     </div>
+
+    <!-- Lightbox Zoom In Modal (Teleported to body for unclipped fullscreen overlay) -->
+    <template x-teleport="body">
+        <div x-show="lightboxOpen"
+             x-cloak
+             role="dialog"
+             aria-modal="true"
+             class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/92 backdrop-blur-md p-4 select-none"
+             @@keydown.escape.window="closeLightbox()">
+
+            <!-- Top Action Bar -->
+            <div class="absolute top-4 inset-x-4 sm:inset-x-6 flex items-center justify-between z-50 pointer-events-auto">
+                <!-- Image Counter & Title -->
+                <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white text-xs sm:text-sm font-semibold">
+                    <span x-text="dish.name"></span>
+                    <span class="opacity-40">·</span>
+                    <span x-text="(activeImageIndex + 1) + ' / ' + dish.images.length"></span>
+                </div>
+
+                <!-- Controls: Zoom Toggle & Close -->
+                <div class="flex items-center gap-2">
+                    <button type="button"
+                            @@click="isZoomed = !isZoomed"
+                            class="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer shadow-md flex items-center gap-1.5 px-3.5 text-xs font-semibold"
+                            :title="isZoomed ? 'Zoom Out' : 'Zoom In'">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            <line x1="11" y1="8" x2="11" y2="14" x-show="!isZoomed"></line>
+                            <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>
+                        <span x-text="isZoomed ? ($store.app.language === 'ar' ? 'تصغير' : 'Zoom Out') : ($store.app.language === 'ar' ? 'تكبير' : 'Zoom In')"></span>
+                    </button>
+
+                    <button type="button"
+                            @@click="closeLightbox()"
+                            class="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer shadow-md"
+                            aria-label="Close zoom">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Previous button -->
+            <button type="button"
+                    @@click="activeImageIndex = (activeImageIndex === 0 ? dish.images.length - 1 : activeImageIndex - 1); isZoomed = false"
+                    class="absolute start-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/25 text-white transition-all cursor-pointer z-50 shadow-lg"
+                    aria-label="Previous photo">
+                <svg class="w-6 h-6" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-left"></use></svg>
+            </button>
+
+            <!-- Next button -->
+            <button type="button"
+                    @@click="activeImageIndex = (activeImageIndex === dish.images.length - 1 ? 0 : activeImageIndex + 1); isZoomed = false"
+                    class="absolute end-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/25 text-white transition-all cursor-pointer z-50 shadow-lg"
+                    aria-label="Next photo">
+                <svg class="w-6 h-6" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+            </button>
+
+            <!-- Enlarged Zoomed Image Container -->
+            <div class="relative max-w-5xl max-h-[82vh] overflow-auto flex items-center justify-center p-2"
+                 @@click.self="closeLightbox()">
+                <img :src="dish.images[activeImageIndex]"
+                     :alt="dish.name + ' Zoomed Photo'"
+                     @@click="isZoomed = !isZoomed"
+                     class="max-h-[78vh] object-contain rounded-2xl shadow-2xl transition-all duration-300 select-none"
+                     :class="isZoomed ? 'scale-150 sm:scale-175 cursor-zoom-out' : 'cursor-zoom-in hover:scale-102'" />
+            </div>
+        </div>
+    </template>
 </div>
 

@@ -6,7 +6,7 @@
     <!-- 1. Floating Food Hero Section -->
     <partial name="Partials/_HeroSection7" />
 
-    <!-- 2. Popular Cuisines (Circular Illustrated Pills) -->
+    <!-- 2. Popular Cuisines (Interactive Hover-Reveal Category Cards) -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-2xl mx-auto mb-10 space-y-2">
             <span class="text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]"
@@ -19,83 +19,8 @@
             </h2>
         </div>
 
-        <!-- TODO [Backend]: Loop through active categories (e.g., Model.Categories); bind CategoryName, CategoryNameAr, ImageUrl, and DishesCount -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
-            <!-- Egyptian -->
-            <div @@click="$store.app.selectedCuisine = 'egyptian'; $store.app.navigate('#dishes')"
-                 class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
-                    <img src="https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=300&auto=format&fit=crop&q=80"
-                         alt="Traditional Egyptian"
-                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                </div>
-                <h3 class="text-xs sm:text-sm font-bold uppercase text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors line-clamp-1"
-                    x-text="$store.app.language === 'ar' ? 'أكلات مصرية' : 'Traditional Egyptian'">
-                    Traditional Egyptian
-                </h3>
-                <span class="text-[10px] text-[var(--color-text-muted)] mt-1 font-medium">12 Dishes</span>
-            </div>
-
-            <!-- Tagines -->
-            <div @@click="$store.app.selectedCuisine = 'tagines'; $store.app.navigate('#dishes')"
-                 class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
-                    <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=300&auto=format&fit=crop&q=80"
-                         alt="Clay Tagines"
-                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                </div>
-                <h3 class="text-xs sm:text-sm font-bold uppercase text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors line-clamp-1"
-                    x-text="$store.app.language === 'ar' ? 'طواجن فخار' : 'Clay Tagines'">
-                    Clay Tagines
-                </h3>
-                <span class="text-[10px] text-[var(--color-text-muted)] mt-1 font-medium">8 Dishes</span>
-            </div>
-
-            <!-- Bakery -->
-            <div @@click="$store.app.selectedCuisine = 'bakery'; $store.app.navigate('#dishes')"
-                 class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
-                    <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80"
-                         alt="Artisan Bakery"
-                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                </div>
-                <h3 class="text-xs sm:text-sm font-bold uppercase text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors line-clamp-1"
-                    x-text="$store.app.language === 'ar' ? 'مخبوزات وفطير' : 'Artisan Bakery'">
-                    Artisan Bakery
-                </h3>
-                <span class="text-[10px] text-[var(--color-text-muted)] mt-1 font-medium">9 Dishes</span>
-            </div>
-
-            <!-- Alexandrian -->
-            <div @@click="$store.app.selectedCuisine = 'alexandrian'; $store.app.navigate('#dishes')"
-                 class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
-                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&auto=format&fit=crop&q=80"
-                         alt="Alexandrian Liver & Seafood"
-                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                </div>
-                <h3 class="text-xs sm:text-sm font-bold uppercase text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors line-clamp-1"
-                    x-text="$store.app.language === 'ar' ? 'مأكولات إسكندراني' : 'Alexandrian Liver & Seafood'">
-                    Alexandrian Liver & Seafood
-                </h3>
-                <span class="text-[10px] text-[var(--color-text-muted)] mt-1 font-medium">6 Dishes</span>
-            </div>
-
-            <!-- Desserts -->
-            <div @@click="$store.app.selectedCuisine = 'desserts'; $store.app.navigate('#dishes')"
-                 class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
-                    <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300&auto=format&fit=crop&q=80"
-                         alt="Oriental Desserts"
-                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                </div>
-                <h3 class="text-xs sm:text-sm font-bold uppercase text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors line-clamp-1"
-                    x-text="$store.app.language === 'ar' ? 'حلويات شرقية' : 'Oriental Desserts'">
-                    Oriental Desserts
-                </h3>
-                <span class="text-[10px] text-[var(--color-text-muted)] mt-1 font-medium">7 Dishes</span>
-            </div>
-        </div>
+        <!-- Hover Reveal Cards Partial -->
+        <partial name="Partials/_HoverRevealCards" />
     </section>
 
     <!-- 3. Fresh Today: 4-Column Product Grid -->
@@ -121,6 +46,14 @@
             </a>
         </div>
 
+        <!-- 3D Coverflow Carousel: Fresh From Home Ovens -->
+        <partial name="Partials/_CoverflowCarousel" />
+
+        @*
+        ======================================================================
+        PRESERVED CODE: Original 4-Column Product Grid
+        Commented out per user request (do not delete).
+        ======================================================================
         <!-- TODO [Backend]: Loop through today's trending/favorites dishes (e.g. Model.FreshTodayDishes); bind DishId, Name, Price, OriginalPrice, Rating, KitchenName, ImageUrl -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <partial name="Partials/_DishCard" />
@@ -248,31 +181,331 @@
                 </div>
             </div>
         </div>
+        *@
     </section>
 
-    <!-- 4. Meet Neighborhood Kitchens -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- 4. Meet Neighborhood Home Chefs (Editorial Spotlight Showcase) -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+             x-data="{ activeChef: 'chef-1' }">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 border-b border-[var(--color-border)] pb-4">
             <div>
                 <span class="text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]"
-                      x-text="$store.app.language === 'ar' ? 'مطابخ معتمدة' : 'Domestic Kitchens'">
-                    Domestic Kitchens
+                      x-text="$store.app.language === 'ar' ? 'طهاة البيوت المتميزون' : 'Featured Home Chefs'">
+                    Featured Home Chefs
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)] mt-1"
-                    x-text="$store.app.language === 'ar' ? 'طهاة الحي المحترفون' : 'Meet Your Neighborhood Chefs'">
-                    Meet Your Neighborhood Chefs
+                    x-text="$store.app.language === 'ar' ? 'تعرف على طهاة البيوت وشغفهم في كل طبق' : 'Meet Passionate Home Cooks Behind Every Dish'">
+                    Meet Passionate Home Cooks Behind Every Dish
                 </h2>
             </div>
 
-            <a href="#chefs"
-               class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto">
-                <span x-text="$store.app.language === 'ar' ? 'استعراض جميع الطهاة' : 'View All Chefs'">View All Chefs</span>
-                <svg class="w-3.5 h-3.5" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="#arrow-right"></use>
-                </svg>
-            </a>
+            <div class="flex items-center gap-4 self-start sm:self-auto">
+                <!-- Chef Switcher Pills -->
+                <div class="inline-flex p-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full text-xs font-bold">
+                    <button type="button"
+                            @@click="activeChef = 'chef-1'"
+                            :class="activeChef === 'chef-1' ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                            class="px-3.5 py-1.5 rounded-full transition-all cursor-pointer"
+                            x-text="$store.app.language === 'ar' ? 'أمينة منصور' : 'Amina'">
+                        Amina
+                    </button>
+                    <button type="button"
+                            @@click="activeChef = 'chef-2'"
+                            :class="activeChef === 'chef-2' ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                            class="px-3.5 py-1.5 rounded-full transition-all cursor-pointer"
+                            x-text="$store.app.language === 'ar' ? 'أم نبيل' : 'Om Nabil'">
+                        Om Nabil
+                    </button>
+                    <button type="button"
+                            @@click="activeChef = 'chef-3'"
+                            :class="activeChef === 'chef-3' ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                            class="px-3.5 py-1.5 rounded-full transition-all cursor-pointer"
+                            x-text="$store.app.language === 'ar' ? 'الحاجة فاطمة' : 'Fatma'">
+                        Fatma
+                    </button>
+                </div>
+
+                <a href="#chefs"
+                   class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] hover:underline flex items-center gap-1 cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'استعراض الكل' : 'View All'">View All</span>
+                    <svg class="w-3.5 h-3.5" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#arrow-right"></use>
+                    </svg>
+                </a>
+            </div>
         </div>
 
+        <!-- NEW: Featured Home Chef Spotlight (Editorial Style matching user reference) -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm relative overflow-hidden transition-colors mb-8">
+            
+            <!-- Chef 1: Amina Mansour -->
+            <div x-show="activeChef === 'chef-1'"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                
+                <!-- Left Details Column (Content, Story & Actions) -->
+                <div class="lg:col-span-7 space-y-6 text-start">
+                    <div>
+                        <h3 class="text-3xl sm:text-4xl lg:text-5xl font-serif font-black tracking-tight text-[var(--color-text)] leading-tight"
+                            x-text="$store.app.language === 'ar' ? 'الشيف أمينة منصور' : 'Amina Mansour'">
+                            Amina Mansour
+                        </h3>
+                        <p class="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#c9955e] dark:text-[#e0a870] mt-1.5"
+                           x-text="$store.app.language === 'ar' ? 'طاهية منزلية · متخصصة في الأكل المصري التراثي والملوخية' : 'Home Chef · Heirloom Egyptian Recipes & Slow Roasts'">
+                            Home Chef · Heirloom Egyptian Recipes &amp; Slow Roasts
+                        </p>
+                    </div>
+
+                    <p class="text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed font-normal max-w-xl"
+                       x-text="$store.app.language === 'ar'
+                           ? 'أطبخ في بيتي بالمعادي بنفس الطريقة التي تعلمتها من جدتي. أستخدم السمن البلدي الفلاحي الطبيعي واللحوم الطازجة والأعشاب العضوية، وأعد كل وجبة بحب واهتمام لتصلكم ساخنة وطازجة كأنها طهيت في بيتكم.'
+                           : 'I cook heirloom family recipes right from my home kitchen in Maadi, exactly as my grandmother taught me. Using 100% natural baladi ghee, inspected fresh butchery, and organic garden herbs, each dish is handcrafted with genuine care.'">
+                        I cook heirloom family recipes right from my home kitchen in Maadi, exactly as my grandmother taught me. Using 100% natural baladi ghee, inspected fresh butchery, and organic garden herbs, each dish is handcrafted with genuine care.
+                    </p>
+
+                    <!-- Handwritten Signature Script -->
+                    <div class="py-1">
+                        <svg class="h-10 text-[var(--color-primary)] opacity-85 select-none" viewBox="0 0 140 45" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M 10 32 C 15 12, 28 8, 38 18 C 45 25, 42 38, 25 35 C 15 32, 25 15, 50 22 C 70 28, 85 10, 95 24 C 102 32, 115 28, 128 20" />
+                            <circle cx="132" cy="30" r="2.5" fill="currentColor" />
+                        </svg>
+                    </div>
+
+                    <!-- Marketplace Details Row: Rate, Location, Time & Taking Orders -->
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 border-t border-[var(--color-border-light)] text-xs">
+                        <!-- Rating -->
+                        <div class="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-700/60 px-3 py-1.5 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                            <svg class="w-4 h-4 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <span>4.9</span>
+                            <span class="text-amber-700 dark:text-amber-300 font-medium">(124)</span>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'المعادي، القاهرة' : 'Maadi, Cairo'">Maadi, Cairo</span>
+                        </div>
+
+                        <!-- Pickup / Preparation Time -->
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'جاهز للاستلام خلال 45 دقيقة' : 'Pickup in 45m · 12:00 PM - 9:00 PM'">Pickup in 45m · 12:00 PM - 9:00 PM</span>
+                        </div>
+
+                        <!-- Availability Status -->
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span x-text="$store.app.language === 'ar' ? 'تستقبل الطلبات اليوم' : 'Taking Orders Today'">Taking Orders Today</span>
+                        </div>
+                    </div>
+
+                    <!-- View Menu CTA Pill Button (Styled like reference MORE button) -->
+                    <div class="pt-2">
+                        <button type="button"
+                                @@click="$store.app.navigate('#chef/chef-1')"
+                                class="chef-menu-btn inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'استعراض قائمة أطباق الشيف' : 'View Chef\'s Menu'">View Chef's Menu</span>
+                            <svg class="w-4 h-4 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#arrow-right"></use>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Visual Column (Chef Portrait & Aura) -->
+                <div class="lg:col-span-5 relative flex items-center justify-center">
+                    <div class="absolute w-64 h-64 bg-[#c9955e]/15 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                    <div class="relative w-full max-w-xs aspect-square rounded-3xl overflow-hidden shadow-xl border-4 border-white dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800" style="max-height: 320px;">
+                        <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=900&auto=format&fit=crop&q=80"
+                             alt="Chef Amina Mansour"
+                             class="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+                        
+                        @* Preserved (removed per user request):
+                        <!-- Verified Home Cook Badge -->
+                        <div class="absolute top-4 start-4 bg-neutral-950/85 text-white border border-white/20 backdrop-blur-xs text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
+                            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'طاهية منزلية موثقة' : 'Verified Home Cook'">Verified Home Cook</span>
+                        </div>
+                        *@
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chef 2: Om Nabil -->
+            <div x-show="activeChef === 'chef-2'"
+                 x-cloak
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                
+                <div class="lg:col-span-7 space-y-6 text-start">
+                    <div>
+                        <h3 class="text-3xl sm:text-4xl lg:text-5xl font-serif font-black tracking-tight text-[var(--color-text)] leading-tight"
+                            x-text="$store.app.language === 'ar' ? 'أم نبيل عبد الرحمن' : 'Om Nabil'">
+                            Om Nabil
+                        </h3>
+                        <p class="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#c9955e] dark:text-[#e0a870] mt-1.5"
+                           x-text="$store.app.language === 'ar' ? 'طاهية منزلية · متخصصة في طواجن الفخار الأسوانية والمصرية' : 'Home Chef · Master of Earthenware Tagines & Casseroles'">
+                            Home Chef · Master of Earthenware Tagines &amp; Casseroles
+                        </p>
+                    </div>
+
+                    <p class="text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed font-normal max-w-xl"
+                       x-text="$store.app.language === 'ar'
+                           ? 'أطهو طواجن الفخار المصرية في مطبخي المنزلي بالزمالك على نار هادئة لساعات طويلة. أسرار التتبيلة الأسوانية وقطع اللحم المكرملة مع البصل البلدي تجعل لكل طاجن طعماً فريداً لا ينسى.'
+                           : 'Crafting slow-braised earthenware clay tagines from my home in Zamalek. Traditional Aswan spicing and sweet caramelized baladi onions cooked patiently over embers make every meal memorable.'">
+                        Crafting slow-braised earthenware clay tagines from my home in Zamalek. Traditional Aswan spicing and sweet caramelized baladi onions cooked patiently over embers make every meal memorable.
+                    </p>
+
+                    <div class="py-1">
+                        <svg class="h-10 text-[var(--color-primary)] opacity-85 select-none" viewBox="0 0 140 45" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M 12 28 C 22 10, 35 15, 45 25 C 55 35, 30 40, 20 25 C 35 10, 60 20, 80 15 C 95 10, 110 30, 125 18" />
+                            <circle cx="130" cy="25" r="2.5" fill="currentColor" />
+                        </svg>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 border-t border-[var(--color-border-light)] text-xs">
+                        <div class="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-700/60 px-3 py-1.5 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                            <svg class="w-4 h-4 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <span>4.8</span>
+                            <span class="text-amber-700 dark:text-amber-300 font-medium">(98)</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'الزمالك، القاهرة' : 'Zamalek, Cairo'">Zamalek, Cairo</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'جاهز للاستلام خلال 60 دقيقة' : 'Pickup in 60m · 1:00 PM - 10:00 PM'">Pickup in 60m · 1:00 PM - 10:00 PM</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span x-text="$store.app.language === 'ar' ? 'تستقبل الطلبات اليوم' : 'Taking Orders Today'">Taking Orders Today</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="button"
+                                @@click="$store.app.navigate('#chef/chef-2')"
+                                class="chef-menu-btn inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'استعراض قائمة أطباق الشيف' : 'View Chef\'s Menu'">View Chef's Menu</span>
+                            <svg class="w-4 h-4 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#arrow-right"></use>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 relative flex items-center justify-center">
+                    <div class="absolute w-64 h-64 bg-[#c9955e]/15 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                    <div class="relative w-full max-w-xs aspect-square rounded-3xl overflow-hidden shadow-xl border-4 border-white dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800" style="max-height: 320px;">
+                        <img src="https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=900&auto=format&fit=crop&q=80"
+                             alt="Om Nabil"
+                             class="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+                        
+                        @* Preserved (removed per user request):
+                        <div class="absolute top-4 start-4 bg-neutral-950/85 text-white border border-white/20 backdrop-blur-xs text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
+                            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'طاهية منزلية موثقة' : 'Verified Home Cook'">Verified Home Cook</span>
+                        </div>
+                        *@
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chef 3: Hajjah Fatma -->
+            <div x-show="activeChef === 'chef-3'"
+                 x-cloak
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                
+                <div class="lg:col-span-7 space-y-6 text-start">
+                    <div>
+                        <h3 class="text-3xl sm:text-4xl lg:text-5xl font-serif font-black tracking-tight text-[var(--color-text)] leading-tight"
+                            x-text="$store.app.language === 'ar' ? 'الحاجة فاطمة الدسوقي' : 'Hajjah Fatma'">
+                            Hajjah Fatma
+                        </h3>
+                        <p class="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#c9955e] dark:text-[#e0a870] mt-1.5"
+                           x-text="$store.app.language === 'ar' ? 'طاهية منزلية · متخصصة في الفطير الفلاحي والمخبوزات الريفية' : 'Home Chef · Country Flaky Feteer & Heirloom Breads'">
+                            Home Chef · Country Flaky Feteer &amp; Heirloom Breads
+                        </p>
+                    </div>
+
+                    <p class="text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed font-normal max-w-xl"
+                       x-text="$store.app.language === 'ar'
+                           ? 'أعد الفطير المشلتت الفلاحي والمخبوزات المنزلية الطازجة في مصر الجديدة، بعجينة ترتاح لساعات وتورق بطبقات السمن البلدي الطبيعي والقشطة الفلاحي الطازجة كل صباح.'
+                           : 'Preparing rustic Egyptian layered feteer and fresh home bakery in Heliopolis. Dough rested patiently and laminated with 100% natural country butter and fresh clotted cream each morning.'">
+                        Preparing rustic Egyptian layered feteer and fresh home bakery in Heliopolis. Dough rested patiently and laminated with 100% natural country butter and fresh clotted cream each morning.
+                    </p>
+
+                    <div class="py-1">
+                        <svg class="h-10 text-[var(--color-primary)] opacity-85 select-none" viewBox="0 0 140 45" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M 15 22 C 25 15, 40 10, 50 25 C 60 40, 40 35, 30 20 C 45 5, 75 15, 90 28 C 105 35, 120 15, 130 22" />
+                            <circle cx="134" cy="22" r="2.5" fill="currentColor" />
+                        </svg>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 border-t border-[var(--color-border-light)] text-xs">
+                        <div class="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-700/60 px-3 py-1.5 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                            <svg class="w-4 h-4 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <span>4.9</span>
+                            <span class="text-amber-700 dark:text-amber-300 font-medium">(180)</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'مصر الجديدة، القاهرة' : 'Heliopolis, Cairo'">Heliopolis, Cairo</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'جاهز للاستلام خلال 30 دقيقة' : 'Pickup in 30m · 9:00 AM - 6:00 PM'">Pickup in 30m · 9:00 AM - 6:00 PM</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span x-text="$store.app.language === 'ar' ? 'تستقبل الطلبات اليوم' : 'Taking Orders Today'">Taking Orders Today</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="button"
+                                @@click="$store.app.navigate('#chef/chef-3')"
+                                class="chef-menu-btn inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'استعراض قائمة أطباق الشيف' : 'View Chef\'s Menu'">View Chef's Menu</span>
+                            <svg class="w-4 h-4 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#arrow-right"></use>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 relative flex items-center justify-center">
+                    <div class="absolute w-64 h-64 bg-[#c9955e]/15 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                    <div class="relative w-full max-w-xs aspect-square rounded-3xl overflow-hidden shadow-xl border-4 border-white dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800" style="max-height: 320px;">
+                        <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=900&auto=format&fit=crop&q=80"
+                             alt="Hajjah Fatma"
+                             class="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+                        
+                        @* Preserved (removed per user request):
+                        <div class="absolute top-4 start-4 bg-neutral-950/85 text-white border border-white/20 backdrop-blur-xs text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
+                            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'طاهية منزلية موثقة' : 'Verified Home Cook'">Verified Home Cook</span>
+                        </div>
+                        *@
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        @*
+        ======================================================================
+        PRESERVED CODE: Original 3-Column Chef Cards Grid
+        Kept intact as comments per instructions (do not delete).
+        ======================================================================
         <!-- TODO [Backend]: Loop through verified domestic chefs (e.g., Model.FeaturedChefs); bind ChefId, KitchenName, ChefName, Rating, PhotoUrl, PickupArea, WorkingHours -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             <partial name="Partials/_ChefCard" />
@@ -361,9 +594,13 @@
                 </div>
             </div>
         </div>
+        *@
     </section>
 
-    <!-- 5. How Kitchen Pickup Works -->
+    @*
+    ======================================================================
+    PRESERVED CODE: 5. How Kitchen Pickup Works (Removed per user request)
+    ======================================================================
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-gradient-to-r from-[#fdfcf9] via-[#f7f5ef] to-[#f4eee5] dark:from-neutral-900 dark:to-neutral-800 border border-[var(--color-border)] rounded-3xl p-8 sm:p-12 shadow-sm">
             <div class="text-center max-w-2xl mx-auto mb-10 space-y-2">
@@ -422,6 +659,7 @@
             </div>
         </div>
     </section>
+    *@
 
     <!-- 6. Customer Testimonials -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
