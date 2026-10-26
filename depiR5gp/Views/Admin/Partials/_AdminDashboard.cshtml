@@ -5,6 +5,15 @@
 <div x-data="{
     activeTab: 'kpis',
     commissionRate: 15,
+    showCashModal: false,
+    showPayoutModal: false,
+    showSettlementModal: false,
+    showSuspendModal: false,
+    userToSuspend: null,
+    suspendReason: 'hygiene',
+    userSearchQuery: '',
+    userRoleFilter: 'all',
+    reviewStatusFilter: 'all',
     pendingChefs: [
         {
             id: 'chef-4',
@@ -22,13 +31,26 @@
         { id: 'u-1', name: 'Tamer Zaki', email: 'tamer.zaki@example.com', role: 'Customer', status: 'Active', ordersCount: 14 },
         { id: 'u-2', name: 'Chef Amina Mansour', email: 'amina.chef@example.com', role: 'Chef', status: 'Active', ordersCount: 84 },
         { id: 'u-3', name: 'Chef Hany El-Sayed', email: 'hany.chef@example.com', role: 'Chef', status: 'Active', ordersCount: 62 },
-        { id: 'u-4', name: 'Ahmed Badawi', email: 'ahmed.b@example.com', role: 'Customer', status: 'Active', ordersCount: 2 }
+        { id: 'u-4', name: 'Ahmed Badawi', email: 'ahmed.b@example.com', role: 'Customer', status: 'Active', ordersCount: 2 },
+        { id: 'u-5', name: 'Layla Sherif', email: 'layla.support@example.com', role: 'Support', status: 'Active', ordersCount: 0 }
     ],
     reviews: [
-        { id: 'rev-1', customerName: 'Youssef Nabil', chefName: 'Amina\'s Heritage Kitchen', rating: 5, comment: 'The duck was browned to perfection and the molokhia was piping hot. Best homemade dinner in Maadi!' },
-        { id: 'rev-2', customerName: 'Salma Fathy', chefName: 'Hany\'s Gourmet Grills', rating: 5, comment: 'Braised oxtail was incredibly tender and the caramelized shallots gave it deep sweetness.' },
-        { id: 'rev-3', customerName: 'Karim Gad', chefName: 'Amina\'s Heritage Kitchen', rating: 4, comment: 'Authentic baladi ghee flavor in the feteer. Portion was generous for 4 people.' }
+        { id: 'rev-1', customerName: 'Youssef Nabil', chefName: 'Amina\'s Heritage Kitchen', rating: 5, comment: 'The duck was browned to perfection and the molokhia was piping hot. Best homemade dinner in Maadi!', status: 'Approved' },
+        { id: 'rev-2', customerName: 'Salma Fathy', chefName: 'Hany\'s Gourmet Grills', rating: 5, comment: 'Braised oxtail was incredibly tender and the caramelized shallots gave it deep sweetness.', status: 'Approved' },
+        { id: 'rev-3', customerName: 'Karim Gad', chefName: 'Amina\'s Heritage Kitchen', rating: 4, comment: 'Authentic baladi ghee flavor in the feteer. Portion was generous for 4 people.', status: 'Approved' },
+        { id: 'rev-4', customerName: 'Nouran Samir', chefName: 'Om Nabil Casseroles', rating: 5, comment: 'Superb okra with lamb meat tagine! Packaged perfectly hot and sealed.', status: 'Pending' }
     ],
+    get filteredUsers() {
+        return this.usersList.filter(u => {
+            const matchesRole = this.userRoleFilter === 'all' || u.role.toLowerCase() === this.userRoleFilter.toLowerCase();
+            const matchesSearch = !this.userSearchQuery.trim() || u.name.toLowerCase().includes(this.userSearchQuery.toLowerCase()) || u.email.toLowerCase().includes(this.userSearchQuery.toLowerCase());
+            return matchesRole && matchesSearch;
+        });
+    },
+    get filteredReviews() {
+        if (this.reviewStatusFilter === 'all') return this.reviews;
+        return this.reviews.filter(r => r.status.toLowerCase() === this.reviewStatusFilter.toLowerCase());
+    },
     handleApproveChef(chefId) {
         this.pendingChefs = this.pendingChefs.filter(c => c.id !== chefId);
         $store.app.showToast('success', 'Chef kitchen approved! Published to marketplace browse.');
@@ -37,9 +59,24 @@
         this.pendingChefs = this.pendingChefs.filter(c => c.id !== chefId);
         $store.app.showToast('info', 'Chef application rejected with feedback notes.');
     },
-    handleSuspendUser(userId) {
-        this.usersList = this.usersList.map(u => u.id === userId ? { ...u, status: u.status === 'Suspended' ? 'Active' : 'Suspended' } : u);
-        $store.app.showToast('info', 'User status updated successfully.');
+    promptSuspendUser(user) {
+        this.userToSuspend = user;
+        this.showSuspendModal = true;
+    },
+    confirmSuspendUser() {
+        if (!this.userToSuspend) return;
+        this.usersList = this.usersList.map(u => u.id === this.userToSuspend.id ? { ...u, status: u.status === 'Suspended' ? 'Active' : 'Suspended' } : u);
+        this.showSuspendModal = false;
+        $store.app.showToast('info', 'Account status updated for ' + this.userToSuspend.name);
+        this.userToSuspend = null;
+    },
+    handleApproveReview(revId) {
+        this.reviews = this.reviews.map(r => r.id === revId ? { ...r, status: 'Approved' } : r);
+        $store.app.showToast('success', 'Review approved and published.');
+    },
+    handleRejectReview(revId) {
+        this.reviews = this.reviews.map(r => r.id === revId ? { ...r, status: 'Rejected' } : r);
+        $store.app.showToast('info', 'Review rejected and hidden from public display.');
     },
     handleDeleteReview(reviewId) {
         this.reviews = this.reviews.filter(r => r.id !== reviewId);
@@ -108,6 +145,13 @@
                     x-text="$store.app.language === 'ar' ? 'إعدادات المنصة' : 'Platform Settings'">
                 Platform Settings
             </button>
+
+            <button @@click="activeTab = 'faq'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer"
+                    :class="activeTab === 'faq' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    x-text="$store.app.language === 'ar' ? 'معرفة الذكاء الاصطناعي' : 'AI Assistant FAQs'">
+                AI Assistant FAQs
+            </button>
         </div>
 
         <!-- TAB 1: Platform KPIs & Balances -->
@@ -147,11 +191,34 @@
                 </div>
             </div>
 
-            <!-- Financial Ledger Breakdown -->
-            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
-                    Platform Financial Position & Simulated Balances
-                </h3>
+            <!-- Financial Ledger Breakdown & Actions -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                        Platform Financial Position & Actions
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button"
+                                @@click="showCashModal = true"
+                                class="px-3.5 py-1.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'تسوية التحصيلات النقدية' : 'Reconcile Cash'">Reconcile Cash</span>
+                        </button>
+                        <button type="button"
+                                @@click="showPayoutModal = true"
+                                class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#credit-card"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'صرف الأرباح' : 'Disburse Payout'">Disburse Payout</span>
+                        </button>
+                        <button type="button"
+                                @@click="showSettlementModal = true"
+                                class="px-3.5 py-1.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-[var(--color-text)] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#file-text"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'فحص تسوية الطلبات' : 'Inspect Settlement'">Inspect Settlement</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                     <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
                         <span class="font-bold text-[var(--color-text-muted)] block">Card Payments (Stripe Test):</span>
@@ -165,6 +232,43 @@
                         <span class="font-bold text-[var(--color-text-muted)] block">Total Chef Payout Liabilities:</span>
                         <p class="text-lg font-bold text-emerald-600 mt-1">41,582.00 EGP</p>
                     </div>
+                </div>
+            </div>
+
+            <!-- SVG KPI Trend Charts (SCRUM-366) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? 'منحنى نمو المبيعات الأسبوعي (GMV)' : 'Weekly GMV Sales Velocity Trend'">Weekly GMV Sales Velocity Trend</h3>
+                        <p class="text-xs text-[var(--color-text-muted)] mt-0.5" x-text="$store.app.language === 'ar' ? 'معدل الطلبات اليومية وإجمالي التداولات خلال آخر 7 أيام' : 'Daily gross volume velocity across domestic kitchens over past 7 days'"></p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 rounded-full">+24.2% Growth</span>
+                </div>
+                <div class="h-36 w-full pt-4">
+                    <svg class="w-full h-full overflow-visible" viewBox="0 0 600 120" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="kpiGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.25"></stop>
+                                <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M 0,95 Q 100,75 150,80 T 300,50 T 450,30 T 600,10 L 600,120 L 0,120 Z" fill="url(#kpiGrad)" />
+                        <path d="M 0,95 Q 100,75 150,80 T 300,50 T 450,30 T 600,10" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-linecap="round" />
+                        <circle cx="0" cy="95" r="4" fill="var(--color-primary)" />
+                        <circle cx="150" cy="80" r="4" fill="var(--color-primary)" />
+                        <circle cx="300" cy="50" r="4" fill="var(--color-primary)" />
+                        <circle cx="450" cy="30" r="4" fill="var(--color-primary)" />
+                        <circle cx="600" cy="10" r="4" fill="var(--color-primary)" />
+                    </svg>
+                </div>
+                <div class="flex justify-between text-[11px] text-[var(--color-text-muted)] pt-2 border-t border-[var(--color-border-light)] overflow-x-auto gap-2">
+                    <span>Sat: 4.2k</span>
+                    <span>Sun: 5.1k</span>
+                    <span>Mon: 6.4k</span>
+                    <span>Tue: 7.2k</span>
+                    <span>Wed: 8.1k</span>
+                    <span>Thu: 8.9k</span>
+                    <span class="font-bold text-[var(--color-text)]">Fri: 9.0k EGP</span>
                 </div>
             </div>
         </div>
@@ -206,21 +310,39 @@
             </template>
         </div>
 
-        <!-- TAB 3: User Accounts -->
+        <!-- TAB 3: User Accounts (SCRUM-361) -->
         <!-- TODO [Backend]: Loop through registered ApplicationUsers; bind Name, Email, Role, Status, and wire Suspend/Reactivate toggle -->
-        <div x-show="activeTab === 'users'" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
-            <div class="p-4 border-b border-[var(--color-border)] flex items-center justify-between">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
-                    Registered Customers & Chefs
-                </h3>
+        <div x-show="activeTab === 'users'" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs space-y-4">
+            <div class="p-5 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                        Registered User Accounts
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5" x-text="$store.app.language === 'ar' ? 'البحث والفلترة وإدارة صلاحيات العملاء والطهاة والدعم' : 'Search, filter roles, and manage account statuses'"></p>
+                </div>
+
+                <!-- Search and Role filter -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="text"
+                           x-model="userSearchQuery"
+                           placeholder="Search by name or email..."
+                           class="text-xs px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    <select x-model="userRoleFilter"
+                            class="text-xs font-semibold px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden cursor-pointer">
+                        <option value="all">All Roles</option>
+                        <option value="customer">Customers</option>
+                        <option value="chef">Chefs</option>
+                        <option value="support">Support Agents</option>
+                    </select>
+                </div>
             </div>
 
             <div class="divide-y divide-[var(--color-border-light)] text-xs">
-                <template x-for="user in usersList" :key="user.id">
+                <template x-for="user in filteredUsers" :key="user.id">
                     <div class="p-4 flex items-center justify-between gap-4">
                         <div>
                             <span class="font-bold text-[var(--color-text)] block" x-text="user.name"></span>
-                            <span class="text-[11px] text-[var(--color-text-muted)]" x-text="`${user.email} · ${user.role}`"></span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]" x-text="`${user.email} · Role: ${user.role} · Orders: ${user.ordersCount}`"></span>
                         </div>
 
                         <div class="flex items-center gap-3">
@@ -229,37 +351,78 @@
                                   x-text="user.status">
                             </span>
 
-                            <button @@click="handleSuspendUser(user.id)"
-                                    class="text-xs font-semibold text-[var(--color-primary)] hover:underline cursor-pointer"
-                                    x-text="user.status === 'Active' ? 'Suspend Account' : 'Reactivate'">
+                            <button @@click="user.status === 'Active' ? promptSuspendUser(user) : handleSuspendUser(user.id)"
+                                    class="text-xs font-semibold hover:underline cursor-pointer"
+                                    :class="user.status === 'Active' ? 'text-rose-600' : 'text-[var(--color-primary)]'"
+                                    x-text="user.status === 'Active' ? 'Suspend...' : 'Reactivate'">
                             </button>
                         </div>
+                    </div>
+                </template>
+                <template x-if="filteredUsers.length === 0">
+                    <div class="p-8 text-center text-xs text-[var(--color-text-muted)]">
+                        No user accounts found matching your query.
                     </div>
                 </template>
             </div>
         </div>
 
-        <!-- TAB 4: Review Moderation -->
-        <!-- TODO [Backend]: Loop through CustomerReviews; bind Reviewer, Chef, Stars, Comment, and wire Delete moderation action -->
+        <!-- TAB 4: Review Moderation (SCRUM-552) -->
+        <!-- TODO [Backend]: Loop through CustomerReviews; bind Reviewer, Chef, Stars, Comment, and wire Approve/Reject moderation workflow -->
         <div x-show="activeTab === 'reviews'" class="space-y-4">
-            <template x-for="r in reviews" :key="r.id">
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex items-center justify-between gap-4 text-xs">
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-[var(--color-text)]" x-text="r.customerName"></span>
-                            <span class="text-[var(--color-primary)] font-semibold" x-text="`→ ${r.chefName}`"></span>
-                            <span class="text-[10px] text-amber-600 font-bold" x-text="`(${r.rating} Stars)`"></span>
-                        </div>
-                        <p class="text-[var(--color-text-muted)] italic" x-text="`“${r.comment}”`"></p>
-                    </div>
-
-                    <button @@click="handleDeleteReview(r.id)"
-                            class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
-                            title="Delete review">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+            <!-- Review status filter sub-tabs -->
+            <div class="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
+                <template x-for="rf in ['all', 'Pending', 'Approved', 'Rejected']" :key="rf">
+                    <button type="button"
+                            @@click="reviewStatusFilter = rf"
+                            :class="reviewStatusFilter === rf ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                            class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                            x-text="rf === 'all' ? 'All Reviews' : rf">
                     </button>
-                </div>
-            </template>
+                </template>
+            </div>
+
+            <div class="space-y-3">
+                <template x-for="r in filteredReviews" :key="r.id">
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-[var(--color-text)]" x-text="r.customerName"></span>
+                                <span class="text-[var(--color-primary)] font-semibold" x-text="`→ ${r.chefName}`"></span>
+                                <span class="text-[10px] text-amber-600 font-bold" x-text="`(${r.rating} Stars)`"></span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase"
+                                      :class="{
+                                          'bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-200': r.status === 'Pending',
+                                          'bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200': r.status === 'Approved',
+                                          'bg-rose-100 text-rose-900 border border-rose-300 dark:bg-rose-950 dark:text-rose-200': r.status === 'Rejected'
+                                      }"
+                                      x-text="r.status"></span>
+                            </div>
+                            <p class="text-[var(--color-text-muted)] italic" x-text="`“${r.comment}”`"></p>
+                        </div>
+
+                        <div class="flex items-center gap-2 shrink-0">
+                            <template x-if="r.status === 'Pending'">
+                                <div class="flex items-center gap-2">
+                                    <button @@click="handleRejectReview(r.id)"
+                                            class="px-3 py-1.5 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                                        Reject
+                                    </button>
+                                    <button @@click="handleApproveReview(r.id)"
+                                            class="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                                        Approve
+                                    </button>
+                                </div>
+                            </template>
+                            <button @@click="handleDeleteReview(r.id)"
+                                    class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                    title="Delete review">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
 
         <!-- TAB 5: Platform Settings -->
@@ -287,6 +450,60 @@
                 </p>
             </div>
         </div>
+
+        <!-- TAB 6: AI Assistant FAQs (SCRUM-493) -->
+        <div x-show="activeTab === 'faq'" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs">
+            <partial name="~/Views/Admin/Partials/_AIFaqManagement.cshtml" />
+        </div>
     </div>
+
+    <!-- User Suspension Reason Dialog (SCRUM-361) -->
+    <div x-show="showSuspendModal"
+         x-transition.opacity
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+         style="display: none;"
+         role="dialog"
+         aria-modal="true">
+        <div @@click.away="showSuspendModal = false"
+             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-950 text-rose-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-[var(--color-text)]">Confirm Account Suspension</h3>
+                    <p class="text-xs text-[var(--color-text-muted)]" x-text="'User: ' + (userToSuspend ? userToSuspend.name : '')"></p>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Official Justification</label>
+                <select x-model="suspendReason" class="w-full p-2.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl text-[var(--color-text)]">
+                    <option value="hygiene">Food hygiene or food safety compliance breach</option>
+                    <option value="cancellations">Excessive unfulfilled or cancelled orders</option>
+                    <option value="dispute">Unresolved customer payment/counter charge dispute</option>
+                    <option value="abusive">Abusive customer communications or terms breach</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button"
+                        @@click="showSuspendModal = false"
+                        class="px-4 py-2 rounded-full border border-[var(--color-border)] text-xs font-bold uppercase tracking-wider">
+                    Cancel
+                </button>
+                <button type="button"
+                        @@click="confirmSuspendUser()"
+                        class="px-4 py-2 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider">
+                    Confirm Suspension
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Operational Modals (Phase 4) -->
+    <partial name="~/Views/Admin/Partials/_CashReconciliationModal.cshtml" />
+    <partial name="~/Views/Admin/Partials/_AdminPayoutModal.cshtml" />
+    <partial name="~/Views/Admin/Partials/_OrderSettlementModal.cshtml" />
 </div>
 

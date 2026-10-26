@@ -1,5 +1,5 @@
 <!-- Views/Dishes/Partials/_DishDetail.cshtml -->
-<!-- Source: home_chef/src/pages/DishDetailPageV3.tsx & DishDetailPageV2.tsx -->
+<!-- Canonical Dish Detail View: #dish/{id} -->
 <!-- TODO [Backend]: Bind dish model, dynamic reviews, and option groups from database -->
 
 <div x-data="{
@@ -41,9 +41,6 @@
         ],
         description: 'Minced fresh molokhia leaves whipped with golden baladi garlic and coriander ta\'sheya, paired with roasted heritage duck and Egyptian vermicelli rice.',
         descriptionAr: 'ملوخية خضراء طازجة مخروطة يدوياً مع طشة الثوم البلدي والكزبرة الجافة، تقدم مع نصف بطة محمرة في الفرن وأرز مصري بالشعرية.'
-    },
-    get isV2Gallery() {
-        return $store.app.currentRoute.startsWith('#dish-v2');
     },
     get allSelected() {
         return Object.values(this.selectedOptions).flat();
@@ -98,15 +95,8 @@
     <div class="w-full mx-auto pt-6 space-y-16"
          style="padding-inline-start: 8px; padding-inline-end: 8px; maxWidth: 1600px;">
 
-        <!-- Conditional V2 3D Circular Drum Gallery if route is #dish-v2 -->
-        <template x-if="isV2Gallery">
-            <div class="mb-10">
-                <partial name="Partials/_Circular3DGallery" />
-            </div>
-        </template>
-
         <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,36.5%)_minmax(0,1fr)] items-start gap-16">
-            <!-- Left Column: Gallery Frame (Vertical Image Stack for V3/Default) -->
+            <!-- Left Column: Gallery Frame (Vertical Image Stack) -->
             <div class="lg:sticky lg:top-24 self-start space-y-4">
                 <div class="relative w-full h-[540px] sm:h-[580px] flex items-center justify-center overflow-hidden bg-[var(--color-surface)] rounded-[24px] border border-[var(--color-border)] select-none shadow-sm"
                      x-data="{
@@ -304,13 +294,13 @@
                 <!-- Special Instructions Note -->
                 <div class="space-y-1.5 pt-2">
                     <div class="flex items-center justify-between text-[13px]">
-                        <label for="chef-special-note-v3" class="font-bold uppercase tracking-wider text-[var(--color-text)]"
+                        <label for="chef-special-note" class="font-bold uppercase tracking-wider text-[var(--color-text)]"
                                x-text="$store.app.language === 'ar' ? 'ملاحظة خاصة للشيف' : 'Special Kitchen Instructions'">
                             Special Kitchen Instructions
                         </label>
                         <span class="font-mono text-[13px] text-[var(--color-text-muted)]" x-text="note.length + '/200'">0/200</span>
                     </div>
-                    <textarea id="chef-special-note-v3"
+                    <textarea id="chef-special-note"
                               rows="2"
                               maxlength="200"
                               x-model="note"

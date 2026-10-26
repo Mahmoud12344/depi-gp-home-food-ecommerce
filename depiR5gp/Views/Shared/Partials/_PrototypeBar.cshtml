@@ -75,23 +75,12 @@
                 <span>✨ AI Assistant</span>
             </a>
 
-            <!-- Quick Dish Preview Buttons -->
+            <!-- Quick Dish Preview Button (Single Canonical View) -->
             <a href="#dish/dish-1"
-               class="px-3 py-1 bg-amber-500/25 hover:bg-amber-500/35 text-amber-300 border border-amber-500/50 rounded-full text-[13px] font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
-               title="Preview Dish Detail Page V3 (Vertical Gallery)">
-                <span>🍲 Dish V3 (Vertical)</span>
-            </a>
-
-            <a href="#dish-v1/dish-1"
-               class="px-2.5 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700 rounded-full text-[13px] font-semibold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
-               title="Preview Dish Detail Page V1 (Original Stack)">
-                <span>Dish V1</span>
-            </a>
-
-            <a href="#dish-v2/dish-1"
-               class="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-full text-[13px] font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
-               title="Preview Dish Detail Page V2 (3D Drum Gallery)">
-                <span>✨ Dish V2 (3D)</span>
+               :class="$store.app.currentRoute.startsWith('#dish/') ? 'bg-[var(--color-primary)] text-white shadow-sm' : 'bg-amber-500/25 hover:bg-amber-500/35 text-amber-300 border border-amber-500/50'"
+               class="px-3 py-1 rounded-full text-[13px] font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0 transition-all"
+               title="Preview Dish Detail Page (#dish/dish-1)">
+                <span>🍲 Dish (#dish/dish-1)</span>
             </a>
 
             <!-- Prototype Assumptions Note -->

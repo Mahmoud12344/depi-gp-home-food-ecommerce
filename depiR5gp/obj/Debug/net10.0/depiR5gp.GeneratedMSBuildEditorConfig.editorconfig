@@ -34,6 +34,22 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vUGFydGlhbHMvX0FkbWluRGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Admin/Partials/_AdminPayoutModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vUGFydGlhbHMvX0FkbWluUGF5b3V0TW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Admin/Partials/_AIFaqManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vUGFydGlhbHMvX0FJRmFxTWFuYWdlbWVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Admin/Partials/_CashReconciliationModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vUGFydGlhbHMvX0Nhc2hSZWNvbmNpbGlhdGlvbk1vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Admin/Partials/_OrderSettlementModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vUGFydGlhbHMvX09yZGVyU2V0dGxlbWVudE1vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/AIAssistant/Partials/_AIAssistant.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQUlBc3Npc3RhbnQvUGFydGlhbHMvX0FJQXNzaXN0YW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -44,6 +60,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Cart/Partials/_CheckoutPage.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2FydC9QYXJ0aWFscy9fQ2hlY2tvdXRQYWdlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Chefs/Partials/_AddDishModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX0FkZERpc2hNb2RhbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Chefs/Partials/_BrowseChefs.cshtml]
@@ -58,12 +78,36 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX0NoZWZPbmJvYXJkaW5nLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Chefs/Partials/_DeleteDishConfirmDialog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX0RlbGV0ZURpc2hDb25maXJtRGlhbG9nLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Chefs/Partials/_EditChefProfileModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX0VkaXRDaGVmUHJvZmlsZU1vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Chefs/Partials/_EditDishModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX0VkaXREaXNoTW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Chefs/Partials/_PublicChef.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX1B1YmxpY0NoZWYuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Chefs/Partials/_RejectOrderDialog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX1JlamVjdE9yZGVyRGlhbG9nLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Customer/Partials/_CustomerProfile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ3VzdG9tZXIvUGFydGlhbHMvX0N1c3RvbWVyUHJvZmlsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Customer/Partials/_EditCustomerProfileModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ3VzdG9tZXIvUGFydGlhbHMvX0VkaXRDdXN0b21lclByb2ZpbGVNb2RhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Customer/Partials/_MySupportCases.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ3VzdG9tZXIvUGFydGlhbHMvX015U3VwcG9ydENhc2VzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Dishes/Partials/_BrowseDishes.cshtml]
@@ -90,12 +134,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Orders/Partials/_CancelOrderDialog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXJzL1BhcnRpYWxzL19DYW5jZWxPcmRlckRpYWxvZy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Orders/Partials/_OrderConfirmation.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXJzL1BhcnRpYWxzL19PcmRlckNvbmZpcm1hdGlvbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Orders/Partials/_OrderReviewModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXJzL1BhcnRpYWxzL19PcmRlclJldmlld01vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Orders/Partials/_OrderTracking.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXJzL1BhcnRpYWxzL19PcmRlclRyYWNraW5nLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Orders/Partials/_RequestRefundModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXJzL1BhcnRpYWxzL19SZXF1ZXN0UmVmdW5kTW9kYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Shared/Error.cshtml]
@@ -122,16 +178,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19DYXJ0Q29uZmxpY3REaWFsb2cuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Shared/Partials/_ChatInboxPage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19DaGF0SW5ib3hQYWdlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Shared/Partials/_ChatModal.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19DaGF0TW9kYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Shared/Partials/_ChefCard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19DaGVmQ2FyZC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Shared/Partials/_Circular3DGallery.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19DaXJjdWxhcjNER2FsbGVyeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Shared/Partials/_DishCard.cshtml]
@@ -144,6 +200,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Shared/Partials/_Footer.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19Gb290ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Shared/Partials/_ForgotPasswordModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19Gb3Jnb3RQYXNzd29yZE1vZGFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Shared/Partials/_Header.cshtml]
@@ -192,6 +252,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/StyleGuide/Partials/_StyleGuide.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3R5bGVHdWlkZS9QYXJ0aWFscy9fU3R5bGVHdWlkZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Support/Partials/_ContactSupportModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3VwcG9ydC9QYXJ0aWFscy9fQ29udGFjdFN1cHBvcnRNb2RhbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/epic_dev/RiderProjects/workspase/depiR5gp/depiR5gp/Views/Support/Partials/_SupportPortal.cshtml]

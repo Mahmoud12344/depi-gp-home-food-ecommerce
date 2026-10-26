@@ -1,0 +1,152 @@
+@*
+  Edit Chef Profile Modal Partial
+  Backlog Subtask: SCRUM-30 (Story SCRUM-27)
+  Epic: SCRUM-22 Chef Profile
+*@
+<div x-cloak
+     x-show="editProfileOpen"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0 scale-95"
+     x-transition:enter-end="opacity-100 scale-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100 scale-100"
+     x-transition:leave-end="opacity-0 scale-95"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+
+    <div @@click.away="editProfileOpen = false"
+         class="relative w-full max-w-2xl bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] mb-6">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'تعديل بيانات الشيف والمطبخ' : 'Edit Chef & Kitchen Profile'">
+                        Edit Chef &amp; Kitchen Profile
+                    </h3>
+                    <p class="text-[11px] text-[var(--color-text-muted)]"
+                       x-text="$store.app.language === 'ar' ? 'تحديث النبذة التعريفية، مواعيد العمل، وعنوان الاستلام' : 'Update kitchen bio, operating schedule, and pickup counter location'">
+                        Update kitchen bio, operating schedule, and pickup counter location
+                    </p>
+                </div>
+            </div>
+            <button type="button" @@click="editProfileOpen = false" class="p-1 text-neutral-400 hover:text-[var(--color-text)] transition-colors cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+            </button>
+        </div>
+
+        <!-- Edit Form -->
+        <!-- TODO [Backend]: POST /api/chef/profile with ChefProfileEditModel, validate authorized chef claim, save bio and schedule -->
+        <form @@submit.prevent="saveChefProfile()" class="space-y-6 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'اسم المطبخ (بالإنجليزية)' : 'Kitchen Name (English)'">Kitchen Name (English)</label>
+                    <input type="text" required x-model="profileForm.kitchenName"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'اسم المطبخ (بالعربية)' : 'Kitchen Name (Arabic)'">Kitchen Name (Arabic)</label>
+                    <input type="text" required x-model="profileForm.kitchenNameAr"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+            </div>
+
+            <!-- Bio -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'نبذة عن الشيف والمطبخ (بالإنجليزية)' : 'Chef Bio & Culinary Heritage (English)'">Chef Bio (English)</label>
+                    <textarea rows="3" required x-model="profileForm.bio"
+                              class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed"></textarea>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'نبذة عن الشيف والمطبخ (بالعربية)' : 'Chef Bio (Arabic)'">Chef Bio (Arabic)</label>
+                    <textarea rows="3" required x-model="profileForm.bioAr"
+                              class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed"></textarea>
+                </div>
+            </div>
+
+            <!-- Photo URL & Pickup Area -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'حي الاستلام (ظاهر للعامة)' : 'Pickup Neighborhood Area (Public)'">Pickup Area</label>
+                    <select x-model="profileForm.pickupArea"
+                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
+                        <option value="Maadi">Maadi (المعادي)</option>
+                        <option value="Zamalek">Zamalek (الزمالك)</option>
+                        <option value="New Cairo">New Cairo (القاهرة الجديدة)</option>
+                        <option value="Nasr City">Nasr City (مدينة نصر)</option>
+                        <option value="Heliopolis">Heliopolis (مصر الجديدة)</option>
+                        <option value="Dokki">Dokki (الدقي)</option>
+                        <option value="Mohandessin">Mohandessin (المهندسين)</option>
+                        <option value="6th of October">6th of October (السادس من أكتوبر)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'رابط الصورة الشخصية' : 'Profile Photo URL'">Profile Photo URL</label>
+                    <input type="url" required x-model="profileForm.avatarUrl"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+            </div>
+
+            <!-- Exact Pickup Street Address -->
+            <div>
+                <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                       x-text="$store.app.language === 'ar' ? 'عنوان الاستلام التفصيلي (يظهر للزبون بعد تأكيد الطلب)' : 'Exact Pickup Counter Address (Disclosed to customer after order confirmation)'">
+                    Exact Pickup Counter Address
+                </label>
+                <input type="text" required x-model="profileForm.address"
+                       class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                <p class="text-[11px] text-[var(--color-text-muted)] mt-1"
+                   x-text="$store.app.language === 'ar' ? 'حماية لخصوصية المطبخ المنزلي: يتم مشاركة الحي العام فقط في التصفح، والعنوان التفصيلي بعد الشراء.' : 'Home kitchen privacy guard: Only neighborhood area is public before ordering.'">
+                    Home kitchen privacy guard: Only neighborhood area is public before ordering.
+                </p>
+            </div>
+
+            <!-- Operating Working Hours Schedule -->
+            <!-- Backlog: SCRUM-66 & SCRUM-30 working hours support per day -->
+            <div class="space-y-3 pt-2 border-t border-[var(--color-border-light)]">
+                <h4 class="font-bold uppercase tracking-wider text-[var(--color-text)] flex items-center gap-1.5"
+                    x-text="$store.app.language === 'ar' ? 'مواعيد العمل واستقبال الطلبات' : 'Kitchen Operating Hours Schedule'">
+                    <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span>Kitchen Operating Hours Schedule</span>
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xl border border-[var(--color-border-light)] space-y-1">
+                        <span class="font-bold text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? 'أيام العمل الأسبوعية:' : 'Working Days:'">Working Days:</span>
+                        <div class="flex items-center gap-2 pt-1">
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100 text-[11px] font-bold">Tuesday – Sunday</span>
+                            <span class="text-[10px] text-neutral-400 font-medium">(Mondays Closed)</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xl border border-[var(--color-border-light)] space-y-1">
+                        <span class="font-bold text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? 'ساعات استلام الوجبات:' : 'Daily Pickup Hours:'">Daily Pickup Hours:</span>
+                        <div class="flex items-center gap-2 pt-1 font-bold text-[var(--color-primary)]">
+                            <span>12:00 PM – 10:30 PM (Cairo Time)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+                <button type="button" @@click="editProfileOpen = false"
+                        class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider transition-colors cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'إلغاء' : 'Cancel'">Cancel</span>
+                </button>
+                <button type="submit"
+                        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'حفظ التعديلات' : 'Save Profile Changes'">Save Profile Changes</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

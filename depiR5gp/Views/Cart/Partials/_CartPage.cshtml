@@ -2,7 +2,13 @@
 <!-- Source: home_chef/src/pages/CartPage.tsx -->
 <!-- TODO [Backend]: Sync cart with server-side session or customer order draft -->
 
-<div class="w-full pb-24">
+<div x-data="{
+    showDemoUnavailable: false,
+    hasUnavailable() {
+        return this.showDemoUnavailable || $store.app.cart.items.some(i => i.isAvailable === false);
+    }
+}"
+     class="w-full pb-24">
     <!-- Breadcrumb banner -->
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -47,9 +53,44 @@
         </div>
 
         <!-- Populated Cart Content -->
-        <div x-show="$store.app.cart.items.length > 0" class="space-y-8">
-            <!-- Single-Chef Notice -->
-            <div class="p-4 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-2xl border border-[var(--color-primary)]/20 flex items-center justify-between text-xs">
+        <div x-show="$store.app.cart.items.length > 0" class="space-y-6">
+            <!-- Undo Item Removal Toast/Banner (SCRUM-191) -->
+            <template x-if="$store.app.lastRemovedItem">
+                <div x-transition class="p-3.5 bg-neutral-900 text-white rounded-2xl flex items-center justify-between text-xs shadow-lg">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'تم حذف الوجبة من سلة التسوق.' : 'Item removed from your cart.'">Item removed from your cart.</span>
+                    </div>
+                    <button type="button"
+                            @@click="$store.app.undoRemoveItem()"
+                            class="font-bold text-[var(--color-primary-light)] hover:underline uppercase tracking-wider text-xs cursor-pointer flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#rotate-ccw"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'تراجع (إعادة الوجبة)' : 'Undo'">Undo</span>
+                    </button>
+                </div>
+            </template>
+
+            <!-- Top Warning Alert Banner for Unavailable Cart Items (SCRUM-205) -->
+            <template x-if="hasUnavailable()">
+                <div x-transition class="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-rose-900 dark:text-rose-200 text-xs shadow-xs">
+                    <div class="flex items-start gap-2.5">
+                        <svg class="w-5 h-5 shrink-0 text-rose-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
+                        <div>
+                            <h4 class="font-bold text-sm" x-text="$store.app.language === 'ar' ? 'تنبيه: يحتوي طلبك على أطباق غير متوفرة حالياً' : 'Attention: One or more dishes in your cart are currently unavailable'"></h4>
+                            <p class="mt-0.5" x-text="$store.app.language === 'ar' ? 'لا يمكن إتمام الطلب إلا بعد إزالة الوجبات غير المتوفرة من السلة.' : 'You cannot check out until unavailable items are removed from your cart.'"></p>
+                        </div>
+                    </div>
+                    <button type="button"
+                            @@click="showDemoUnavailable = false; $store.app.cart.items = $store.app.cart.items.filter(i => i.isAvailable !== false); $store.app.showToast('info', 'Unavailable dishes removed from cart')"
+                            class="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer text-center"
+                            x-text="$store.app.language === 'ar' ? 'حذف غير المتوفر' : 'Remove Unavailable'">
+                        Remove Unavailable
+                    </button>
+                </div>
+            </template>
+
+            <!-- Single-Chef Notice & Simulation Control -->
+            <div class="p-4 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-2xl border border-[var(--color-primary)]/20 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div class="flex items-center gap-2.5">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
                     <span x-text="$store.app.language === 'ar'
@@ -57,12 +98,19 @@
                         : ('Currently ordering from: ' + ($store.app.cart.chefName || '') + ' · Direct kitchen counter pickup')">
                     </span>
                 </div>
-                <button type="button"
-                        @@click="$store.app.clearCart()"
-                        class="text-xs font-semibold underline hover:opacity-80 cursor-pointer shrink-0"
-                        x-text="$store.app.language === 'ar' ? 'إفراغ السلة' : 'Clear Cart'">
-                    Clear Cart
-                </button>
+                <div class="flex items-center gap-3">
+                    <button type="button"
+                            @@click="showDemoUnavailable = !showDemoUnavailable"
+                            class="text-[11px] underline text-neutral-600 dark:text-neutral-400 hover:text-[var(--color-primary)] cursor-pointer">
+                        <span x-text="showDemoUnavailable ? 'Reset Available State' : 'Simulate Unavailable Dish (SCRUM-203)'"></span>
+                    </button>
+                    <button type="button"
+                            @@click="$store.app.clearCart()"
+                            class="text-xs font-semibold underline hover:opacity-80 cursor-pointer shrink-0"
+                            x-text="$store.app.language === 'ar' ? 'إفراغ السلة' : 'Clear Cart'">
+                        Clear Cart
+                    </button>
+                </div>
             </div>
 
             <!-- Cart Table -->
@@ -75,23 +123,48 @@
 
                 <!-- TODO [Backend]: Iterate through Cart.Items; bind DishId, Name, Price, SelectedOptions, InstructionsNote, Quantity, and LineTotal -->
                 <div class="divide-y divide-[var(--color-border-light)]">
-                    <template x-for="item in $store.app.cart.items" :key="item.id">
-                        <div class="p-5 flex flex-col sm:grid sm:grid-cols-12 gap-4 items-center">
+                    <template x-for="(item, idx) in $store.app.cart.items" :key="item.id">
+                        <div class="p-5 flex flex-col sm:grid sm:grid-cols-12 gap-4 items-center transition-opacity"
+                             :class="(showDemoUnavailable && idx === 0) || item.isAvailable === false ? 'opacity-65 bg-neutral-100/60 dark:bg-neutral-900/60' : ''">
                             <!-- Product Column -->
                             <div class="sm:col-span-6 flex items-start gap-4 w-full">
-                                <img src="https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80"
-                                     :alt="item.dish?.name || 'Dish'"
-                                     class="w-20 h-20 rounded-xl object-cover shrink-0 border border-[var(--color-border)]" />
+                                <div class="relative">
+                                    <img src="https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80"
+                                         :alt="item.dish?.name || 'Dish'"
+                                         class="w-20 h-20 rounded-xl object-cover shrink-0 border border-[var(--color-border)]" />
+                                    <!-- Strikethrough / Unavailable overlay tag (SCRUM-203) -->
+                                    <template x-if="(showDemoUnavailable && idx === 0) || item.isAvailable === false">
+                                        <span class="absolute inset-0 bg-neutral-950/60 rounded-xl flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-wider text-center p-1">
+                                            Unavailable
+                                        </span>
+                                    </template>
+                                </div>
                                 <div class="space-y-1 min-w-0">
-                                    <h3 class="text-sm font-bold uppercase tracking-tight text-[var(--color-text)]"
-                                        x-text="$store.app.language === 'ar' ? (item.dish?.nameAr || item.dish?.name || 'وجبة') : (item.dish?.name || 'Dish')">
-                                    </h3>
-                                    <p class="text-xs font-semibold text-[var(--color-primary)]"
-                                       x-text="(item.unitPrice || 0).toFixed(2) + ' EGP'">
-                                    </p>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h3 class="text-sm font-bold uppercase tracking-tight text-[var(--color-text)]"
+                                            x-text="$store.app.language === 'ar' ? (item.dish?.nameAr || item.dish?.name || 'وجبة') : (item.dish?.name || 'Dish')">
+                                        </h3>
+                                        <!-- Unavailable Tag (SCRUM-203) -->
+                                        <template x-if="(showDemoUnavailable && idx === 0) || item.isAvailable === false">
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                                                <svg class="w-3 h-3 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-circle"></use></svg>
+                                                <span x-text="$store.app.language === 'ar' ? 'غير متوفر اليوم' : 'Unavailable'">Unavailable</span>
+                                            </span>
+                                        </template>
+                                    </div>
+                                    <div class="flex items-baseline gap-2">
+                                        <p class="text-xs font-semibold text-[var(--color-primary)]"
+                                           x-text="(item.unitPrice || 0).toFixed(2) + ' EGP'">
+                                        </p>
+                                        <!-- Price updated tag (SCRUM-203) -->
+                                        <template x-if="item.oldPrice && item.oldPrice !== item.unitPrice">
+                                            <span class="text-[10px] text-[var(--color-text-muted)] line-through"
+                                                  x-text="item.oldPrice.toFixed(2) + ' EGP'"></span>
+                                        </template>
+                                    </div>
                                     <template x-if="item.selectedOptions && item.selectedOptions.length > 0">
                                         <div class="text-[11px] text-[var(--color-text-muted)] space-y-0.5 pt-0.5">
-                                            <template x-for="(opt, idx) in item.selectedOptions" :key="idx">
+                                            <template x-for="(opt, optIdx) in item.selectedOptions" :key="optIdx">
                                                 <p>
                                                     <span class="font-medium text-[var(--color-text)]" x-text="opt.groupName + ':'"></span> <span x-text="opt.valueName"></span>
                                                 </p>
@@ -151,11 +224,20 @@
                         </p>
                     </div>
 
-                    <button type="button"
-                            @@click="if ($store.app.role === 'guest') { $store.app.loginModalOpen = true; } else { $store.app.navigate('#checkout'); }"
-                            class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98]">
-                        <span x-text="$store.app.language === 'ar' ? 'متابعة الدفع والاستلام' : 'Check Out'">Check Out</span>
-                    </button>
+                    <!-- Checkout Button with disabled check (SCRUM-204) -->
+                    <div>
+                        <button type="button"
+                                :disabled="hasUnavailable()"
+                                :class="hasUnavailable() ? 'opacity-50 cursor-not-allowed bg-neutral-400 dark:bg-neutral-700 pointer-events-none' : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] active:scale-[0.98]'"
+                                @@click="if (!hasUnavailable()) { if ($store.app.role === 'guest') { $store.app.loginModalOpen = true; } else { $store.app.navigate('#checkout'); } }"
+                                class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md text-white">
+                            <span x-text="$store.app.language === 'ar' ? 'متابعة الدفع والاستلام' : 'Check Out'">Check Out</span>
+                        </button>
+                        <template x-if="hasUnavailable()">
+                            <p class="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1.5 text-center"
+                               x-text="$store.app.language === 'ar' ? 'زر إتمام الشراء معطل لوجود وجبات غير متوفرة في السلة' : 'Checkout is disabled because your cart contains unavailable dishes'"></p>
+                        </template>
+                    </div>
                 </div>
             </div>
         </div>

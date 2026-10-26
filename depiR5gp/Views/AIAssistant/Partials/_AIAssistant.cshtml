@@ -458,7 +458,7 @@
                                                 </template>
                                             </div>
 
-                                            <h4 @@click="$store.app.navigate(`#dish-v3/${dish.id}`)"
+                                            <h4 @@click="$store.app.navigate('#dish/' + dish.id)"
                                                 class="font-bold text-xs text-[var(--color-text)] truncate cursor-pointer hover:text-[var(--color-primary)] transition-colors"
                                                 x-text="$store.app.language === 'ar' ? dish.nameAr : dish.name">
                                             </h4>
@@ -489,7 +489,7 @@
                                     </div>
 
                                     <div class="pt-2 border-t border-[var(--color-border-light)] flex items-center justify-between gap-2">
-                                        <a :href="`#dish-v3/${dish.id}`"
+                                        <a :href="'#dish/' + dish.id"
                                            class="text-[11px] font-semibold text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
                                             <span x-text="$store.app.language === 'ar' ? 'تفاصيل الطبق والخيارات' : 'View Full Details'">View Full Details</span>
                                             <svg class="w-3 h-3" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>

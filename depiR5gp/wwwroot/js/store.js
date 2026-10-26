@@ -58,6 +58,8 @@ document.addEventListener('alpine:init', () => {
     optionsModalDish: null,
     notificationsOpen: false,
     chatModalOpen: false,
+    contactSupportOpen: false,
+    forgotPasswordOpen: false,
 
     // Search & Filter State
     searchQuery: '',
@@ -233,7 +235,14 @@ document.addEventListener('alpine:init', () => {
       localStorage.setItem('hc_cart', JSON.stringify(this.cart));
     },
 
+    // Undo cart removal (SCRUM-191)
+    lastRemovedItem: null,
+
     removeCartItem(itemId) {
+      const removed = this.cart.items.find((item) => item.id === itemId);
+      if (removed) {
+        this.lastRemovedItem = { ...removed };
+      }
       const updated = this.cart.items.filter((item) => item.id !== itemId);
       if (updated.length === 0) {
         this.clearCart();
@@ -246,8 +255,24 @@ document.addEventListener('alpine:init', () => {
           subtotal: newSubtotal,
         };
         localStorage.setItem('hc_cart', JSON.stringify(this.cart));
-        this.showToast('info', 'Item removed from cart.');
+        this.showToast('info', 'Item removed from cart. You can undo this action.');
       }
+    },
+
+    undoRemoveItem() {
+      if (!this.lastRemovedItem) return;
+      const restored = { ...this.lastRemovedItem };
+      const updated = [...this.cart.items, restored];
+      const newSubtotal = updated.reduce((sum, item) => sum + item.lineTotal, 0);
+      this.cart = {
+        chefId: this.cart.chefId || restored.dish?.chefId || 'chef-1',
+        chefName: this.cart.chefName || restored.dish?.kitchenName || "Amina's Heritage Kitchen",
+        items: updated,
+        subtotal: newSubtotal,
+      };
+      localStorage.setItem('hc_cart', JSON.stringify(this.cart));
+      this.lastRemovedItem = null;
+      this.showToast('success', 'Item restored to your cart!');
     },
 
     clearCart() {
