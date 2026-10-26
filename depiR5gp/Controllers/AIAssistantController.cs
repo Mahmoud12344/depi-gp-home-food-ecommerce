@@ -5,6 +5,7 @@ namespace depiR5gp.Controllers;
 
 public class AIAssistantController(IUnitOfWork unitOfWork) : Controller
 {
+    
     public IActionResult Index() => View();
 }
 

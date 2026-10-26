@@ -7,6 +7,9 @@ public class ChefsController(IUnitOfWork unitOfWork) : Controller
 {
     public IActionResult Index() => View();
     public IActionResult Details(int id) => View();
-    public IActionResult Onboarding() => View();
+    public IActionResult Onboarding() {
+        var repo = unitOfWork.Chefs;
+        return View();
+    }
 }
 

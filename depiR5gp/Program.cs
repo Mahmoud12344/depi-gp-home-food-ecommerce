@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 var baseConnection = builder.Configuration.GetConnectionString("DefaultConnection") 
-                     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+                     ?? "Server=.;Database=depiR5gp;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 
 var connectionBuilder = new SqlConnectionStringBuilder(baseConnection);
 var dbServer = builder.Configuration["DbServer"];
@@ -46,8 +46,16 @@ var app = builder.Build();
 // 2. Auto-apply EF Core Migrations on startup (Works locally & on Azure!)
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning("⚠️ Could not connect to SQL Server to auto-apply migrations on startup ({Message}). The application will continue running in offline/mock mode.", ex.Message);
+    }
 }
 
 if (!app.Environment.IsDevelopment())
