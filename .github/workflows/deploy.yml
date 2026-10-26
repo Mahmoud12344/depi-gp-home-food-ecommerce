@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: depiR5gp/depiR5gp/package-lock.json
+          cache-dependency-path: depiR5gp/package-lock.json
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -31,18 +31,18 @@ jobs:
 
       # Step 1: Install frontend dependencies & compile Tailwind CSS v4
       - name: Build Tailwind CSS
-        working-directory: depiR5gp/depiR5gp
+        working-directory: depiR5gp
         run: |
           npm ci
           npm run css:build
 
       # Step 2: Restore .NET packages
       - name: Restore dependencies
-        run: dotnet restore depiR5gp/depiR5gp/depiR5gp.csproj
+        run: dotnet restore depiR5gp/depiR5gp.csproj
 
       # Step 3: Publish ASP.NET Core application (includes compiled site.css in wwwroot)
       - name: Build and Publish
-        run: dotnet publish depiR5gp/depiR5gp/depiR5gp.csproj -c Release -o ./publish_output
+        run: dotnet publish depiR5gp/depiR5gp.csproj -c Release -o ./publish_output
 
       # Step 4: Deploy to Azure Web App
       - name: Deploy to Azure Web App
