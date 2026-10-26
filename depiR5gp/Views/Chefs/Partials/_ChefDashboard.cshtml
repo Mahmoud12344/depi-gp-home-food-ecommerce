@@ -1,0 +1,594 @@
+<!-- Views/Chefs/Partials/_ChefDashboard.cshtml -->
+<!-- Source: home_chef/src/pages/ChefDashboardPage.tsx -->
+<!-- Backlog Epics: SCRUM-22 Chef Profile, SCRUM-31 Menu Management, SCRUM-32 Chef Orders & Dashboard -->
+<!-- TODO [Backend]: Connect to Chef Orders and Menu Web API endpoints, bind authorized chef model -->
+
+<div x-data="{
+    activeTab: 'orders',
+    isKitchenAvailable: true,
+    editProfileOpen: false,
+    addDishModalOpen: false,
+    editDishModalOpen: false,
+    deleteDishConfirmOpen: false,
+    rejectOrderModalOpen: false,
+    historyStatusFilter: 'all',
+    historySearch: '',
+
+    profileForm: {
+        kitchenName: 'Amina\'s Heritage Kitchen',
+        kitchenNameAr: 'مطبخ أمينة التراثي',
+        bio: 'Cooking traditional Egyptian baladi recipes inherited from my grandmother in Upper Egypt, using 100% pure baladi ghee and farm-fresh poultry.',
+        bioAr: 'أطبخ أشهى الأكلات والوصفات المصرية التراثية المتوارثة عن جدتي من صعيد مصر، بالسمن البلدي الفلاحي والطيور الطازجة يومياً.',
+        pickupArea: 'Maadi',
+        address: 'Bldg 14, Road 9, Degla, Maadi, Cairo (Ground Floor Gate)',
+        avatarUrl: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=300&auto=format&fit=crop&q=80'
+    },
+
+    dishForm: {
+        name: '',
+        nameAr: '',
+        description: '',
+        descriptionAr: '',
+        category: 'Traditional Egyptian',
+        price: 180,
+        prepTime: 45,
+        image: 'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80',
+        isAvailable: true,
+        optionGroups: [
+            {
+                title: 'Rice Choice',
+                type: 'radio',
+                required: true,
+                options: [
+                    { name: 'Vermicelli Rice (أرز بالشعرية)', extraPrice: 0 },
+                    { name: 'Egyptian White Rice (أرز مصري مفلفل)', extraPrice: 0 }
+                ]
+            }
+        ]
+    },
+
+    editingDish: null,
+    deletingDish: null,
+    rejectingOrder: null,
+    rejectionReason: 'capacity',
+    rejectionNote: '',
+
+    orders: [
+        {
+            id: 'ord-101',
+            orderNumber: 'HC-2026-9041',
+            customerName: 'Tamer Zaki',
+            dishTitle: 'Baladi Duck Molokhia with Vermicelli Rice (x1)',
+            status: 'Preparing',
+            totalPrice: 240,
+            specialNote: 'Extra crispy duck skin please',
+            pickupTime: '15:45 - 16:15'
+        },
+        {
+            id: 'ord-102',
+            orderNumber: 'HC-2026-9042',
+            customerName: 'Nour El-Din',
+            dishTitle: 'Oxtail Tagine with Baby Caramelized Onions (x1)',
+            status: 'Pending',
+            totalPrice: 310,
+            specialNote: 'Mild garlic, extra bread',
+            pickupTime: '16:30 - 17:00'
+        }
+    ],
+
+    dishes: [
+        { id: 'd-1', name: 'Baladi Duck Molokhia with Vermicelli Rice', nameAr: 'ملوخية بالبط البلدي مع أرز بالشعرية', price: 240, isAvailable: true, category: 'Traditional Egyptian' },
+        { id: 'd-2', name: 'Pigeon Stuffed with Spiced Freekeh', nameAr: 'حمام محشي بالفريك البلدي المحمر', price: 270, isAvailable: true, category: 'Traditional Egyptian' },
+        { id: 'd-3', name: 'Clay Oven Oxtail Tagine with Shallots', nameAr: 'طاجن عكاوي بلدي بالبصل القاورما في الفرن', price: 310, isAvailable: true, category: 'Tagines & Casseroles' }
+    ],
+
+    orderHistory: [
+        { id: 'h-1', orderNumber: 'HC-2026-8840', customerName: 'Sara Ahmed', dishTitle: 'Feteer Meshaltet with Baladi Honey', status: 'Completed', totalPrice: 190, completedAt: '2026-10-23 18:30' },
+        { id: 'h-2', orderNumber: 'HC-2026-8812', customerName: 'Dina Magdy', dishTitle: 'Trio Hawawshi Box with Tahini', status: 'Completed', totalPrice: 160, completedAt: '2026-10-22 14:15' },
+        { id: 'h-3', orderNumber: 'HC-2026-8790', customerName: 'Karim Gad', dishTitle: 'Stuffed Cabbage Rolls (Mahshi Koronb)', status: 'Cancelled', totalPrice: 220, completedAt: '2026-10-21 16:00' },
+        { id: 'h-4', orderNumber: 'HC-2026-8744', customerName: 'Mohamed Tarek', dishTitle: 'Baladi Duck Molokhia with Rice', status: 'Rejected', totalPrice: 240, completedAt: '2026-10-20 19:45' }
+    ],
+
+    reviews: [
+        { id: 'r-1', customerName: 'Youssef Nabil', rating: 5, date: '2026-10-23', comment: 'The duck was browned to perfection with crispy skin and the molokhia was piping hot. Best homemade dinner in Maadi!', dishName: 'Baladi Duck Molokhia' },
+        { id: 'r-2', customerName: 'Salma Fathy', rating: 5, date: '2026-10-21', comment: 'Authentic baladi ghee flavor in the feteer. Portion was very generous for our family gathering.', dishName: 'Feteer Meshaltet' },
+        { id: 'r-3', customerName: 'Karim Gad', rating: 4, date: '2026-10-18', comment: 'Very tasty tagine, oxtail was fork-tender. Picked up on time right at the kitchen gate.', dishName: 'Clay Oven Oxtail Tagine' }
+    ],
+
+    walletLedger: [
+        { id: 'w-1', date: '2026-10-23 18:30', refNumber: 'HC-2026-8840', type: 'Order Credit (+85%)', gross: 190, fee: 28.5, net: 161.5, balance: 4820 },
+        { id: 'w-2', date: '2026-10-22 14:15', refNumber: 'HC-2026-8812', type: 'Order Credit (+85%)', gross: 160, fee: 24, net: 136, balance: 4658.5 },
+        { id: 'w-3', date: '2026-10-21 11:00', refNumber: 'PAYOUT-2026-90', type: 'InstaPay Payout (Disbursed)', gross: 0, fee: 0, net: -3500, balance: 4522.5 },
+        { id: 'w-4', date: '2026-10-20 20:00', refNumber: 'REF-2026-092', type: 'Refund Reversal', gross: -240, fee: -36, net: -204, balance: 8022.5 }
+    ],
+
+    updateOrderStatus(orderId, nextStatus) {
+        const ord = this.orders.find(o => o.id === orderId);
+        if (ord) {
+            ord.status = nextStatus;
+            $store.app.showToast('success', 'Order status updated to ' + nextStatus + '. Customer notified.');
+        }
+    },
+
+    saveChefProfile() {
+        this.editProfileOpen = false;
+        $store.app.showToast('success', $store.app.language === 'ar' ? 'تم تحديث بيانات المطبخ ومواعيد العمل بنجاح!' : 'Kitchen profile and operating hours updated successfully!');
+    },
+
+    saveNewDish() {
+        const newId = 'd-' + (this.dishes.length + 1);
+        this.dishes.push({
+            id: newId,
+            name: this.dishForm.name,
+            nameAr: this.dishForm.nameAr,
+            price: Number(this.dishForm.price),
+            category: this.dishForm.category,
+            isAvailable: this.dishForm.isAvailable
+        });
+        this.addDishModalOpen = false;
+        $store.app.showToast('success', $store.app.language === 'ar' ? 'تمت إضافة الطبق الجديد لقائمة المطبخ!' : 'New dish published to your kitchen menu!');
+    },
+
+    openEditDish(dish) {
+        this.editingDish = JSON.parse(JSON.stringify(dish));
+        this.editDishModalOpen = true;
+    },
+
+    saveEditedDish() {
+        if (!this.editingDish) return;
+        const idx = this.dishes.findIndex(d => d.id === this.editingDish.id);
+        if (idx !== -1) {
+            this.dishes[idx] = JSON.parse(JSON.stringify(this.editingDish));
+        }
+        this.editDishModalOpen = false;
+        $store.app.showToast('success', $store.app.language === 'ar' ? 'تم تحديث الطبق بنجاح!' : 'Dish updated successfully!');
+    },
+
+    openDeleteDish(dish) {
+        this.deletingDish = dish;
+        this.deleteDishConfirmOpen = true;
+    },
+
+    confirmDeleteDish() {
+        if (!this.deletingDish) return;
+        this.dishes = this.dishes.filter(d => d.id !== this.deletingDish.id);
+        this.deleteDishConfirmOpen = false;
+        $store.app.showToast('info', $store.app.language === 'ar' ? 'تم حذف الطبق من قائمة العرض.' : 'Dish removed from kitchen menu.');
+    },
+
+    openRejectOrder(ord) {
+        this.rejectingOrder = ord;
+        this.rejectOrderModalOpen = true;
+    },
+
+    confirmRejectOrder() {
+        if (!this.rejectingOrder) return;
+        this.rejectingOrder.status = 'Rejected';
+        this.orderHistory.unshift({
+            id: 'h-' + Date.now(),
+            orderNumber: this.rejectingOrder.orderNumber,
+            customerName: this.rejectingOrder.customerName,
+            dishTitle: this.rejectingOrder.dishTitle,
+            status: 'Rejected',
+            totalPrice: this.rejectingOrder.totalPrice,
+            completedAt: 'Just now'
+        });
+        this.orders = this.orders.filter(o => o.id !== this.rejectingOrder.id);
+        this.rejectOrderModalOpen = false;
+        $store.app.showToast('info', $store.app.language === 'ar' ? 'تم الاعتذار عن الطلب وإشعار الزبون.' : 'Order rejected. Customer notified and card authorization released.');
+    },
+
+    addOptionGroup() {
+        this.dishForm.optionGroups.push({
+            title: '',
+            type: 'radio',
+            required: false,
+            options: [{ name: '', extraPrice: 0 }]
+        });
+    },
+
+    removeOptionGroup(idx) {
+        this.dishForm.optionGroups.splice(idx, 1);
+    },
+
+    addOptionItem(gIdx) {
+        this.dishForm.optionGroups[gIdx].options.push({ name: '', extraPrice: 0 });
+    },
+
+    removeOptionItem(gIdx, oIdx) {
+        this.dishForm.optionGroups[gIdx].options.splice(oIdx, 1);
+    }
+}"
+     class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'لوحة تحكم الشيف' : 'Chef Portal'">Chef Portal</span>
+            </nav>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'لوحة إدارة المطبخ والطلبات' : 'Kitchen Management Hub'">
+                        Kitchen Management Hub
+                    </h1>
+                    <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed"
+                       x-text="`${profileForm.kitchenName} · ${profileForm.pickupArea}, Cairo`">
+                        Amina's Heritage Kitchen · Maadi, Cairo
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Edit Profile Action (SCRUM-30) -->
+                    <button type="button" @@click="editProfileOpen = true"
+                            class="px-4 py-2 bg-[var(--color-card-bg)] hover:bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-xs font-semibold rounded-full text-[var(--color-text)] flex items-center gap-2 transition-colors cursor-pointer shadow-2xs">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'تعديل بيانات المطبخ' : 'Edit Profile & Schedule'">Edit Profile &amp; Schedule</span>
+                    </button>
+
+                    <!-- Kitchen Availability Switch (SCRUM-66) -->
+                    <div class="flex items-center gap-3 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full px-4 py-2 shadow-2xs">
+                        <span class="text-xs font-bold uppercase"
+                              :class="isKitchenAvailable ? 'text-emerald-600' : 'text-rose-600'"
+                              x-text="isKitchenAvailable ? ($store.app.language === 'ar' ? 'المطبخ يستقبل الطلبات' : 'Kitchen Open') : ($store.app.language === 'ar' ? 'المطبخ مغلق مؤقتاً' : 'Kitchen Paused')">
+                            Kitchen Open
+                        </span>
+                        <button type="button"
+                                @@click="isKitchenAvailable = !isKitchenAvailable; $store.app.showToast('info', isKitchenAvailable ? 'Kitchen is now taking orders.' : 'Kitchen orders paused.');"
+                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer"
+                                :class="isKitchenAvailable ? 'bg-emerald-500' : 'bg-neutral-300 dark:bg-neutral-700'">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-xs"
+                                  :class="isKitchenAvailable ? ($store.app.language === 'ar' ? '-translate-x-6' : 'translate-x-6') : 'translate-x-1'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- 4 Metric Cards -->
+        <!-- TODO [Backend]: Bind metric counts (Pending, Preparing, Ready, Net Wallet Earnings) from Chef repository/service -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block mb-1" x-text="$store.app.language === 'ar' ? 'طلبات بانتظار القبول' : 'Pending Acceptance'">Pending Acceptance</span>
+                <span class="text-2xl sm:text-3xl font-bold text-amber-600" x-text="orders.filter(o => o.status === 'Pending').length">1</span>
+            </div>
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block mb-1" x-text="$store.app.language === 'ar' ? 'قيد الطهي في الفرن' : 'In Preparation'">In Preparation</span>
+                <span class="text-2xl sm:text-3xl font-bold text-purple-600" x-text="orders.filter(o => o.status === 'Preparing').length">1</span>
+            </div>
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block mb-1" x-text="$store.app.language === 'ar' ? 'جاهز للاستلام الفوري' : 'Ready for Pickup'">Ready for Pickup</span>
+                <span class="text-2xl sm:text-3xl font-bold text-teal-600" x-text="orders.filter(o => o.status === 'Ready').length">0</span>
+            </div>
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block mb-1" x-text="$store.app.language === 'ar' ? 'رصيد المحفظة الصافي' : 'Net Wallet Earnings'">Net Wallet Earnings</span>
+                <span class="text-2xl sm:text-3xl font-bold text-[var(--color-primary)]">4,820.00 EGP</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-[var(--color-border)] gap-3 sm:gap-6 overflow-x-auto pb-1">
+            <button type="button"
+                    @@click="activeTab = 'orders'"
+                    :class="activeTab === 'orders' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'إدارة الطلبات الحية' : 'Live Kitchen Orders'">Live Kitchen Orders</span> (<span x-text="orders.length"></span>)
+            </button>
+            <button type="button"
+                    @@click="activeTab = 'menu'"
+                    :class="activeTab === 'menu' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'قائمة الأطباق والتوافر' : 'Menu & Dishes'">Menu &amp; Dishes</span> (<span x-text="dishes.length"></span>)
+            </button>
+            <button type="button"
+                    @@click="activeTab = 'history'"
+                    :class="activeTab === 'history' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'سجل الطلبات السابقة' : 'Order History'">Order History</span>
+            </button>
+            <button type="button"
+                    @@click="activeTab = 'reviews'"
+                    :class="activeTab === 'reviews' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'تقييمات الزبائن' : 'Customer Reviews'">Customer Reviews</span> (<span x-text="reviews.length"></span>)
+            </button>
+            <button type="button"
+                    @@click="activeTab = 'wallet'"
+                    :class="activeTab === 'wallet' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'المحفظة وسجل الأرباح' : 'Wallet & Ledger'">Wallet &amp; Ledger</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: Live Kitchen Orders (SCRUM-71, SCRUM-76, SCRUM-81, SCRUM-86) -->
+        <div x-show="activeTab === 'orders'" class="space-y-4">
+            <template x-if="orders.length === 0">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-12 text-center text-xs text-[var(--color-text-muted)]">
+                    No active kitchen orders at this moment.
+                </div>
+            </template>
+            <template x-for="ord in orders" :key="ord.id">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-sm text-[var(--color-primary)]" x-text="'#' + ord.orderNumber"></span>
+                            <span :class="{
+                                'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-100': ord.status === 'Pending',
+                                'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-100': ord.status === 'Preparing',
+                                'bg-teal-100 text-teal-900 border-teal-300 dark:bg-teal-950 dark:text-teal-100': ord.status === 'Ready',
+                                'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100': ord.status === 'Completed'
+                            }" class="text-xs px-2.5 py-1 rounded-full font-bold border" x-text="ord.status"></span>
+                        </div>
+                        <h4 class="font-bold text-base text-[var(--color-text)]" x-text="ord.dishTitle"></h4>
+                        <div class="flex flex-wrap items-center gap-4 text-xs text-[var(--color-text-muted)]">
+                            <span><strong class="text-[var(--color-text)]">Customer:</strong> <span x-text="ord.customerName"></span></span>
+                            <span>·</span>
+                            <span><strong class="text-[var(--color-text)]">Pickup Slot:</strong> <span x-text="ord.pickupTime"></span></span>
+                            <span>·</span>
+                            <span class="font-bold text-[var(--color-primary)]" x-text="ord.totalPrice.toFixed(2) + ' EGP'"></span>
+                        </div>
+                        <template x-if="ord.specialNote">
+                            <p class="text-xs bg-[var(--color-surface-subtle)] p-2.5 rounded-xl border border-[var(--color-border-light)] text-[var(--color-text-muted)]">
+                                <strong>Instructions:</strong> <span x-text="ord.specialNote"></span>
+                            </p>
+                        </template>
+                    </div>
+
+                    <!-- Action Transition Buttons (SCRUM-76, SCRUM-81, SCRUM-86) -->
+                    <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                        <template x-if="ord.status === 'Pending'">
+                            <div class="flex items-center gap-2">
+                                <button type="button"
+                                        @@click="openRejectOrder(ord)"
+                                        class="px-4 py-2.5 border border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-bold uppercase rounded-full transition-colors cursor-pointer">
+                                    <span x-text="$store.app.language === 'ar' ? 'اعتذار عن الطلب' : 'Reject Order'">Reject Order</span>
+                                </button>
+                                <button type="button"
+                                        @@click="updateOrderStatus(ord.id, 'Preparing')"
+                                        class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                                    <span x-text="$store.app.language === 'ar' ? 'قبول وبدء الطهي' : 'Accept & Start Cooking'">Accept &amp; Start Cooking</span>
+                                </button>
+                            </div>
+                        </template>
+                        <template x-if="ord.status === 'Preparing'">
+                            <button type="button"
+                                    @@click="updateOrderStatus(ord.id, 'Ready')"
+                                    class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                                <span x-text="$store.app.language === 'ar' ? 'جاهز على الشباك للاستلام' : 'Mark Ready for Pickup'">Mark Ready for Pickup</span>
+                            </button>
+                        </template>
+                        <template x-if="ord.status === 'Ready'">
+                            <button type="button"
+                                    @@click="updateOrderStatus(ord.id, 'Completed')"
+                                    class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                                <span x-text="$store.app.language === 'ar' ? 'تم تسليم الطلب' : 'Complete Handover'">Complete Handover</span>
+                            </button>
+                        </template>
+                        <a href="#messages" class="border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all">
+                            <span x-text="$store.app.language === 'ar' ? 'محادثة الزبون' : 'Chat Customer'">Chat Customer</span>
+                        </a>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- TAB 2: Menu Items (SCRUM-36, SCRUM-41, SCRUM-46, SCRUM-51, SCRUM-56, SCRUM-61) -->
+        <div x-show="activeTab === 'menu'" class="space-y-4">
+            <div class="flex items-center justify-between pb-2">
+                <h3 class="text-base font-bold uppercase text-[var(--color-text)]"
+                    x-text="$store.app.language === 'ar' ? 'أطباق المطبخ المعروضة' : 'Listed Kitchen Dishes'">
+                    Listed Kitchen Dishes
+                </h3>
+                <button type="button"
+                        @@click="addDishModalOpen = true"
+                        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase px-4 py-2 rounded-full cursor-pointer transition-all shadow-xs flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? '+ إضافة طبق جديد' : '+ Add New Dish'">+ Add New Dish</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <template x-for="d in dishes" :key="d.id">
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs flex flex-col justify-between gap-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h4 class="font-bold text-sm text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? d.nameAr : d.name"></h4>
+                                <span class="text-xs text-[var(--color-primary)] font-bold block mt-1" x-text="d.price.toFixed(2) + ' EGP'"></span>
+                                <span class="text-[11px] text-[var(--color-text-muted)]" x-text="d.category"></span>
+                            </div>
+                            <button type="button"
+                                    @@click="d.isAvailable = !d.isAvailable; $store.app.showToast('info', d.isAvailable ? 'Dish is now available' : 'Dish marked unavailable')"
+                                    class="text-xs px-3 py-1.5 rounded-full font-bold border transition-colors cursor-pointer shrink-0"
+                                    :class="d.isAvailable ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100' : 'bg-neutral-100 text-neutral-500 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-400'"
+                                    x-text="d.isAvailable ? ($store.app.language === 'ar' ? 'متاح للطلب' : 'Available') : ($store.app.language === 'ar' ? 'غير متوفر' : 'Unavailable')">
+                            </button>
+                        </div>
+
+                        <!-- Edit & Delete Row Actions (SCRUM-46, SCRUM-51) -->
+                        <div class="flex items-center justify-end gap-2 pt-2 border-t border-[var(--color-border-light)]">
+                            <button type="button" @@click="openEditDish(d)"
+                                    class="px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-semibold rounded-lg hover:bg-[var(--color-surface-subtle)] transition-colors flex items-center gap-1 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? 'تعديل' : 'Edit'">Edit</span>
+                            </button>
+                            <button type="button" @@click="openDeleteDish(d)"
+                                    class="px-3 py-1.5 text-xs text-rose-600 hover:text-rose-800 font-semibold rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center gap-1 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? 'حذف' : 'Delete'">Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- TAB 3: Order History (SCRUM-96) -->
+        <div x-show="activeTab === 'history'" class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+                <h3 class="text-base font-bold uppercase text-[var(--color-text)]"
+                    x-text="$store.app.language === 'ar' ? 'سجل الطلبات المكتملة والملغاة' : 'Historical Order Records'">
+                    Historical Order Records
+                </h3>
+                <div class="flex items-center gap-2">
+                    <select x-model="historyStatusFilter" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs font-semibold">
+                        <option value="all">All Historical Statuses</option>
+                        <option value="Completed">Completed Only</option>
+                        <option value="Cancelled">Cancelled Only</option>
+                        <option value="Rejected">Rejected Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+                <div class="divide-y divide-[var(--color-border-light)] text-xs">
+                    <template x-for="h in orderHistory.filter(o => historyStatusFilter === 'all' || o.status === historyStatusFilter)" :key="h.id">
+                        <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-sm text-[var(--color-primary)]" x-text="'#' + h.orderNumber"></span>
+                                    <span :class="{
+                                        'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100': h.status === 'Completed',
+                                        'bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-200': h.status === 'Cancelled',
+                                        'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-100': h.status === 'Rejected'
+                                    }" class="text-[10px] px-2 py-0.5 rounded-full font-bold border" x-text="h.status"></span>
+                                </div>
+                                <h5 class="font-semibold text-xs text-[var(--color-text)]" x-text="h.dishTitle"></h5>
+                                <p class="text-[11px] text-[var(--color-text-muted)]" x-text="`Customer: ${h.customerName} · Date: ${h.completedAt}`"></p>
+                            </div>
+                            <div class="text-end">
+                                <span class="font-bold text-sm text-[var(--color-text)] block" x-text="h.totalPrice.toFixed(2) + ' EGP'"></span>
+                                <span class="text-[10px] text-emerald-600 font-semibold" x-text="'Net: ' + (h.totalPrice * 0.85).toFixed(2) + ' EGP'"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Customer Reviews (SCRUM-556) -->
+        <div x-show="activeTab === 'reviews'" class="space-y-4">
+            <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] p-4 rounded-2xl flex items-center justify-between text-xs">
+                <div>
+                    <h3 class="font-bold uppercase text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'تقييمات وآراء زبائن المطبخ' : 'Verified Kitchen Customer Feedback'">
+                        Verified Kitchen Customer Feedback
+                    </h3>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                        Rating average: <strong class="text-[var(--color-primary)]">4.9 / 5.0</strong> from 24 orders.
+                    </p>
+                </div>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                    Read-Only (Platform Policy)
+                </span>
+            </div>
+
+            <div class="space-y-3">
+                <template x-for="r in reviews" :key="r.id">
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-[var(--color-text)]" x-text="r.customerName"></span>
+                                <span class="text-[var(--color-text-muted)]">·</span>
+                                <span class="text-[11px] text-[var(--color-primary)] font-semibold" x-text="r.dishName"></span>
+                            </div>
+                            <span class="text-[11px] text-[var(--color-text-muted)]" x-text="r.date"></span>
+                        </div>
+                        <div class="flex items-center gap-1 text-amber-500">
+                            <template x-for="star in r.rating" :key="star">
+                                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            </template>
+                        </div>
+                        <p class="text-[var(--color-text)] leading-relaxed italic" x-text="`“${r.comment}”`"></p>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- TAB 5: Wallet & Payout Ledger (SCRUM-106, SCRUM-511) -->
+        <div x-show="activeTab === 'wallet'" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block">Available Balance</span>
+                    <strong class="text-2xl text-[var(--color-primary)] block mt-1">4,820.00 EGP</strong>
+                    <span class="text-[11px] text-emerald-600 font-semibold mt-1 block">Ready for Instant InstaPay Payout</span>
+                </div>
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block">Commission Deducted (15%)</span>
+                    <strong class="text-2xl text-[var(--color-text)] block mt-1">850.50 EGP</strong>
+                    <span class="text-[11px] text-[var(--color-text-muted)] mt-1 block">Current month platform operations</span>
+                </div>
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block">Registered IBAN / InstaPay</span>
+                    <strong class="text-sm text-[var(--color-text)] block mt-2 font-mono">EG890002000100000000012345678</strong>
+                    <span class="text-[11px] text-[var(--color-text-muted)] mt-1 block">Verified Domestic Account</span>
+                </div>
+            </div>
+
+            <!-- Instant Payout Trigger -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h4 class="font-bold uppercase text-[var(--color-text)] text-sm">Request Balance Payout</h4>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Dispatches instant electronic transfer via InstaPay (0 fees).</p>
+                </div>
+                <button type="button"
+                        @@click="$store.app.showToast('success', 'Payout request of 4,820.00 EGP dispatched via InstaPay (Simulated).')"
+                        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'تحويل الرصيد الآن' : 'Transfer Balance Now'">Transfer Balance Now</span>
+                </button>
+            </div>
+
+            <!-- Financial Transaction Ledger Table (SCRUM-511) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs space-y-4">
+                <h4 class="font-bold uppercase text-[var(--color-text)] text-sm"
+                    x-text="$store.app.language === 'ar' ? 'سجل الحركات المالية الموثقة' : 'Financial Transaction Ledger'">
+                    Financial Transaction Ledger
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-start">
+                        <thead>
+                            <tr class="border-b border-[var(--color-border)] text-[var(--color-text-muted)] font-bold uppercase text-[10px]">
+                                <th class="pb-3 text-start">Date &amp; Time</th>
+                                <th class="pb-3 text-start">Reference #</th>
+                                <th class="pb-3 text-start">Type</th>
+                                <th class="pb-3 text-end">Gross (EGP)</th>
+                                <th class="pb-3 text-end">Commission (15%)</th>
+                                <th class="pb-3 text-end">Net (EGP)</th>
+                                <th class="pb-3 text-end">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--color-border-light)] font-medium">
+                            <template x-for="item in walletLedger" :key="item.id">
+                                <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                                    <td class="py-3 text-[var(--color-text-muted)]" x-text="item.date"></td>
+                                    <td class="py-3 font-bold text-[var(--color-primary)]" x-text="item.refNumber"></td>
+                                    <td class="py-3 text-[var(--color-text)]" x-text="item.type"></td>
+                                    <td class="py-3 text-end" x-text="item.gross ? item.gross.toFixed(2) : '—'"></td>
+                                    <td class="py-3 text-end text-neutral-400" x-text="item.fee ? '-' + item.fee.toFixed(2) : '—'"></td>
+                                    <td class="py-3 text-end font-bold"
+                                        :class="item.net > 0 ? 'text-emerald-600' : 'text-rose-600'"
+                                        x-text="(item.net > 0 ? '+' : '') + item.net.toFixed(2)"></td>
+                                    <td class="py-3 text-end font-bold text-[var(--color-text)]" x-text="item.balance.toFixed(2) + ' EGP'"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals Inclusion -->
+    <partial name="~/Views/Chefs/Partials/_EditChefProfileModal.cshtml" />
+    <partial name="~/Views/Chefs/Partials/_AddDishModal.cshtml" />
+    <partial name="~/Views/Chefs/Partials/_EditDishModal.cshtml" />
+    <partial name="~/Views/Chefs/Partials/_DeleteDishConfirmDialog.cshtml" />
+    <partial name="~/Views/Chefs/Partials/_RejectOrderDialog.cshtml" />
+</div>

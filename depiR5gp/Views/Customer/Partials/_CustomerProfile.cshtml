@@ -1,0 +1,288 @@
+<!-- Views/Customer/Partials/_CustomerProfile.cshtml -->
+<!-- Source: home_chef/src/pages/CustomerProfilePage.tsx -->
+<!-- TODO [Backend]: Load customer profile, loyalty balance, and past orders from backend session -->
+
+<div x-data="{
+    activeTab: 'orders',
+    favoriteTab: 'dishes',
+    orderStatusFilter: 'all',
+    showEditModal: false,
+    pastOrders: [
+        {
+            id: 'ord-100',
+            orderNumber: 'HC-2026-9150',
+            kitchenName: 'Amina\'s Heritage Kitchen',
+            kitchenNameAr: 'مطبخ أمينة التراثي',
+            dishTitle: 'Stuffed Pigeon with Spiced Freekeh',
+            totalPrice: 285.00,
+            status: 'Pending',
+            date: 'Today, 15:10'
+        },
+        {
+            id: 'ord-101',
+            orderNumber: 'HC-2026-9041',
+            kitchenName: 'Amina\'s Heritage Kitchen',
+            kitchenNameAr: 'مطبخ أمينة التراثي',
+            dishTitle: 'Baladi Duck Molokhia with Vermicelli Rice',
+            totalPrice: 240.00,
+            status: 'Preparing',
+            date: 'Today, 14:30'
+        },
+        {
+            id: 'ord-102',
+            orderNumber: 'HC-2026-8890',
+            kitchenName: 'Om Nabil Casseroles',
+            kitchenNameAr: 'طواجن أم نبيل',
+            dishTitle: 'Oxtail Tagine with Baby Caramelized Onions',
+            totalPrice: 310.00,
+            status: 'Completed',
+            date: 'Yesterday'
+        },
+        {
+            id: 'ord-103',
+            orderNumber: 'HC-2026-8420',
+            kitchenName: 'Aunt Fatima Bakery',
+            kitchenNameAr: 'مخبوزات خالتي فاطمة',
+            dishTitle: 'Feteer Meshaltet with Black Honey & Eshgedda',
+            totalPrice: 165.00,
+            status: 'Cancelled',
+            date: 'Oct 18, 2026'
+        }
+    ],
+    get filteredOrders() {
+        if (this.orderStatusFilter === 'all') return this.pastOrders;
+        if (this.orderStatusFilter === 'Active') return this.pastOrders.filter(o => o.status === 'Pending' || o.status === 'Preparing' || o.status === 'Ready');
+        return this.pastOrders.filter(o => o.status === this.orderStatusFilter);
+    }
+}"
+     class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'الملف الشخصي' : 'Profile'">Profile</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                x-text="$store.app.language === 'ar' ? 'حسابي ولوحة التحكم' : 'My Account & Activity'">
+                My Account & Activity
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed"
+               x-text="$store.app.language === 'ar' ? 'إدارة الطلبات، نقاط الولاء، والمفضلة' : 'Track orders, loyalty balance, and favorite kitchens'">
+                Track orders, loyalty balance, and favorite kitchens
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- Profile Card Header -->
+        <!-- TODO [Backend]: Bind Customer identity (Name, Email, Phone, AvatarUrl) from User Claims / Session -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-start">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+                     alt="Tamer Zaki"
+                     class="w-18 h-18 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[var(--color-primary)] shadow-sm" />
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        Tamer Zaki (تامر زكي)
+                    </h2>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">tamer.zaki@example.com</p>
+                    <p class="text-xs text-[var(--color-text-muted)]">+20 100 234 5678</p>
+                    <button type="button"
+                            @@click="showEditModal = true"
+                            class="inline-flex items-center gap-1.5 mt-2 text-xs font-semibold text-[var(--color-primary)] hover:underline cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'تعديل البيانات الشخصية والعنوان' : 'Edit Profile & Addresses'">Edit Profile & Addresses</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loyalty Balance Badge -->
+            <!-- TODO [Backend]: Bind Customer.LoyaltyPoints balance and calculate equivalent discount value (EGP) -->
+            <div class="bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 rounded-2xl p-4 text-center sm:text-end shrink-0 shadow-2xs">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-950 dark:text-amber-100 block"
+                      x-text="$store.app.language === 'ar' ? 'رصيد نقاط الولاء' : 'Loyalty Points'">Loyalty Points</span>
+                <span class="text-2xl font-black text-amber-900 dark:text-amber-200">340 pts</span>
+                <span class="text-[10px] font-semibold text-amber-800 dark:text-amber-300 block mt-0.5"
+                      x-text="$store.app.language === 'ar' ? '= 68 ج.م خصم متاح' : '= 68 EGP discount available'">= 68 EGP discount available</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-[var(--color-border)] gap-2 sm:gap-6 overflow-x-auto pb-1">
+            <button type="button"
+                    @@click="activeTab = 'orders'"
+                    :class="activeTab === 'orders' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'سجل الطلبات' : 'Order History'">Order History</span> (<span x-text="pastOrders.length"></span>)
+            </button>
+            <button type="button"
+                    @@click="activeTab = 'loyalty'"
+                    :class="activeTab === 'loyalty' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'نقاط الولاء والخصومات' : 'Loyalty Ledger'">Loyalty Ledger</span>
+            </button>
+            <button type="button"
+                    @@click="activeTab = 'favorites'"
+                    :class="activeTab === 'favorites' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'المفضلة' : 'Saved Favorites'">Saved Favorites</span> (<span x-text="$store.app.favorites.length"></span>)
+            </button>
+        </div>
+
+        <!-- Tab 1: Orders (SCRUM-226) -->
+        <!-- TODO [Backend]: Loop through Customer.PastOrders; bind OrderNumber, Status, KitchenName, TotalAmount, and Date -->
+        <div x-show="activeTab === 'orders'" class="space-y-4">
+            <!-- Filter chips -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                <template x-for="f in ['all', 'Active', 'Completed', 'Cancelled']" :key="f">
+                    <button type="button"
+                            @@click="orderStatusFilter = f"
+                            :class="orderStatusFilter === f ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                            class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap"
+                            x-text="f === 'all' ? ($store.app.language === 'ar' ? 'جميع الطلبات' : 'All Orders') : f">
+                    </button>
+                </template>
+            </div>
+
+            <!-- Orders List -->
+            <div class="space-y-3">
+                <template x-for="ord in filteredOrders" :key="ord.id">
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-sm uppercase text-[var(--color-text)]" x-text="'#' + ord.orderNumber"></span>
+                                <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold border"
+                                      :class="{
+                                          'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200': ord.status === 'Pending',
+                                          'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-200': ord.status === 'Preparing',
+                                          'bg-teal-100 text-teal-900 border-teal-300 dark:bg-teal-950 dark:text-teal-200': ord.status === 'Ready',
+                                          'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200': ord.status === 'Completed',
+                                          'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200': ord.status === 'Cancelled'
+                                      }"
+                                      x-text="ord.status"></span>
+                                <span class="text-xs text-[var(--color-text-muted)]" x-text="'· ' + ord.date"></span>
+                            </div>
+                            <h4 class="text-xs font-bold text-[var(--color-text)]" x-text="ord.dishTitle"></h4>
+                            <p class="text-xs text-[var(--color-text-muted)]">
+                                <span x-text="$store.app.language === 'ar' ? ord.kitchenNameAr : ord.kitchenName"></span> ·
+                                <span class="font-bold text-[var(--color-primary)]" x-text="ord.totalPrice.toFixed(2) + ' EGP'"></span>
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <a href="#orders"
+                               class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors cursor-pointer">
+                                <span x-text="$store.app.language === 'ar' ? 'تفاصيل الطلب' : 'Track Order'">Track Order</span>
+                            </a>
+                            <button type="button"
+                                    @@click="$store.app.addToCart({ id: 'dish-1', name: ord.dishTitle, price: ord.totalPrice, chefId: 'chef-1', kitchenName: ord.kitchenName, isAvailable: true })"
+                                    class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                                <span x-text="$store.app.language === 'ar' ? 'إعادة الطلب' : 'Re-order'">Re-order</span>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Empty State -->
+                <template x-if="filteredOrders.length === 0">
+                    <div class="text-center py-12 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6">
+                        <p class="text-xs text-[var(--color-text-muted)]" x-text="$store.app.language === 'ar' ? 'لا توجد طلبات تطابق الفلتر المحدد.' : 'No orders found matching this filter.'"></p>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Tab 2: Loyalty -->
+        <!-- TODO [Backend]: Loop through Customer.LoyaltyLedger transactions; bind Description, PointsEarnedOrRedeemed, and Timestamp -->
+        <div x-show="activeTab === 'loyalty'" class="space-y-4">
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs space-y-4 max-w-xl">
+                <h3 class="text-sm font-bold uppercase text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? 'سجل حركات النقاط' : 'Loyalty Transaction Ledger'">Loyalty Transaction Ledger</h3>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between p-2.5 bg-[var(--color-surface-subtle)] rounded-xl">
+                        <span>Completed Order #HC-2026-9041</span>
+                        <strong class="text-emerald-600">+45 pts</strong>
+                    </div>
+                    <div class="flex justify-between p-2.5 bg-[var(--color-surface-subtle)] rounded-xl">
+                        <span>Checkout Discount Applied</span>
+                        <strong class="text-rose-600">-60 pts</strong>
+                    </div>
+                    <div class="flex justify-between p-2.5 bg-[var(--color-surface-subtle)] rounded-xl">
+                        <span>Completed Order #HC-2026-8890</span>
+                        <strong class="text-emerald-600">+50 pts</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Favorites (SCRUM-249) -->
+        <!-- TODO [Backend]: Loop through Customer.Favorites (Dishes and Chefs saved by user); bind DishCard / ChefCard -->
+        <div x-show="activeTab === 'favorites'" class="space-y-6">
+            <!-- Sub-tabs: Dishes vs Chefs -->
+            <div class="flex items-center gap-2 border-b border-[var(--color-border-light)] pb-3">
+                <button type="button"
+                        @@click="favoriteTab = 'dishes'"
+                        :class="favoriteTab === 'dishes' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                        class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'الأطباق المحفوظة' : 'Favorite Dishes'">Favorite Dishes</span>
+                </button>
+                <button type="button"
+                        @@click="favoriteTab = 'chefs'"
+                        :class="favoriteTab === 'chefs' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                        class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'طهاة المفضلين' : 'Favorite Chefs'">Favorite Chefs</span>
+                </button>
+            </div>
+
+            <!-- Sub-tab 1: Dishes -->
+            <div x-show="favoriteTab === 'dishes'">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <partial name="~/Views/Shared/Partials/_DishCard.cshtml" />
+                </div>
+            </div>
+
+            <!-- Sub-tab 2: Chefs -->
+            <div x-show="favoriteTab === 'chefs'">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Chef Card -->
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl overflow-hidden p-4 space-y-4 hover:shadow-md transition-shadow">
+                        <div class="relative h-44 rounded-xl overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&auto=format&fit=crop&q=80"
+                                 alt="Amina's Heritage Kitchen"
+                                 class="w-full h-full object-cover" />
+                            <button type="button"
+                                    @@click="$store.app.toggleFavorite('chef-1')"
+                                    class="absolute top-2.5 end-2.5 p-2 rounded-full bg-white/90 dark:bg-neutral-900/90 text-rose-500 shadow-xs cursor-pointer">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><use href="#heart"></use></svg>
+                            </button>
+                            <span class="absolute bottom-2.5 start-2.5 bg-neutral-950/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                Maadi, Cairo
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base text-[var(--color-text)]">Amina's Heritage Kitchen</h3>
+                            <p class="text-xs text-[var(--color-primary)] font-semibold">Chef Amina Mansour</p>
+                            <div class="flex items-center gap-1 text-xs text-amber-500 font-bold mt-1">
+                                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                <span>4.9</span>
+                                <span class="text-[var(--color-text-muted)] font-normal">(124 reviews)</span>
+                            </div>
+                        </div>
+                        <a href="#chef/chef-1"
+                           class="block text-center w-full py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'عرض المطبخ والأطباق' : 'View Kitchen Menu'">View Kitchen Menu</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Customer Profile Modal (SCRUM-325) -->
+    <partial name="~/Views/Customer/Partials/_EditCustomerProfileModal.cshtml" />
+</div>
+

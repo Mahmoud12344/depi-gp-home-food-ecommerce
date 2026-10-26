@@ -1,0 +1,201 @@
+<!-- Views/Shared/Partials/_FilterDrawer.cshtml -->
+<!-- Source: home_chef/src/components/common/FilterDrawer.tsx -->
+<!-- TODO [Backend]: Filter dishes server-side via query parameters or API -->
+
+<div x-cloak
+     x-show="$store.app.filterDrawerOpen"
+     x-data="{
+         cuisines: [
+             { id: 'all', en: 'All Cuisines', ar: 'جميع المطابخ', count: 12 },
+             { id: 'egyptian', en: 'Traditional Egyptian', ar: 'أكلات مصرية تقليدية', count: 4 },
+             { id: 'tagines', en: 'Clay Tagines & Casseroles', ar: 'طواجن وفخاريات', count: 3 },
+             { id: 'bakery', en: 'Home Artisan Bakery', ar: 'مخبوزات وفطائر بيتية', count: 2 },
+             { id: 'alexandrian', en: 'Alexandrian Seafood', ar: 'مأكولات إسكندرانية', count: 1 },
+             { id: 'desserts', en: 'Oriental Desserts', ar: 'حلويات شرقية', count: 2 },
+             { id: 'levant', en: 'Levant & Mezze', ar: 'شامي ومقبلات', count: 1 }
+         ],
+         areas: [
+             { id: 'all', en: 'All Areas', ar: 'جميع المناطق', count: 12 },
+             { id: 'maadi', en: 'Maadi, Cairo', ar: 'المعادي، القاهرة', count: 3 },
+             { id: 'zamalek', en: 'Zamalek, Cairo', ar: 'الزمالك، القاهرة', count: 2 },
+             { id: 'new_cairo', en: 'New Cairo (5th Settlement)', ar: 'القاهرة الجديدة (التجمع)', count: 4 },
+             { id: 'heliopolis', en: 'Heliopolis, Cairo', ar: 'مصر الجديدة، القاهرة', count: 2 },
+             { id: 'nasr_city', en: 'Nasr City, Cairo', ar: 'مدينة نصر، القاهرة', count: 2 },
+             { id: 'dokki', en: 'Dokki & Mohandessin, Giza', ar: 'الدقي والمهندسين، الجيزة', count: 2 },
+             { id: 'zayed', en: 'Sheikh Zayed, Giza', ar: 'الشيخ زايد، الجيزة', count: 1 }
+         ],
+         get priceError() {
+             if ($store.app.minPrice && $store.app.maxPrice && Number($store.app.minPrice) > Number($store.app.maxPrice)) {
+                 return $store.app.language === 'ar' ? 'الحد الأدنى لا يمكن أن يتجاوز الحد الأقصى' : 'Minimum price cannot exceed maximum price.';
+             }
+             return '';
+         }
+     }"
+     class="fixed inset-0 z-50 flex overflow-hidden">
+
+    <!-- Backdrop -->
+    <div @@click="$store.app.filterDrawerOpen = false"
+         class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-300"></div>
+
+    <!-- Drawer content -->
+    <div :class="$store.app.language === 'ar' ? 'ms-auto' : 'me-auto'"
+         class="relative z-10 w-full max-w-xs sm:max-w-sm bg-[var(--color-card-bg)] border-e border-[var(--color-border)] shadow-2xl flex flex-col h-full transform transition-transform duration-300 ease-in-out">
+
+        <!-- Drawer Header -->
+        <div class="flex items-center justify-between p-4 sm:p-5 border-b border-[var(--color-border)]">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]"
+                x-text="$store.app.language === 'ar' ? 'تصنيف وتصفية الأطباق' : 'Filter Menu & Cuisines'">
+                Filter Menu & Cuisines
+            </h2>
+            <button type="button"
+                    @@click="$store.app.filterDrawerOpen = false"
+                    class="p-1.5 text-neutral-400 hover:text-[var(--color-text)] transition-colors cursor-pointer"
+                    aria-label="Close filters">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#x"></use>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Drawer Body -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6">
+            <!-- Cuisines Section -->
+            <!-- TODO [Backend]: Loop through active Cuisines and item counts from catalog query (Model.FilterCuisines) -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'المطبخ والتصنيف' : 'Cuisine & Category'">
+                        Cuisine & Category
+                    </h3>
+                    <button type="button"
+                            x-show="$store.app.selectedCuisine !== 'all'"
+                            @@click="$store.app.selectedCuisine = 'all'"
+                            class="text-[11px] text-[var(--color-primary)] hover:underline cursor-pointer"
+                            x-text="$store.app.language === 'ar' ? 'إعادة ضبط' : 'Reset'">
+                        Reset
+                    </button>
+                </div>
+
+                <div class="space-y-1.5">
+                    <template x-for="c in cuisines" :key="c.id">
+                        <button type="button"
+                                @@click="$store.app.selectedCuisine = c.id"
+                                :class="$store.app.selectedCuisine === c.id ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
+                                class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
+                            <div class="flex items-center gap-2">
+                                <div :class="$store.app.selectedCuisine === c.id ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
+                                     class="w-3.5 h-3.5 rounded-xs border flex items-center justify-center">
+                                    <svg x-show="$store.app.selectedCuisine === c.id" class="w-2.5 h-2.5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <use href="#check"></use>
+                                    </svg>
+                                </div>
+                                <span x-text="$store.app.language === 'ar' ? c.ar : c.en"></span>
+                            </div>
+                            <span class="text-[11px] text-[var(--color-text-muted)]" x-text="'(' + c.count + ')'"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Area Section -->
+            <!-- TODO [Backend]: Loop through distinct Pickup Areas and domestic kitchen counts (Model.FilterAreas) -->
+            <div class="border-t border-[var(--color-border-light)] pt-5">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'منطقة الاستلام (القاهرة والجيزة)' : 'Pickup Area'">
+                        Pickup Area
+                    </h3>
+                    <button type="button"
+                            x-show="$store.app.selectedArea !== 'all'"
+                            @@click="$store.app.selectedArea = 'all'"
+                            class="text-[11px] text-[var(--color-primary)] hover:underline cursor-pointer"
+                            x-text="$store.app.language === 'ar' ? 'إعادة ضبط' : 'Reset'">
+                        Reset
+                    </button>
+                </div>
+
+                <div class="space-y-1.5">
+                    <template x-for="a in areas" :key="a.id">
+                        <button type="button"
+                                @@click="$store.app.selectedArea = a.id"
+                                :class="$store.app.selectedArea === a.id ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
+                                class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
+                            <div class="flex items-center gap-2">
+                                <div :class="$store.app.selectedArea === a.id ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
+                                     class="w-3.5 h-3.5 rounded-full border flex items-center justify-center">
+                                    <div x-show="$store.app.selectedArea === a.id" class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></div>
+                                </div>
+                                <span class="truncate" x-text="$store.app.language === 'ar' ? a.ar : a.en"></span>
+                            </div>
+                            <span class="text-[11px] text-[var(--color-text-muted)] shrink-0" x-text="'(' + a.count + ')'"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Price Range Section -->
+            <div class="border-t border-[var(--color-border-light)] pt-5">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'نطاق السعر' : 'Price Range'">
+                        Price Range
+                    </h3>
+                    <button type="button"
+                            x-show="$store.app.minPrice || $store.app.maxPrice"
+                            @@click="$store.app.minPrice = ''; $store.app.maxPrice = '';"
+                            class="text-[11px] text-[var(--color-primary)] hover:underline cursor-pointer"
+                            x-text="$store.app.language === 'ar' ? 'إعادة ضبط' : 'Reset'">
+                        Reset
+                    </button>
+                </div>
+
+                <p class="text-[11px] text-[var(--color-text-muted)] mb-3"
+                   x-text="$store.app.language === 'ar' ? 'أعلى سعر حالي للأطباق هو 360.00 ج.م' : 'The highest dish price is 360.00 EGP'">
+                    The highest dish price is 360.00 EGP
+                </p>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] text-[var(--color-text-muted)] uppercase font-semibold mb-1"
+                               x-text="$store.app.language === 'ar' ? 'من (ج.م)' : 'From (EGP)'">
+                            From (EGP)
+                        </label>
+                        <input type="number"
+                               min="0"
+                               placeholder="0"
+                               x-model="$store.app.minPrice"
+                               class="w-full text-xs p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-[var(--color-text-muted)] uppercase font-semibold mb-1"
+                               x-text="$store.app.language === 'ar' ? 'إلى (ج.م)' : 'To (EGP)'">
+                            To (EGP)
+                        </label>
+                        <input type="number"
+                               min="0"
+                               placeholder="360"
+                               x-model="$store.app.maxPrice"
+                               class="w-full text-xs p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                    </div>
+                </div>
+
+                <p x-show="priceError" x-text="priceError" class="text-[11px] text-rose-600 mt-2 font-medium"></p>
+            </div>
+        </div>
+
+        <!-- Drawer Footer Actions -->
+        <div class="p-4 sm:p-5 border-t border-[var(--color-border)] bg-[var(--color-surface-subtle)] flex items-center gap-2">
+            <button type="button"
+                    @@click="$store.app.clearAllFilters()"
+                    class="flex-1 inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white focus-visible:outline-[var(--color-primary)]">
+                <span x-text="$store.app.language === 'ar' ? 'مسح الكل' : 'Clear All'">Clear All</span>
+            </button>
+            <button type="button"
+                    @@click="$store.app.filterDrawerOpen = false"
+                    class="flex-1 inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] focus-visible:outline-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/20">
+                <span x-text="$store.app.language === 'ar' ? 'تطبيق الفلاتر' : 'Apply'">Apply</span>
+            </button>
+        </div>
+    </div>
+</div>
+

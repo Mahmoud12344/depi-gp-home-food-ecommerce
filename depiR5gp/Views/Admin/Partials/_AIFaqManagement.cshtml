@@ -1,0 +1,152 @@
+<!-- Views/Admin/Partials/_AIFaqManagement.cshtml -->
+<!-- Subtask SCRUM-493: AI Assistant FAQ & Knowledge Base Management Partial -->
+<!-- TODO [Backend]: GET /api/admin/faq; POST /api/admin/faq; DELETE /api/admin/faq/{id} -->
+
+<div x-data="{
+    faqSearch: '',
+    showAddForm: false,
+    newFaqQuestion: '',
+    newFaqCategory: 'Ordering & Pickup',
+    newFaqAnswer: '',
+    faqs: [
+        {
+            id: 'faq-1',
+            category: 'Ordering & Pickup',
+            question: 'How does domestic kitchen counter pickup work?',
+            questionAr: 'كيف تتم عملية استلام الوجبات من باب المطبخ المنزلي؟',
+            answer: 'Customers place an order online and receive the neighborhood pickup zone. Upon confirmation, the chef shares the exact villa/apartment address and pickup window for hot handover.',
+            status: 'Active'
+        },
+        {
+            id: 'faq-2',
+            category: 'Hygiene & Safety',
+            question: 'What hygiene standards do domestic kitchens follow?',
+            questionAr: 'ما هي المعايير الصحية التي يلتزم بها الطهاة المنزليون؟',
+            answer: 'All registered domestic kitchens undergo in-person inspections, require medical food handler certificates, and must use 100% baladi butter without artificial trans-fats.',
+            status: 'Active'
+        },
+        {
+            id: 'faq-3',
+            category: 'Payments & Refunds',
+            question: 'Can I cancel an order and get a 100% refund?',
+            questionAr: 'هل يمكنني إلغاء الطلب واسترداد كامل المبلغ 100%؟',
+            answer: 'Yes! If you cancel while the order is still in Pending status (before the chef begins oven cooking), a 100% full reversal is credited to your wallet balance immediately.',
+            status: 'Active'
+        }
+    ],
+    get filteredFaqs() {
+        if (!this.faqSearch.trim()) return this.faqs;
+        const q = this.faqSearch.toLowerCase();
+        return this.faqs.filter(f => f.question.toLowerCase().includes(q) || f.category.toLowerCase().includes(q));
+    },
+    handleAddFaq() {
+        if (!this.newFaqQuestion.trim() || !this.newFaqAnswer.trim()) return;
+        this.faqs.unshift({
+            id: 'faq-' + Date.now(),
+            category: this.newFaqCategory,
+            question: this.newFaqQuestion.trim(),
+            questionAr: this.newFaqQuestion.trim(),
+            answer: this.newFaqAnswer.trim(),
+            status: 'Active'
+        });
+        this.newFaqQuestion = '';
+        this.newFaqAnswer = '';
+        this.showAddForm = false;
+        $store.app.showToast('success', 'New FAQ knowledge entry added to AI Assistant memory.');
+    },
+    handleDeleteFaq(id) {
+        this.faqs = this.faqs.filter(f => f.id !== id);
+        $store.app.showToast('info', 'FAQ entry removed from AI Assistant knowledge base.');
+    }
+}"
+     class="space-y-6">
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)] flex items-center gap-2">
+                <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#bot"></use></svg>
+                <span x-text="$store.app.language === 'ar' ? 'إدارة قاعدة معرفة المساعد الذكي' : 'AI Assistant Knowledge Base & FAQs'">AI Assistant Knowledge Base & FAQs</span>
+            </h3>
+            <p class="text-xs text-[var(--color-text-muted)] mt-0.5"
+               x-text="$store.app.language === 'ar' ? 'تدريب المساعد الآلي على الإجابات الدقيقة لأسئلة الزبائن الشائعة' : 'Train the AI Assistant on verified policies, pickup logistics, and hygiene standards'"></p>
+        </div>
+
+        <button type="button"
+                @@click="showAddForm = !showAddForm"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
+            <span x-text="showAddForm ? ($store.app.language === 'ar' ? 'إغلاق النموذج' : 'Close Form') : ($store.app.language === 'ar' ? 'إضافة سؤال جديد' : 'Add FAQ Entry')">Add FAQ Entry</span>
+        </button>
+    </div>
+
+    <!-- Add Form (Collapsible) -->
+    <div x-show="showAddForm"
+         x-transition
+         class="bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl p-5 space-y-4 text-xs">
+        <h4 class="font-bold uppercase tracking-wider text-[var(--color-text)]">New Knowledge Base Question</h4>
+        <form @@submit.prevent="handleAddFaq()" class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="sm:col-span-2">
+                    <label class="block font-bold text-[var(--color-text-muted)] uppercase mb-1">Question Prompt</label>
+                    <input type="text"
+                           x-model="newFaqQuestion"
+                           required
+                           placeholder="e.g. Can I pick up my food in the evening?"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-[var(--color-text)] font-medium" />
+                </div>
+                <div>
+                    <label class="block font-bold text-[var(--color-text-muted)] uppercase mb-1">Category</label>
+                    <select x-model="newFaqCategory" class="w-full p-2.5 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-[var(--color-text)]">
+                        <option value="Ordering & Pickup">Ordering & Pickup</option>
+                        <option value="Hygiene & Safety">Hygiene & Safety</option>
+                        <option value="Payments & Refunds">Payments & Refunds</option>
+                        <option value="Chef Onboarding">Chef Onboarding</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-bold text-[var(--color-text-muted)] uppercase mb-1">Verified Answer</label>
+                <textarea rows="3"
+                          x-model="newFaqAnswer"
+                          required
+                          placeholder="Provide the accurate answer that the AI Assistant will synthesize..."
+                          class="w-full p-2.5 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-[var(--color-text)]"></textarea>
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button type="button" @@click="showAddForm = false" class="px-3.5 py-1.5 rounded-full border border-[var(--color-border)] font-bold">Cancel</button>
+                <button type="submit" class="px-4 py-1.5 rounded-full bg-[var(--color-primary)] text-white font-bold uppercase">Save to AI Memory</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- FAQ Search Input -->
+    <div class="relative">
+        <svg class="w-4 h-4 text-neutral-400 absolute start-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
+        <input type="text"
+               x-model="faqSearch"
+               placeholder="Filter questions by keyword or topic..."
+               class="w-full max-w-sm bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full ps-9 pe-4 py-2 text-xs text-[var(--color-text)] focus:outline-hidden font-medium" />
+    </div>
+
+    <!-- FAQ Cards Stream -->
+    <div class="space-y-3">
+        <template x-for="f in filteredFaqs" :key="f.id">
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2 text-xs">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <span class="inline-block px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider mb-1" x-text="f.category"></span>
+                        <h4 class="font-bold text-sm text-[var(--color-text)]" x-text="f.question"></h4>
+                    </div>
+                    <button type="button"
+                            @@click="handleDeleteFaq(f.id)"
+                            class="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+                            title="Delete FAQ entry">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                    </button>
+                </div>
+                <p class="text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-surface-subtle)]/60 p-3 rounded-xl border border-[var(--color-border-light)]" x-text="f.answer"></p>
+            </div>
+        </template>
+    </div>
+</div>
+

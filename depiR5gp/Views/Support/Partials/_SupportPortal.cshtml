@@ -1,0 +1,352 @@
+<!-- Views/Support/Partials/_SupportPortal.cshtml -->
+<!-- Source: home_chef/src/pages/SupportPortalPage.tsx -->
+<!-- TODO [Backend]: Bind support tickets queue, live customer threads, and refund requests -->
+
+<div x-data="{
+    activeTab: 'cases',
+    selectedCaseId: 'case-1',
+    replyText: '',
+    rejectRefundModal: null,
+    rejectReason: 'Order pickup delay was verified as resolved with customer.',
+    cases: [
+        {
+            id: 'case-1',
+            caseNumber: 'CASE-7701',
+            orderId: 'order-1',
+            orderNumber: 'HC-2026-9041',
+            requesterId: 'user-1',
+            requesterName: 'Tamer Zaki',
+            requesterRole: 'Customer',
+            subject: 'Late pickup readiness notification',
+            description: 'Customer arrived at Maadi villa counter but chef was finishing the duck ta\'sha.',
+            status: 'Open',
+            awaitingSupport: true,
+            createdAt: '12:40 PM',
+            messages: [
+                { id: 'm-1', authorId: 'user-1', authorName: 'Tamer Zaki', authorRole: 'customer', text: 'I arrived at Degla villa at 2:00 PM as scheduled, but had to wait 15 extra minutes on the patio.', timestamp: '12:40 PM' },
+                { id: 'm-2', authorId: 'user-supp-1', authorName: 'Layla Sherif (Support Agent)', authorRole: 'support', text: 'We reached out to Chef Amina. She added complimentary hot feteer portions as a courtesy apology.', timestamp: '12:45 PM' }
+            ]
+        },
+        {
+            id: 'case-2',
+            caseNumber: 'CASE-7702',
+            orderId: 'order-2',
+            orderNumber: 'HC-2026-8812',
+            requesterId: 'user-2',
+            requesterName: 'Dina Magdy',
+            requesterRole: 'Customer',
+            subject: 'Missing side tahini and baladi bread',
+            description: 'Trio hawawshi box was missing one container of garlic tahini sauce.',
+            status: 'Open',
+            awaitingSupport: false,
+            createdAt: 'Yesterday',
+            messages: [
+                { id: 'm-3', authorId: 'user-2', authorName: 'Dina Magdy', authorRole: 'customer', text: 'Package arrived warm but missing tahini sauces.', timestamp: 'Yesterday' }
+            ]
+        }
+    ],
+    refunds: [
+        {
+            id: 'ref-1',
+            requestNumber: 'REF-2026-104',
+            orderId: 'order-1',
+            orderNumber: 'HC-2026-9041',
+            customerId: 'user-1',
+            customerName: 'Tamer Zaki',
+            chefId: 'chef-1',
+            chefName: 'Amina\'s Heritage Kitchen',
+            amount: 240.00,
+            reason: 'Pickup delay exceeded 20 minutes without prior WhatsApp notice.',
+            status: 'Pending',
+            requestedBy: 'support',
+            sourceCaseId: 'case-1',
+            createdAt: '2026-10-22'
+        },
+        {
+            id: 'ref-2',
+            requestNumber: 'REF-2026-098',
+            orderId: 'order-3',
+            orderNumber: 'HC-2026-7740',
+            customerId: 'user-3',
+            customerName: 'Ahmed Badawi',
+            chefId: 'chef-2',
+            chefName: 'Hany\'s Gourmet Grills',
+            amount: 275.00,
+            reason: 'Order cancelled before kitchen preparation started.',
+            status: 'Approved',
+            requestedBy: 'customer',
+            createdAt: '2026-10-20'
+        }
+    ],
+    get currentCase() {
+        return this.cases.find(c => c.id === this.selectedCaseId) || this.cases[0];
+    },
+    handleSendReply() {
+        if (!this.replyText.trim()) return;
+        const c = this.currentCase;
+        c.awaitingSupport = false;
+        c.messages.push({
+            id: `msg-${Date.now()}`,
+            authorId: 'user-supp-1',
+            authorName: 'Layla Sherif (Support Agent)',
+            authorRole: 'support',
+            text: this.replyText.trim(),
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        $store.app.showToast('success', 'Reply sent to requester. In-app notification dispatched.');
+        this.replyText = '';
+    },
+    handleCreateRefundFromCase() {
+        const c = this.currentCase;
+        if (!c.orderId) return;
+        const newRef = {
+            id: `ref-${Date.now()}`,
+            requestNumber: `REF-2026-${Math.floor(100 + Math.random() * 900)}`,
+            orderId: c.orderId,
+            orderNumber: c.orderNumber || 'HC-2026-9041',
+            customerId: c.requesterId,
+            customerName: c.requesterName,
+            chefId: 'chef-1',
+            chefName: 'Amina\'s Heritage Kitchen',
+            amount: 240.00,
+            reason: c.description,
+            status: 'Pending',
+            requestedBy: 'support',
+            sourceCaseId: c.id,
+            createdAt: new Date().toISOString()
+        };
+        this.refunds.unshift(newRef);
+        $store.app.showToast('info', 'Refund request created and forwarded to refund queue.');
+        this.activeTab = 'refunds';
+    },
+    handleApproveRefund(refId) {
+        this.refunds = this.refunds.map(r => r.id === refId ? { ...r, status: 'Approved', decidedAt: new Date().toISOString() } : r);
+        $store.app.showToast('success', 'Refund approved! 100% full reversal dispatched via Stripe test mode.');
+    },
+    handleConfirmRejectRefund() {
+        if (!this.rejectRefundModal) return;
+        this.refunds = this.refunds.map(r => r.id === this.rejectRefundModal.id ? { ...r, status: 'Rejected', adminNotes: this.rejectReason, decidedAt: new Date().toISOString() } : r);
+        $store.app.showToast('info', 'Refund request rejected with justification notes.');
+        this.rejectRefundModal = null;
+    }
+}" class="w-full pb-24">
+
+    <!-- Breadcrumb Banner -->
+    <div class="relative bg-gradient-to-r from-[var(--color-primary-light)] via-[var(--color-bg)] to-[var(--color-primary-light)] dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 border-b border-[var(--color-border)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto space-y-2">
+            <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 flex-wrap">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#chevron-right"></use>
+                </svg>
+                <span class="text-[var(--color-primary)] font-semibold" x-text="$store.app.language === 'ar' ? 'فريق الدعم' : 'Support Desk'">Support Desk</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                x-text="$store.app.language === 'ar' ? 'بوابة دعم العملاء والنزاعات' : 'Customer Support & Refunds Desk'">
+                Customer Support & Refunds Desk
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-2xl"
+               x-text="$store.app.language === 'ar' ? 'معالجة قضايا الزبائن، التذاكر، وطلبات استرداد المبالغ' : 'Handle open support tickets, customer inquiries, and refund approvals'">
+                Handle open support tickets, customer inquiries, and refund approvals
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-[var(--color-border)] gap-6">
+            <button @@click="activeTab = 'cases'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer"
+                    :class="activeTab === 'cases' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'">
+                <span x-text="$store.app.language === 'ar' ? 'تذاكر الدعم المفتوحة' : 'Support Cases Queue'">Support Cases Queue</span>
+                <span x-text="`(${cases.length})`"></span>
+            </button>
+
+            <button @@click="activeTab = 'refunds'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer"
+                    :class="activeTab === 'refunds' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'">
+                <span x-text="$store.app.language === 'ar' ? 'طلبات الاسترداد المالي' : 'Refund Approval Queue'">Refund Approval Queue</span>
+                <span x-text="`(${refunds.length})`"></span>
+            </button>
+        </div>
+
+        <!-- TAB 1: Support Cases -->
+        <div x-show="activeTab === 'cases'" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Cases Sidebar -->
+            <!-- TODO [Backend]: Loop through open SupportTickets; bind TicketId, CaseNumber, RequesterName, Subject, and AwaitingSupport flag -->
+            <div class="lg:col-span-5 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-4 shadow-xs space-y-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] px-2">
+                    Active Cases
+                </span>
+                <template x-for="c in cases" :key="c.id">
+                    <div @@click="selectedCaseId = c.id"
+                         class="p-3.5 rounded-2xl cursor-pointer transition-colors border text-xs space-y-1"
+                         :class="selectedCaseId === c.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]' : 'border-transparent hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold" x-text="c.caseNumber"></span>
+                            <template x-if="c.awaitingSupport">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white animate-pulse">
+                                    Awaiting Support
+                                </span>
+                            </template>
+                        </div>
+                        <p class="font-semibold text-xs truncate" x-text="c.subject"></p>
+                        <p class="text-[10px] text-[var(--color-text-muted)]" x-text="`Requester: ${c.requesterName} (${c.requesterRole}) · ${c.orderNumber}`"></p>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Case Details Thread & Reply -->
+            <div class="lg:col-span-7 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-[var(--color-border-light)] pb-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-base text-[var(--color-text)]" x-text="`${currentCase.caseNumber}: ${currentCase.subject}`"></span>
+                        </div>
+                        <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                            Order Ref: <strong x-text="currentCase.orderNumber"></strong> · Requester: <span x-text="currentCase.requesterName"></span>
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <!-- Case Status Transition Dropdown (SCRUM-406) -->
+                        <div class="flex items-center gap-1.5 bg-[var(--color-surface-subtle)] px-2.5 py-1 rounded-full border border-[var(--color-border)]">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Status:</span>
+                            <select x-model="currentCase.status"
+                                    @@change="$store.app.showToast('info', 'Case status updated to ' + currentCase.status)"
+                                    class="text-xs font-bold bg-transparent text-[var(--color-text)] focus:outline-hidden cursor-pointer">
+                                <option value="Open">Open</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Resolved">Resolved</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
+
+                        <template x-if="currentCase.orderId">
+                            <button @@click="handleCreateRefundFromCase()"
+                                    class="px-3.5 py-1.5 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer">
+                                Create Refund Request
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Thread Messages -->
+                <!-- TODO [Backend]: Loop through Ticket.Messages; bind AuthorName, Timestamp, MessageText, and submit reply via POST /api/support/reply or SignalR SupportHub -->
+                <div class="space-y-3 max-h-72 overflow-y-auto pe-1">
+                    <template x-for="m in currentCase.messages" :key="m.id">
+                        <div class="p-3 rounded-2xl text-xs space-y-1 max-w-[85%]"
+                             :class="m.authorRole === 'support' ? 'ms-auto bg-[var(--color-primary)] text-white' : 'me-auto bg-[var(--color-surface-subtle)] text-[var(--color-text)]'">
+                            <div class="flex items-center justify-between gap-4 text-[10px] opacity-80 font-semibold">
+                                <span x-text="m.authorName"></span>
+                                <span x-text="m.timestamp"></span>
+                            </div>
+                            <p class="leading-relaxed" x-text="m.text"></p>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Closed Case Banner & Read-Only State (SCRUM-397) -->
+                <template x-if="currentCase.status === 'Closed'">
+                    <div class="p-3.5 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-2xl text-xs text-neutral-600 dark:text-neutral-400 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                        <span>This support ticket has been closed. Change status dropdown to re-open and send additional replies.</span>
+                    </div>
+                </template>
+
+                <!-- Reply Form (Hidden when Closed) -->
+                <template x-if="currentCase.status !== 'Closed'">
+                    <form @@submit.prevent="handleSendReply()" class="pt-2 border-t border-[var(--color-border-light)] flex gap-2">
+                        <input type="text"
+                               required
+                               x-model="replyText"
+                               placeholder="Type official reply to customer..."
+                               class="flex-1 text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                        <button type="submit"
+                                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#send"></use></svg>
+                            <span>Reply</span>
+                        </button>
+                    </form>
+                </template>
+            </div>
+        </div>
+
+        <!-- TAB 2: Refund Approval Queue -->
+        <!-- TODO [Backend]: Loop through pending RefundRequests; wire Approve (trigger Stripe payment reversal API) and Reject (persist reason notes) -->
+        <div x-show="activeTab === 'refunds'" class="space-y-4">
+            <template x-for="ref in refunds" :key="ref.id">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="space-y-1 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold uppercase text-[var(--color-text)]" x-text="`${ref.requestNumber} (Order #${ref.orderNumber})`"></span>
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase"
+                                  :class="ref.status === 'Approved' ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700' : (ref.status === 'Rejected' ? 'bg-rose-100 dark:bg-rose-950 text-rose-950 dark:text-rose-100 border border-rose-300 dark:border-rose-700' : 'bg-amber-100 dark:bg-amber-950 text-amber-950 dark:text-amber-100 border border-amber-300 dark:border-amber-700')"
+                                  x-text="ref.status">
+                            </span>
+                        </div>
+                        <p class="text-[var(--color-text)] font-semibold" x-text="`Customer: ${ref.customerName} · Kitchen: ${ref.chefName}`"></p>
+                        <p class="text-[var(--color-text-muted)] italic" x-text="`Reason: “${ref.reason}”`"></p>
+                        <p class="text-[var(--color-primary)] font-bold text-sm pt-0.5" x-text="`Amount: ${Number(ref.amount).toFixed(2)} EGP (Full Refund)`"></p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <template x-if="ref.status === 'Pending'">
+                            <div class="flex items-center gap-2">
+                                <button @@click="rejectRefundModal = ref"
+                                        class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer">
+                                    Reject With Reason
+                                </button>
+                                <button @@click="handleApproveRefund(ref.id)"
+                                        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer">
+                                    Approve & Reverse Card
+                                </button>
+                            </div>
+                        </template>
+                        <template x-if="ref.status !== 'Pending'">
+                            <span class="text-xs text-[var(--color-text-muted)] font-medium">
+                                Decision Finalized
+                            </span>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Reject Refund Modal -->
+    <template x-if="rejectRefundModal">
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <div class="relative w-full max-w-md bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-2xl">
+                <h3 class="text-lg font-bold uppercase tracking-tight text-[var(--color-text)] mb-2">
+                    Reject Refund Request
+                </h3>
+                <p class="text-xs text-[var(--color-text-muted)] mb-4">
+                    Enter documented justification for why this refund does not meet customer-first eligibility:
+                </p>
+
+                <form @@submit.prevent="handleConfirmRejectRefund()" class="space-y-4 text-xs">
+                    <textarea required
+                              rows="3"
+                              x-model="rejectReason"
+                              class="w-full p-3 border border-[var(--color-border)] rounded-xl bg-transparent text-[var(--color-text)]"></textarea>
+                    <div class="flex justify-end gap-2">
+                        <button type="button"
+                                @@click="rejectRefundModal = null"
+                                class="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer">
+                            Confirm Rejection
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+</div>
+

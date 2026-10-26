@@ -1,0 +1,72 @@
+<!-- Views/Shared/Partials/_StatusBadge.cshtml -->
+<!-- Source: home_chef/src/components/common/StatusBadge.tsx -->
+<!-- TODO [Backend]: Bind order status dynamically via status parameter or model -->
+
+@{
+    var status = ViewData["Status"]?.ToString() ?? "Preparing";
+    var size = ViewData["Size"]?.ToString() ?? "md";
+    var sizeClasses = size == "sm" ? "text-[11px] px-2 py-0.5 gap-1.5" : "text-xs px-2.5 py-1 gap-2";
+
+    string styleClass;
+    string dotClass;
+    string labelEn;
+    string labelAr;
+
+    switch (status)
+    {
+        case "Pending":
+            styleClass = "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-100 dark:border-amber-600 font-bold";
+            dotClass = "bg-amber-500";
+            labelEn = "Pending Acceptance";
+            labelAr = "قيد انتظار القبول";
+            break;
+        case "Accepted":
+            styleClass = "bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-950 dark:text-blue-100 dark:border-blue-600 font-bold";
+            dotClass = "bg-blue-500";
+            labelEn = "Order Accepted";
+            labelAr = "تم قبول الطلب";
+            break;
+        case "Preparing":
+            styleClass = "bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-100 dark:border-purple-600 font-bold";
+            dotClass = "bg-purple-500 animate-pulse";
+            labelEn = "Kitchen Preparing";
+            labelAr = "جاري التحضير في المطبخ";
+            break;
+        case "Ready":
+            styleClass = "bg-teal-100 text-teal-900 border-teal-300 dark:bg-teal-950 dark:text-teal-100 dark:border-teal-600 font-bold";
+            dotClass = "bg-teal-500 animate-ping";
+            labelEn = "Ready for Pickup";
+            labelAr = "جاهز للاستلام";
+            break;
+        case "Completed":
+            styleClass = "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100 dark:border-emerald-600 font-bold";
+            dotClass = "bg-emerald-500";
+            labelEn = "Completed";
+            labelAr = "مكتمل";
+            break;
+        case "Cancelled":
+            styleClass = "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-100 dark:border-rose-600 font-bold";
+            dotClass = "bg-rose-500";
+            labelEn = "Cancelled";
+            labelAr = "ملغي";
+            break;
+        case "Rejected":
+            styleClass = "bg-red-100 text-red-900 border-red-300 dark:bg-red-950 dark:text-red-100 dark:border-red-600 font-bold";
+            dotClass = "bg-red-500";
+            labelEn = "Rejected by Chef";
+            labelAr = "معتذر عنه من الشيف";
+            break;
+        default:
+            styleClass = "bg-neutral-100 text-neutral-700 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-200";
+            dotClass = "bg-neutral-400";
+            labelEn = status;
+            labelAr = status;
+            break;
+    }
+}
+
+<span class="inline-flex items-center font-medium border rounded-full @sizeClasses @styleClass">
+    <span class="w-1.5 h-1.5 rounded-full @dotClass" aria-hidden="true"></span>
+    <span x-text="$store.app.language === 'ar' ? '@labelAr' : '@labelEn'">@labelEn</span>
+</span>
+

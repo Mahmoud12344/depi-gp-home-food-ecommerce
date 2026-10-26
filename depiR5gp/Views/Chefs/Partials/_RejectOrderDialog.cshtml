@@ -1,0 +1,96 @@
+@*
+  Reject Order Modal Dialog Partial
+  Backlog Subtask: SCRUM-81 (Story SCRUM-78)
+  Epic: SCRUM-32 Chef Orders & Dashboard
+*@
+<div x-cloak
+     x-show="rejectOrderModalOpen"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0 scale-95"
+     x-transition:enter-end="opacity-100 scale-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100 scale-100"
+     x-transition:leave-end="opacity-0 scale-95"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+
+    <div @@click.away="rejectOrderModalOpen = false"
+         class="relative w-full max-w-lg bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5">
+
+        <div class="flex items-center gap-3 pb-3 border-b border-[var(--color-border-light)]">
+            <div class="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x-circle"></use></svg>
+            </div>
+            <div>
+                <h3 class="text-base font-bold uppercase tracking-tight text-[var(--color-text)]"
+                    x-text="$store.app.language === 'ar' ? 'اعتذار عن قبول الطلب' : 'Reject Order Request'">
+                    Reject Order Request
+                </h3>
+                <p class="text-xs text-[var(--color-text-muted)]"
+                   x-text="`Order #${rejectingOrder?.orderNumber} · ${rejectingOrder?.customerName}`"></p>
+            </div>
+        </div>
+
+        <p class="text-xs text-[var(--color-text-muted)] leading-relaxed"
+           x-text="$store.app.language === 'ar' ? 'يرجى تحديد سبب عدم التمكن من قبول الطلب لإشعار الزبائن فورياً وإلغاء حجز الدفع:' : 'Select a verified reason to notify the customer immediately and trigger card authorization release:'">
+            Select a verified reason to notify the customer immediately and trigger card authorization release:
+        </p>
+
+        <!-- Reject Form -->
+        <!-- TODO [Backend]: POST /api/chef/orders/{id}/reject with RejectionReasonDto, update order status to 'Rejected', reverse Stripe card pre-auth -->
+        <form @@submit.prevent="confirmRejectOrder()" class="space-y-4 text-xs">
+            <div class="space-y-2.5">
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                    <input type="radio" name="rejectReason" value="capacity" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
+                    <span class="text-[var(--color-text)] font-medium"
+                          x-text="$store.app.language === 'ar' ? 'المطبخ في أقصى طاقته الاستيعابية لهذه الفترة' : 'Kitchen at maximum capacity for this time slot'">
+                        Kitchen at maximum capacity for this time slot
+                    </span>
+                </label>
+
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                    <input type="radio" name="rejectReason" value="ingredients" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
+                    <span class="text-[var(--color-text)] font-medium"
+                          x-text="$store.app.language === 'ar' ? 'نفاد المكونات الطازجة اللازمة لتحضير هذا الطبق' : 'Fresh baladi ingredients out of stock for today'">
+                        Fresh baladi ingredients out of stock for today
+                    </span>
+                </label>
+
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                    <input type="radio" name="rejectReason" value="early_close" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
+                    <span class="text-[var(--color-text)] font-medium"
+                          x-text="$store.app.language === 'ar' ? 'إغلاق المطبخ مبكراً لظروف طارئة' : 'Kitchen counter closed early today'">
+                        Kitchen counter closed early today
+                    </span>
+                </label>
+
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                    <input type="radio" name="rejectReason" value="instructions" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
+                    <span class="text-[var(--color-text)] font-medium"
+                          x-text="$store.app.language === 'ar' ? 'تعذر تلبية الملاحظات الخاصة المطلوبة في هذا الوقت' : 'Special customer instructions cannot be accommodated'">
+                        Special customer instructions cannot be accommodated
+                    </span>
+                </label>
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                       x-text="$store.app.language === 'ar' ? 'رسالة اعتذار إضافية (اختياري)' : 'Optional Customer Courtesy Note'">Optional Note</label>
+                <textarea rows="2" x-model="rejectionNote" placeholder="e.g. Apologies, our freshly slaughtered duck order was fully reserved for tonight..."
+                          class="w-full p-2.5 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border)]">
+                <button type="button" @@click="rejectOrderModalOpen = false"
+                        class="px-5 py-2 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'إلغاء' : 'Cancel'">Cancel</span>
+                </button>
+                <button type="submit"
+                        class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider px-6 py-2 rounded-full transition-all shadow-xs cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'تأكيد الاعتذار' : 'Confirm Rejection'">Confirm Rejection</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+

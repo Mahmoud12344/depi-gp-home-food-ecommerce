@@ -97,3 +97,122 @@ When you are ready to write code, follow this exact workflow:
    ```
 5. **Open a Pull Request:**
    Go to GitHub, open a PR from `feature/my-awesome-feature` into `main`, request review, and merge it once approved!
+
+---
+
+## 🚀 Running the Project in Development
+
+The project uses **ASP.NET Core MVC (.NET 10)** paired with **Tailwind CSS v4 Standalone CLI** and **Alpine.js**. Razor views automatically hot-reload and Tailwind scans all `.cshtml` and `.js` files for class changes.
+
+### Initial Frontend Setup (First Time Only)
+Navigate into the web application folder and install the local Tailwind CLI and dev tools:
+```bash
+cd depiR5gp
+npm install
+```
+*(Note: Zero CDNs are used. Tailwind CLI, Alpine.js, and the Lucide SVG sprite are 100% self-hosted inside `wwwroot/`)*.
+
+---
+
+### Running Locally (Two Ways)
+
+#### Option 1: Single-Command Concurrent Watch (Recommended)
+Run both the .NET server with hot-reload and the Tailwind CSS file watcher simultaneously in a single terminal:
+```bash
+cd depiR5gp
+npm run dev
+```
+This runs:
+- `[dotnet]` → `dotnet watch run` (ASP.NET Core with Hot Reload)
+- `[tailwind]` → `@tailwindcss/cli -i ./wwwroot/css/input.css -o ./wwwroot/css/site.css --watch`
+
+Open your browser at:
+👉 `http://localhost:5249` or `https://localhost:7101`
+
+---
+
+#### Option 2: Separate Terminals
+If you prefer keeping your build logs separate:
+
+**Terminal 1: Start Tailwind CSS Watcher**
+```bash
+cd depiR5gp
+npm run css:watch
+```
+
+**Terminal 2: Launch ASP.NET Core MVC**
+```bash
+cd depiR5gp
+dotnet watch run
+```
+
+---
+
+### Production Build / CI/CD Deployment
+For production builds (Azure App Service / GitHub Actions), compile the minified stylesheet before publishing:
+```bash
+cd depiR5gp
+npm run css:build
+dotnet publish -c Release -o ./publish
+```
+
+---
+
+## 🧭 Architecture & Navigation Blueprint
+
+- **Client-Side Routing:** The frontend mirrors the prototype's instant routing via hash fragments (`#home`, `#dishes`, `#dish/{id}`, `#chefs`, `#chef/{id}`, `#cart`, `#checkout`, `#orders`, `#profile`, `#loyalty`, `#favorites`, `#inbox`, `#my-cases`, `#admin`, `#support`, `#styleguide`, `#ai-assistant`). All screen partials are located under `Views/*/Partials/` and orchestrated in `Views/Home/Index.cshtml`.
+- **State & Localization:** Global state (language, RTL direction, dark mode, role switcher, cart storage, and toasts) is managed through `wwwroot/js/store.js` via Alpine.js (`$store.app`).
+- **Icons:** 73 local SVG vector symbols in `_Sprite.cshtml` and `wwwroot/icons/sprite.svg` invoked cleanly via `<svg><use href="#icon-name"></use></svg>`.
+- **Backend Data-Binding Notes:** All views contain explicit, granular `<!-- TODO [Backend]: ... -->` markers indicating where to bind Entity Framework Core queries, ASP.NET Core Identity authentication, and SignalR real-time hubs.
+
+---
+
+## 🎯 Implemented UI Features & Views Inventory (Backlog Parity)
+
+All 58 actionable `[UI]` / `[FE]` subtasks audited from `Copy of Home_Chef_Product_Backlog_Specification.md` are fully implemented:
+
+### 1. Chef Operations & Menu Management
+| View / Component | Backlog Subtasks | Description |
+| :--- | :--- | :--- |
+| `_EditChefProfileModal.cshtml` | `SCRUM-30` | Edit kitchen name (EN/AR), bio, photo, pickup area, and weekly working hours schedule. |
+| `_AddDishModal.cshtml` | `SCRUM-36`, `SCRUM-61` | Add dish form with name (EN/AR), description, category, price, prep time, availability, and preset option groups builder (radio choose-one vs checkbox choose-many with surcharges). |
+| `_EditDishModal.cshtml` | `SCRUM-46`, `SCRUM-61` | Pre-populated modal to edit existing menu dishes and custom option presets. |
+| `_DeleteDishConfirmDialog.cshtml` | `SCRUM-51` | Deletion confirmation dialog with active orders policy warning. |
+| `_RejectOrderDialog.cshtml` | `SCRUM-81` | Rejection reason selector modal (Kitchen at capacity, missing ingredients, early close). |
+| `_ChefDashboard.cshtml` | `SCRUM-96`, `SCRUM-556`, `SCRUM-511` | Order history tab with status filter, customer reviews tab in read-only mode, and financial wallet ledger with 15% commission itemization and instant InstaPay payout trigger. |
+| `_PublicChef.cshtml` | `SCRUM-26`, `SCRUM-66` | Working hours schedule table, pickup area privacy disclaimer, and kitchen closed warning banner with disabled cart additions. |
+
+### 2. Customer Order Lifecycle, Reviews & Cart
+| View / Component | Backlog Subtasks | Description |
+| :--- | :--- | :--- |
+| `_CancelOrderDialog.cshtml` | `SCRUM-463` | Customer cancellation modal when order is 'Pending' with 100% full refund guarantee. |
+| `_OrderReviewModal.cshtml` | `SCRUM-245`, `SCRUM-548` | 1–5 star interactive rating modal with feedback comments, highlight tags, and anonymous toggle. |
+| `_RequestRefundModal.cshtml` | `SCRUM-527`, `SCRUM-539` | Customer refund claim modal with reason category and payout destination (Wallet Credit vs Card Reversal). |
+| `_OrderTracking.cshtml` | `SCRUM-230`, `SCRUM-463` | Live timeline, contextual action buttons (Cancel, Rate, Refund, Need Help), preset breakdown, and receipt summary. |
+| `_CartPage.cshtml` | `SCRUM-191`, `SCRUM-203-205` | Undo item removal toast, top warning alert banner, line-item unavailable / price updated badges, and disabled checkout validation. |
+| `_CustomerProfile.cshtml` | `SCRUM-226`, `SCRUM-249` | Filterable order history with re-order buttons, and dedicated two-tab Favorites section ('Favorite Dishes' and 'Favorite Chefs') with empty states. |
+| `_EditCustomerProfileModal.cshtml` | `SCRUM-325` | Edit customer name, phone, email, default address, and dietary preferences. |
+
+### 3. Customer Support & Disputes
+| View / Component | Backlog Subtasks | Description |
+| :--- | :--- | :--- |
+| `_ContactSupportModal.cshtml` | `SCRUM-389` | Ticket submission modal with subject, category, optional order reference, and detailed description. |
+| `_MySupportCases.cshtml` | `SCRUM-409`, `SCRUM-397` | Customer-facing ticket list, support agent message thread, follow-up reply box, and closed ticket banner. |
+| `_SupportPortal.cshtml` | `SCRUM-406` | Support desk with ticket status transition dropdown (`Open`, `In Progress`, `Resolved`, `Closed`). |
+
+### 4. Platform Oversight & Financial Reconciliation
+| View / Component | Backlog Subtasks | Description |
+| :--- | :--- | :--- |
+| `_CashReconciliationModal.cshtml` | `SCRUM-519` | Reconciles cash-on-pickup collections against the 15% platform commission owed. |
+| `_AdminPayoutModal.cshtml` | `SCRUM-523` | Chef payout disbursement modal via InstaPay GPA transfer channel and payout history log. |
+| `_OrderSettlementModal.cshtml` | `SCRUM-507`, `SCRUM-515` | Order financial drill-down itemizing Gross GMV, 15% platform commission, and net payable. |
+| `_AdminDashboard.cshtml` | `SCRUM-361`, `SCRUM-366`, `SCRUM-552` | User search & role filter with suspension dialog, review moderation workflow (Approve/Reject), and weekly GMV sparkline trend chart. |
+| `_AIFaqManagement.cshtml` | `SCRUM-493` | AI Assistant knowledge base FAQ management tool. |
+
+### 5. Multi-Conversation Real-Time Inbox & Auth
+| View / Component | Backlog Subtasks | Description |
+| :--- | :--- | :--- |
+| `_ChatInboxPage.cshtml` | `SCRUM-308`, `SCRUM-294` | Dedicated inbox view (`#inbox`) with conversation switcher, online presence dots, and message bubbles. |
+| `_Header.cshtml` | `SCRUM-299` | Live Chat Inbox button with unread count `2` badge and dropdown navigation links. |
+| `_ForgotPasswordModal.cshtml` | `SCRUM-320` | Password recovery modal with reset link request, email simulation, and new password confirmation form. |
+

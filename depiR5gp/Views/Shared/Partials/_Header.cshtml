@@ -1,0 +1,307 @@
+@*
+  Header Component Partial
+  Source: home_chef/src/components/layout/Header.tsx
+*@
+<header class="sticky top-0 z-30 w-full bg-[var(--color-surface)] shadow-xs transition-colors"
+        x-data="{ mobileMenuOpen: false, searchOpen: false, notificationsOpen: false, userDropdownOpen: false, localSearch: '' }">
+
+    <!-- 1. Marquee Announcement Bar: Dark text on coral with min 13px font size -->
+    <div class="w-full bg-[#ff7e6b] text-[#1f1b19] text-[13px] py-2 overflow-hidden border-b border-black/10 select-none font-medium">
+        <div class="animate-marquee flex items-center gap-8 whitespace-nowrap tracking-wide">
+            <span x-text="$store.app.language === 'ar' ? 'طلب أكل بيتي أصيل من مطابخ معتمدة ومفتشة' : 'Order authentic home-cooked food from certified domestic kitchens'">Order authentic home-cooked food from certified domestic kitchens</span>
+            <span class="opacity-60">✦</span>
+            <span x-text="$store.app.language === 'ar' ? 'الاستلام مباشر من الشيف - بدون رسوم توصيل إضافية' : 'Direct kitchen counter pickup · NO delivery markups'">Direct kitchen counter pickup · NO delivery markups</span>
+            <span class="opacity-60">✦</span>
+            <span x-text="$store.app.language === 'ar' ? 'انضم لنادي الذواقة واحصل على خصم 20% على طلبك الأول' : 'Join our foodie club & enjoy up to 20% off your first kitchen pickup'">Join our foodie club &amp; enjoy up to 20% off your first kitchen pickup</span>
+            <span class="opacity-60">✦</span>
+            <span x-text="$store.app.language === 'ar' ? 'سمن بلدي طبيعي ومكونات طازجة يومياً' : '100% pure Egyptian baladi ghee & freshly butchered meats'">100% pure Egyptian baladi ghee &amp; freshly butchered meats</span>
+            <span class="opacity-60">✦</span>
+            <span x-text="$store.app.language === 'ar' ? 'طلب أكل بيتي أصيل من مطابخ معتمدة ومفتشة' : 'Order authentic home-cooked food from certified domestic kitchens'">Order authentic home-cooked food from certified domestic kitchens</span>
+            <span class="opacity-60">✦</span>
+            <span x-text="$store.app.language === 'ar' ? 'الاستلام مباشر من الشيف - بدون رسوم توصيل إضافية' : 'Direct kitchen counter pickup · NO delivery markups'">Direct kitchen counter pickup · NO delivery markups</span>
+        </div>
+    </div>
+
+    <!-- 2. Main Header Bar: 1fr auto 1fr Grid for perfectly centered logo -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="h-18 sm:h-20 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+            <!-- Left Column (1fr) -->
+            <div class="flex items-center justify-start gap-4 min-w-0">
+                <!-- Mobile hamburger button -->
+                <div class="flex items-center lg:hidden">
+                    <button @@click="mobileMenuOpen = !mobileMenuOpen"
+                            class="p-2 text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                            aria-label="Open mobile menu">
+                        <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#menu"></use></svg>
+                        <svg x-show="mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><use href="#x"></use></svg>
+                    </button>
+                </div>
+
+                <!-- Left: Desktop Navigation Links -->
+                <nav class="hidden lg:flex items-center gap-5 xl:gap-7">
+                    <a href="#home"
+                       :class="$store.app.currentRoute === '#home' || $store.app.currentRoute === '' ? 'text-[var(--color-primary)]' : 'text-[var(--color-text)] hover:text-[var(--color-primary)]'"
+                       class="relative text-[13px] font-bold uppercase tracking-wider transition-colors py-2 cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                        <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'HOME'">HOME</span>
+                        <span x-show="$store.app.currentRoute === '#home' || $store.app.currentRoute === ''" class="absolute bottom-0 inset-x-0 h-0.5 bg-[var(--color-primary)]"></span>
+                    </a>
+
+                    <a href="#dishes"
+                       :class="$store.app.currentRoute === '#dishes' ? 'text-[var(--color-primary)]' : 'text-[var(--color-text)] hover:text-[var(--color-primary)]'"
+                       class="relative text-[13px] font-bold uppercase tracking-wider transition-colors py-2 cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                        <span x-text="$store.app.language === 'ar' ? 'قائمة الأطباق' : 'DISHES'">DISHES</span>
+                        <span class="bg-[var(--color-sale)] text-white text-[11px] font-bold px-1.5 py-0.5 rounded-xs leading-none">SALE</span>
+                        <span x-show="$store.app.currentRoute === '#dishes'" class="absolute bottom-0 inset-x-0 h-0.5 bg-[var(--color-primary)]" style="display: none;"></span>
+                    </a>
+
+                    <a href="#chefs"
+                       :class="$store.app.currentRoute === '#chefs' ? 'text-[var(--color-primary)]' : 'text-[var(--color-text)] hover:text-[var(--color-primary)]'"
+                       class="relative text-[13px] font-bold uppercase tracking-wider transition-colors py-2 cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                        <span x-text="$store.app.language === 'ar' ? 'طهاة الحي' : 'CHEFS'">CHEFS</span>
+                        <span x-show="$store.app.currentRoute === '#chefs'" class="absolute bottom-0 inset-x-0 h-0.5 bg-[var(--color-primary)]" style="display: none;"></span>
+                    </a>
+
+                    <a href="#ai-assistant"
+                       :class="$store.app.currentRoute === '#ai-assistant' ? 'text-[var(--color-primary)]' : 'text-[var(--color-text)] hover:text-[var(--color-primary)]'"
+                       class="relative text-[13px] font-bold uppercase tracking-wider transition-colors py-2 cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                        <svg class="w-3.5 h-3.5 text-amber-500 animate-pulse shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'المساعد الذكي' : 'AI ASSISTANT'">AI ASSISTANT</span>
+                        <span x-show="$store.app.currentRoute === '#ai-assistant'" class="absolute bottom-0 inset-x-0 h-0.5 bg-[var(--color-primary)]" style="display: none;"></span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Center Column (auto): Truly Centered Brand Logo -->
+            <div class="flex items-center justify-center shrink-0">
+                <a href="#home" class="group flex items-center gap-2.5 text-start cursor-pointer">
+                    <div class="w-10 h-10 rounded-full border-2 border-[var(--color-primary)] flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
+                        <svg class="w-6 h-6 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                    </div>
+                    <div class="flex flex-col leading-tight">
+                        <span class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-primary)] font-serif uppercase">
+                            HomeChef
+                        </span>
+                        <span class="text-[13px] tracking-widest uppercase text-[var(--color-text-muted)] font-semibold"
+                              x-text="$store.app.language === 'ar' ? 'مطابخ أكل بيتي' : 'Marketplace'">
+                            Marketplace
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Right Column (1fr): Justified End -->
+            <div class="flex items-center justify-end gap-2 sm:gap-3 min-w-0">
+                <!-- Currency & Language text switcher -->
+                <div class="hidden sm:flex items-center text-[13px] font-semibold text-[var(--color-text-muted)] gap-2 pe-1 border-e border-[var(--color-border)]">
+                    <span class="text-[var(--color-text)]">EGP</span>
+                    <span>/</span>
+                    <button @@click="$store.app.setLanguage($store.app.language === 'en' ? 'ar' : 'en')"
+                            class="hover:text-[var(--color-primary)] transition-colors cursor-pointer text-[13px] uppercase"
+                            x-text="$store.app.language === 'en' ? 'عربي' : 'EN'">
+                        عربي
+                    </button>
+                </div>
+
+                <!-- Search Icon Button -->
+                <button @@click="searchOpen = !searchOpen"
+                        :title="$store.app.language === 'ar' ? 'بحث الأطباق والطهاة' : 'Search dishes and chefs'"
+                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
+                </button>
+
+                <!-- Chat Inbox Icon Button (SCRUM-299) -->
+                <a href="#inbox"
+                   :title="$store.app.language === 'ar' ? 'صندوق المحادثات والرسائل' : 'Live Chat Inbox'"
+                   class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer relative">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#message-circle"></use></svg>
+                    <!-- Unread badge counter (SCRUM-299) -->
+                    <span class="absolute -top-1 -end-1 w-4.5 h-4.5 bg-emerald-600 text-white text-[11px] font-bold rounded-full flex items-center justify-center leading-none">
+                        2
+                    </span>
+                </a>
+
+                <!-- Notification Bell -->
+                <div class="relative">
+                    <button @@click="notificationsOpen = !notificationsOpen"
+                            :title="$store.app.language === 'ar' ? 'التنبيهات' : 'Notifications'"
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer relative">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#bell"></use></svg>
+                        <!-- TODO [Backend]: Unread notifications count badge -->
+                        <span class="absolute -top-1 -end-1 w-4.5 h-4.5 bg-[var(--color-primary)] text-white text-[13px] font-bold rounded-full flex items-center justify-center leading-none">
+                            2
+                        </span>
+                    </button>
+
+                    <!-- Notification dropdown -->
+                    <div x-show="notificationsOpen"
+                         @@click.outside="notificationsOpen = false"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         style="display: none;"
+                         class="absolute end-0 mt-2 w-72 sm:w-80 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl shadow-xl p-3 z-50">
+                        <div class="flex items-center justify-between pb-2 mb-2 border-b border-[var(--color-border-light)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
+                            <span x-text="$store.app.language === 'ar' ? 'التنبيهات' : 'Notifications'">Notifications</span>
+                            <span class="text-[10px] text-[var(--color-primary)] font-medium">
+                                2 <span x-text="$store.app.language === 'ar' ? 'غير مقروء' : 'unread'">unread</span>
+                            </span>
+                        </div>
+                        <div class="space-y-2 max-h-60 overflow-y-auto">
+                            <!-- TODO [Backend]: Loop through notifications model -->
+                            <div class="p-2 rounded-xl text-xs cursor-pointer transition-colors bg-[var(--color-primary-light)] font-medium">
+                                <p class="font-semibold text-[var(--color-primary)]">
+                                    Order #HC-2026-9041 Accepted!
+                                </p>
+                                <p class="text-[11px] text-[var(--color-text)] mt-0.5">
+                                    Chef Amina accepted your Molokhia &amp; Duck order. Pickup in 45m.
+                                </p>
+                            </div>
+                            <div class="p-2 rounded-xl text-xs cursor-pointer transition-colors opacity-70 hover:bg-[var(--color-surface-subtle)]">
+                                <p class="font-semibold text-[var(--color-primary)]">
+                                    Weekend Baladi Roast Special
+                                </p>
+                                <p class="text-[11px] text-[var(--color-text)] mt-0.5">
+                                    Chef Tarek published 3 new Egyptian clay tagines for Friday pickup.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Icon Button -->
+                <div class="relative">
+                    <button @@click="if ($store.app.role === 'guest') { $store.app.loginModalOpen = true; } else { userDropdownOpen = !userDropdownOpen; }"
+                            :title="$store.app.role === 'guest' ? ($store.app.language === 'ar' ? 'تسجيل الدخول' : 'Sign in') : 'My Account'"
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
+                    </button>
+
+                    <!-- User Dropdown for logged in roles -->
+                    <div x-show="userDropdownOpen && $store.app.role !== 'guest'"
+                         @@click.outside="userDropdownOpen = false"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         style="display: none;"
+                         class="absolute end-0 mt-2 w-52 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl shadow-xl p-2 z-50 text-xs">
+                        <div class="p-2 border-b border-[var(--color-border-light)] mb-1">
+                            <!-- TODO [Backend]: Bind user name, role and email -->
+                            <p class="font-bold text-[var(--color-text)] truncate">Sara Ahmed</p>
+                            <p class="text-[10px] text-[var(--color-primary)] font-semibold uppercase" x-text="$store.app.role">customer</p>
+                            <p class="text-[10px] text-[var(--color-text-muted)] truncate">sara.ahmed@example.com</p>
+                        </div>
+
+                        <a href="#profile" @@click="userDropdownOpen = false"
+                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                            <span x-text="$store.app.language === 'ar' ? 'الملف الشخصي' : 'My Profile'">My Profile</span>
+                        </a>
+                        <a href="#orders" @@click="userDropdownOpen = false"
+                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                            <span x-text="$store.app.language === 'ar' ? 'سجل طلباتي' : 'Order History'">Order History</span>
+                        </a>
+                        <a href="#inbox" @@click="userDropdownOpen = false"
+                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs flex items-center justify-between">
+                            <span x-text="$store.app.language === 'ar' ? 'صندوق الرسائل' : 'Chat Inbox'">Chat Inbox</span>
+                            <span class="px-1.5 py-0.2 rounded-full bg-emerald-600 text-white font-bold text-[10px]">2</span>
+                        </a>
+                        <a href="#my-cases" @@click="userDropdownOpen = false"
+                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                            <span x-text="$store.app.language === 'ar' ? 'تذاكر الدعم الفني' : 'My Support Cases'">My Support Cases</span>
+                        </a>
+                        <a href="#loyalty" @@click="userDropdownOpen = false"
+                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                            <span x-text="$store.app.language === 'ar' ? 'نقاط الولاء' : 'Loyalty Points'">Loyalty Points</span>
+                        </a>
+
+                        <button @@click="$store.app.setRole('guest'); userDropdownOpen = false;"
+                                class="w-full text-start px-2 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xs flex items-center gap-1.5 mt-1 border-t border-[var(--color-border-light)] cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'تسجيل الخروج (ضيف)' : 'Sign Out (Guest)'">Sign Out (Guest)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Wishlist / Favorites Circular Button with Badge -->
+                <a href="#favorites"
+                   :title="$store.app.language === 'ar' ? 'المفضلة' : 'Wishlist'"
+                   class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer relative">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#heart"></use></svg>
+                    <span class="absolute -top-1 -end-1 w-4 h-4 bg-[var(--color-secondary-btn)] text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                          x-text="$store.app.favorites.length">
+                        2
+                    </span>
+                </a>
+
+                <!-- Cart Circular Button with Badge -->
+                <a href="#cart"
+                   :title="$store.app.language === 'ar' ? 'سلة التسوق' : 'Shopping Cart'"
+                   class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer relative">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                    <span class="absolute -top-1 -end-1 w-4 h-4 bg-[var(--color-primary)] text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                          x-text="$store.app.cart.items.reduce((s, i) => s + i.quantity, 0)">
+                        1
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Bar Dropdown -->
+        <div x-show="searchOpen"
+             x-transition
+             style="display: none;"
+             class="py-3 border-t border-[var(--color-border)]">
+            <form @@submit.prevent="if (localSearch.trim()) { window.location.hash = '#dishes'; searchOpen = false; }"
+                  class="flex items-center gap-2 max-w-xl mx-auto">
+                <div class="relative flex-1">
+                    <input type="text"
+                           x-model="localSearch"
+                           :placeholder="$store.app.language === 'ar' ? 'ابحث باسم الطبق، المطبخ، أو الشيف (مثال: ملوخية، طواجن، أمينة)...' : 'Search dishes, cuisine or chef name (e.g. Molokhia, Duck, Tagine)...'"
+                           class="w-full text-xs p-2.5 ps-10 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border-2 border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium shadow-xs" />
+                    <svg class="w-4 h-4 text-[var(--color-primary)] absolute start-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
+                </div>
+                <button type="submit"
+                        class="bg-[var(--color-primary)] text-white text-xs font-bold px-6 py-2.5 uppercase tracking-wider rounded-full cursor-pointer hover:bg-[var(--color-primary-hover)] transition-all shadow-xs"
+                        x-text="$store.app.language === 'ar' ? 'بحث' : 'Search'">
+                    Search
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Drawer -->
+    <div x-show="mobileMenuOpen"
+         @@click.outside="mobileMenuOpen = false"
+         x-transition
+         style="display: none;"
+         class="lg:hidden border-t border-[var(--color-border)] bg-[var(--color-card-bg)] px-4 py-4 space-y-3">
+        <a href="#home" @@click="mobileMenuOpen = false"
+           class="flex items-center gap-2 w-full text-start py-2 text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)]">
+            <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'HOME'">HOME</span>
+        </a>
+        <a href="#dishes" @@click="mobileMenuOpen = false"
+           class="flex items-center gap-2 w-full text-start py-2 text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)]">
+            <span x-text="$store.app.language === 'ar' ? 'قائمة الأطباق' : 'DISHES'">DISHES</span>
+            <span class="bg-[var(--color-sale)] text-white text-[11px] font-bold px-1.5 py-0.5 rounded-xs leading-none">SALE</span>
+        </a>
+        <a href="#chefs" @@click="mobileMenuOpen = false"
+           class="flex items-center gap-2 w-full text-start py-2 text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)]">
+            <span x-text="$store.app.language === 'ar' ? 'طهاة الحي' : 'CHEFS'">CHEFS</span>
+        </a>
+        <a href="#ai-assistant" @@click="mobileMenuOpen = false"
+           class="flex items-center gap-2 w-full text-start py-2 text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)]">
+            <svg class="w-3.5 h-3.5 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
+            <span x-text="$store.app.language === 'ar' ? 'المساعد الذكي' : 'AI ASSISTANT'">AI ASSISTANT</span>
+        </a>
+        <div class="pt-3 border-t border-[var(--color-border)] flex items-center justify-between text-xs font-semibold">
+            <span x-text="$store.app.language === 'ar' ? 'تغيير اللغة' : 'Language'">Language</span>
+            <button @@click="$store.app.setLanguage($store.app.language === 'en' ? 'ar' : 'en'); mobileMenuOpen = false;"
+                    class="text-[var(--color-primary)] underline cursor-pointer"
+                    x-text="$store.app.language === 'en' ? 'العربية (RTL)' : 'English (LTR)'">
+                العربية (RTL)
+            </button>
+        </div>
+    </div>
+</header>

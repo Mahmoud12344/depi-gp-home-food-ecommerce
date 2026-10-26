@@ -1,50 +1,82 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="light" dir="ltr" class="scroll-smooth">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - depiR5gp</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/depiR5gp.styles.css" asp-append-version="true"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HomeChef Marketplace</title>
+    
+    <!-- Zero-Flicker Hydration Script: Applies theme & dir before first paint -->
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('hc_theme') || 'light';
+                var lang = localStorage.getItem('hc_lang') || 'en';
+                document.documentElement.setAttribute('data-theme', theme);
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                document.documentElement.lang = lang;
+                document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            } catch (e) {}
+        })();
+    </script>
+
+    <!-- Google Fonts: Jost (English/Latin) and Tajawal (Arabic) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Pure Tailwind CSS v4 with Cache Busting -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">depiR5gp</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-</header>
-<div class="container">
-    <main role="main" class="pb-3">
+<body class="bg-[var(--color-bg)] text-[var(--color-text)] antialiased transition-colors duration-200 min-h-screen flex flex-col font-sans"
+      x-data>
+    
+    <!-- Inline SVG Lucide Sprite (100% Reliable, Zero-Latency, Zero-CORS) -->
+    <partial name="~/Views/Shared/Icons/_Sprite.cshtml" />
+    
+    <!-- Header -->
+    <partial name="Partials/_Header" />
+
+    <!-- Main Content Area -->
+    <main role="main" class="flex-1">
         @RenderBody()
     </main>
-</div>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; 2026 - depiR5gp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-    </div>
-</footer>
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-@await RenderSectionAsync("Scripts", required: false)
+    <!-- Footer -->
+    <partial name="Partials/_Footer" />
+
+    <!-- Global Modals, Drawers & Overlays -->
+    <partial name="Partials/_FilterDrawer" />
+    <partial name="Partials/_OptionsDialog" />
+    <partial name="Partials/_CartConflictDialog" />
+    <partial name="Partials/_LoginModal" />
+    <partial name="Partials/_ForgotPasswordModal" />
+    <partial name="~/Views/Support/Partials/_ContactSupportModal.cshtml" />
+    <partial name="Partials/_QuickViewModal" />
+    <partial name="Partials/_ToastContainer" />
+    <partial name="Partials/_ChatModal" />
+    <partial name="Partials/_AIAssistantWidget" />
+    <partial name="Partials/_PrototypeBar" />
+
+    <!-- Local Vanilla JS Interactive Modules -->
+    <script src="~/js/components/circular3DGallery.js" asp-append-version="true"></script>
+    <script src="~/js/components/verticalImageStack.js" asp-append-version="true"></script>
+    <script src="~/js/components/thinkingPromptInput.js" asp-append-version="true"></script>
+
+    <!-- Local Alpine Store (Hash routing & global state) -->
+    <script src="~/js/store.js" asp-append-version="true"></script>
+
+    <!-- Local Alpine.js Core (100% CDN-free) -->
+    <script defer src="~/lib/alpine/alpine.min.js"></script>
+
+    <!-- Bootstrap & jQuery preserved as-is -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

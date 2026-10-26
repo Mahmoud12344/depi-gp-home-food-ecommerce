@@ -1,0 +1,101 @@
+<!-- Views/Orders/Partials/_CancelOrderDialog.cshtml -->
+<!-- Subtask SCRUM-463 & SCRUM-427: Customer Order Cancellation Modal -->
+<!-- TODO [Backend]: POST /api/orders/{id}/cancel with cancellation reason -->
+
+<div x-show="showCancelDialog"
+     x-transition.opacity.duration.200ms
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+     style="display: none;"
+     role="dialog"
+     aria-modal="true">
+
+    <div @@click.away="showCancelDialog = false"
+         x-show="showCancelDialog"
+         x-transition.scale.origin.center.duration.200ms
+         class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+
+        <div class="flex items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'إلغاء الطلب واسترداد المبلغ' : 'Cancel Order & Full Refund'">
+                        Cancel Order & Full Refund
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)]"
+                       x-text="'Order #' + (activeOrder ? activeOrder.orderNumber : '')"></p>
+                </div>
+            </div>
+            <button type="button"
+                    @@click="showCancelDialog = false"
+                    class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+            </button>
+        </div>
+
+        <!-- Policy notice banner -->
+        <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 text-xs text-amber-900 dark:text-amber-300 space-y-1">
+            <div class="flex items-center gap-2 font-bold">
+                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                <span x-text="$store.app.language === 'ar' ? 'إلغاء مجاني مع استرداد كامل بنسبة 100%' : '100% Full Refund Guarantee'">100% Full Refund Guarantee</span>
+            </div>
+            <p class="leading-relaxed"
+               x-text="$store.app.language === 'ar' ? 'نظراً لأن الشيف لم يبدأ في طهي الوجبة بعد (حالة الطلب: قيد الانتظار)، يمكنك إلغاء الطلب فوراً دون أي رسوم وسيتم رد إجمالي المبلغ لمحفظتك أو بطاقتك.' : 'Because the chef has not started food preparation yet (Status: Pending), you are entitled to cancel for a 100% full refund with zero fees.'">
+                Because the chef has not started food preparation yet (Status: Pending), you are entitled to cancel for a 100% full refund with zero fees.
+            </p>
+        </div>
+
+        <form @@submit.prevent="
+            activeOrder.status = 'Cancelled';
+            showCancelDialog = false;
+            $store.app.addNotification({
+                title: $store.app.language === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
+                message: $store.app.language === 'ar' ? 'تم إلغاء طلبك بنجاح وتم استرداد كامل المبلغ إلى محفظتك الإلكترونية.' : 'Your order has been cancelled and a 100% full refund has been credited.',
+                type: 'info'
+            });
+        " class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                       x-text="$store.app.language === 'ar' ? 'سبب الإلغاء' : 'Reason for Cancellation'">
+                    Reason for Cancellation
+                </label>
+                <select x-model="cancelReason"
+                        required
+                        class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                    <option value="changed_mind" x-text="$store.app.language === 'ar' ? 'غيرت رأيي / لم أعد بحاجة للطلب' : 'Changed my mind / No longer needed'">Changed my mind / No longer needed</option>
+                    <option value="wrong_pickup" x-text="$store.app.language === 'ar' ? 'اخترت موعد أو موقع استلام غير مناسب' : 'Selected wrong pickup slot or location'">Selected wrong pickup slot or location</option>
+                    <option value="ordered_by_mistake" x-text="$store.app.language === 'ar' ? 'تم الطلب عن طريق الخطأ' : 'Placed order by mistake'">Placed order by mistake</option>
+                    <option value="other" x-text="$store.app.language === 'ar' ? 'سبب آخر' : 'Other reason'">Other reason</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                       x-text="$store.app.language === 'ar' ? 'ملاحظة إضافية (اختياري)' : 'Additional Notes (Optional)'">
+                    Additional Notes (Optional)
+                </label>
+                <textarea rows="2"
+                          x-model="cancelNotes"
+                          placeholder="..."
+                          class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                <button type="button"
+                        @@click="showCancelDialog = false"
+                        class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'التراجع والاحتفاظ بالطلب' : 'Keep Order'">
+                    Keep Order
+                </button>
+                <button type="submit"
+                        class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+                        x-text="$store.app.language === 'ar' ? 'تأكيد الإلغاء والاسترداد' : 'Confirm Cancellation'">
+                    Confirm Cancellation
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+

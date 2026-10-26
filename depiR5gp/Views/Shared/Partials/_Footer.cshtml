@@ -1,0 +1,185 @@
+@*
+  Footer Component Partial
+  Source: home_chef/src/components/layout/Footer.tsx
+*@
+<footer class="w-full bg-[var(--color-surface)] border-t border-[var(--color-border)] pt-12 pb-24 text-xs text-[var(--color-text-muted)] transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Top 3 Pillars -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12 border-b border-[var(--color-border)]">
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
+                </div>
+                <div>
+                    <h4 class="font-bold uppercase tracking-wider text-[var(--color-text)] text-xs mb-1"
+                        x-text="$store.app.language === 'ar' ? 'مطابخ منزلية معتمدة' : 'Verified Domestic Kitchens'">
+                        Verified Domestic Kitchens
+                    </h4>
+                    <p class="text-[11px] leading-relaxed"
+                       x-text="$store.app.language === 'ar' ? 'يخضع جميع الطهاة لفحص وثائق الهوية والشهادات الصحية ونظافة المطبخ قبل اعتمادهم.' : 'Every home chef submits valid government ID and food hygiene certification before onboarding.'">
+                        Every home chef submits valid government ID and food hygiene certification before onboarding.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                </div>
+                <div>
+                    <h4 class="font-bold uppercase tracking-wider text-[var(--color-text)] text-xs mb-1"
+                        x-text="$store.app.language === 'ar' ? 'استلام مباشر (بدون توصيل)' : 'Direct Kitchen Pickup (No Delivery)'">
+                        Direct Kitchen Pickup (No Delivery)
+                    </h4>
+                    <p class="text-[11px] leading-relaxed"
+                       x-text="$store.app.language === 'ar' ? 'تستلم وجبتك ساخنة مباشرة من باب مطبخ الشيف لضمان أعلى جودة وبدون تكاليف توصيل.' : 'Pickup freshly cooked meals directly from neighborhood kitchens at zero delivery markups.'">
+                        Pickup freshly cooked meals directly from neighborhood kitchens at zero delivery markups.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                </div>
+                <div>
+                    <h4 class="font-bold uppercase tracking-wider text-[var(--color-text)] text-xs mb-1"
+                        x-text="$store.app.language === 'ar' ? 'طازج ومعد عند الطلب' : 'Cooked to Order with Real Baladi Ghee'">
+                        Cooked to Order with Real Baladi Ghee
+                    </h4>
+                    <p class="text-[11px] leading-relaxed"
+                       x-text="$store.app.language === 'ar' ? 'لا وجبات مجمدة أو مسخنة مسبقاً، يبدأ التحضير بمجرد قبول الشيف لطلبك.' : 'No factory precooking. Chefs begin simmer and spice work only when your order is accepted.'">
+                        No factory precooking. Chefs begin simmer and spice work only when your order is accepted.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Main Columns -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 py-10">
+            <!-- Brand Info -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 rounded-full border border-[var(--color-primary)] flex items-center justify-center text-[var(--color-primary)]">
+                        <svg class="w-4 h-4 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                    </div>
+                    <span class="text-lg font-bold uppercase tracking-tight text-[var(--color-primary)] font-serif">
+                        HomeChef
+                    </span>
+                </div>
+                <p class="text-[11px] leading-relaxed mb-4"
+                   x-text="$store.app.language === 'ar' ? 'منصة تربط ذواقة الطعام البيتي الأصيل بطهاة المطابخ المنزلية الحرفية في القاهرة والجيزة.' : 'Connecting home-cooked food enthusiasts with vetted domestic kitchens across Cairo & Giza.'">
+                    Connecting home-cooked food enthusiasts with vetted domestic kitchens across Cairo &amp; Giza.
+                </p>
+                <p class="text-[10px] text-[var(--color-text-muted)]">
+                    Currency: <strong>EGP</strong> · ASP.NET Core MVC Prototype
+                </p>
+            </div>
+
+            <!-- Customer Links -->
+            <div>
+                <h4 class="font-bold uppercase tracking-widest text-[var(--color-text)] text-xs mb-3"
+                    x-text="$store.app.language === 'ar' ? 'للزبائن والذواقة' : 'For Foodies'">
+                    For Foodies
+                </h4>
+                <ul class="space-y-2 text-[11px]">
+                    <li>
+                        <a href="#dishes" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                           x-text="$store.app.language === 'ar' ? 'تصفح قائمة الأطباق' : 'Browse All Dishes'">
+                            Browse All Dishes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#chefs" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                           x-text="$store.app.language === 'ar' ? 'قائمة الطهاة المعتمدين' : 'Find Neighborhood Chefs'">
+                            Find Neighborhood Chefs
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#orders" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                           x-text="$store.app.language === 'ar' ? 'تتبع الطلبات الحالية' : 'Track Active Orders'">
+                            Track Active Orders
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#loyalty" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                           x-text="$store.app.language === 'ar' ? 'نظام نقاط الولاء' : 'Loyalty Rewards Program'">
+                            Loyalty Rewards Program
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Chefs & Platform -->
+            <div>
+                <h4 class="font-bold uppercase tracking-widest text-[var(--color-text)] text-xs mb-3"
+                    x-text="$store.app.language === 'ar' ? 'للطهاة والشركاء' : 'For Home Chefs'">
+                    For Home Chefs
+                </h4>
+                <ul class="space-y-2 text-[11px]">
+                    <li>
+                        <a href="#chef/onboarding" class="hover:text-[var(--color-primary)] font-semibold text-[var(--color-primary)] transition-colors cursor-pointer">
+                            <span x-text="$store.app.language === 'ar' ? 'قدم طلبك: كن شيفاً معنا' : 'Become a Home Chef'">Become a Home Chef</span> →
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#chef/dashboard" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                           x-text="$store.app.language === 'ar' ? 'لوحة تحكم الشيف' : 'Chef Kitchen Dashboard'">
+                            Chef Kitchen Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#chef/menu" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                           x-text="$store.app.language === 'ar' ? 'إدارة قائمة الطعام' : 'Menu Management'">
+                            Menu Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#support" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                           x-text="$store.app.language === 'ar' ? 'مركز دعم العملاء والطهاة' : 'Customer Support Center'">
+                            Customer Support Center
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Newsletter -->
+            <div>
+                <h4 class="font-bold uppercase tracking-widest text-[var(--color-text)] text-xs mb-3"
+                    x-text="$store.app.language === 'ar' ? 'نشرة نادي الذواقة' : 'Foodie Club Newsletter'">
+                    Foodie Club Newsletter
+                </h4>
+                <p class="text-[11px] mb-3 leading-relaxed"
+                   x-text="$store.app.language === 'ar' ? 'اشترك ليصلك إشعار بالوجبات الموسمية وخصومات حصرية.' : 'Subscribe for weekly seasonal weekend specials and kitchen updates.'">
+                    Subscribe for weekly seasonal weekend specials and kitchen updates.
+                </p>
+                <div class="flex items-center gap-1.5">
+                    <input type="email"
+                           placeholder="your.email@example.com"
+                           class="w-full text-xs py-2 px-3.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                    <button type="button"
+                            class="bg-[var(--color-primary)] text-white text-xs font-semibold px-3.5 py-2 rounded-full uppercase tracking-wider hover:bg-[var(--color-primary-hover)] transition-colors cursor-pointer shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#mail"></use></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom copyright -->
+        <div class="pt-6 border-t border-[var(--color-border)] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[var(--color-text-muted)]">
+            <p>
+                © 2026 Home Chef Marketplace. Built for ASP.NET Core MVC Razor Views. Visual style inspired by Banno Bakery.
+            </p>
+            <div class="flex items-center gap-4">
+                <a href="#styleguide" class="hover:underline">
+                    Style Guide &amp; Design Tokens
+                </a>
+                <span>·</span>
+                <a href="#support" class="hover:underline">
+                    Help &amp; Policies
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
