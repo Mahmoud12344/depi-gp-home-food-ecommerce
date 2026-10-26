@@ -1,0 +1,292 @@
+<!-- Views/Admin/Partials/_AdminDashboard.cshtml -->
+<!-- Source: home_chef/src/pages/AdminDashboardPage.tsx -->
+<!-- TODO [Backend]: Bind live platform KPIs, chef applications, registered users, and review moderation lists -->
+
+<div x-data="{
+    activeTab: 'kpis',
+    commissionRate: 15,
+    pendingChefs: [
+        {
+            id: 'chef-4',
+            kitchenName: 'Kareem\'s Alexandria Seafood',
+            chefName: 'Chef Kareem Nour',
+            address: 'Building 12, Abbas El-Akkad, Nasr City, Cairo',
+            pickupArea: 'Nasr City',
+            documents: {
+                idNumber: 'EGY-2930411-NAT',
+                foodSafetyCert: 'FS-CAIRO-2026-992'
+            }
+        }
+    ],
+    usersList: [
+        { id: 'u-1', name: 'Tamer Zaki', email: 'tamer.zaki@example.com', role: 'Customer', status: 'Active', ordersCount: 14 },
+        { id: 'u-2', name: 'Chef Amina Mansour', email: 'amina.chef@example.com', role: 'Chef', status: 'Active', ordersCount: 84 },
+        { id: 'u-3', name: 'Chef Hany El-Sayed', email: 'hany.chef@example.com', role: 'Chef', status: 'Active', ordersCount: 62 },
+        { id: 'u-4', name: 'Ahmed Badawi', email: 'ahmed.b@example.com', role: 'Customer', status: 'Active', ordersCount: 2 }
+    ],
+    reviews: [
+        { id: 'rev-1', customerName: 'Youssef Nabil', chefName: 'Amina\'s Heritage Kitchen', rating: 5, comment: 'The duck was browned to perfection and the molokhia was piping hot. Best homemade dinner in Maadi!' },
+        { id: 'rev-2', customerName: 'Salma Fathy', chefName: 'Hany\'s Gourmet Grills', rating: 5, comment: 'Braised oxtail was incredibly tender and the caramelized shallots gave it deep sweetness.' },
+        { id: 'rev-3', customerName: 'Karim Gad', chefName: 'Amina\'s Heritage Kitchen', rating: 4, comment: 'Authentic baladi ghee flavor in the feteer. Portion was generous for 4 people.' }
+    ],
+    handleApproveChef(chefId) {
+        this.pendingChefs = this.pendingChefs.filter(c => c.id !== chefId);
+        $store.app.showToast('success', 'Chef kitchen approved! Published to marketplace browse.');
+    },
+    handleRejectChef(chefId) {
+        this.pendingChefs = this.pendingChefs.filter(c => c.id !== chefId);
+        $store.app.showToast('info', 'Chef application rejected with feedback notes.');
+    },
+    handleSuspendUser(userId) {
+        this.usersList = this.usersList.map(u => u.id === userId ? { ...u, status: u.status === 'Suspended' ? 'Active' : 'Suspended' } : u);
+        $store.app.showToast('info', 'User status updated successfully.');
+    },
+    handleDeleteReview(reviewId) {
+        this.reviews = this.reviews.filter(r => r.id !== reviewId);
+        $store.app.showToast('info', 'Inappropriate review deleted. Kitchen ratings recalculated.');
+    }
+}" class="w-full pb-24">
+
+    <!-- Breadcrumb Banner -->
+    <div class="relative bg-gradient-to-r from-[var(--color-primary-light)] via-[var(--color-bg)] to-[var(--color-primary-light)] dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 border-b border-[var(--color-border)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto space-y-2">
+            <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 flex-wrap">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#chevron-right"></use>
+                </svg>
+                <span class="text-[var(--color-primary)] font-semibold" x-text="$store.app.language === 'ar' ? 'لوحة الإدارة' : 'Admin Portal'">Admin Portal</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                x-text="$store.app.language === 'ar' ? 'لوحة الإدارة والرقابة' : 'Platform Administration & Oversight'">
+                Platform Administration & Oversight
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-2xl"
+               x-text="$store.app.language === 'ar' ? 'متابعة المؤشرات، اعتماد الطهاة، وإدارة العمولات' : 'Monitor KPIs, verify chef applications, and manage platform parameters'">
+                Monitor KPIs, verify chef applications, and manage platform parameters
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-[var(--color-border)] gap-2 sm:gap-6 overflow-x-auto pb-1">
+            <button @@click="activeTab = 'kpis'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer"
+                    :class="activeTab === 'kpis' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    x-text="$store.app.language === 'ar' ? 'المؤشرات والمالية' : 'Platform KPIs & Balances'">
+                Platform KPIs & Balances
+            </button>
+
+            <button @@click="activeTab = 'applications'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer"
+                    :class="activeTab === 'applications' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'">
+                <span x-text="$store.app.language === 'ar' ? 'طلبات انضمام الطهاة' : 'Chef Applications'">Chef Applications</span>
+                <span x-text="`(${pendingChefs.length})`"></span>
+            </button>
+
+            <button @@click="activeTab = 'users'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer"
+                    :class="activeTab === 'users' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    x-text="$store.app.language === 'ar' ? 'إدارة المستخدمين' : 'User Accounts'">
+                User Accounts
+            </button>
+
+            <button @@click="activeTab = 'reviews'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer"
+                    :class="activeTab === 'reviews' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    x-text="$store.app.language === 'ar' ? 'مراقبة التقييمات' : 'Review Moderation'">
+                Review Moderation
+            </button>
+
+            <button @@click="activeTab = 'settings'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer"
+                    :class="activeTab === 'settings' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    x-text="$store.app.language === 'ar' ? 'إعدادات المنصة' : 'Platform Settings'">
+                Platform Settings
+            </button>
+        </div>
+
+        <!-- TAB 1: Platform KPIs & Balances -->
+        <!-- TODO [Backend]: Bind platform KPI totals (Gross GMV, Platform Commission, Held Funds, Active Kitchens) and financial ledger breakdown from reporting queries -->
+        <div x-show="activeTab === 'kpis'" class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Total Gross GMV (October)
+                    </span>
+                    <p class="text-2xl font-bold text-[var(--color-text)] mt-1">48,920.00 EGP</p>
+                    <p class="text-[11px] text-emerald-600 mt-1 font-semibold">+18.4% vs last month</p>
+                </div>
+
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Platform Commission (15%)
+                    </span>
+                    <p class="text-2xl font-bold text-[var(--color-primary)] mt-1">7,338.00 EGP</p>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Simulated ledger</p>
+                </div>
+
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Stripe Test Mode Held Funds
+                    </span>
+                    <p class="text-2xl font-bold text-amber-600 mt-1">3,240.00 EGP</p>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Active pending orders</p>
+                </div>
+
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Active Domestic Kitchens
+                    </span>
+                    <p class="text-2xl font-bold text-emerald-600 mt-1">4 Verified</p>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1" x-text="`${pendingChefs.length} application pending`"></p>
+                </div>
+            </div>
+
+            <!-- Financial Ledger Breakdown -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Platform Financial Position & Simulated Balances
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <span class="font-bold text-[var(--color-text-muted)] block">Card Payments (Stripe Test):</span>
+                        <p class="text-lg font-bold text-[var(--color-text)] mt-1">36,400.00 EGP</p>
+                    </div>
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <span class="font-bold text-[var(--color-text-muted)] block">Cash on Pickup Collections:</span>
+                        <p class="text-lg font-bold text-[var(--color-text)] mt-1">12,520.00 EGP</p>
+                    </div>
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <span class="font-bold text-[var(--color-text-muted)] block">Total Chef Payout Liabilities:</span>
+                        <p class="text-lg font-bold text-emerald-600 mt-1">41,582.00 EGP</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Chef Applications -->
+        <!-- TODO [Backend]: Loop through pending ChefApplications; wire Approve and Reject actions calling AdminController API -->
+        <div x-show="activeTab === 'applications'" class="space-y-4">
+            <template x-if="pendingChefs.length > 0">
+                <div class="space-y-4">
+                    <template x-for="chef in pendingChefs" :key="chef.id">
+                        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                            <div class="space-y-1 text-xs">
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-950 dark:text-amber-100 bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 px-2.5 py-0.5 rounded-full">
+                                    Application Pending Review
+                                </span>
+                                <h3 class="text-base font-bold uppercase text-[var(--color-text)]" x-text="`${chef.kitchenName} (${chef.chefName})`"></h3>
+                                <p class="text-[var(--color-text-muted)]" x-text="`${chef.address} · Area: ${chef.pickupArea}`"></p>
+                                <p class="text-[var(--color-primary)] font-semibold" x-text="`ID: ${chef.documents?.idNumber} · Cert: ${chef.documents?.foodSafetyCert}`"></p>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button @@click="handleRejectChef(chef.id)"
+                                        class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer">
+                                    Reject Application
+                                </button>
+                                <button @@click="handleApproveChef(chef.id)"
+                                        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer">
+                                    Approve & Grant Kitchen
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            <template x-if="pendingChefs.length === 0">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-8 text-center text-xs text-[var(--color-text-muted)]">
+                    No pending chef applications awaiting review.
+                </div>
+            </template>
+        </div>
+
+        <!-- TAB 3: User Accounts -->
+        <!-- TODO [Backend]: Loop through registered ApplicationUsers; bind Name, Email, Role, Status, and wire Suspend/Reactivate toggle -->
+        <div x-show="activeTab === 'users'" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+            <div class="p-4 border-b border-[var(--color-border)] flex items-center justify-between">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Registered Customers & Chefs
+                </h3>
+            </div>
+
+            <div class="divide-y divide-[var(--color-border-light)] text-xs">
+                <template x-for="user in usersList" :key="user.id">
+                    <div class="p-4 flex items-center justify-between gap-4">
+                        <div>
+                            <span class="font-bold text-[var(--color-text)] block" x-text="user.name"></span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]" x-text="`${user.email} · ${user.role}`"></span>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase"
+                                  :class="user.status === 'Active' ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700' : 'bg-rose-100 dark:bg-rose-950 text-rose-950 dark:text-rose-100 border border-rose-300 dark:border-rose-700'"
+                                  x-text="user.status">
+                            </span>
+
+                            <button @@click="handleSuspendUser(user.id)"
+                                    class="text-xs font-semibold text-[var(--color-primary)] hover:underline cursor-pointer"
+                                    x-text="user.status === 'Active' ? 'Suspend Account' : 'Reactivate'">
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- TAB 4: Review Moderation -->
+        <!-- TODO [Backend]: Loop through CustomerReviews; bind Reviewer, Chef, Stars, Comment, and wire Delete moderation action -->
+        <div x-show="activeTab === 'reviews'" class="space-y-4">
+            <template x-for="r in reviews" :key="r.id">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex items-center justify-between gap-4 text-xs">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-[var(--color-text)]" x-text="r.customerName"></span>
+                            <span class="text-[var(--color-primary)] font-semibold" x-text="`→ ${r.chefName}`"></span>
+                            <span class="text-[10px] text-amber-600 font-bold" x-text="`(${r.rating} Stars)`"></span>
+                        </div>
+                        <p class="text-[var(--color-text-muted)] italic" x-text="`“${r.comment}”`"></p>
+                    </div>
+
+                    <button @@click="handleDeleteReview(r.id)"
+                            class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
+                            title="Delete review">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                    </button>
+                </div>
+            </template>
+        </div>
+
+        <!-- TAB 5: Platform Settings -->
+        <!-- TODO [Backend]: Bind PlatformSettings.CommissionRate and wire Save Rate form submission endpoint -->
+        <div x-show="activeTab === 'settings'" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 max-w-xl shadow-xs space-y-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                Global Platform Parameters
+            </h3>
+
+            <div class="space-y-2 text-xs">
+                <label class="block font-semibold">Standard Platform Commission Rate (%)</label>
+                <div class="flex items-center gap-3">
+                    <input type="number"
+                           min="5"
+                           max="35"
+                           x-model="commissionRate"
+                           class="w-24 p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold" />
+                    <button @@click="$store.app.showToast('success', `Commission rate updated to ${commissionRate}%. Applies to new orders.`)"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-full transition-colors cursor-pointer">
+                        Save Rate
+                    </button>
+                </div>
+                <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+                    Agreed baseline for verified home kitchen orders across Cairo & Giza.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+

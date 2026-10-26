@@ -1,0 +1,160 @@
+<!-- Views/Shared/Partials/_QuickViewModal.cshtml -->
+<!-- Source: home_chef/src/components/common/QuickViewModal.tsx -->
+<!-- TODO [Backend]: Load quick view details asynchronously or bind dish model -->
+
+<div x-cloak
+     x-show="$store.app.quickViewDish"
+     x-data="{
+         quantity: 1,
+         handleAddToCart() {
+             const dish = $store.app.quickViewDish;
+             if (!dish || !dish.isAvailable) return;
+             if (dish.optionGroups && dish.optionGroups.length > 0) {
+                 $store.app.quickViewDish = null;
+                 $store.app.optionsModalDish = dish;
+             } else {
+                 $store.app.addToCart(dish, this.quantity, [], '');
+                 $store.app.quickViewDish = null;
+             }
+         },
+         handleGoToDishPage() {
+             const dish = $store.app.quickViewDish;
+             if (!dish) return;
+             $store.app.quickViewDish = null;
+             $store.app.navigate('#dish/' + dish.id);
+         }
+     }"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0 scale-95"
+     x-transition:enter-end="opacity-100 scale-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100 scale-100"
+     x-transition:leave-end="opacity-0 scale-95"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+
+    <div class="relative w-full max-w-2xl bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl shadow-2xl my-8 overflow-hidden"
+         @@click.away="$store.app.quickViewDish = null">
+
+        <!-- Close Button -->
+        <button type="button"
+                @@click="$store.app.quickViewDish = null"
+                class="absolute top-4 end-4 z-10 p-1.5 text-neutral-400 hover:text-[var(--color-text)] transition-colors cursor-pointer"
+                aria-label="Close">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="#x"></use>
+            </svg>
+        </button>
+
+        <div class="grid grid-cols-1 md:grid-cols-2">
+            <!-- Image -->
+            <div class="relative h-64 md:h-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+                <img :src="$store.app.quickViewDish?.image"
+                     :alt="$store.app.language === 'ar' ? $store.app.quickViewDish?.nameAr : $store.app.quickViewDish?.name"
+                     class="w-full h-full object-cover" />
+                <template x-if="$store.app.quickViewDish?.isSale">
+                    <span class="absolute top-3 start-3 bg-[var(--color-sale)] text-white text-[10px] font-bold px-2.5 py-0.5 uppercase tracking-wider rounded-full shadow-xs">
+                        SALE
+                    </span>
+                </template>
+            </div>
+
+            <!-- Details -->
+            <!-- TODO [Backend]: Bind Dish model (Name, Category, KitchenName, Price, OriginalPrice, Rating, ReviewCount, Description) or load via /api/dishes/{id}/quick-view -->
+            <div class="p-6 flex flex-col justify-between">
+                <div>
+                    <div class="text-xs text-[var(--color-text-muted)] mb-1">
+                        <span x-text="$store.app.language === 'ar' ? $store.app.quickViewDish?.categoryAr : $store.app.quickViewDish?.category"></span>
+                        <span class="mx-1.5">/</span>
+                        <span class="text-[var(--color-primary)] font-semibold"
+                              x-text="$store.app.language === 'ar' ? $store.app.quickViewDish?.kitchenNameAr : $store.app.quickViewDish?.kitchenName"></span>
+                    </div>
+
+                    <h2 class="text-lg sm:text-xl font-bold uppercase tracking-tight text-[var(--color-text)] mb-2"
+                        x-text="$store.app.language === 'ar' ? $store.app.quickViewDish?.nameAr : $store.app.quickViewDish?.name">
+                    </h2>
+
+                    <!-- Price -->
+                    <div class="flex items-baseline gap-2.5 mb-2.5">
+                        <span class="text-xl font-bold text-[var(--color-primary)]"
+                              x-text="($store.app.quickViewDish?.price || 0).toFixed(2) + ' EGP'">
+                        </span>
+                        <template x-if="$store.app.quickViewDish?.originalPrice">
+                            <span class="text-sm text-[var(--color-text-muted)] line-through"
+                                  x-text="($store.app.quickViewDish?.originalPrice || 0).toFixed(2) + ' EGP'">
+                            </span>
+                        </template>
+                    </div>
+
+                    <!-- Stars -->
+                    <div class="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mb-4">
+                        <div class="flex items-center text-[var(--color-star)]">
+                            <template x-for="i in 5" :key="i">
+                                <svg class="w-3.5 h-3.5"
+                                     :class="i <= Math.floor($store.app.quickViewDish?.rating || 0) ? 'fill-current' : 'stroke-current fill-transparent'"
+                                     viewBox="0 0 24 24">
+                                    <use href="#star"></use>
+                                </svg>
+                            </template>
+                        </div>
+                        <span>(<span x-text="$store.app.quickViewDish?.reviewCount || 0"></span> <span x-text="$store.app.language === 'ar' ? 'تقييم موثق' : 'verified reviews'"></span>)</span>
+                    </div>
+
+                    <p class="text-xs text-[var(--color-text-muted)] leading-relaxed mb-4 line-clamp-3"
+                       x-text="$store.app.language === 'ar' ? $store.app.quickViewDish?.descriptionAr : $store.app.quickViewDish?.description">
+                    </p>
+
+                    <div class="space-y-1 text-xs text-[var(--color-text-muted)] mb-6">
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#map-pin"></use>
+                            </svg>
+                            <span x-text="$store.app.language === 'ar' ? $store.app.quickViewDish?.pickupAreaAr : $store.app.quickViewDish?.pickupArea"></span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#clock"></use>
+                            </svg>
+                            <span><span x-text="$store.app.quickViewDish?.prepTimeMinutes || 30"></span> <span x-text="$store.app.language === 'ar' ? 'دقيقة تحضير يدوي' : 'mins fresh preparation'"></span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-3 border-t border-[var(--color-border-light)]">
+                    <div class="flex items-center gap-3">
+                        <!-- Stepper -->
+                        <div class="flex items-center border border-[var(--color-border)] rounded-full p-0.5 bg-white dark:bg-neutral-800">
+                            <button type="button"
+                                    @@click="quantity = Math.max(1, quantity - 1)"
+                                    class="w-8 h-8 rounded-full flex items-center justify-center font-bold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer">
+                                −
+                            </button>
+                            <span class="w-8 text-center text-xs font-bold" x-text="quantity"></span>
+                            <button type="button"
+                                    @@click="quantity = quantity + 1"
+                                    class="w-8 h-8 rounded-full flex items-center justify-center font-bold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer">
+                                +
+                            </button>
+                        </div>
+
+                        <button type="button"
+                                @@click="handleAddToCart()"
+                                :disabled="!$store.app.quickViewDish?.isAvailable"
+                                class="flex-1 inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] focus-visible:outline-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/20">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#shopping-bag"></use>
+                            </svg>
+                            <span x-text="$store.app.quickViewDish?.isAvailable ? ($store.app.language === 'ar' ? 'أضف للطلب' : 'Add to Cart') : ($store.app.language === 'ar' ? 'غير متوفر' : 'Unavailable')"></span>
+                        </button>
+                    </div>
+
+                    <button type="button"
+                            @@click="handleGoToDishPage()"
+                            class="w-full text-center text-xs font-semibold text-[var(--color-primary)] hover:underline pt-1 block cursor-pointer">
+                        <span x-text="$store.app.language === 'ar' ? 'عرض صفحة الطبق الكاملة' : 'View Full Dish Page & Ingredients'">View Full Dish Page & Ingredients</span> →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

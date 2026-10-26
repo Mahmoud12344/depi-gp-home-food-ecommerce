@@ -19,41 +19,201 @@ build_property.TargetFrameworkIdentifier = .NETCoreApp
 build_property.TargetFrameworkVersion = v10.0
 build_property.RootNamespace = depiR5gp
 build_property.RootNamespace = depiR5gp
-build_property.ProjectDir = /home/epic_dev/RiderProjects/depiR5gp/depiR5gp/
+build_property.ProjectDir = /home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = /home/epic_dev/RiderProjects/depiR5gp/depiR5gp
+build_property.MSBuildProjectDirectory = /home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/Views/Home/Index.cshtml]
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Admin/Partials/_AdminDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vUGFydGlhbHMvX0FkbWluRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/AIAssistant/Partials/_AIAssistant.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQUlBc3Npc3RhbnQvUGFydGlhbHMvX0FJQXNzaXN0YW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Cart/Partials/_CartPage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2FydC9QYXJ0aWFscy9fQ2FydFBhZ2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Cart/Partials/_CheckoutPage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2FydC9QYXJ0aWFscy9fQ2hlY2tvdXRQYWdlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Chefs/Partials/_BrowseChefs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX0Jyb3dzZUNoZWZzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Chefs/Partials/_ChefDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX0NoZWZEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Chefs/Partials/_ChefOnboarding.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX0NoZWZPbmJvYXJkaW5nLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Chefs/Partials/_PublicChef.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hlZnMvUGFydGlhbHMvX1B1YmxpY0NoZWYuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Customer/Partials/_CustomerProfile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ3VzdG9tZXIvUGFydGlhbHMvX0N1c3RvbWVyUHJvZmlsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Dishes/Partials/_BrowseDishes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGlzaGVzL1BhcnRpYWxzL19Ccm93c2VEaXNoZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Dishes/Partials/_DishDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGlzaGVzL1BhcnRpYWxzL19EaXNoRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/Views/Home/Privacy.cshtml]
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Home/Partials/_HomePage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9QYXJ0aWFscy9fSG9tZVBhZ2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Home/Partials/_HomePageV2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9QYXJ0aWFscy9fSG9tZVBhZ2VWMi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/Views/Shared/Error.cshtml]
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Orders/Partials/_OrderConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXJzL1BhcnRpYWxzL19PcmRlckNvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Orders/Partials/_OrderTracking.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXJzL1BhcnRpYWxzL19PcmRlclRyYWNraW5nLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/Views/Shared/_ValidationScriptsPartial.cshtml]
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Icons/_Icon.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0ljb25zL19JY29uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Icons/_Sprite.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0ljb25zL19TcHJpdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_AIAssistantWidget.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19BSUFzc2lzdGFudFdpZGdldC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_BreadcrumbBanner.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19CcmVhZGNydW1iQmFubmVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_CartConflictDialog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19DYXJ0Q29uZmxpY3REaWFsb2cuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_ChatModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19DaGF0TW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_ChefCard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19DaGVmQ2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_Circular3DGallery.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19DaXJjdWxhcjNER2FsbGVyeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_CoverflowCarousel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19Db3ZlcmZsb3dDYXJvdXNlbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_DishCard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19EaXNoQ2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_FilterDrawer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19GaWx0ZXJEcmF3ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_Footer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19Gb290ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_Header.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19IZWFkZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_HeroSection7.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19IZXJvU2VjdGlvbjcuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_HoverRevealCards.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19Ib3ZlclJldmVhbENhcmRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_LoginModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19Mb2dpbk1vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_OptionsDialog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19PcHRpb25zRGlhbG9nLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_PrototypeBar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19Qcm90b3R5cGVCYXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_QuickViewModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19RdWlja1ZpZXdNb2RhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_StatusBadge.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19TdGF0dXNCYWRnZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_ThinkingPromptInput.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19UaGlua2luZ1Byb21wdElucHV0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_ToastContainer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19Ub2FzdENvbnRhaW5lci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/Partials/_VerticalImageStack.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19WZXJ0aWNhbEltYWdlU3RhY2suY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/Views/_ViewImports.cshtml]
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/StyleGuide/Partials/_StyleGuide.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3R5bGVHdWlkZS9QYXJ0aWFscy9fU3R5bGVHdWlkZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Support/Partials/_SupportPortal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3VwcG9ydC9QYXJ0aWFscy9fU3VwcG9ydFBvcnRhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/Views/_ViewStart.cshtml]
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/epic_dev/RiderProjects/depiR5gp/depiR5gp/Views/Shared/_Layout.cshtml]
+[/home/mariam.gamal/Mariam/NET Track/depi 2026/graduation project/depi-gp-home-food-ecommerce/depiR5gp/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-ok9k1c716z
