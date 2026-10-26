@@ -104,38 +104,84 @@
                         </div>
                     </div>
 
-                    <!-- Badges / Rating -->
-                    <div class="flex flex-wrap items-center gap-4 text-xs">
+                    <!-- Badges / Rating & Availability Toggle for Demo -->
+                    <div class="flex flex-wrap items-center gap-3 text-xs">
                         <div class="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full">
                             <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
                             <span class="font-bold text-amber-900 dark:text-amber-300">4.9</span>
                             <span class="text-amber-700 dark:text-amber-400">(124 <span x-text="$store.app.language === 'ar' ? 'تقييم' : 'reviews'">reviews</span>)</span>
                         </div>
-                        <span class="inline-flex items-center gap-1.5 font-medium bg-emerald-100 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300 px-3 py-1 rounded-full">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span x-text="$store.app.language === 'ar' ? 'المطبخ يستقبل الطلبات الآن' : 'Kitchen Accepting Orders'">Kitchen Accepting Orders</span>
-                        </span>
+                        <template x-if="chef.isAvailable">
+                            <span class="inline-flex items-center gap-1.5 font-medium bg-emerald-100 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300 px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span x-text="$store.app.language === 'ar' ? 'المطبخ يستقبل الطلبات الآن' : 'Kitchen Accepting Orders'">Kitchen Accepting Orders</span>
+                            </span>
+                        </template>
+                        <template x-if="!chef.isAvailable">
+                            <span class="inline-flex items-center gap-1.5 font-medium bg-rose-100 text-rose-900 dark:bg-rose-950/50 dark:text-rose-300 px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                <span x-text="$store.app.language === 'ar' ? 'المطبخ مغلق حالياً' : 'Kitchen Currently Closed'">Kitchen Currently Closed</span>
+                            </span>
+                        </template>
+
+                        <!-- Simulated demo toggle for testing availability UI (SCRUM-66) -->
+                        <button type="button"
+                                @@click="chef.isAvailable = !chef.isAvailable"
+                                class="text-[11px] underline text-[var(--color-text-muted)] hover:text-[var(--color-primary)] cursor-pointer">
+                            <span x-text="chef.isAvailable ? 'Simulate Kitchen Closed' : 'Simulate Kitchen Open'"></span>
+                        </button>
+                    </div>
+
+                    <!-- Prominent Chef Unavailable Banner (SCRUM-66) -->
+                    <div x-show="!chef.isAvailable"
+                         x-transition
+                         class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl p-4 text-rose-800 dark:text-rose-200 flex items-start gap-3 shadow-xs">
+                        <svg class="w-5 h-5 shrink-0 text-rose-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
+                        <div>
+                            <p class="font-bold text-sm" x-text="$store.app.language === 'ar' ? 'المطبخ مغلق حالياً ولا يستقبل طلبات جديدة' : 'Kitchen is currently closed and not accepting new orders'"></p>
+                            <p class="text-xs text-rose-700 dark:text-rose-300 mt-0.5" x-text="$store.app.language === 'ar' ? 'يمكنك تصفح قائمة الأطباق، وسيعاود الشيف استقبال وتأكيد الطلبات فور استئناف مواعيد العمل الرسمية.' : 'You can browse the menu items below. Ordering will be re-enabled once the chef reopens according to the operating schedule.'"></p>
+                        </div>
                     </div>
 
                     <p class="text-xs sm:text-sm text-[var(--color-text-muted)] leading-relaxed"
                        x-text="$store.app.language === 'ar' ? chef.bioAr : chef.bio"></p>
 
-                    <!-- Location & Hours Info Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-[var(--color-border-light)] text-xs text-[var(--color-text)]">
+                    <!-- Location & Hours Info Grid (SCRUM-26) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[var(--color-border-light)] text-xs text-[var(--color-text)]">
                         <div class="flex items-start gap-2.5">
                             <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
                             <div>
                                 <span class="font-bold block text-[10px] uppercase text-[var(--color-text-muted)]"
-                                      x-text="$store.app.language === 'ar' ? 'عنوان استلام الطلبات' : 'Kitchen Pickup Counter'">Kitchen Pickup Counter</span>
-                                <span class="font-medium" x-text="chef.address">Villa 14, Road 9, Degla, Maadi, Cairo</span>
+                                      x-text="$store.app.language === 'ar' ? 'منطقة الاستلام والتوصيل' : 'Pickup Neighborhood Area'">Pickup Neighborhood Area</span>
+                                <span class="font-semibold text-sm" x-text="$store.app.language === 'ar' ? chef.pickupAreaAr : chef.pickupArea">Maadi, Cairo</span>
+                                <p class="text-[10px] text-amber-700 dark:text-amber-400 mt-1 leading-normal flex items-center gap-1">
+                                    <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield"></use></svg>
+                                    <span x-text="$store.app.language === 'ar' ? 'يُرسل العنوان التفصيلي الدقيق ورقم التواصل فور تأكيد الطلب لحماية خصوصية المطبخ المنزلي.' : 'Exact street address is disclosed upon order confirmation to protect domestic kitchen privacy.'"></span>
+                                </p>
                             </div>
                         </div>
                         <div class="flex items-start gap-2.5">
                             <svg class="w-4 h-4 text-neutral-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
-                            <div>
+                            <div class="w-full">
                                 <span class="font-bold block text-[10px] uppercase text-[var(--color-text-muted)]"
-                                      x-text="$store.app.language === 'ar' ? 'مواعيد العمل والاستلام' : 'Operating & Pickup Hours'">Operating & Pickup Hours</span>
-                                <span class="font-medium" x-text="$store.app.language === 'ar' ? chef.workingHoursAr : chef.workingHours">12:00 PM - 9:00 PM (Sat - Thu)</span>
+                                      x-text="$store.app.language === 'ar' ? 'جدول مواعيد العمل والاستلام' : 'Weekly Working Hours Schedule'">Weekly Working Hours Schedule</span>
+                                <span class="font-semibold" x-text="$store.app.language === 'ar' ? chef.workingHoursAr : chef.workingHours">12:00 PM - 9:00 PM (Sat - Thu)</span>
+                                
+                                <!-- Weekly schedule details table (SCRUM-26) -->
+                                <div class="mt-2 space-y-1 text-[11px] bg-neutral-50 dark:bg-neutral-900/60 p-2.5 rounded-xl border border-[var(--color-border-light)]">
+                                    <div class="flex justify-between items-center text-[var(--color-text-muted)]">
+                                        <span x-text="$store.app.language === 'ar' ? 'السبت - الأربعاء:' : 'Sat - Wed:'">Sat - Wed:</span>
+                                        <span class="font-medium text-[var(--color-text)]">12:00 PM – 09:00 PM</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-[var(--color-text-muted)]">
+                                        <span x-text="$store.app.language === 'ar' ? 'الخميس:' : 'Thursday:'">Thursday:</span>
+                                        <span class="font-medium text-[var(--color-text)]">12:00 PM – 11:00 PM</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-rose-600 dark:text-rose-400">
+                                        <span x-text="$store.app.language === 'ar' ? 'الجمعة:' : 'Friday:'">Friday:</span>
+                                        <span class="font-semibold" x-text="$store.app.language === 'ar' ? 'مغلق (عطلة)' : 'Closed (Rest Day)'">Closed (Rest Day)</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -187,8 +233,14 @@
         <!-- Tab 1: Menu -->
         <!-- TODO [Backend]: Loop through Chef's published dishes (Model.ChefDishes or /api/chefs/{id}/dishes); render _DishCard for each dish -->
         <div x-show="activeTab === 'menu'">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <partial name="Partials/_DishCard" />
+            <template x-if="!chef.isAvailable">
+                <div class="mb-5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2.5 shadow-xs">
+                    <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'إضافة الأطباق للسلة معطلة مؤقتاً لأن المطبخ مغلق حالياً ولا يستقبل طلبات جديدة.' : 'Adding dishes to cart is temporarily paused while this kitchen is closed.'">Adding dishes to cart is temporarily paused while this kitchen is closed.</span>
+                </div>
+            </template>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" :class="!chef.isAvailable ? 'opacity-75 pointer-events-none' : ''">
+                <partial name="~/Views/Shared/Partials/_DishCard.cshtml" />
             </div>
         </div>
 

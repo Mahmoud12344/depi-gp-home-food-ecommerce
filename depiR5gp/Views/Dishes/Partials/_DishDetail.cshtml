@@ -1,5 +1,5 @@
 <!-- Views/Dishes/Partials/_DishDetail.cshtml -->
-<!-- Source: home_chef/src/pages/DishDetailPageV3.tsx & DishDetailPageV2.tsx -->
+<!-- Canonical Dish Detail View: #dish/{id} -->
 <!-- TODO [Backend]: Bind dish model, dynamic reviews, and option groups from database -->
 
 <div x-data="{
@@ -50,9 +50,6 @@
         ],
         description: 'Minced fresh molokhia leaves whipped with golden baladi garlic and coriander ta\'sheya, paired with roasted heritage duck and Egyptian vermicelli rice.',
         descriptionAr: 'ملوخية خضراء طازجة مخروطة يدوياً مع طشة الثوم البلدي والكزبرة الجافة، تقدم مع نصف بطة محمرة في الفرن وأرز مصري بالشعرية.'
-    },
-    get isV2Gallery() {
-        return $store.app.currentRoute.startsWith('#dish-v2');
     },
     get allSelected() {
         return Object.values(this.selectedOptions).flat();
@@ -106,13 +103,6 @@
     <!-- Main Product Showcase Grid -->
     <div class="w-full mx-auto pt-6 space-y-16 max-w-[1600px]"
          style="padding-left: 8px; padding-right: 8px; margin-left: auto; margin-right: auto;">
-
-        <!-- Conditional V2 3D Circular Drum Gallery if route is #dish-v2 -->
-        <template x-if="isV2Gallery">
-            <div class="mb-10">
-                <partial name="Partials/_Circular3DGallery" />
-            </div>
-        </template>
 
         <!-- Active Layout matching exact user specifications:
              Gallery Column: 36.5%
@@ -330,13 +320,13 @@
                 <!-- Special Instructions Note -->
                 <div class="space-y-1.5 pt-2">
                     <div class="flex items-center justify-between text-[13px]">
-                        <label for="chef-special-note-v3" class="font-bold uppercase tracking-wider text-[var(--color-text)]"
+                        <label for="chef-special-note" class="font-bold uppercase tracking-wider text-[var(--color-text)]"
                                x-text="$store.app.language === 'ar' ? 'ملاحظة خاصة للشيف' : 'Special Kitchen Instructions'">
                             Special Kitchen Instructions
                         </label>
                         <span class="font-mono text-[13px] text-[var(--color-text-muted)]" x-text="note.length + '/200'">0/200</span>
                     </div>
-                    <textarea id="chef-special-note-v3"
+                    <textarea id="chef-special-note"
                               rows="2"
                               maxlength="200"
                               x-model="note"

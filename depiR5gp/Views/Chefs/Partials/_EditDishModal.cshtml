@@ -1,0 +1,105 @@
+@*
+  Edit Menu Item Modal Partial
+  Backlog Subtask: SCRUM-46 (Story SCRUM-43)
+  Epic: SCRUM-31 Menu Management
+*@
+<div x-cloak
+     x-show="editDishModalOpen"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0 scale-95"
+     x-transition:enter-end="opacity-100 scale-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100 scale-100"
+     x-transition:leave-end="opacity-0 scale-95"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+
+    <div @@click.away="editDishModalOpen = false"
+         class="relative w-full max-w-3xl bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] mb-6">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'تعديل بيانات الطبق' : 'Edit Menu Dish'">
+                        Edit Menu Dish
+                    </h3>
+                    <p class="text-[11px] text-[var(--color-text-muted)]"
+                       x-text="$store.app.language === 'ar' ? 'تحديث السعر، المكونات، وقت التحضير، أو خيارات التخصيص' : 'Update pricing, ingredients, prep time, or preset option surcharges'">
+                        Update pricing, ingredients, prep time, or preset option surcharges
+                    </p>
+                </div>
+            </div>
+            <button type="button" @@click="editDishModalOpen = false" class="p-1 text-neutral-400 hover:text-[var(--color-text)] transition-colors cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+            </button>
+        </div>
+
+        <!-- Edit Form -->
+        <!-- TODO [Backend]: PUT /api/chef/dishes/{id} with UpdateDishDto, validate chef ownership, update active cart line warnings if price modified -->
+        <form @@submit.prevent="saveEditedDish()" class="space-y-6 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'اسم الطبق (بالإنجليزية)' : 'Dish Title (English)'">Dish Title (English)</label>
+                    <input type="text" required x-model="editingDish.name"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'اسم الطبق (بالعربية)' : 'Dish Title (Arabic)'">Dish Title (Arabic)</label>
+                    <input type="text" required x-model="editingDish.nameAr"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'تصنيف المطبخ' : 'Dish Category'">Category</label>
+                    <select x-model="editingDish.category"
+                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
+                        <option value="Traditional Egyptian">Traditional Egyptian (أكلات مصرية أصيلة)</option>
+                        <option value="Tagines & Casseroles">Tagines &amp; Casseroles (طواجن فرن بلدي)</option>
+                        <option value="Stuffed & Mahshi">Stuffed &amp; Mahshi (محاشي ومحمرات)</option>
+                        <option value="Grills & Poultry">Grills &amp; Poultry (مشويات وطيور)</option>
+                        <option value="Bakery & Desserts">Bakery &amp; Desserts (فطير ومخبوزات وحلويات)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'السعر الأساسي (ج.م)' : 'Base Price (EGP)'">Base Price (EGP)</label>
+                    <input type="number" step="5" min="10" required x-model.number="editingDish.price"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
+                           x-text="$store.app.language === 'ar' ? 'حالة التوافر' : 'Availability Status'">Availability</label>
+                    <button type="button"
+                            @@click="editingDish.isAvailable = !editingDish.isAvailable"
+                            class="w-full p-2.5 rounded-xl font-bold border transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                            :class="editingDish.isAvailable ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100' : 'bg-neutral-100 text-neutral-500 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-400'">
+                        <span class="w-2 h-2 rounded-full" :class="editingDish.isAvailable ? 'bg-emerald-500' : 'bg-neutral-400'"></span>
+                        <span x-text="editingDish.isAvailable ? 'Available for Orders' : 'Marked Unavailable'"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+                <button type="button" @@click="editDishModalOpen = false"
+                        class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider transition-colors cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'إلغاء' : 'Cancel'">Cancel</span>
+                </button>
+                <button type="submit"
+                        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                    <span x-text="$store.app.language === 'ar' ? 'حفظ التعديلات' : 'Save Dish Changes'">Save Dish Changes</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+

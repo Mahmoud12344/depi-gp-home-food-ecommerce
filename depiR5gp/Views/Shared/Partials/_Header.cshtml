@@ -109,6 +109,17 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
                 </button>
 
+                <!-- Chat Inbox Icon Button (SCRUM-299) -->
+                <a href="#inbox"
+                   :title="$store.app.language === 'ar' ? 'صندوق المحادثات والرسائل' : 'Live Chat Inbox'"
+                   class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer relative">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#message-circle"></use></svg>
+                    <!-- Unread badge counter (SCRUM-299) -->
+                    <span class="absolute -top-1 -end-1 w-4.5 h-4.5 bg-emerald-600 text-white text-[11px] font-bold rounded-full flex items-center justify-center leading-none">
+                        2
+                    </span>
+                </a>
+
                 <!-- Notification Bell -->
                 <div class="relative">
                     <button @@click="notificationsOpen = !notificationsOpen"
@@ -190,6 +201,15 @@
                         <a href="#orders" @@click="userDropdownOpen = false"
                            class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
                             <span x-text="$store.app.language === 'ar' ? 'سجل طلباتي' : 'Order History'">Order History</span>
+                        </a>
+                        <a href="#inbox" @@click="userDropdownOpen = false"
+                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs flex items-center justify-between">
+                            <span x-text="$store.app.language === 'ar' ? 'صندوق الرسائل' : 'Chat Inbox'">Chat Inbox</span>
+                            <span class="px-1.5 py-0.2 rounded-full bg-emerald-600 text-white font-bold text-[10px]">2</span>
+                        </a>
+                        <a href="#my-cases" @@click="userDropdownOpen = false"
+                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                            <span x-text="$store.app.language === 'ar' ? 'تذاكر الدعم الفني' : 'My Support Cases'">My Support Cases</span>
                         </a>
                         <a href="#loyalty" @@click="userDropdownOpen = false"
                            class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">

@@ -1,0 +1,154 @@
+<!-- Views/Customer/Partials/_EditCustomerProfileModal.cshtml -->
+<!-- Subtask SCRUM-325: Edit Customer Profile and Saved Addresses Modal -->
+<!-- TODO [Backend]: POST /api/customer/profile with updated customer name, phone, address, and dietary preferences -->
+
+<div x-show="showEditModal"
+     x-transition.opacity.duration.200ms
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+     style="display: none;"
+     role="dialog"
+     aria-modal="true"
+     x-data="{
+         name: 'Tamer Zaki',
+         email: 'tamer.zaki@example.com',
+         phone: '+20 100 234 5678',
+         area: 'Maadi, Cairo',
+         address: 'Villa 14, Road 9, Degla, Maadi, Cairo',
+         dietaryNotes: 'No artificial preservatives, prefer baladi ghee and mild spices'
+     }">
+
+    <div @@click.away="showEditModal = false"
+         x-show="showEditModal"
+         x-transition.scale.origin.center.duration.200ms
+         class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+
+        <div class="flex items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'تعديل البيانات الشخصية' : 'Edit Customer Profile'">
+                        Edit Customer Profile
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)]"
+                       x-text="$store.app.language === 'ar' ? 'تحديث معلومات الاتصال، العنوان الافتراضي، والملاحظات الغذائية' : 'Update your contact details, default address, and dietary notes'"></p>
+                </div>
+            </div>
+            <button type="button"
+                    @@click="showEditModal = false"
+                    class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+            </button>
+        </div>
+
+        <form @@submit.prevent="
+            showEditModal = false;
+            $store.app.addNotification({
+                title: $store.app.language === 'ar' ? 'تم تحديث الملف الشخصي' : 'Profile Updated',
+                message: $store.app.language === 'ar' ? 'تم حفظ التعديلات الجديدة بنجاح.' : 'Your profile details and address have been saved successfully.',
+                type: 'success'
+            });
+        " class="space-y-4 text-xs">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Name -->
+                <div>
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                           x-text="$store.app.language === 'ar' ? 'الاسم بالكامل' : 'Full Name'">
+                        Full Name
+                    </label>
+                    <input type="text"
+                           x-model="name"
+                           required
+                           class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                           x-text="$store.app.language === 'ar' ? 'رقم الهاتف المحمول' : 'Phone Number'">
+                        Phone Number
+                    </label>
+                    <input type="tel"
+                           x-model="phone"
+                           required
+                           placeholder="+20 100 000 0000"
+                           class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                </div>
+            </div>
+
+            <!-- Email (Disabled / Read-only note) -->
+            <div>
+                <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                       x-text="$store.app.language === 'ar' ? 'البريد الإلكتروني' : 'Email Address'">
+                    Email Address
+                </label>
+                <input type="email"
+                       x-model="email"
+                       disabled
+                       class="w-full bg-neutral-100 dark:bg-neutral-800 border border-[var(--color-border-light)] rounded-xl px-3.5 py-2 text-[var(--color-text-muted)] cursor-not-allowed opacity-80" />
+                <span class="text-[10px] text-[var(--color-text-muted)] mt-1 block"
+                      x-text="$store.app.language === 'ar' ? 'لتغيير البريد الإلكتروني، يرجى التواصل مع فريق الدعم لحماية الحساب.' : 'To modify your login email, contact customer support.'"></span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <!-- Area -->
+                <div class="sm:col-span-1">
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                           x-text="$store.app.language === 'ar' ? 'المنطقة' : 'Primary Area'">
+                        Primary Area
+                    </label>
+                    <select x-model="area" class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-2.5 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                        <option value="Maadi, Cairo">Maadi</option>
+                        <option value="Zamalek, Cairo">Zamalek</option>
+                        <option value="Nasr City, Cairo">Nasr City</option>
+                        <option value="Heliopolis, Cairo">Heliopolis</option>
+                        <option value="Dokki & Mohandessin">Dokki</option>
+                        <option value="New Cairo / 5th Settlement">New Cairo</option>
+                    </select>
+                </div>
+
+                <!-- Detailed Address -->
+                <div class="sm:col-span-2">
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                           x-text="$store.app.language === 'ar' ? 'العنوان التفصيلي' : 'Street & Building Details'">
+                        Street & Building Details
+                    </label>
+                    <input type="text"
+                           x-model="address"
+                           required
+                           class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                </div>
+            </div>
+
+            <!-- Dietary Preferences & Allergies -->
+            <div>
+                <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                       x-text="$store.app.language === 'ar' ? 'تفضيلات وحساسية الطعام' : 'Dietary Preferences & Allergies'">
+                    Dietary Preferences & Allergies
+                </label>
+                <textarea rows="2"
+                          x-model="dietaryNotes"
+                          placeholder="e.g. Vegetarian, nut allergy, prefer less salt..."
+                          class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                <button type="button"
+                        @@click="showEditModal = false"
+                        class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'إلغاء' : 'Cancel'">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+                        x-text="$store.app.language === 'ar' ? 'حفظ التعديلات' : 'Save Changes'">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+

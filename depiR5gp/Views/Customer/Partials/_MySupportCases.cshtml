@@ -1,0 +1,226 @@
+<!-- Views/Customer/Partials/_MySupportCases.cshtml -->
+<!-- Subtasks SCRUM-409 & SCRUM-397: Customer My Support Cases List and Thread View -->
+<!-- TODO [Backend]: GET /api/support/my-tickets; POST /api/support/tickets/{id}/reply -->
+
+<div x-data="{
+    selectedCaseId: 'case-1',
+    userReplyText: '',
+    cases: [
+        {
+            id: 'case-1',
+            caseNumber: 'CASE-7701',
+            subject: 'Late pickup readiness notification',
+            category: 'Order Pickup Delay',
+            orderNumber: 'HC-2026-9041',
+            status: 'In Progress',
+            createdAt: 'Today, 12:40 PM',
+            messages: [
+                {
+                    id: 'm-1',
+                    author: 'You (Customer)',
+                    isSupport: false,
+                    text: 'I arrived at Degla villa at 2:00 PM as scheduled, but had to wait 15 extra minutes on the patio while the chef wrapped the duck.',
+                    timestamp: '12:40 PM'
+                },
+                {
+                    id: 'm-2',
+                    author: 'Layla Sherif (HomeChef Support)',
+                    isSupport: true,
+                    text: 'We reached out to Chef Amina. She extends her sincere apologies and added complimentary hot feteer with honey to your package.',
+                    timestamp: '12:45 PM'
+                }
+            ]
+        },
+        {
+            id: 'case-2',
+            caseNumber: 'CASE-7650',
+            subject: 'Inquiry on baladi ghee sourcing',
+            category: 'Food Quality',
+            orderNumber: 'None',
+            status: 'Closed',
+            createdAt: 'Oct 15, 2026',
+            messages: [
+                {
+                    id: 'm-3',
+                    author: 'You (Customer)',
+                    isSupport: false,
+                    text: 'Are all chefs required to use 100% natural butter without hydrogenated oils?',
+                    timestamp: 'Oct 15, 10:00 AM'
+                },
+                {
+                    id: 'm-4',
+                    author: 'Karim (Quality Assurance Desk)',
+                    isSupport: true,
+                    text: 'Yes! Every domestic kitchen on our platform undergoes surprise ingredient checks and is bound by our pure baladi butter charter.',
+                    timestamp: 'Oct 15, 10:30 AM'
+                }
+            ]
+        }
+    ],
+    get currentCase() {
+        return this.cases.find(c => c.id === this.selectedCaseId) || this.cases[0];
+    },
+    sendFollowup() {
+        if (!this.userReplyText.trim()) return;
+        this.currentCase.messages.push({
+            id: 'm-' + Date.now(),
+            author: 'You (Customer)',
+            isSupport: false,
+            text: this.userReplyText.trim(),
+            timestamp: 'Just now'
+        });
+        this.userReplyText = '';
+        $store.app.addNotification({
+            title: $store.app.language === 'ar' ? 'تم إرسال ردك' : 'Reply Sent',
+            message: $store.app.language === 'ar' ? 'تم إرسال ردك إلى فريق الدعم وسيتم إشعارك بالرد قريباً.' : 'Your follow-up has been sent to our support desk.',
+            type: 'info'
+        });
+    }
+}"
+     class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="#profile" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium" x-text="$store.app.language === 'ar' ? 'حسابي' : 'My Account'">My Account</a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'قضايا وتذاكر الدعم' : 'My Support Cases'">My Support Cases</span>
+            </nav>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'تذاكر وقضايا الدعم الفني' : 'My Support Cases'">
+                        My Support Cases
+                    </h1>
+                    <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed"
+                       x-text="$store.app.language === 'ar' ? 'متابعة المحادثات المباشرة مع خدمة العملاء والرد على استفساراتك' : 'Review status updates and chat directly with customer support agents'">
+                        Review status updates and chat directly with customer support agents
+                    </p>
+                </div>
+                <button type="button"
+                        @@click="$store.app.contactSupportOpen = true"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'فتح تذكرة جديدة' : 'Open New Ticket'">Open New Ticket</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Cases List Column -->
+            <div class="lg:col-span-5 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-4 sm:p-5 shadow-xs space-y-3">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block px-2"
+                      x-text="$store.app.language === 'ar' ? 'قائمة التذاكر السابقة والحالية' : 'Submitted Inquiries'">Submitted Inquiries</span>
+                
+                <div class="space-y-2">
+                    <template x-for="c in cases" :key="c.id">
+                        <div @@click="selectedCaseId = c.id"
+                             class="p-4 rounded-2xl cursor-pointer transition-all border text-xs space-y-1.5"
+                             :class="selectedCaseId === c.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-xs' : 'border-[var(--color-border-light)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold uppercase tracking-wide" x-text="c.caseNumber"></span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border"
+                                      :class="{
+                                          'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200': c.status === 'Open',
+                                          'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-200': c.status === 'In Progress',
+                                          'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200': c.status === 'Resolved',
+                                          'bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-300': c.status === 'Closed'
+                                      }"
+                                      x-text="c.status"></span>
+                            </div>
+                            <h4 class="font-bold text-xs truncate" x-text="c.subject"></h4>
+                            <div class="flex items-center justify-between text-[10px] text-[var(--color-text-muted)] pt-1">
+                                <span x-text="c.category"></span>
+                                <span x-text="c.createdAt"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Thread Conversation Details Column -->
+            <div class="lg:col-span-7 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+                <!-- Case Header Details -->
+                <div class="border-b border-[var(--color-border-light)] pb-4 space-y-2">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-base text-[var(--color-text)]" x-text="currentCase.caseNumber + ': ' + currentCase.subject"></span>
+                            </div>
+                            <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                                <span x-text="$store.app.language === 'ar' ? 'التصنيف:' : 'Category:'">Category:</span>
+                                <strong class="text-[var(--color-text)]" x-text="currentCase.category"></strong> ·
+                                <span x-text="$store.app.language === 'ar' ? 'رقم الطلب:' : 'Order Ref:'">Order Ref:</span>
+                                <span class="font-medium text-[var(--color-primary)]" x-text="currentCase.orderNumber"></span>
+                            </p>
+                        </div>
+                        <span class="text-xs px-3 py-1 rounded-full font-bold border"
+                              :class="{
+                                  'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200': currentCase.status === 'Open',
+                                  'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-200': currentCase.status === 'In Progress',
+                                  'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200': currentCase.status === 'Resolved',
+                                  'bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-300': currentCase.status === 'Closed'
+                              }"
+                              x-text="currentCase.status"></span>
+                    </div>
+                </div>
+
+                <!-- Messages Thread -->
+                <div class="space-y-3.5 max-h-80 overflow-y-auto pe-1">
+                    <template x-for="m in currentCase.messages" :key="m.id">
+                        <div class="p-3.5 rounded-2xl text-xs space-y-1.5 max-w-[85%]"
+                             :class="m.isSupport ? 'me-auto bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] text-[var(--color-text)]' : 'ms-auto bg-[var(--color-primary)] text-white shadow-2xs'">
+                            <div class="flex items-center justify-between gap-4 text-[10px] font-semibold"
+                                 :class="m.isSupport ? 'text-[var(--color-primary)]' : 'text-white/80'">
+                                <span x-text="m.author"></span>
+                                <span x-text="m.timestamp"></span>
+                            </div>
+                            <p class="leading-relaxed" x-text="m.text"></p>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Closed Case Banner (SCRUM-397) -->
+                <template x-if="currentCase.status === 'Closed'">
+                    <div class="bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 text-xs text-neutral-700 dark:text-neutral-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'تم حل هذه التذكرة وإغلاقها. الردود مقفلة.' : 'This support ticket is resolved and closed. Replies are locked.'">This support ticket is resolved and closed. Replies are locked.</span>
+                        </div>
+                        <button type="button"
+                                @@click="$store.app.contactSupportOpen = true"
+                                class="text-xs font-bold text-[var(--color-primary)] hover:underline shrink-0 cursor-pointer"
+                                x-text="$store.app.language === 'ar' ? 'فتح تذكرة جديدة' : 'Open New Ticket'">
+                            Open New Ticket
+                        </button>
+                    </div>
+                </template>
+
+                <!-- Follow-up reply box (Only when not closed) -->
+                <template x-if="currentCase.status !== 'Closed'">
+                    <form @@submit.prevent="sendFollowup()" class="pt-2 border-t border-[var(--color-border-light)] flex gap-2">
+                        <input type="text"
+                               required
+                               x-model="userReplyText"
+                               placeholder="Type your follow-up reply to support agent..."
+                               class="flex-1 text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                        <button type="submit"
+                                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#send"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'إرسال' : 'Reply'">Reply</span>
+                        </button>
+                    </form>
+                </template>
+            </div>
+        </div>
+    </div>
+</div>
+

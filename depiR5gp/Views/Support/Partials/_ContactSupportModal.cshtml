@@ -1,0 +1,121 @@
+<!-- Views/Support/Partials/_ContactSupportModal.cshtml -->
+<!-- Subtask SCRUM-389: Contact Support Form Modal with Optional Order Field -->
+<!-- TODO [Backend]: POST /api/support/tickets with subject, category, orderId, and message -->
+
+<div x-show="$store.app.contactSupportOpen"
+     x-transition.opacity.duration.200ms
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+     style="display: none;"
+     role="dialog"
+     aria-modal="true">
+
+    <div @@click.away="$store.app.contactSupportOpen = false"
+         x-show="$store.app.contactSupportOpen"
+         x-transition.scale.origin.center.duration.200ms
+         class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+
+        <div class="flex items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#help-circle"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'فتح تذكرة دعم فني جديدة' : 'Open Support Ticket'">
+                        Open Support Ticket
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)]"
+                       x-text="$store.app.language === 'ar' ? 'فريق الدعم متاح على مدار الساعة لحل مشكلات الطلبات والاستفسارات' : 'Our support desk responds promptly to assist with orders and inquiries'"></p>
+                </div>
+            </div>
+            <button type="button"
+                    @@click="$store.app.contactSupportOpen = false"
+                    class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+            </button>
+        </div>
+
+        <form @@submit.prevent="
+            const caseCode = 'CASE-' + Math.floor(1000 + Math.random() * 9000);
+            $store.app.contactSupportOpen = false;
+            $store.app.addNotification({
+                title: $store.app.language === 'ar' ? 'تم إنشاء التذكرة بنجاح' : 'Ticket Submitted (' + caseCode + ')',
+                message: $store.app.language === 'ar' ? 'تم تسجيل طلبك وسيقوم فريق الدعم بالرد خلال دقائق. يمكنك متابعة التذكرة في قسم قضايا الدعم.' : 'Your inquiry has been received. Our team will review and respond shortly. Track it under My Support Cases.',
+                type: 'success'
+            });
+            $store.app.navigate('#my-cases');
+        " class="space-y-4">
+
+            <!-- Subject -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                       x-text="$store.app.language === 'ar' ? 'موضوع المشكلة / الاستفسار' : 'Subject / Issue Summary'">
+                    Subject / Issue Summary
+                </label>
+                <input type="text"
+                       required
+                       minlength="5"
+                       placeholder="e.g. Order pickup delay at Degla Villa"
+                       class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+            </div>
+
+            <!-- Category -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                       x-text="$store.app.language === 'ar' ? 'تصنيف المشكلة' : 'Category'">
+                    Category
+                </label>
+                <select required
+                        class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                    <option value="order_issue" x-text="$store.app.language === 'ar' ? 'مشكلة في استلام أو تحضير الطلب' : 'Order Pickup or Readiness Delay'">Order Pickup or Readiness Delay</option>
+                    <option value="food_quality" x-text="$store.app.language === 'ar' ? 'جودة الطعام أو نضارة المكونات' : 'Food Quality & Packaging Condition'">Food Quality & Packaging Condition</option>
+                    <option value="refund_payment" x-text="$store.app.language === 'ar' ? 'المدفوعات واسترداد الرصيد للمحفظة' : 'Payments, Card Reversals & Wallet Refund'">Payments, Card Reversals & Wallet Refund</option>
+                    <option value="account" x-text="$store.app.language === 'ar' ? 'الحساب والتحقق من الهوية' : 'Account & Verification'">Account & Verification</option>
+                    <option value="other" x-text="$store.app.language === 'ar' ? 'استفسار عام آخر' : 'General Platform Inquiry'">General Platform Inquiry</option>
+                </select>
+            </div>
+
+            <!-- Optional Order Reference (SCRUM-389) -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                    <span x-text="$store.app.language === 'ar' ? 'رقم الطلب المرتبط بالمشكلة (اختياري)' : 'Related Order Reference (Optional)'"></span>
+                    <span class="text-neutral-400 font-normal lowercase">(optional)</span>
+                </label>
+                <select class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                    <option value="" x-text="$store.app.language === 'ar' ? 'غير مرتبطة بطلب محدد (استفسار عام)' : 'None / General Inquiry (No specific order)'">None / General Inquiry (No specific order)</option>
+                    <option value="ord-101" selected>Order #HC-2026-9041 - Amina's Heritage Kitchen (240.00 EGP)</option>
+                    <option value="ord-102">Order #HC-2026-8890 - Om Nabil Casseroles (310.00 EGP)</option>
+                    <option value="ord-100">Order #HC-2026-9150 - Amina's Heritage Kitchen (285.00 EGP)</option>
+                </select>
+            </div>
+
+            <!-- Message Description -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                       x-text="$store.app.language === 'ar' ? 'تفاصيل المشكلة والرسالة' : 'Detailed Message'">
+                    Detailed Message
+                </label>
+                <textarea rows="4"
+                          required
+                          minlength="10"
+                          placeholder="Provide details of your experience, counter location, or questions so our team can immediately help you..."
+                          class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                <button type="button"
+                        @@click="$store.app.contactSupportOpen = false"
+                        class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]"
+                        x-text="$store.app.language === 'ar' ? 'إلغاء' : 'Cancel'">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+                        x-text="$store.app.language === 'ar' ? 'إرسال التذكرة' : 'Submit Ticket'">
+                    Submit Ticket
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
