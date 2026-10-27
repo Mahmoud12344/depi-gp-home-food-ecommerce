@@ -1,6 +1,8 @@
 @{
-    ViewData["Title"] = "Browse Dishes";
+    ViewData["Title"] = "Browse Dishes - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- Browse Dishes Page -->
+<main>
+    @await Html.PartialAsync("~/Views/Dishes/Partials/_BrowseDishes.cshtml")
+</main>

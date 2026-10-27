@@ -1,6 +1,8 @@
 @{
-    ViewData["Title"] = "Track Order";
+    ViewData["Title"] = "Order Tracking - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- Order Tracking Page -->
+<main>
+    @await Html.PartialAsync("~/Views/Orders/Partials/_OrderTracking.cshtml")
+</main>

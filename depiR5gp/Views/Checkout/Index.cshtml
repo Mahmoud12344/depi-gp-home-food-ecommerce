@@ -1,6 +1,8 @@
 @{
-    ViewData["Title"] = "Checkout";
+    ViewData["Title"] = "Checkout - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- Checkout Page -->
+<main>
+    @await Html.PartialAsync("~/Views/Cart/Partials/_CheckoutPage.cshtml")
+</main>

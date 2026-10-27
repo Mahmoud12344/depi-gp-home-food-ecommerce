@@ -1,6 +1,8 @@
 @{
-    ViewData["Title"] = "Platform Overview";
+    ViewData["Title"] = "Platform Admin Dashboard - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- Admin Dashboard Page -->
+<main>
+    @await Html.PartialAsync("~/Views/Admin/Partials/_AdminDashboard.cshtml")
+</main>

@@ -5,7 +5,7 @@
 <div x-data="{
     activeTab: 'menu',
     chef: {
-        id: 'chef-1',
+        id: '@(ViewContext.RouteData.Values["id"]?.ToString() ?? "chef-1")',
         kitchenName: 'Amina\'s Heritage Kitchen',
         kitchenNameAr: 'مطبخ أمينة التراثي',
         chefName: 'Chef Amina Mansour',

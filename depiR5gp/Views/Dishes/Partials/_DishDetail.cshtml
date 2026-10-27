@@ -3,7 +3,7 @@
 <!-- TODO [Backend]: Bind dish model, dynamic reviews, and option groups from database -->
 
 <div x-data="{
-    dishId: 'dish-1',
+    dishId: '@(ViewContext.RouteData.Values["id"]?.ToString() ?? "dish-1")',
     activeImageIndex: 0,
     lightboxOpen: false,
     isZoomed: false,

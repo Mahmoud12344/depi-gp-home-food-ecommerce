@@ -1,6 +1,72 @@
 @{
-    ViewData["Title"] = "Working Hours";
+    ViewData["Title"] = "Chef Portal - Working Hours & Availability";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      x-data="{
+          isTakingOrders: true,
+          prepTimeMinutes: 45,
+          schedule: [
+              { day: 'Saturday', open: '12:00 PM', close: '09:00 PM', active: true },
+              { day: 'Sunday', open: '12:00 PM', close: '09:00 PM', active: true },
+              { day: 'Monday', open: '12:00 PM', close: '09:00 PM', active: true },
+              { day: 'Tuesday', open: '12:00 PM', close: '09:00 PM', active: true },
+              { day: 'Wednesday', open: '12:00 PM', close: '09:00 PM', active: true },
+              { day: 'Thursday', open: '12:00 PM', close: '10:00 PM', active: true },
+              { day: 'Friday', open: '01:00 PM', close: '08:00 PM', active: false }
+          ],
+          saveSchedule() {
+              $store.app.showToast('success', 'Operating hours updated successfully!');
+          }
+      }">
+
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] flex-wrap gap-4">
+            <div>
+                <h2 class="text-lg font-bold text-[var(--color-text)] uppercase tracking-wide">
+                    Working Hours &amp; Kitchen Availability
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                    Control when customers can place pickup orders from your home kitchen.
+                </p>
+            </div>
+            <!-- Online status switch -->
+            <button type="button" @@click="isTakingOrders = !isTakingOrders; $store.app.showToast('info', isTakingOrders ? 'Kitchen is now accepting orders' : 'Kitchen is paused')"
+                    :class="isTakingOrders ? 'bg-emerald-600 text-white' : 'bg-neutral-200 dark:bg-neutral-800 text-[var(--color-text-muted)]'"
+                    class="px-4 py-2 rounded-full font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-2xs">
+                <span class="w-2.5 h-2.5 rounded-full" :class="isTakingOrders ? 'bg-white animate-pulse' : 'bg-neutral-400'"></span>
+                <span x-text="isTakingOrders ? 'Online: Accepting Orders' : 'Offline: Kitchen Paused'"></span>
+            </button>
+        </div>
+
+        <form @@submit.prevent="saveSchedule()" class="space-y-4 text-xs">
+            <div class="space-y-3">
+                <template x-for="item in schedule" :key="item.day">
+                    <div class="flex items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl gap-4">
+                        <div class="flex items-center gap-3 w-32">
+                            <input type="checkbox" x-model="item.active" class="rounded accent-[var(--color-primary)] cursor-pointer" />
+                            <span class="font-bold text-[var(--color-text)]" x-text="item.day"></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[var(--color-text-muted)]">Open:</span>
+                            <input type="text" x-model="item.open" :disabled="!item.active"
+                                   class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-24 disabled:opacity-40" />
+                            <span class="text-[var(--color-text-muted)]">Close:</span>
+                            <input type="text" x-model="item.close" :disabled="!item.active"
+                                   class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-24 disabled:opacity-40" />
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="pt-4 border-t border-[var(--color-border)] flex items-center justify-end">
+                <button type="submit"
+                        class="px-6 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider rounded-full shadow-xs transition-colors cursor-pointer">
+                    Save Operating Schedule
+                </button>
+            </div>
+        </form>
+    </div>
+</main>

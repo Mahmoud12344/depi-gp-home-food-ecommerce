@@ -3,7 +3,7 @@
 <!-- TODO [Backend]: Load customer profile, loyalty balance, and past orders from backend session -->
 
 <div x-data="{
-    activeTab: 'orders',
+    activeTab: '@(ViewContext.RouteData.Values["action"]?.ToString()?.ToLower() switch { "favorites" => "favorites", "points" => "loyalty", "profile" => "profile", _ => "orders" })',
     favoriteTab: 'dishes',
     orderStatusFilter: 'all',
     showEditModal: false,
@@ -115,24 +115,26 @@
 
         <!-- Navigation Tabs -->
         <div class="flex border-b border-[var(--color-border)] gap-2 sm:gap-6 overflow-x-auto pb-1">
-            <button type="button"
-                    @@click="activeTab = 'orders'"
-                    :class="activeTab === 'orders' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
-                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+            <a href="/Customer/MyOrders"
+               :class="activeTab === 'orders' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+               class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
                 <span x-text="$store.app.language === 'ar' ? 'سجل الطلبات' : 'Order History'">Order History</span> (<span x-text="pastOrders.length"></span>)
-            </button>
-            <button type="button"
-                    @@click="activeTab = 'loyalty'"
-                    :class="activeTab === 'loyalty' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
-                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+            </a>
+            <a href="/Customer/Points"
+               :class="activeTab === 'loyalty' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+               class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
                 <span x-text="$store.app.language === 'ar' ? 'نقاط الولاء والخصومات' : 'Loyalty Ledger'">Loyalty Ledger</span>
-            </button>
-            <button type="button"
-                    @@click="activeTab = 'favorites'"
-                    :class="activeTab === 'favorites' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
-                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+            </a>
+            <a href="/Customer/Favorites"
+               :class="activeTab === 'favorites' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+               class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
                 <span x-text="$store.app.language === 'ar' ? 'المفضلة' : 'Saved Favorites'">Saved Favorites</span> (<span x-text="$store.app.favorites.length"></span>)
-            </button>
+            </a>
+            <a href="/Customer/Profile"
+               :class="activeTab === 'profile' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+               class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'بيانات الحساب والعنوان' : 'Account Details'">Account Details</span>
+            </a>
         </div>
 
         <!-- Tab 1: Orders (SCRUM-226) -->
@@ -272,11 +274,41 @@
                                 <span class="text-[var(--color-text-muted)] font-normal">(124 reviews)</span>
                             </div>
                         </div>
-                        <a href="#chef/chef-1"
+                        <a href="/Chefs/Details/1"
                            class="block text-center w-full py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
                             <span x-text="$store.app.language === 'ar' ? 'عرض المطبخ والأطباق' : 'View Kitchen Menu'">View Kitchen Menu</span>
                         </a>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Account Details -->
+        <div x-show="activeTab === 'profile'" class="space-y-6">
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 space-y-4">
+                <h3 class="text-base font-bold text-[var(--color-text)]">Account &amp; Delivery Information</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <span class="text-[var(--color-text-muted)] block">Full Name:</span>
+                        <span class="font-bold text-[var(--color-text)]">Tamer Zaki (تامر زكي)</span>
+                    </div>
+                    <div>
+                        <span class="text-[var(--color-text-muted)] block">Email:</span>
+                        <span class="font-bold text-[var(--color-text)]">tamer.zaki@example.com</span>
+                    </div>
+                    <div>
+                        <span class="text-[var(--color-text-muted)] block">Phone Number:</span>
+                        <span class="font-bold text-[var(--color-text)]">+20 100 234 5678</span>
+                    </div>
+                    <div>
+                        <span class="text-[var(--color-text-muted)] block">Primary Pickup Address:</span>
+                        <span class="font-bold text-[var(--color-text)]">Villa 12, Road 250, Degla, Maadi, Cairo</span>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-[var(--color-border)]">
+                    <button type="button" @@click="showEditModal = true" class="px-5 py-2 rounded-full bg-[var(--color-primary)] text-white text-xs font-bold uppercase tracking-wider cursor-pointer">
+                        Edit Information
+                    </button>
                 </div>
             </div>
         </div>

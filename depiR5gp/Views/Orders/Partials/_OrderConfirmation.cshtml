@@ -3,7 +3,7 @@
 <!-- TODO [Backend]: Load order summary and pickup details via orderNumber parameter -->
 
 <div x-data="{
-    orderNumber: window.location.hash.includes('/') ? window.location.hash.split('/')[1] : 'HC-2026-9041'
+    orderNumber: '@(ViewContext.RouteData.Values["id"]?.ToString() ?? "")' || (window.location.pathname.includes('/Confirmation/') ? window.location.pathname.split('/').pop() : 'HC-2026-9041')
 }"
      class="w-full pb-24">
 

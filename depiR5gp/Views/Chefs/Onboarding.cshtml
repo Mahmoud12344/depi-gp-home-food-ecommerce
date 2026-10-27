@@ -1,6 +1,8 @@
 @{
-    ViewData["Title"] = "Chef Onboarding";
+    ViewData["Title"] = "Chef Onboarding - Join HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- Chef Onboarding Page -->
+<main>
+    @await Html.PartialAsync("~/Views/Chefs/Partials/_ChefOnboarding.cshtml")
+</main>

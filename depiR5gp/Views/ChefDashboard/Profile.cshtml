@@ -1,6 +1,85 @@
 @{
-    ViewData["Title"] = "Kitchen Profile";
+    ViewData["Title"] = "Chef Portal - Kitchen Profile";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      x-data="{
+          kitchenName: 'Amina\'s Heritage Kitchen',
+          kitchenNameAr: 'مطبخ أمينة التراثي',
+          bio: 'Cooking traditional Egyptian baladi recipes inherited from my grandmother in Upper Egypt, using 100% pure baladi ghee and farm-fresh poultry.',
+          bioAr: 'أطبخ أشهى الأكلات والوصفات المصرية التراثية المتوارثة عن جدتي من صعيد مصر، بالسمن البلدي الفلاحي والطيور الطازجة يومياً.',
+          pickupArea: 'Maadi, Cairo',
+          address: 'Bldg 14, Road 9, Degla, Maadi, Cairo (Ground Floor Gate)',
+          saved: false,
+          saveProfile() {
+              this.saved = true;
+              $store.app.showToast('success', 'Kitchen profile settings saved successfully!');
+              setTimeout(() => this.saved = false, 3000);
+          }
+      }">
+
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+        <div class="flex items-center gap-3 pb-4 border-b border-[var(--color-border)]">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-[var(--color-text)] uppercase tracking-wide">
+                    Kitchen Profile &amp; Story
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                    Update your public domestic kitchen details, story, and pickup gate instructions.
+                </p>
+            </div>
+        </div>
+
+        <form @@submit.prevent="saveProfile()" class="space-y-5 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">Kitchen Name (English)</label>
+                    <input type="text" x-model="kitchenName" required
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">Kitchen Name (Arabic)</label>
+                    <input type="text" x-model="kitchenNameAr" required dir="rtl"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">Neighborhood / Area</label>
+                    <input type="text" x-model="pickupArea" required
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">Exact Pickup Address &amp; Gate Instructions</label>
+                    <input type="text" x-model="address" required
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1 text-[var(--color-text)]">Chef Story &amp; Heritage Bio (English)</label>
+                <textarea x-model="bio" rows="3"
+                          class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1 text-[var(--color-text)]">Chef Story &amp; Heritage Bio (Arabic)</label>
+                <textarea x-model="bioAr" rows="3" dir="rtl"
+                          class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
+            </div>
+
+            <div class="pt-4 border-t border-[var(--color-border)] flex items-center justify-end gap-3">
+                <button type="submit"
+                        class="px-6 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider rounded-full shadow-xs transition-colors cursor-pointer">
+                    Save Profile Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</main>

@@ -1,6 +1,8 @@
 @{
-    ViewData["Title"] = "Support & FAQs";
+    ViewData["Title"] = "Customer Support & FAQs - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- Support Portal Page -->
+<main>
+    @await Html.PartialAsync("~/Views/Support/Partials/_SupportPortal.cshtml")
+</main>

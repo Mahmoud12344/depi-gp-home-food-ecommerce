@@ -13,35 +13,35 @@
                     ROLE:
                 </span>
 
-                <button @@click="$store.app.setRole('customer'); window.location.hash = '#home';"
+                <button @@click="$store.app.setRole('customer'); window.location.href = '/';"
                         :class="$store.app.role === 'customer' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user-check"></use></svg>
                     <span class="whitespace-nowrap">Customer</span>
                 </button>
 
-                <button @@click="$store.app.setRole('chef'); window.location.hash = '#chef/dashboard';"
+                <button @@click="$store.app.setRole('chef'); window.location.href = '/ChefDashboard';"
                         :class="$store.app.role === 'chef' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
                     <span class="whitespace-nowrap">Chef Portal</span>
                 </button>
 
-                <button @@click="$store.app.setRole('admin'); window.location.hash = '#admin';"
+                <button @@click="$store.app.setRole('admin'); window.location.href = '/Admin';"
                         :class="$store.app.role === 'admin' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
                     <span class="whitespace-nowrap">Admin</span>
                 </button>
 
-                <button @@click="$store.app.setRole('support'); window.location.hash = '#support';"
+                <button @@click="$store.app.setRole('support'); window.location.href = '/Support';"
                         :class="$store.app.role === 'support' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#help-circle"></use></svg>
                     <span class="whitespace-nowrap">Support</span>
                 </button>
 
-                <button @@click="$store.app.setRole('guest'); window.location.hash = '#home';"
+                <button @@click="$store.app.setRole('guest'); window.location.href = '/';"
                         :class="$store.app.role === 'guest' ? 'bg-[var(--color-primary)] text-white shadow-sm font-bold' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 hover:text-white border border-neutral-700/60 font-medium'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user-check"></use></svg>
@@ -68,19 +68,19 @@
             </button>
 
             <!-- Quick AI Assistant Page Button -->
-            <a href="#ai-assistant"
-               :class="$store.app.currentRoute === '#ai-assistant' ? 'bg-[var(--color-primary)] text-white shadow-sm' : 'bg-purple-500/25 hover:bg-purple-500/35 text-purple-300 border border-purple-500/50'"
+            <a href="/AIAssistant"
+               :class="window.location.pathname.startsWith('/AIAssistant') ? 'bg-[var(--color-primary)] text-white shadow-sm' : 'bg-purple-500/25 hover:bg-purple-500/35 text-purple-300 border border-purple-500/50'"
                class="px-3 py-1 rounded-full text-[13px] font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 transition-all"
                title="Open Dedicated AI Assistant Page">
                 <span>✨ AI Assistant</span>
             </a>
 
             <!-- Quick Dish Preview Button (Single Canonical View) -->
-            <a href="#dish/dish-1"
-               :class="$store.app.currentRoute.startsWith('#dish/') ? 'bg-[var(--color-primary)] text-white shadow-sm' : 'bg-amber-500/25 hover:bg-amber-500/35 text-amber-300 border border-amber-500/50'"
+            <a href="/Dishes/Details/1"
+               :class="window.location.pathname.startsWith('/Dishes') ? 'bg-[var(--color-primary)] text-white shadow-sm' : 'bg-amber-500/25 hover:bg-amber-500/35 text-amber-300 border border-amber-500/50'"
                class="px-3 py-1 rounded-full text-[13px] font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0 transition-all"
-               title="Preview Dish Detail Page (#dish/dish-1)">
-                <span>🍲 Dish (#dish/dish-1)</span>
+               title="Preview Dish Detail Page (/Dishes/Details/1)">
+                <span>🍲 Dish (/Dishes/Details/1)</span>
             </a>
 
             <!-- Prototype Assumptions Note -->

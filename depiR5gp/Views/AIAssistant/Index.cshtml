@@ -1,6 +1,8 @@
 @{
-    ViewData["Title"] = "AI Culinary Concierge";
+    ViewData["Title"] = "AI Culinary Assistant - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- AI Assistant Page -->
+<main>
+    @await Html.PartialAsync("~/Views/AIAssistant/Partials/_AIAssistant.cshtml")
+</main>

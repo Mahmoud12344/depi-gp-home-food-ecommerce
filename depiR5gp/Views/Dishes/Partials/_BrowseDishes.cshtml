@@ -260,7 +260,7 @@
             <!-- Grid View -->
             <div x-show="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <template x-for="dish in filteredDishes" :key="'grid-' + dish.id">
-                    <div @@click="$store.app.navigate('#dish/' + dish.id)"
+                    <div @@click="window.location.href = '/Dishes/Details/' + dish.id"
                          class="group relative bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between overflow-hidden hover:-translate-y-1">
 
                         <div class="relative w-full aspect-square bg-neutral-100 dark:bg-neutral-800 overflow-hidden rounded-xl mb-3.5">
@@ -341,7 +341,7 @@
             <!-- List View -->
             <div x-show="viewMode === 'list'" class="dish-list-container">
                 <template x-for="dish in filteredDishes" :key="'list-' + dish.id">
-                    <div @@click="$store.app.navigate('#dish/' + dish.id)"
+                    <div @@click="window.location.href = '/Dishes/Details/' + dish.id"
                          class="dish-list-item">
                         <!-- Thumbnail Column -->
                         <div class="dish-list-thumb">

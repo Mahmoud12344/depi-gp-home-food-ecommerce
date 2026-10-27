@@ -142,7 +142,7 @@
         <!-- TODO [Backend]: Loop through verified domestic chefs (Model.Chefs or /api/chefs?area=&search=); bind Chef.Id, PhotoUrl, IsVerified, IsAvailable, KitchenName, ChefName, Rating, ReviewCount, Bio, PickupArea, and WorkingHours -->
         <div class="chef-list-container">
             <template x-for="c in filteredChefs" :key="c.id">
-                <div @@click="$store.app.navigate('#chef/' + c.id)" class="chef-list-item">
+                <div @@click="window.location.href = '/Chefs/Details/' + c.id" class="chef-list-item">
                     <!-- Chef Thumbnail -->
                     <div class="chef-list-thumb">
                         <img :src="c.photoUrl"
@@ -233,7 +233,7 @@
         <!-- Chef Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <template x-for="c in filteredChefs" :key="c.id">
-                <div @@click="$store.app.navigate('#chef/' + c.id)"
+                <div @@click="window.location.href = '/Chefs/Details/' + c.id"
                      class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
                     <div>
                         <div class="relative h-48 w-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">

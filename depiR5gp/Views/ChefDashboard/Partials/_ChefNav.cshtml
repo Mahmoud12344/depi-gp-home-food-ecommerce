@@ -1,0 +1,61 @@
+@* Views/ChefDashboard/Partials/_ChefNav.cshtml *@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+}
+
+<!-- Breadcrumb banner -->
+<div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+            <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+            </a>
+            <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+            <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'لوحة تحكم الشيف' : 'Chef Portal'">Chef Portal</span>
+        </nav>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                    Amina's Heritage Kitchen (مطبخ أمينة التراثي)
+                </h1>
+                <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                    Verified Domestic Home Kitchen · Road 9, Degla, Maadi, Cairo
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Taking Orders</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chef Portal Navigation Tabs -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+    <div class="flex border-b border-[var(--color-border)] gap-2 sm:gap-6 overflow-x-auto pb-1">
+        <a href="/ChefDashboard"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Index" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Overview &amp; Earnings
+        </a>
+        <a href="/ChefDashboard/Orders"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Orders" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Live Orders &amp; Menu
+        </a>
+        <a href="/ChefDashboard/Profile"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Profile" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Kitchen Profile
+        </a>
+        <a href="/ChefDashboard/WorkingHours"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "WorkingHours" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Working Hours
+        </a>
+        <a href="/ChefDashboard/Documents"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Documents" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Certificates &amp; Verification
+        </a>
+    </div>
+</div>
+

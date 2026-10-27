@@ -1,6 +1,8 @@
 @{
-    ViewData["Title"] = "Loyalty Points";
+    ViewData["Title"] = "Loyalty Points & Rewards - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- Customer Loyalty Points Page -->
+<main>
+    @await Html.PartialAsync("~/Views/Customer/Partials/_CustomerProfile.cshtml")
+</main>

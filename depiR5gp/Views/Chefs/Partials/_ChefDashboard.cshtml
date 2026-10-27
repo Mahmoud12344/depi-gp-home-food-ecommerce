@@ -4,7 +4,7 @@
 <!-- TODO [Backend]: Connect to Chef Orders and Menu Web API endpoints, bind authorized chef model -->
 
 <div x-data="{
-    activeTab: 'orders',
+    activeTab: '@(ViewContext.RouteData.Values["action"]?.ToString()?.ToLower() == "orders" ? "orders" : "wallet")',
     isKitchenAvailable: true,
     editProfileOpen: false,
     addDishModalOpen: false,

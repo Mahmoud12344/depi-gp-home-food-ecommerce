@@ -1,6 +1,8 @@
 @{
-    ViewData["Title"] = "Messages";
+    ViewData["Title"] = "Messages & Live Chat - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- Chat Inbox Page -->
+<main>
+    @await Html.PartialAsync("~/Views/Shared/Partials/_ChatInboxPage.cshtml")
+</main>
