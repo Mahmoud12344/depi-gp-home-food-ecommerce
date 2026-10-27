@@ -1,6 +1,183 @@
 @{
-    ViewData["Title"] = "Support & FAQs";
+    ViewData["Title"] = "Customer Support & Refunds Desk - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+@* TODO [Backend]:
+    @model IEnumerable<depiR5gp.Models.Support.SupportCase>
+    @foreach (var supportCase in Model)
+    {
+        ... render supportCase.SupportCaseId, supportCase.Subject, supportCase.Status, supportCase.CreatedAt ...
+    }
+*@
+
+<main x-data="{ activeTab: 'cases' }" class="w-full pb-24">
+    <!-- Breadcrumb Banner -->
+    <div class="relative bg-gradient-to-r from-[var(--color-primary-light)] via-[var(--color-bg)] to-[var(--color-primary-light)] dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 border-b border-[var(--color-border)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-2">
+                <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 flex-wrap">
+                    <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                        <span>Home</span>
+                    </a>
+                    <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#chevron-right"></use>
+                    </svg>
+                    <span class="text-[var(--color-primary)] font-semibold">Support Desk</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                    Customer Support &amp; Refunds Desk
+                </h1>
+                <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-2xl">
+                    Handle open support tickets, customer inquiries, and refund approvals
+                </p>
+            </div>
+            <a href="/Support/NewCase"
+               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
+                <span>Open New Ticket</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-[var(--color-border)] gap-6">
+            <button type="button"
+                    @@click="activeTab = 'cases'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer"
+                    :class="activeTab === 'cases' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'">
+                Support Cases Queue (2)
+            </button>
+
+            <button type="button"
+                    @@click="activeTab = 'refunds'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer"
+                    :class="activeTab === 'refunds' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'">
+                Refund Approval Queue (2)
+            </button>
+        </div>
+
+        <!-- TAB 1: Support Cases -->
+        @* TODO [Backend]: @model IEnumerable<depiR5gp.Models.Support.SupportCase> *@
+        <div x-show="activeTab === 'cases'" class="space-y-4">
+            <!-- Case Row 1 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1.5 text-xs">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-sm uppercase text-[var(--color-text)]">#CASE-7701</span>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-200">
+                            Open
+                        </span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">
+                            Awaiting Support
+                        </span>
+                        <span class="text-[var(--color-text-muted)]">· Today, 12:40 PM</span>
+                    </div>
+                    <h3 class="font-bold text-sm text-[var(--color-text)]">Late pickup readiness notification</h3>
+                    <p class="text-[var(--color-text-muted)]">
+                        Requester: <strong class="text-[var(--color-text)]">Tamer Zaki</strong> (Customer) ·
+                        Order: <a href="/Orders/Track/1" class="text-[var(--color-primary)] font-semibold hover:underline">#HC-2026-9041</a>
+                    </p>
+                    <p class="text-[var(--color-text-muted)]">
+                        Customer arrived at Maadi villa counter but chef was finishing the duck ta'sha.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="/Support/CaseDetails/1"
+                       class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors">
+                        View Case &amp; Reply
+                    </a>
+                </div>
+            </div>
+
+            <!-- Case Row 2 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1.5 text-xs">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-sm uppercase text-[var(--color-text)]">#CASE-7702</span>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950 dark:text-purple-200">
+                            In Progress
+                        </span>
+                        <span class="text-[var(--color-text-muted)]">· Yesterday</span>
+                    </div>
+                    <h3 class="font-bold text-sm text-[var(--color-text)]">Missing side tahini and baladi bread</h3>
+                    <p class="text-[var(--color-text-muted)]">
+                        Requester: <strong class="text-[var(--color-text)]">Dina Magdy</strong> (Customer) ·
+                        Order: <a href="/Orders/Track/1" class="text-[var(--color-primary)] font-semibold hover:underline">#HC-2026-8812</a>
+                    </p>
+                    <p class="text-[var(--color-text-muted)]">
+                        Trio hawawshi box was missing one container of garlic tahini sauce.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="/Support/CaseDetails/1"
+                       class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors">
+                        View Case &amp; Reply
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Refund Approval Queue -->
+        @* TODO [Backend]:
+            IEnumerable<depiR5gp.Models.Refunds.RefundRequest>
+            @foreach (var refund in ViewBag.RefundRequests)
+            {
+                ... render refund.RefundId, refund.OrderId, refund.Amount, refund.Reason, refund.Status ...
+            }
+        *@
+        <div x-show="activeTab === 'refunds'" style="display: none;" class="space-y-4">
+            <!-- Refund Row 1: Pending -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="space-y-1 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold uppercase text-[var(--color-text)]">REF-2026-104 (Order #HC-2026-9041)</span>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-amber-100 dark:bg-amber-950 text-amber-950 dark:text-amber-100 border border-amber-300 dark:border-amber-700">
+                            Pending
+                        </span>
+                    </div>
+                    <p class="text-[var(--color-text)] font-semibold">Customer: Tamer Zaki · Kitchen: Amina's Heritage Kitchen</p>
+                    <p class="text-[var(--color-text-muted)] italic">Reason: “Pickup delay exceeded 20 minutes without prior WhatsApp notice.”</p>
+                    <p class="text-[var(--color-primary)] font-bold text-sm pt-0.5">Amount: 240.00 EGP (Full Refund)</p>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap">
+                    <form method="post" asp-controller="Support" asp-action="RejectRefund" class="inline">
+                        <input type="hidden" name="RefundId" value="1" />
+                        <input type="hidden" name="Reason" value="Order pickup delay was verified as resolved with customer." />
+                        <button type="submit"
+                                class="px-4 py-2 border border-[var(--color-border)] hover:border-rose-500 bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer">
+                            Reject Refund
+                        </button>
+                    </form>
+                    <form method="post" asp-controller="Support" asp-action="ApproveRefund" class="inline">
+                        <input type="hidden" name="RefundId" value="1" />
+                        <button type="submit"
+                                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer">
+                            Approve &amp; Reverse Card
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Refund Row 2: Approved -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="space-y-1 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold uppercase text-[var(--color-text)]">REF-2026-098 (Order #HC-2026-7740)</span>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                            Approved
+                        </span>
+                    </div>
+                    <p class="text-[var(--color-text)] font-semibold">Customer: Ahmed Badawi · Kitchen: Hany's Gourmet Grills</p>
+                    <p class="text-[var(--color-text-muted)] italic">Reason: “Order cancelled before kitchen preparation started.”</p>
+                    <p class="text-[var(--color-primary)] font-bold text-sm pt-0.5">Amount: 275.00 EGP (Full Refund)</p>
+                </div>
+
+                <div>
+                    <span class="text-xs text-[var(--color-text-muted)] font-medium">Decision Finalized</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

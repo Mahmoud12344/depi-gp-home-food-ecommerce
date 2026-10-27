@@ -1,6 +1,6 @@
 <!-- Views/Orders/Partials/_CancelOrderDialog.cshtml -->
 <!-- Subtask SCRUM-463 & SCRUM-427: Customer Order Cancellation Modal -->
-<!-- TODO [Backend]: POST /api/orders/{id}/cancel with cancellation reason -->
+@* TODO [Backend]: @model depiR5gp.Models.Orders.Order — POST OrdersController.Cancel(int OrderId, string CancellationReason) *@
 
 <div x-show="showCancelDialog"
      x-transition.opacity.duration.200ms
@@ -25,7 +25,7 @@
                         Cancel Order & Full Refund
                     </h3>
                     <p class="text-xs text-[var(--color-text-muted)]"
-                       x-text="'Order #' + (activeOrder ? activeOrder.orderNumber : '')"></p>
+                       x-text="'Order #' + (activeOrder ? activeOrder.orderNumber : 'HC-2026-9150')"></p>
                 </div>
             </div>
             <button type="button"
@@ -47,21 +47,14 @@
             </p>
         </div>
 
-        <form @@submit.prevent="
-            activeOrder.status = 'Cancelled';
-            showCancelDialog = false;
-            $store.app.addNotification({
-                title: $store.app.language === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
-                message: $store.app.language === 'ar' ? 'تم إلغاء طلبك بنجاح وتم استرداد كامل المبلغ إلى محفظتك الإلكترونية.' : 'Your order has been cancelled and a 100% full refund has been credited.',
-                type: 'info'
-            });
-        " class="space-y-4">
+        <form method="post" asp-controller="Orders" asp-action="Cancel" class="space-y-4">
+            <input type="hidden" name="OrderId" value="1" />
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
                        x-text="$store.app.language === 'ar' ? 'سبب الإلغاء' : 'Reason for Cancellation'">
                     Reason for Cancellation
                 </label>
-                <select x-model="cancelReason"
+                <select name="CancellationReason"
                         required
                         class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
                     <option value="changed_mind" x-text="$store.app.language === 'ar' ? 'غيرت رأيي / لم أعد بحاجة للطلب' : 'Changed my mind / No longer needed'">Changed my mind / No longer needed</option>
@@ -77,7 +70,7 @@
                     Additional Notes (Optional)
                 </label>
                 <textarea rows="2"
-                          x-model="cancelNotes"
+                          name="Notes"
                           placeholder="..."
                           class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
             </div>
@@ -98,4 +91,3 @@
         </form>
     </div>
 </div>
-

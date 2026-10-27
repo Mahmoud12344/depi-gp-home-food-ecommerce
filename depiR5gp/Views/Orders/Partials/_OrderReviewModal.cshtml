@@ -1,6 +1,6 @@
 <!-- Views/Orders/Partials/_OrderReviewModal.cshtml -->
 <!-- Subtasks SCRUM-245 & SCRUM-548: Customer Order Review and Rating Modal -->
-<!-- TODO [Backend]: POST /api/reviews with orderId, rating, comment, and tags -->
+@* TODO [Backend]: @model depiR5gp.Models.Orders.Order — POST OrdersController.SubmitReview(int OrderId, int Rating, string Comment) *@
 
 <div x-show="showReviewModal"
      x-transition.opacity.duration.200ms
@@ -25,7 +25,7 @@
                         Rate Your Dish & Experience
                     </h3>
                     <p class="text-xs text-[var(--color-text-muted)]"
-                       x-text="(activeOrder ? activeOrder.dishTitle : '') + ' · #' + (activeOrder ? activeOrder.orderNumber : '')"></p>
+                       x-text="(activeOrder ? activeOrder.dishTitle : 'Dish') + ' · #' + (activeOrder ? activeOrder.orderNumber : 'HC-2026-8890')"></p>
                 </div>
             </div>
             <button type="button"
@@ -35,14 +35,9 @@
             </button>
         </div>
 
-        <form @@submit.prevent="
-            showReviewModal = false;
-            $store.app.addNotification({
-                title: $store.app.language === 'ar' ? 'تم استلام تقييمك بنجاح' : 'Review Submitted',
-                message: $store.app.language === 'ar' ? 'شكراً لمشاركتك! سيظهر تقييمك في صفحة الشيف بعد التحقق التلقائي.' : 'Thank you! Your verified review has been submitted for moderation.',
-                type: 'success'
-            });
-        " class="space-y-5">
+        <form method="post" asp-controller="Orders" asp-action="SubmitReview" class="space-y-5">
+            <input type="hidden" name="OrderId" value="1" />
+            <input type="hidden" name="Rating" :value="reviewRating" />
 
             <!-- Star selector (1 to 5) -->
             <div class="text-center py-2 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] p-4">
@@ -73,7 +68,7 @@
                     Your Detailed Feedback
                 </label>
                 <textarea rows="3"
-                          x-model="reviewComment"
+                          name="Comment"
                           required
                           minlength="5"
                           placeholder="Tell other foodies about the taste, seasoning, freshness, packaging, and pickup experience..."
@@ -104,7 +99,7 @@
 
             <!-- Anonymous Review Checkbox -->
             <label class="flex items-center gap-2 cursor-pointer text-xs text-[var(--color-text)]">
-                <input type="checkbox" x-model="reviewAnonymous" class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
+                <input type="checkbox" name="IsAnonymous" value="true" class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
                 <span x-text="$store.app.language === 'ar' ? 'نشر التقييم باسم مستعار (إخفاء اسمي الحقيقي)' : 'Publish review anonymously (hide my full name)'">Publish review anonymously (hide my full name)</span>
             </label>
 
@@ -124,4 +119,3 @@
         </form>
     </div>
 </div>
-

@@ -1,6 +1,6 @@
 <!-- Views/Cart/Partials/_CartPage.cshtml -->
 <!-- Source: home_chef/src/pages/CartPage.tsx -->
-<!-- TODO [Backend]: Sync cart with server-side session or customer order draft -->
+@* TODO [Backend]: @model depiR5gp.Models.Cart.Cart *@
 
 <div x-data="{
     showDemoUnavailable: false,
@@ -13,7 +13,7 @@
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
-                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
                     <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
                 </a>
@@ -45,7 +45,7 @@
                x-text="$store.app.language === 'ar' ? 'استكشف أشهى الأطباق المنزلية الطازجة من طهاة حيك وأضف وجبتك المفضلة.' : 'Explore freshly baked and slow-simmered meals cooked with real country butter in verified local kitchens.'">
                 Explore freshly baked and slow-simmered meals cooked with real country butter in verified local kitchens.
             </p>
-            <a href="#dishes"
+            <a href="/Dishes"
                class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98]">
                 <span x-text="$store.app.language === 'ar' ? 'تصفح أطباق اليوم' : 'Browse Fresh Dishes'">Browse Fresh Dishes</span>
                 <svg class="w-4 h-4" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
@@ -229,7 +229,7 @@
                         <button type="button"
                                 :disabled="hasUnavailable()"
                                 :class="hasUnavailable() ? 'opacity-50 cursor-not-allowed bg-neutral-400 dark:bg-neutral-700 pointer-events-none' : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] active:scale-[0.98]'"
-                                @@click="if (!hasUnavailable()) { if ($store.app.role === 'guest') { $store.app.loginModalOpen = true; } else { $store.app.navigate('#checkout'); } }"
+                                @@click="if (!hasUnavailable()) { if ($store.app.role === 'guest') { $store.app.loginModalOpen = true; } else { window.location.href = '/Checkout'; } }"
                                 class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md text-white">
                             <span x-text="$store.app.language === 'ar' ? 'متابعة الدفع والاستلام' : 'Check Out'">Check Out</span>
                         </button>

@@ -1,6 +1,97 @@
+@* Views/Admin/Settings.cshtml *@
+@* TODO [Backend]: @model depiR5gp.Models.Platform.PlatformSettings *@
 @{
-    ViewData["Title"] = "Platform Settings";
+    ViewData["Title"] = "Platform Settings & AI FAQs - Admin Portal";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 space-y-8">
+
+    <!-- Global Platform Parameters & Commission Rate Form -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+        <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                Global Platform Parameters &amp; Commission Policy
+            </h2>
+            <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                Configure marketplace commission rates, order cancellation refund rules, and kitchen verification requirements.
+            </p>
+        </div>
+
+        <form method="post" asp-controller="Admin" asp-action="Settings" class="space-y-6 text-xs">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Standard Platform Commission Rate (%)
+                    </label>
+                    <div class="flex items-center gap-3">
+                        <input type="number"
+                               name="CommissionRate"
+                               min="5"
+                               max="35"
+                               step="0.5"
+                               value="15"
+                               required
+                               class="w-32 p-2.5 bg-[var(--color-surface-subtle)] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold text-sm focus:outline-hidden focus:border-[var(--color-primary)]" />
+                        <span class="text-[var(--color-text-muted)] font-medium">Default: 15.0% per order</span>
+                    </div>
+                    <p class="text-[11px] text-[var(--color-text-muted)]">
+                        Agreed baseline for verified domestic home kitchen orders across Cairo &amp; Giza.
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Minimum Chef Payout Threshold (EGP)
+                    </label>
+                    <input type="number"
+                           name="MinimumPayoutAmount"
+                           min="50"
+                           step="50"
+                           value="500"
+                           required
+                           class="w-40 p-2.5 bg-[var(--color-surface-subtle)] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold text-sm focus:outline-hidden focus:border-[var(--color-primary)]" />
+                    <p class="text-[11px] text-[var(--color-text-muted)]">
+                        Minimum settled wallet balance required before automatic weekly InstaPay disbursement.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Policy Toggles -->
+            <div class="pt-4 border-t border-[var(--color-border-light)] space-y-3">
+                <span class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                    Platform Operational Policies
+                </span>
+
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="RequireFoodSafetyCertificate" value="true" checked class="w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+                    <span class="font-medium text-[var(--color-text)]">Require valid Government Food Safety Certificate before publishing new kitchens</span>
+                </label>
+
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="AutoDeductCashCommission" value="true" checked class="w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+                    <span class="font-medium text-[var(--color-text)]">Automatically offset 15% Cash-on-Pickup commissions from digital card payouts</span>
+                </label>
+
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="AllowInstantPendingCancellation" value="true" checked class="w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+                    <span class="font-medium text-[var(--color-text)]">Grant 100% immediate wallet refund when customer cancels an order in Pending status</span>
+                </label>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit"
+                        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-colors cursor-pointer shadow-xs">
+                    Save Platform Settings
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- AI Assistant FAQ Management Section (SCRUM-493) -->
+    @* TODO [Backend]: IEnumerable<depiR5gp.Models.Support.Faq> *@
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs">
+        <partial name="~/Views/Admin/Partials/_AIFaqManagement.cshtml" />
+    </div>
+</main>

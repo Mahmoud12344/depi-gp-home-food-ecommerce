@@ -1,6 +1,95 @@
+@*
+    TODO [Backend]: Strongly-typed view binding for Dish Option Groups Management
+    1. Uncomment the model directive once MenuManagementController.ManageOptions(int dishId) passes the options:
+       @model IEnumerable<depiR5gp.Models.Menu.DishOption>
+    2. In [HttpGet] MenuManagementController.ManageOptions(int dishId):
+       var options = await unitOfWork.DishOptions.FindAsync(o => o.DishId == dishId);
+       return View(options);
+    3. In [HttpPost] MenuManagementController.ManageOptions(DishOption option):
+       Save new DishOption { DishId, GroupName, Name, ExtraPrice, IsRequired } and RedirectToAction(nameof(ManageOptions), new { dishId = option.DishId }).
+*@
 @{
-    ViewData["Title"] = "Manage Dish Options";
+    ViewData["Title"] = "Chef Portal - Manage Dish Options";
+    var dishId = Context.Request.Query["dishId"].FirstOrDefault() ?? "1";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 pb-24">
+    <!-- Add New Option Form -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
+        <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)]">
+            <div>
+                <h2 class="text-lg font-bold text-[var(--color-text)] uppercase tracking-wide">
+                    Add Customization Option (Dish #@dishId)
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                    Configure choice groups (e.g., Rice Selection, Duck Cut, Spice Level) and optional price surcharges.
+                </p>
+            </div>
+            <a asp-controller="MenuManagement" asp-action="Index"
+               class="text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)]">
+                &larr; Back to Menu
+            </a>
+        </div>
+
+        <form method="post" asp-controller="MenuManagement" asp-action="ManageOptions" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end text-xs">
+            <input type="hidden" name="DishId" value="@dishId" />
+            <div class="sm:col-span-4">
+                <label for="GroupName" class="block font-semibold mb-1.5 text-[var(--color-text)]">Option Group Name</label>
+                <input id="GroupName" name="GroupName" type="text" required placeholder="e.g. Rice Choice"
+                       class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium" />
+            </div>
+            <div class="sm:col-span-4">
+                <label for="Name" class="block font-semibold mb-1.5 text-[var(--color-text)]">Choice Label</label>
+                <input id="Name" name="Name" type="text" required placeholder="e.g. Vermicelli Rice"
+                       class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium" />
+            </div>
+            <div class="sm:col-span-2">
+                <label for="ExtraPrice" class="block font-semibold mb-1.5 text-[var(--color-text)]">+Surcharge (EGP)</label>
+                <input id="ExtraPrice" name="ExtraPrice" type="number" step="5" min="0" value="0" required
+                       class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold" />
+            </div>
+            <div class="sm:col-span-2">
+                <button type="submit"
+                        class="w-full px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider rounded-full shadow-xs cursor-pointer">
+                    + Add
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Existing Options Table -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
+        <h3 class="text-sm font-bold uppercase tracking-wide text-[var(--color-text)]">
+            Configured Dish Options
+        </h3>
+        @*
+            TODO [Backend]: Loop over Model (IEnumerable<depiR5gp.Models.Menu.DishOption>):
+            @foreach (var opt in Model) { ... }
+        *@
+        <div class="divide-y divide-[var(--color-border-light)] text-xs">
+            <div class="py-3.5 flex items-center justify-between gap-4">
+                <div>
+                    <span class="font-bold text-[var(--color-text)]">Vermicelli Rice (أرز بالشعرية)</span>
+                    <span class="text-[11px] text-[var(--color-text-muted)] block">Group: Rice Choice · Required</span>
+                </div>
+                <span class="font-bold text-emerald-600">+0.00 EGP</span>
+            </div>
+            <div class="py-3.5 flex items-center justify-between gap-4">
+                <div>
+                    <span class="font-bold text-[var(--color-text)]">Spiced Freekeh Upgrade (فريك بلدي)</span>
+                    <span class="text-[11px] text-[var(--color-text-muted)] block">Group: Rice Choice · Required</span>
+                </div>
+                <span class="font-bold text-[var(--color-primary)]">+35.00 EGP</span>
+            </div>
+            <div class="py-3.5 flex items-center justify-between gap-4">
+                <div>
+                    <span class="font-bold text-[var(--color-text)]">Extra Garlic Ta'sheya Bowl</span>
+                    <span class="text-[11px] text-[var(--color-text-muted)] block">Group: Add-Ons · Optional</span>
+                </div>
+                <span class="font-bold text-[var(--color-primary)]">+20.00 EGP</span>
+            </div>
+        </div>
+    </div>
+</main>

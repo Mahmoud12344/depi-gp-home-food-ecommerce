@@ -1,6 +1,258 @@
+@* TODO [Backend]: @model IEnumerable<depiR5gp.Models.Chefs.ChefProfile> *@
 @{
-    ViewData["Title"] = "Browse Chefs";
+    ViewData["Title"] = "Neighborhood Chefs - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<!-- Browse Chefs Page -->
+<main>
+    <div class="w-full pb-24">
+
+        <!-- Breadcrumb banner -->
+        <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                    <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                    </a>
+                    <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#chevron-right"></use>
+                    </svg>
+                    <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'الطهاة' : 'Home Chefs'">Home Chefs</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                    x-text="$store.app.language === 'ar' ? 'طهاة المطابخ المنزلية المعتمدين' : 'Verified Domestic Kitchens'">
+                    Verified Domestic Kitchens
+                </h1>
+                <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 max-w-2xl leading-relaxed"
+                   x-text="$store.app.language === 'ar' ? 'اكتشف أمهر طهاة الأكل البيتي في حيك للاستلام المباشر' : 'Explore vetted domestic chefs cooking authentic recipes in your neighborhood'">
+                    Explore vetted domestic chefs cooking authentic recipes in your neighborhood
+                </p>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+            <!-- Standard GET Filter Bar -->
+            @* TODO [Backend]: Filter verified domestic chefs via GET /Chefs?area=&q= *@
+            <form method="get" asp-controller="Chefs" asp-action="Index" class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl shadow-xs">
+                <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] shrink-0"
+                          x-text="$store.app.language === 'ar' ? 'المنطقة:' : 'Area:'">Area:</span>
+                    <select name="area" class="text-xs px-3.5 py-2 rounded-full font-semibold bg-[var(--color-surface-subtle)] text-[var(--color-text)] border border-[var(--color-border)] focus:border-[var(--color-primary)] focus:outline-hidden cursor-pointer">
+                        <option value="all">All Areas</option>
+                        <option value="maadi">Maadi, Cairo</option>
+                        <option value="zamalek">Zamalek, Cairo</option>
+                        <option value="heliopolis">Heliopolis, Cairo</option>
+                    </select>
+                </div>
+
+                <!-- Search box -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <div class="relative w-full sm:w-64 shrink-0">
+                        <svg class="w-4 h-4 text-[var(--color-primary)] absolute start-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
+                        <input type="text"
+                               name="q"
+                               :placeholder="$store.app.language === 'ar' ? 'ابحث باسم الشيف أو المطبخ...' : 'Search chef or kitchen...'"
+                               class="w-full text-xs ps-9 pe-3 py-2 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium shadow-2xs" />
+                    </div>
+                    <button type="submit" class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0">
+                        <span x-text="$store.app.language === 'ar' ? 'بحث' : 'Filter'">Filter</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Chef List View -->
+            @* TODO [Backend]: @model IEnumerable<depiR5gp.Models.Chefs.ChefProfile> — @foreach (var chef in Model) { ... link to /Chefs/Details/@chef.Id ... } *@
+            <div class="chef-list-container">
+                <!-- Static Card 1: Amina's Heritage Kitchen -->
+                <div onclick="window.location.href = '/Chefs/Details/1'" class="chef-list-item">
+                    <div class="chef-list-thumb">
+                        <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&auto=format&fit=crop&q=80"
+                             alt="Amina's Heritage Kitchen"
+                             loading="lazy" />
+                        <button type="button"
+                                @@click.stop="$store.app.toggleFavorite('chef-1')"
+                                class="chef-list-fav"
+                                title="Favorite this chef">
+                            <svg class="w-4 h-4" :class="$store.app.isFavorite('chef-1') ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#heart"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="chef-list-body">
+                        <div class="chef-list-header">
+                            <div>
+                                <h3 class="chef-list-title" x-text="$store.app.language === 'ar' ? 'مطبخ أمينة التراثي' : 'Amina\'s Heritage Kitchen'">Amina's Heritage Kitchen</h3>
+                                <p class="chef-list-subtitle" x-text="$store.app.language === 'ar' ? 'الشيف أمينة منصور' : 'Chef Amina Mansour'">Chef Amina Mansour</p>
+                            </div>
+                            <div class="chef-list-badges">
+                                <div class="chef-list-rating">
+                                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                    <span class="font-bold">4.9</span>
+                                    <span class="opacity-75">(124)</span>
+                                </div>
+                                <span class="chef-list-status">
+                                    <span class="chef-list-pulse"></span>
+                                    <span x-text="$store.app.language === 'ar' ? 'متاح للطلب الآن' : 'Taking Orders Now'">Taking Orders Now</span>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="chef-list-bio" x-text="$store.app.language === 'ar' ? 'وصفات متوارثة من الأجداد تُحضر في مطبخ منزلي مرخص ومعتمد، باستخدام السمن البلدي الطبيعي بنسبة 100% واللحوم الطازجة والأعشاب العضوية.' : 'Family heirloom recipes prepared in an inspected domestic kitchen using 100% baladi ghee, fresh butchery and organic farm herbs.'">
+                            Family heirloom recipes prepared in an inspected domestic kitchen using 100% baladi ghee, fresh butchery and organic farm herbs.
+                        </p>
+                        <div class="chef-list-meta">
+                            <div class="chef-list-meta-item">
+                                <svg class="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? 'المعادي، القاهرة' : 'Maadi, Cairo'">Maadi, Cairo</span>
+                            </div>
+                            <div class="chef-list-meta-item">
+                                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? '12:00 م - 9:00 م (السبت - الخميس)' : '12:00 PM - 9:00 PM (Sat - Thu)'">12:00 PM - 9:00 PM (Sat - Thu)</span>
+                            </div>
+                        </div>
+                        <div class="chef-list-actions">
+                            <a href="/Chefs/Details/1" @@click.stop class="chef-menu-btn chef-list-btn-primary">
+                                <span x-text="$store.app.language === 'ar' ? 'عرض قائمة المطبخ' : 'View Kitchen Menu'">View Kitchen Menu</span>
+                                <svg class="w-3.5 h-3.5" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#arrow-right"></use>
+                                </svg>
+                            </a>
+                            <a href="/Chat" @@click.stop class="chef-list-btn-chat">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#message-circle"></use>
+                                </svg>
+                                <span x-text="$store.app.language === 'ar' ? 'محادثة الشيف' : 'Chat with Chef'">Chat with Chef</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Static Card 2: Om Nabil Casseroles -->
+                <div onclick="window.location.href = '/Chefs/Details/1'" class="chef-list-item">
+                    <div class="chef-list-thumb">
+                        <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&auto=format&fit=crop&q=80"
+                             alt="Om Nabil Casseroles"
+                             loading="lazy" />
+                        <button type="button"
+                                @@click.stop="$store.app.toggleFavorite('chef-2')"
+                                class="chef-list-fav"
+                                title="Favorite this chef">
+                            <svg class="w-4 h-4" :class="$store.app.isFavorite('chef-2') ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#heart"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="chef-list-body">
+                        <div class="chef-list-header">
+                            <div>
+                                <h3 class="chef-list-title" x-text="$store.app.language === 'ar' ? 'طواجن أم نبيل' : 'Om Nabil Casseroles'">Om Nabil Casseroles</h3>
+                                <p class="chef-list-subtitle" x-text="$store.app.language === 'ar' ? 'أم نبيل عبد الرحمن' : 'Om Nabil'">Om Nabil</p>
+                            </div>
+                            <div class="chef-list-badges">
+                                <div class="chef-list-rating">
+                                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                    <span class="font-bold">5.0</span>
+                                    <span class="opacity-75">(98)</span>
+                                </div>
+                                <span class="chef-list-status">
+                                    <span class="chef-list-pulse"></span>
+                                    <span x-text="$store.app.language === 'ar' ? 'متاح للطلب الآن' : 'Taking Orders Now'">Taking Orders Now</span>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="chef-list-bio" x-text="$store.app.language === 'ar' ? 'متخصصة في طواجن الفخار الأسوانية والمصرية الأصيلة على نار هادئة.' : 'Master of slow-cooked earthenware tagines and caramelized onion casseroles.'">
+                            Master of slow-cooked earthenware tagines and caramelized onion casseroles.
+                        </p>
+                        <div class="chef-list-meta">
+                            <div class="chef-list-meta-item">
+                                <svg class="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? 'الزمالك، القاهرة' : 'Zamalek, Cairo'">Zamalek, Cairo</span>
+                            </div>
+                            <div class="chef-list-meta-item">
+                                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? '1:00 م - 10:00 م' : '1:00 PM - 10:00 PM'">1:00 PM - 10:00 PM</span>
+                            </div>
+                        </div>
+                        <div class="chef-list-actions">
+                            <a href="/Chefs/Details/1" @@click.stop class="chef-menu-btn chef-list-btn-primary">
+                                <span x-text="$store.app.language === 'ar' ? 'عرض قائمة المطبخ' : 'View Kitchen Menu'">View Kitchen Menu</span>
+                                <svg class="w-3.5 h-3.5" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#arrow-right"></use>
+                                </svg>
+                            </a>
+                            <a href="/Chat" @@click.stop class="chef-list-btn-chat">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#message-circle"></use>
+                                </svg>
+                                <span x-text="$store.app.language === 'ar' ? 'محادثة الشيف' : 'Chat with Chef'">Chat with Chef</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Static Card 3: Hajjah Fatma Bakery -->
+                <div onclick="window.location.href = '/Chefs/Details/1'" class="chef-list-item">
+                    <div class="chef-list-thumb">
+                        <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&auto=format&fit=crop&q=80"
+                             alt="Hajjah Fatma Bakery"
+                             loading="lazy" />
+                        <button type="button"
+                                @@click.stop="$store.app.toggleFavorite('chef-3')"
+                                class="chef-list-fav"
+                                title="Favorite this chef">
+                            <svg class="w-4 h-4" :class="$store.app.isFavorite('chef-3') ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#heart"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="chef-list-body">
+                        <div class="chef-list-header">
+                            <div>
+                                <h3 class="chef-list-title" x-text="$store.app.language === 'ar' ? 'مخبوزات الحاجة فاطمة' : 'Hajjah Fatma Bakery'">Hajjah Fatma Bakery</h3>
+                                <p class="chef-list-subtitle" x-text="$store.app.language === 'ar' ? 'الحاجة فاطمة الدسوقي' : 'Hajjah Fatma'">Hajjah Fatma</p>
+                            </div>
+                            <div class="chef-list-badges">
+                                <div class="chef-list-rating">
+                                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                    <span class="font-bold">4.8</span>
+                                    <span class="opacity-75">(145)</span>
+                                </div>
+                                <span class="chef-list-status">
+                                    <span class="chef-list-pulse"></span>
+                                    <span x-text="$store.app.language === 'ar' ? 'متاح للطلب الآن' : 'Taking Orders Now'">Taking Orders Now</span>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="chef-list-bio" x-text="$store.app.language === 'ar' ? 'فطير فلاحي مورق ومخبوزات تقليدية بالسمن الطبيعي والقشطة البلدي الطازجة.' : 'Authentic country flaky feteer and Egyptian breakfast baking with fresh cream.'">
+                            Authentic country flaky feteer and Egyptian breakfast baking with fresh cream.
+                        </p>
+                        <div class="chef-list-meta">
+                            <div class="chef-list-meta-item">
+                                <svg class="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? 'مصر الجديدة، القاهرة' : 'Heliopolis, Cairo'">Heliopolis, Cairo</span>
+                            </div>
+                            <div class="chef-list-meta-item">
+                                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                                <span x-text="$store.app.language === 'ar' ? '9:00 ص - 6:00 م' : '9:00 AM - 6:00 PM'">9:00 AM - 6:00 PM</span>
+                            </div>
+                        </div>
+                        <div class="chef-list-actions">
+                            <a href="/Chefs/Details/1" @@click.stop class="chef-menu-btn chef-list-btn-primary">
+                                <span x-text="$store.app.language === 'ar' ? 'عرض قائمة المطبخ' : 'View Kitchen Menu'">View Kitchen Menu</span>
+                                <svg class="w-3.5 h-3.5" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#arrow-right"></use>
+                                </svg>
+                            </a>
+                            <a href="/Chat" @@click.stop class="chef-list-btn-chat">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#message-circle"></use>
+                                </svg>
+                                <span x-text="$store.app.language === 'ar' ? 'محادثة الشيف' : 'Chat with Chef'">Chat with Chef</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

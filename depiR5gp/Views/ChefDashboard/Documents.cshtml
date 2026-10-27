@@ -1,6 +1,133 @@
+@*
+    TODO [Backend]: Strongly-typed view binding for Chef Documents & Verification
+    1. Uncomment the model directive once ChefDashboardController.Documents() passes the list:
+       @model IEnumerable<depiR5gp.Models.Chefs.ChefDocument>
+    2. In [HttpGet] ChefDashboardController.Documents():
+       var docs = await unitOfWork.ChefDocuments.FindAsync(d => d.ChefProfileId == currentChefId);
+       return View(docs);
+    3. In [HttpPost] ChefDashboardController.Documents(string docType, IFormFile certificateFile):
+       Save uploaded file to storage, create ChefDocument { ChefProfileId, DocType = docType, FileUrl = savedUrl, UploadedAt = DateTime.UtcNow },
+       call await unitOfWork.CompleteAsync(), and RedirectToAction(nameof(Documents)).
+*@
 @{
-    ViewData["Title"] = "Verification Documents";
+    ViewData["Title"] = "Chef Portal - Documents & Verification";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Upload New Verification Document Form (Pure MVC POST Form) -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
+        <div class="pb-4 border-b border-[var(--color-border)]">
+            <h2 class="text-lg font-bold text-[var(--color-text)] uppercase tracking-wide">
+                Upload New Verification Document
+            </h2>
+            <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                Submit updated national identity or domestic health inspection certificates for compliance verification.
+            </p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" asp-controller="ChefDashboard" asp-action="Documents" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end text-xs">
+            <div class="sm:col-span-4">
+                <label for="DocType" class="block font-semibold mb-1.5 text-[var(--color-text)]">Document Category</label>
+                <select id="DocType" name="DocType" required
+                        class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
+                    <option value="Identity">National ID (Front &amp; Back)</option>
+                    <option value="Hygiene">Government Health Certificate (شهادة صحية)</option>
+                    <option value="Inspection">Kitchen Sanitation Inspection Proof</option>
+                </select>
+            </div>
+            <div class="sm:col-span-5">
+                <label for="CertificateFile" class="block font-semibold mb-1.5 text-[var(--color-text)]">Document File (PDF, JPG, PNG)</label>
+                <input id="CertificateFile" name="CertificateFile" type="file" accept=".pdf,.jpg,.jpeg,.png" required
+                       class="w-full p-2 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[var(--color-primary-light)] file:text-[var(--color-primary)] cursor-pointer" />
+            </div>
+            <div class="sm:col-span-3">
+                <button type="submit"
+                        class="w-full px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-2xs transition-colors cursor-pointer">
+                    + Upload Certificate
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Submitted Documents List -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] flex-wrap gap-4">
+            <div>
+                <h2 class="text-lg font-bold text-[var(--color-text)] uppercase tracking-wide">
+                    Submitted Hygiene &amp; Identity Credentials
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                    Verified documents required by platform policy for domestic food safety standards.
+                </p>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[11px] font-bold">
+                2 Approved · 1 Pending
+            </span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+            @*
+                TODO [Backend]: Replace static document cards below with a Razor @foreach loop over Model:
+                @foreach (var doc in Model)
+                {
+                    <div class="p-4 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        ...
+                        <p class="font-bold text-[var(--color-text)] text-sm">@doc.DocType</p>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">Submitted: @doc.UploadedAt.ToString("yyyy-MM-dd") · <a href="@doc.FileUrl" target="_blank" class="underline">View File</a></p>
+                    </div>
+                }
+            *@
+
+            <!-- Document Row 1 -->
+            <div class="p-4 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-[var(--color-text)] text-sm">National ID (Front &amp; Back)</p>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">Category: Identity · Submitted: 2026-10-15</p>
+                    </div>
+                </div>
+                <span class="px-3 py-1 rounded-full font-bold text-[11px] bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                    Approved
+                </span>
+            </div>
+
+            <!-- Document Row 2 -->
+            <div class="p-4 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-[var(--color-text)] text-sm">Government Health Certificate (شهادة صحية)</p>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">Category: Hygiene · Submitted: 2026-10-18</p>
+                    </div>
+                </div>
+                <span class="px-3 py-1 rounded-full font-bold text-[11px] bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                    Approved
+                </span>
+            </div>
+
+            <!-- Document Row 3 -->
+            <div class="p-4 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-[var(--color-text)] text-sm">Kitchen Sanitation Inspection Proof</p>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">Category: Inspection · Submitted: 2026-10-24</p>
+                    </div>
+                </div>
+                <span class="px-3 py-1 rounded-full font-bold text-[11px] bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                    Pending Review
+                </span>
+            </div>
+        </div>
+    </div>
+</main>

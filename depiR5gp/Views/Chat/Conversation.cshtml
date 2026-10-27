@@ -1,6 +1,96 @@
 @{
-    ViewData["Title"] = "Conversation";
+    ViewData["Title"] = "Conversation with Chef Amina - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+@* TODO [Backend]:
+    @model depiR5gp.Models.Messaging.Conversation
+    @foreach (var msg in Model.Messages)
+    {
+        ... render msg.SenderId, msg.Text, msg.SentAt ...
+    }
+*@
+
+<main class="w-full pb-24">
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
+            <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 flex-wrap">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="/Chat" class="hover:text-[var(--color-primary)] transition-colors">Messages &amp; Inbox</a>
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">Chef Amina Mansour</span>
+            </nav>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=200&auto=format&fit=crop&q=80"
+                         alt="Chef Amina Mansour"
+                         class="w-12 h-12 rounded-full object-cover border-2 border-[var(--color-primary)]" />
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                            Chef Amina Mansour — Amina's Heritage Kitchen
+                        </h1>
+                        <p class="text-xs text-[var(--color-text-muted)]">
+                            Active Order Conversation · <a href="/Orders/Track/1" class="text-[var(--color-primary)] font-bold hover:underline">Order #HC-2026-9041</a>
+                        </p>
+                    </div>
+                </div>
+                <a href="/Chefs/Details/1"
+                   class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] transition-colors shrink-0">
+                    View Kitchen Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs flex flex-col">
+            <!-- Static Server-Rendered Message Thread -->
+            <div class="p-6 space-y-4 bg-[var(--color-surface-subtle)]/40 min-h-[360px]">
+                <!-- Message 1: Chef -->
+                <div class="flex flex-col items-start text-xs">
+                    <div class="p-4 rounded-2xl max-w-md bg-[var(--color-card-bg)] text-[var(--color-text)] border border-[var(--color-border-light)] shadow-2xs space-y-1">
+                        <span class="text-[10px] font-bold text-[var(--color-primary)] block">Chef Amina Mansour</span>
+                        <p class="leading-relaxed">Hello Tamer! Welcome to Amina's Heritage Kitchen. We started browning your Baladi duck.</p>
+                        <span class="text-[10px] text-[var(--color-text-muted)] block text-end">Today, 14:20</span>
+                    </div>
+                </div>
+
+                <!-- Message 2: Customer -->
+                <div class="flex flex-col items-end text-xs">
+                    <div class="p-4 rounded-2xl max-w-md bg-[var(--color-primary)] text-white shadow-2xs space-y-1">
+                        <span class="text-[10px] font-bold text-white/80 block">You (Tamer Zaki)</span>
+                        <p class="leading-relaxed">Thank you Chef Amina! Please make sure the ta'sheya garlic is well browned.</p>
+                        <span class="text-[10px] text-white/75 block text-end">Today, 14:25</span>
+                    </div>
+                </div>
+
+                <!-- Message 3: Chef -->
+                <div class="flex flex-col items-start text-xs">
+                    <div class="p-4 rounded-2xl max-w-md bg-[var(--color-card-bg)] text-[var(--color-text)] border border-[var(--color-border-light)] shadow-2xs space-y-1">
+                        <span class="text-[10px] font-bold text-[var(--color-primary)] block">Chef Amina Mansour</span>
+                        <p class="leading-relaxed">Ta'sha is bubbling in the pot, your order will be ready at 15:45!</p>
+                        <span class="text-[10px] text-[var(--color-text-muted)] block text-end">Today, 14:32</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Standard MVC Send Message Form -->
+            <form method="post" asp-controller="Chat" asp-action="SendMessage" class="p-4 sm:p-5 bg-[var(--color-card-bg)] border-t border-[var(--color-border)] flex items-center gap-3">
+                <input type="hidden" name="ConversationId" value="1" />
+                <input type="text"
+                       name="Text"
+                       required
+                       placeholder="Write a message to Chef Amina..."
+                       class="flex-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full px-4 py-3 text-xs text-[var(--color-text)] placeholder:text-neutral-500 focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                <button type="submit"
+                        class="px-6 py-3 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5 shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#send"></use></svg>
+                    <span>Send Message</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</main>

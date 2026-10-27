@@ -1,6 +1,7 @@
 <!-- Views/Dishes/Partials/_BrowseDishes.cshtml -->
 <!-- Source: home_chef/src/pages/BrowseDishesPage.tsx -->
-<!-- TODO [Backend]: Filter dishes server-side via EF Core / Linq queries -->
+@* TODO [Backend]: @model IEnumerable<depiR5gp.Models.Menu.Dish> — @foreach (var dish in Model) { ... } *@
+@* TODO [Backend]: Standard search/filter form: <form method="get" asp-controller="Dishes" asp-action="Index"><input name="q" /><select name="cuisine"></select><select name="sort"></select></form> *@
 
 <div x-data="{
     viewMode: 'grid',
@@ -147,7 +148,7 @@
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
-                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
                     <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
                 </a>
@@ -255,12 +256,12 @@
         </div>
 
         <!-- Product Grid / List -->
-        <!-- TODO [Backend]: Loop through catalog query results (Model.Dishes or /api/dishes?cuisine=&sort=&search=); bind DishId, Name, Price, OriginalPrice, KitchenName, Rating, PrepTimeMinutes, ImageUrl, and Availability -->
+        @* TODO [Backend]: @model IEnumerable<depiR5gp.Models.Menu.Dish> — @foreach (var dish in Model) { ... } *@
         <div x-show="filteredDishes.length > 0">
             <!-- Grid View -->
             <div x-show="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <template x-for="dish in filteredDishes" :key="'grid-' + dish.id">
-                    <div @@click="$store.app.navigate('#dish/' + dish.id)"
+                    <div @@click="window.location.href = '/Dishes/Details/' + dish.id"
                          class="group relative bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between overflow-hidden hover:-translate-y-1">
 
                         <div class="relative w-full aspect-square bg-neutral-100 dark:bg-neutral-800 overflow-hidden rounded-xl mb-3.5">
@@ -341,7 +342,7 @@
             <!-- List View -->
             <div x-show="viewMode === 'list'" class="dish-list-container">
                 <template x-for="dish in filteredDishes" :key="'list-' + dish.id">
-                    <div @@click="$store.app.navigate('#dish/' + dish.id)"
+                    <div @@click="window.location.href = '/Dishes/Details/' + dish.id"
                          class="dish-list-item">
                         <!-- Thumbnail Column -->
                         <div class="dish-list-thumb">

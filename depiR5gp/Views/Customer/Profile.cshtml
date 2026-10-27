@@ -1,6 +1,88 @@
 @{
-    ViewData["Title"] = "Customer Profile";
+    ViewData["Title"] = "Customer Profile - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+@* TODO [Backend]: @model depiR5gp.Models.Users.AppUser *@
+
+<main class="w-full pb-24">
+    <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" />
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+        <!-- Account & Delivery Information Card + MVC Form -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-border-light)] pb-4">
+                <div>
+                    <h3 class="text-lg font-bold uppercase tracking-tight text-[var(--color-text)]">Account &amp; Delivery Settings</h3>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Update your personal contact details and default pickup/delivery address</p>
+                </div>
+                <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800">
+                    Verified Customer
+                </span>
+            </div>
+
+            <form method="post" asp-controller="Customer" asp-action="Profile" class="space-y-5 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="FirstName" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">First Name</label>
+                        <input id="FirstName"
+                               name="FirstName"
+                               type="text"
+                               value="Tamer"
+                               required
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    </div>
+                    <div>
+                        <label for="LastName" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Last Name</label>
+                        <input id="LastName"
+                               name="LastName"
+                               type="text"
+                               value="Zaki"
+                               required
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="Email" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Email Address</label>
+                        <input id="Email"
+                               name="Email"
+                               type="email"
+                               value="tamer.zaki@example.com"
+                               required
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    </div>
+                    <div>
+                        <label for="PhoneNumber" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Phone Number</label>
+                        <input id="PhoneNumber"
+                               name="PhoneNumber"
+                               type="tel"
+                               value="+20 100 234 5678"
+                               required
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="Address" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Primary Pickup / Delivery Address</label>
+                    <input id="Address"
+                           name="Address"
+                           type="text"
+                           value="Villa 12, Road 250, Degla, Maadi, Cairo"
+                           required
+                           class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                </div>
+
+                <div class="pt-4 border-t border-[var(--color-border-light)] flex items-center justify-end gap-3">
+                    <a href="/Customer/MyOrders"
+                       class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] transition-colors">
+                        View My Orders
+                    </a>
+                    <button type="submit"
+                            class="px-6 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                        Save Profile Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

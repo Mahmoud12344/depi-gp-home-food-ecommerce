@@ -1,6 +1,77 @@
 @{
-    ViewData["Title"] = "Kitchen Profile";
+    ViewData["Title"] = "Chef Portal - Kitchen Profile";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+        <div class="flex items-center gap-3 pb-4 border-b border-[var(--color-border)]">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-[var(--color-text)] uppercase tracking-wide">
+                    Kitchen Profile &amp; Story
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                    Update your public domestic kitchen details, story, and pickup gate instructions.
+                </p>
+            </div>
+        </div>
+
+        @* Standard MVC form: plain HTML values, posts to ChefDashboard/Profile.
+           TODO [Backend]: add [HttpPost] Profile(ChefProfileEditModel) action, bind the logged-in chef's
+           current values into these inputs, validate with ModelState, then redirect (PRG) with TempData. *@
+        <form method="post" asp-controller="ChefDashboard" asp-action="Profile" class="space-y-5 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="KitchenName" class="block font-semibold mb-1 text-[var(--color-text)]">Kitchen Name (English)</label>
+                    <input id="KitchenName" name="KitchenName" type="text" required maxlength="100"
+                           value="Amina's Heritage Kitchen"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+                <div>
+                    <label for="KitchenNameAr" class="block font-semibold mb-1 text-[var(--color-text)]">Kitchen Name (Arabic)</label>
+                    <input id="KitchenNameAr" name="KitchenNameAr" type="text" required maxlength="100" dir="rtl"
+                           value="مطبخ أمينة التراثي"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="PickupArea" class="block font-semibold mb-1 text-[var(--color-text)]">Neighborhood / Area</label>
+                    <input id="PickupArea" name="PickupArea" type="text" required maxlength="100"
+                           value="Maadi, Cairo"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+                <div>
+                    <label for="Address" class="block font-semibold mb-1 text-[var(--color-text)]">Exact Pickup Address &amp; Gate Instructions</label>
+                    <input id="Address" name="Address" type="text" required maxlength="250"
+                           value="Bldg 14, Road 9, Degla, Maadi, Cairo (Ground Floor Gate)"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+            </div>
+
+            <div>
+                <label for="Bio" class="block font-semibold mb-1 text-[var(--color-text)]">Chef Story &amp; Heritage Bio (English)</label>
+                <textarea id="Bio" name="Bio" rows="3" maxlength="500"
+                          class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">Cooking traditional Egyptian baladi recipes inherited from my grandmother in Upper Egypt, using 100% pure baladi ghee and farm-fresh poultry.</textarea>
+            </div>
+
+            <div>
+                <label for="BioAr" class="block font-semibold mb-1 text-[var(--color-text)]">Chef Story &amp; Heritage Bio (Arabic)</label>
+                <textarea id="BioAr" name="BioAr" rows="3" maxlength="500" dir="rtl"
+                          class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">أطبخ أشهى الأكلات والوصفات المصرية التراثية المتوارثة عن جدتي من صعيد مصر، بالسمن البلدي الفلاحي والطيور الطازجة يومياً.</textarea>
+            </div>
+
+            <div class="pt-4 border-t border-[var(--color-border)] flex items-center justify-end gap-3">
+                <button type="submit"
+                        class="px-6 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider rounded-full shadow-xs transition-colors cursor-pointer">
+                    Save Profile Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</main>

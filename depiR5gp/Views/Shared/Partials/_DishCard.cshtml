@@ -2,7 +2,7 @@
 <!-- Source: home_chef/src/components/common/DishCard.tsx -->
 <!-- TODO [Backend]: Bind dish model dynamically via Razor or Web API -->
 
-<div @@click="$store.app.navigate('#dish/dish-1')"
+<div @@click="window.location.href = '/Dishes/Details/1'"
      class="group relative bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between overflow-hidden hover:-translate-y-1">
 
     <!-- Image Container with Badges and Hover Action Buttons -->

@@ -1,6 +1,80 @@
 @{
-    ViewData["Title"] = "Loyalty Points";
+    ViewData["Title"] = "Loyalty Points & Rewards - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+@* TODO [Backend]:
+    @model IEnumerable<depiR5gp.Models.ReviewsLoyalty.PointsLedger>
+    @foreach (var entry in Model)
+    {
+        ... render entry.Reason, entry.DeltaPoints, entry.CreatedAt ...
+    }
+*@
+
+<main class="w-full pb-24">
+    <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" />
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Loyalty Summary Card -->
+            <div class="lg:col-span-5 bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-950 dark:text-amber-100 block">
+                    Available Loyalty Balance
+                </span>
+                <div class="flex items-baseline gap-3">
+                    <span class="text-4xl font-black text-amber-900 dark:text-amber-200">340 pts</span>
+                    <span class="text-sm font-bold text-amber-800 dark:text-amber-300">= 68 EGP</span>
+                </div>
+                <p class="text-xs text-amber-900/80 dark:text-amber-200/80 leading-relaxed">
+                    Every 5 loyalty points equals 1 EGP in instant discount at checkout. Points are automatically credited upon order completion.
+                </p>
+                <div class="pt-2">
+                    <a href="/Dishes"
+                       class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors">
+                        Redeem on Next Order
+                    </a>
+                </div>
+            </div>
+
+            <!-- Loyalty Ledger Transactions -->
+            <div class="lg:col-span-7 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
+                <div class="flex items-center justify-between border-b border-[var(--color-border-light)] pb-3">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">Loyalty Transaction Ledger</h3>
+                    <span class="text-xs text-[var(--color-text-muted)]">Recent Activity</span>
+                </div>
+
+                <div class="space-y-2.5 text-xs">
+                    <div class="flex items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <div>
+                            <span class="font-bold text-[var(--color-text)] block">Completed Order #HC-2026-9041</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">Today, 15:45 · Amina's Heritage Kitchen</span>
+                        </div>
+                        <strong class="text-emerald-600 text-sm font-bold">+45 pts</strong>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <div>
+                            <span class="font-bold text-[var(--color-text)] block">Checkout Discount Applied</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">Yesterday · Order #HC-2026-8950</span>
+                        </div>
+                        <strong class="text-rose-600 text-sm font-bold">-60 pts</strong>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <div>
+                            <span class="font-bold text-[var(--color-text)] block">Completed Order #HC-2026-8890</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">Yesterday · Om Nabil Casseroles</span>
+                        </div>
+                        <strong class="text-emerald-600 text-sm font-bold">+50 pts</strong>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <div>
+                            <span class="font-bold text-[var(--color-text)] block">Welcome Bonus — Verified Phone</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">Oct 01, 2026 · Account Registration</span>
+                        </div>
+                        <strong class="text-emerald-600 text-sm font-bold">+305 pts</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

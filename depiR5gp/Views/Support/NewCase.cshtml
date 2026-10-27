@@ -1,6 +1,86 @@
 @{
-    ViewData["Title"] = "Open Support Ticket";
+    ViewData["Title"] = "Open Support Ticket - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+@* TODO [Backend]: @model depiR5gp.Models.Support.SupportCase *@
+
+<main class="w-full pb-24">
+    <!-- Breadcrumb Banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
+            <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 flex-wrap">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="/Support" class="hover:text-[var(--color-primary)] transition-colors">Support Desk</a>
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">Open Support Ticket</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">Open New Support Ticket</h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)]">Submit an order issue, quality inquiry, or refund request to our support team</p>
+        </div>
+    </div>
+
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs">
+            <form method="post" asp-controller="Support" asp-action="NewCase" class="space-y-5 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="OrderId" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Related Order (Optional)</label>
+                        <select id="OrderId"
+                                name="OrderId"
+                                class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium">
+                            <option value="">None / General Inquiry</option>
+                            <option value="1" selected>Order #HC-2026-9041 — Amina's Heritage Kitchen (240.00 EGP)</option>
+                            <option value="2">Order #HC-2026-8890 — Om Nabil Casseroles (310.00 EGP)</option>
+                            <option value="3">Order #HC-2026-9150 — Amina's Heritage Kitchen (285.00 EGP)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="RequesterRole" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Your Role</label>
+                        <select id="RequesterRole"
+                                name="RequesterRole"
+                                required
+                                class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium">
+                            <option value="Customer" selected>Customer</option>
+                            <option value="Chef">Home Chef</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="Subject" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Subject / Issue Summary</label>
+                    <input id="Subject"
+                           name="Subject"
+                           type="text"
+                           required
+                           placeholder="e.g. Late pickup readiness notification at Degla Villa"
+                           class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                </div>
+
+                <div>
+                    <label for="Description" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Detailed Description</label>
+                    <textarea id="Description"
+                              name="Description"
+                              rows="5"
+                              required
+                              placeholder="Describe your experience, pickup timing, or order issue in detail..."
+                              class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-[var(--color-border-light)] flex items-center justify-end gap-3">
+                    <a href="/Support"
+                       class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider text-[var(--color-text)] transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                            class="px-6 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                        Submit Support Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

@@ -30,6 +30,12 @@
 
     <!-- Pure Tailwind CSS v4 with Cache Busting -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- Local Alpine Store (Global state & cart hydration) -->
+    <script src="~/js/store.js" asp-append-version="true"></script>
+
+    <!-- Local Alpine.js Core (100% CDN-free) -->
+    <script defer src="~/lib/alpine/alpine.min.js"></script>
 </head>
 <body class="bg-[var(--color-bg)] text-[var(--color-text)] antialiased transition-colors duration-200 min-h-screen flex flex-col font-sans"
       x-data>
@@ -65,12 +71,6 @@
     <script src="~/js/components/circular3DGallery.js" asp-append-version="true"></script>
     <script src="~/js/components/verticalImageStack.js" asp-append-version="true"></script>
     <script src="~/js/components/thinkingPromptInput.js" asp-append-version="true"></script>
-
-    <!-- Local Alpine Store (Hash routing & global state) -->
-    <script src="~/js/store.js" asp-append-version="true"></script>
-
-    <!-- Local Alpine.js Core (100% CDN-free) -->
-    <script defer src="~/lib/alpine/alpine.min.js"></script>
 
     <!-- Bootstrap & jQuery preserved as-is -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

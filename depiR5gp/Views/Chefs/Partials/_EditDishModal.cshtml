@@ -2,6 +2,7 @@
   Edit Menu Item Modal Partial
   Backlog Subtask: SCRUM-46 (Story SCRUM-43)
   Epic: SCRUM-31 Menu Management
+  TODO [Backend]: Bind to MenuManagementController.Edit(int id, Dish dish)
 *@
 <div x-cloak
      x-show="editDishModalOpen"
@@ -23,13 +24,11 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
                 </div>
                 <div>
-                    <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]"
-                        x-text="$store.app.language === 'ar' ? 'تعديل بيانات الطبق' : 'Edit Menu Dish'">
+                    <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
                         Edit Menu Dish
                     </h3>
-                    <p class="text-[11px] text-[var(--color-text-muted)]"
-                       x-text="$store.app.language === 'ar' ? 'تحديث السعر، المكونات، وقت التحضير، أو خيارات التخصيص' : 'Update pricing, ingredients, prep time, or preset option surcharges'">
-                        Update pricing, ingredients, prep time, or preset option surcharges
+                    <p class="text-[11px] text-[var(--color-text-muted)]">
+                        Update pricing, ingredients, prep time, or availability status
                     </p>
                 </div>
             </div>
@@ -38,53 +37,48 @@
             </button>
         </div>
 
-        <!-- Edit Form -->
-        <!-- TODO [Backend]: PUT /api/chef/dishes/{id} with UpdateDishDto, validate chef ownership, update active cart line warnings if price modified -->
-        <form @@submit.prevent="saveEditedDish()" class="space-y-6 text-xs">
+        <!-- Edit Form (Standard MVC POST Form) -->
+        @* TODO [Backend]: POST MenuManagementController.Edit(Dish model) *@
+        <form method="post" asp-controller="MenuManagement" asp-action="Edit" class="space-y-6 text-xs">
+            <input type="hidden" name="Id" :value="editingDish?.id || 1" />
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'اسم الطبق (بالإنجليزية)' : 'Dish Title (English)'">Dish Title (English)</label>
-                    <input type="text" required x-model="editingDish.name"
+                    <label for="edit-dish-name" class="block font-semibold mb-1 text-[var(--color-text)]">Dish Title (English)</label>
+                    <input id="edit-dish-name" name="Name" type="text" required :value="editingDish?.name"
                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'اسم الطبق (بالعربية)' : 'Dish Title (Arabic)'">Dish Title (Arabic)</label>
-                    <input type="text" required x-model="editingDish.nameAr"
+                    <label for="edit-dish-name-ar" class="block font-semibold mb-1 text-[var(--color-text)]">Dish Title (Arabic)</label>
+                    <input id="edit-dish-name-ar" name="NameAr" type="text" required :value="editingDish?.nameAr"
                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'تصنيف المطبخ' : 'Dish Category'">Category</label>
-                    <select x-model="editingDish.category"
+                    <label for="edit-dish-cat" class="block font-semibold mb-1 text-[var(--color-text)]">Dish Category</label>
+                    <select id="edit-dish-cat" name="CategoryId"
                             class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
-                        <option value="Traditional Egyptian">Traditional Egyptian (أكلات مصرية أصيلة)</option>
-                        <option value="Tagines & Casseroles">Tagines &amp; Casseroles (طواجن فرن بلدي)</option>
-                        <option value="Stuffed & Mahshi">Stuffed &amp; Mahshi (محاشي ومحمرات)</option>
-                        <option value="Grills & Poultry">Grills &amp; Poultry (مشويات وطيور)</option>
-                        <option value="Bakery & Desserts">Bakery &amp; Desserts (فطير ومخبوزات وحلويات)</option>
+                        <option value="1">Traditional Egyptian (أكلات مصرية أصيلة)</option>
+                        <option value="2">Tagines &amp; Casseroles (طواجن فرن بلدي)</option>
+                        <option value="3">Stuffed &amp; Mahshi (محاشي ومحمرات)</option>
+                        <option value="4">Grills &amp; Poultry (مشويات وطيور)</option>
+                        <option value="5">Bakery &amp; Desserts (فطير ومخبوزات وحلويات)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'السعر الأساسي (ج.م)' : 'Base Price (EGP)'">Base Price (EGP)</label>
-                    <input type="number" step="5" min="10" required x-model.number="editingDish.price"
+                    <label for="edit-dish-price" class="block font-semibold mb-1 text-[var(--color-text)]">Base Price (EGP)</label>
+                    <input id="edit-dish-price" name="Price" type="number" step="5" min="10" required :value="editingDish?.price || 240"
                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold focus:border-[var(--color-primary)] focus:outline-hidden" />
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'حالة التوافر' : 'Availability Status'">Availability</label>
-                    <button type="button"
-                            @@click="editingDish.isAvailable = !editingDish.isAvailable"
-                            class="w-full p-2.5 rounded-xl font-bold border transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                            :class="editingDish.isAvailable ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100' : 'bg-neutral-100 text-neutral-500 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-400'">
-                        <span class="w-2 h-2 rounded-full" :class="editingDish.isAvailable ? 'bg-emerald-500' : 'bg-neutral-400'"></span>
-                        <span x-text="editingDish.isAvailable ? 'Available for Orders' : 'Marked Unavailable'"></span>
-                    </button>
+                    <label for="edit-dish-avail" class="block font-semibold mb-1 text-[var(--color-text)]">Availability Status</label>
+                    <select id="edit-dish-avail" name="IsAvailable"
+                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold focus:border-[var(--color-primary)] focus:outline-hidden">
+                        <option value="true">Available for Orders</option>
+                        <option value="false">Marked Unavailable</option>
+                    </select>
                 </div>
             </div>
 
@@ -92,14 +86,13 @@
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
                 <button type="button" @@click="editDishModalOpen = false"
                         class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider transition-colors cursor-pointer">
-                    <span x-text="$store.app.language === 'ar' ? 'إلغاء' : 'Cancel'">Cancel</span>
+                    Cancel
                 </button>
                 <button type="submit"
                         class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
-                    <span x-text="$store.app.language === 'ar' ? 'حفظ التعديلات' : 'Save Dish Changes'">Save Dish Changes</span>
+                    Save Dish Changes
                 </button>
             </div>
         </form>
     </div>
 </div>
-

@@ -1,0 +1,68 @@
+@* Views/Admin/Partials/_AdminNav.cshtml *@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+}
+
+<!-- Breadcrumb Banner -->
+<div class="relative bg-gradient-to-r from-[var(--color-primary-light)] via-[var(--color-bg)] to-[var(--color-primary-light)] dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 border-b border-[var(--color-border)] py-8 sm:py-10 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto space-y-2">
+        <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 flex-wrap">
+            <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+            </a>
+            <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="#chevron-right"></use>
+            </svg>
+            <span class="text-[var(--color-primary)] font-semibold" x-text="$store.app.language === 'ar' ? 'لوحة الإدارة' : 'Admin Portal'">Admin Portal</span>
+        </nav>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                    x-text="$store.app.language === 'ar' ? 'لوحة الإدارة والرقابة' : 'Platform Administration & Oversight'">
+                    Platform Administration &amp; Oversight
+                </h1>
+                <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-2xl mt-1"
+                   x-text="$store.app.language === 'ar' ? 'متابعة المؤشرات، اعتماد الطهاة، وإدارة العمولات والطلبات' : 'Monitor KPIs, verify chef applications, reconcile orders, and manage platform parameters'">
+                    Monitor KPIs, verify chef applications, reconcile orders, and manage platform parameters
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>System Operational</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Portal Navigation Tabs -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+    <div class="flex border-b border-[var(--color-border)] gap-2 sm:gap-6 overflow-x-auto pb-1">
+        <a href="/Admin"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Index" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Overview &amp; KPIs
+        </a>
+        <a href="/Admin/Chefs"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Chefs" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Chef Applications &amp; Approvals
+        </a>
+        <a href="/Admin/Users"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Users" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            User Accounts &amp; Moderation
+        </a>
+        <a href="/Admin/Orders"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Orders" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Orders &amp; Cash Reconciliation
+        </a>
+        <a href="/Admin/Payouts"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Payouts" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Chef Payouts &amp; Ledger
+        </a>
+        <a href="/Admin/Settings"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Settings" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Platform Settings &amp; AI FAQs
+        </a>
+    </div>
+</div>

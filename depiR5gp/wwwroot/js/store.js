@@ -5,9 +5,6 @@
 
 document.addEventListener('alpine:init', () => {
   Alpine.store('app', {
-    // Navigation & Routing
-    currentRoute: window.location.hash || '#home',
-
     // User & Identity
     role: localStorage.getItem('hc_role') || 'customer',
     language: localStorage.getItem('hc_lang') || 'en',
@@ -72,12 +69,6 @@ document.addEventListener('alpine:init', () => {
     toasts: [],
 
     init() {
-      // Listen for URL hash changes
-      window.addEventListener('hashchange', () => {
-        this.currentRoute = window.location.hash || '#home';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-
       // Synchronize HTML attributes on init
       document.documentElement.lang = this.language;
       document.documentElement.dir = this.language === 'ar' ? 'rtl' : 'ltr';
@@ -87,12 +78,82 @@ document.addEventListener('alpine:init', () => {
       } else {
         document.documentElement.classList.remove('dark');
       }
+
+      // Synchronize search and filter query parameters
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('q')) {
+          this.searchQuery = urlParams.get('q');
+        }
+        if (urlParams.has('cuisine')) {
+          this.selectedCuisine = urlParams.get('cuisine');
+        }
+      } catch (e) {}
     },
 
-    navigate(route) {
-      window.location.hash = route;
-      this.currentRoute = route;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate(url) {
+      if (!url) return;
+      if (url.startsWith('#dish/')) {
+        window.location.href = '/Dishes/Details/' + url.replace('#dish/', '');
+        return;
+      }
+      if (url.startsWith('#chef/')) {
+        window.location.href = '/Chefs/Details/' + url.replace('#chef/', '');
+        return;
+      }
+      if (url.startsWith('#order-confirmation/')) {
+        window.location.href = '/Orders/Confirmation/' + url.replace('#order-confirmation/', '');
+        return;
+      }
+      if (url.startsWith('#order-track/') || url.startsWith('#order-tracking/')) {
+        window.location.href = '/Orders/Track/' + url.replace(/^#order-track(ing)?\//, '');
+        return;
+      }
+      if (url.startsWith('#')) {
+        // Map legacy hash routes to MVC paths if any exist
+        const map = {
+          '#home': '/',
+          '#browse-dishes': '/Dishes',
+          '#dishes': '/Dishes',
+          '#browse-chefs': '/Chefs',
+          '#chefs': '/Chefs',
+          '#cart': '/Cart',
+          '#checkout': '/Checkout',
+          '#chef/dashboard': '/ChefDashboard',
+          '#chef/menu': '/ChefDashboard/Orders',
+          '#chef/onboarding': '/Chefs/Onboarding',
+          '#customer-profile': '/Customer/Profile',
+          '#orders': '/Customer/MyOrders',
+          '#favorites': '/Customer/Favorites',
+          '#loyalty': '/Customer/Points',
+          '#admin-dashboard': '/Admin',
+          '#admin': '/Admin',
+          '#support-portal': '/Support',
+          '#support': '/Support',
+          '#ai-assistant': '/AIAssistant',
+          '#chat-inbox': '/Chat',
+          '#inbox': '/Chat'
+        };
+        window.location.href = map[url] || '/' + url.replace(/^#/, '');
+      } else {
+        window.location.href = url;
+      }
+    },
+          '#cart': '/Cart',
+          '#checkout': '/Checkout',
+          '#chef/dashboard': '/ChefDashboard',
+          '#chef/menu': '/ChefDashboard/Orders',
+          '#chef/onboarding': '/Chefs/Onboarding',
+          '#customer-profile': '/Customer/Profile',
+          '#admin-dashboard': '/Admin',
+          '#support-portal': '/Support',
+          '#ai-assistant': '/AIAssistant',
+          '#chat-inbox': '/Chat'
+        };
+        window.location.href = map[url] || '/' + url.replace(/^#/, '');
+      } else {
+        window.location.href = url;
+      }
     },
 
     setRole(newRole) {

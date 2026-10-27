@@ -1,100 +1,15 @@
+@*
+    TODO [Backend]: Strongly-typed view binding for Home Landing Page
+    1. Uncomment the model directive once HomeController.Index() passes featured dishes, verified kitchens, and categories:
+       @model HomeIndexViewModel
+    2. Pass Model.FeaturedDishes (IEnumerable<depiR5gp.Models.Menu.Dish>), Model.FeaturedChefs (IEnumerable<depiR5gp.Models.Chefs.ChefProfile>),
+       and Model.Categories (IEnumerable<depiR5gp.Models.Menu.Category>) into the Home sections.
+*@
 @{
     ViewData["Title"] = "HomeChef Marketplace - Egyptian Heritage Cuisine";
 }
 
-<!-- Master Screen Switcher matching home_chef/src/App.tsx based on $store.app.currentRoute -->
-
-<!-- 1. Home Page V1 (Hero Split) -->
-<div x-show="$store.app.currentRoute === '#home-v1'" x-cloak>
-    @await Html.PartialAsync("~/Views/Home/Partials/_HomePage.cshtml")
-</div>
-
-<!-- 2. Home Page V2 (Default Hero 7 & Food Hub) -->
-<div x-show="$store.app.currentRoute === '' || $store.app.currentRoute === '#' || $store.app.currentRoute === '#home' || $store.app.currentRoute === '#home-v2'">
+<!-- Home Landing Page -->
+<main>
     @await Html.PartialAsync("~/Views/Home/Partials/_HomePageV2.cshtml")
-</div>
-
-<!-- 3. Browse Dishes & Search -->
-<div x-show="$store.app.currentRoute === '#dishes' || $store.app.currentRoute.startsWith('#search')" x-cloak>
-    @await Html.PartialAsync("~/Views/Dishes/Partials/_BrowseDishes.cshtml")
-</div>
-
-<!-- 4. Dish Detail -->
-<div x-show="$store.app.currentRoute.startsWith('#dish/')" x-cloak>
-    @await Html.PartialAsync("~/Views/Dishes/Partials/_DishDetail.cshtml")
-</div>
-
-<!-- 5. Browse Chefs -->
-<div x-show="$store.app.currentRoute === '#chefs'" x-cloak>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_BrowseChefs.cshtml")
-</div>
-
-<!-- 6. Chef Dashboard & Menu -->
-<div x-show="$store.app.currentRoute === '#chef/dashboard' || $store.app.currentRoute === '#chef/menu'" x-cloak>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_ChefDashboard.cshtml")
-</div>
-
-<!-- 7. Chef Onboarding -->
-<div x-show="$store.app.currentRoute === '#chef/onboarding'" x-cloak>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_ChefOnboarding.cshtml")
-</div>
-
-<!-- 8. Public Chef Profile -->
-<div x-show="$store.app.currentRoute.startsWith('#chef/') && $store.app.currentRoute !== '#chef/dashboard' && $store.app.currentRoute !== '#chef/menu' && $store.app.currentRoute !== '#chef/onboarding'" x-cloak>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_PublicChef.cshtml")
-</div>
-
-<!-- 9. Cart -->
-<div x-show="$store.app.currentRoute === '#cart'" x-cloak>
-    @await Html.PartialAsync("~/Views/Cart/Partials/_CartPage.cshtml")
-</div>
-
-<!-- 10. Checkout -->
-<div x-show="$store.app.currentRoute === '#checkout'" x-cloak>
-    @await Html.PartialAsync("~/Views/Cart/Partials/_CheckoutPage.cshtml")
-</div>
-
-<!-- 11. Order Confirmation -->
-<div x-show="$store.app.currentRoute.startsWith('#order-confirmation')" x-cloak>
-    @await Html.PartialAsync("~/Views/Orders/Partials/_OrderConfirmation.cshtml")
-</div>
-
-<!-- 12. Order Tracking -->
-<div x-show="$store.app.currentRoute === '#orders' || $store.app.currentRoute.startsWith('#order-track')" x-cloak>
-    @await Html.PartialAsync("~/Views/Orders/Partials/_OrderTracking.cshtml")
-</div>
-
-<!-- 13. Customer Profile & Loyalty & Favorites -->
-<div x-show="$store.app.currentRoute === '#profile' || $store.app.currentRoute === '#loyalty' || $store.app.currentRoute === '#favorites'" x-cloak>
-    @await Html.PartialAsync("~/Views/Customer/Partials/_CustomerProfile.cshtml")
-</div>
-
-<!-- 14. Admin Dashboard -->
-<div x-show="$store.app.currentRoute === '#admin'" x-cloak>
-    @await Html.PartialAsync("~/Views/Admin/Partials/_AdminDashboard.cshtml")
-</div>
-
-<!-- 15. Support Desk -->
-<div x-show="$store.app.currentRoute === '#support' || $store.app.currentRoute === '#support/desk'" x-cloak>
-    @await Html.PartialAsync("~/Views/Support/Partials/_SupportPortal.cshtml")
-</div>
-
-<!-- 16. Style Guide & Design Tokens -->
-<div x-show="$store.app.currentRoute === '#styleguide'" x-cloak>
-    @await Html.PartialAsync("~/Views/StyleGuide/Partials/_StyleGuide.cshtml")
-</div>
-
-<!-- 17. Dedicated AI Assistant Page -->
-<div x-show="$store.app.currentRoute === '#ai-assistant'" x-cloak>
-    @await Html.PartialAsync("~/Views/AIAssistant/Partials/_AIAssistant.cshtml")
-</div>
-
-<!-- 18. Live Chat Inbox (SCRUM-308) -->
-<div x-show="$store.app.currentRoute === '#inbox' || $store.app.currentRoute === '#messages'" x-cloak>
-    @await Html.PartialAsync("~/Views/Shared/Partials/_ChatInboxPage.cshtml")
-</div>
-
-<!-- 19. My Support Cases (SCRUM-409) -->
-<div x-show="$store.app.currentRoute === '#my-cases'" x-cloak>
-    @await Html.PartialAsync("~/Views/Customer/Partials/_MySupportCases.cshtml")
-</div>
+</main>

@@ -84,7 +84,7 @@
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
-                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
                     <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
                 </a>
@@ -174,7 +174,7 @@
 
                     <!-- Order link badge -->
                     <template x-if="activeConv.orderNumber">
-                        <a href="#orders"
+                        <a href="/Orders/Track/1"
                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-surface-subtle)] hover:bg-neutral-200 dark:hover:bg-neutral-800 border border-[var(--color-border)] text-[11px] font-semibold text-[var(--color-primary)] transition-colors">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#receipt"></use></svg>
                             <span x-text="'Ref: #' + activeConv.orderNumber"></span>

@@ -269,7 +269,7 @@
                 <template x-for="(slide, index) in slides" :key="slide.id">
                     <div role="group"
                          :aria-label="slide.title"
-                         @@click="if (selected === index) { $store.app.navigate('#dish/' + slide.id); } else { goTo(index); }"
+                         @@click="if (selected === index) { window.location.href = '/Dishes/Details/1'; } else { goTo(index); }"
                          class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow hover:shadow-[var(--color-primary)]/20"
                          style="width: var(--cf-card); transform-style: preserve-3d;">
                         
@@ -338,7 +338,7 @@
 
             <!-- Main Dish Title -->
             <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors"
-                @@click="$store.app.navigate('#dish/' + active.id)"
+                @@click="window.location.href = '/Dishes/Details/1'"
                 x-text="$store.app.language === 'ar' ? active.titleAr : active.title">
             </h3>
 
@@ -388,7 +388,7 @@
 
                 <!-- View Dish Page -->
                 <button type="button"
-                        @@click="$store.app.navigate('#dish/' + active.id)"
+                        @@click="window.location.href = '/Dishes/Details/1'"
                         class="inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white font-bold uppercase tracking-wider text-xs sm:text-sm transition-all cursor-pointer">
                     <span x-text="$store.app.language === 'ar' ? 'تفاصيل الطبق' : 'Dish Details'">Dish Details</span>
                     <svg class="w-4 h-4" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">

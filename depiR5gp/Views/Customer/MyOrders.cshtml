@@ -1,6 +1,152 @@
 @{
-    ViewData["Title"] = "My Orders";
+    ViewData["Title"] = "My Orders - HomeChef";
+    var statusFilter = Context.Request.Query["status"].ToString();
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+@* TODO [Backend]:
+    @model IEnumerable<depiR5gp.Models.Orders.Order>
+    @foreach (var order in Model)
+    {
+        ... render order.OrderId, order.Status, order.TotalAmount, order.CreatedAt ...
+    }
+*@
+
+<main class="w-full pb-24">
+    <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" />
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+        <!-- GET Filter Links -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1">
+            <a href="/Customer/MyOrders"
+               class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap @(string.IsNullOrEmpty(statusFilter) ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800")">
+                All Orders (4)
+            </a>
+            <a href="/Customer/MyOrders?status=Active"
+               class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap @(statusFilter == "Active" ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800")">
+                Active
+            </a>
+            <a href="/Customer/MyOrders?status=Completed"
+               class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap @(statusFilter == "Completed" ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800")">
+                Completed
+            </a>
+            <a href="/Customer/MyOrders?status=Cancelled"
+               class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap @(statusFilter == "Cancelled" ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800")">
+                Cancelled
+            </a>
+        </div>
+
+        <!-- Static Server-Rendered Representative Order Cards -->
+        <div class="space-y-3">
+            <!-- Order 1: #HC-2026-9150 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-sm uppercase text-[var(--color-text)]">#HC-2026-9150</span>
+                        <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold border bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200">
+                            Pending
+                        </span>
+                        <span class="text-xs text-[var(--color-text-muted)]">· Today, 15:10</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-[var(--color-text)]">Stuffed Pigeon with Spiced Freekeh</h4>
+                    <p class="text-xs text-[var(--color-text-muted)]">
+                        <span>Amina's Heritage Kitchen</span> ·
+                        <span class="font-bold text-[var(--color-primary)]">285.00 EGP</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="/Orders/Track/1"
+                       class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors cursor-pointer">
+                        Track Order
+                    </a>
+                    <a href="/Dishes/Details/1"
+                       class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                        Re-order
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order 2: #HC-2026-9041 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-sm uppercase text-[var(--color-text)]">#HC-2026-9041</span>
+                        <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold border bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-200">
+                            Preparing
+                        </span>
+                        <span class="text-xs text-[var(--color-text-muted)]">· Today, 14:30</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-[var(--color-text)]">Baladi Duck Molokhia with Vermicelli Rice</h4>
+                    <p class="text-xs text-[var(--color-text-muted)]">
+                        <span>Amina's Heritage Kitchen</span> ·
+                        <span class="font-bold text-[var(--color-primary)]">240.00 EGP</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="/Orders/Track/1"
+                       class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors cursor-pointer">
+                        Track Order
+                    </a>
+                    <a href="/Dishes/Details/1"
+                       class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                        Re-order
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order 3: #HC-2026-8890 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-sm uppercase text-[var(--color-text)]">#HC-2026-8890</span>
+                        <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold border bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200">
+                            Completed
+                        </span>
+                        <span class="text-xs text-[var(--color-text-muted)]">· Yesterday</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-[var(--color-text)]">Oxtail Tagine with Baby Caramelized Onions</h4>
+                    <p class="text-xs text-[var(--color-text-muted)]">
+                        <span>Om Nabil Casseroles</span> ·
+                        <span class="font-bold text-[var(--color-primary)]">310.00 EGP</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="/Orders/Track/1"
+                       class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors cursor-pointer">
+                        Track Order
+                    </a>
+                    <a href="/Dishes/Details/1"
+                       class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                        Re-order
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order 4: #HC-2026-8420 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-sm uppercase text-[var(--color-text)]">#HC-2026-8420</span>
+                        <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold border bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200">
+                            Cancelled
+                        </span>
+                        <span class="text-xs text-[var(--color-text-muted)]">· Oct 18, 2026</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-[var(--color-text)]">Feteer Meshaltet with Black Honey &amp; Eshgedda</h4>
+                    <p class="text-xs text-[var(--color-text-muted)]">
+                        <span>Aunt Fatima Bakery</span> ·
+                        <span class="font-bold text-[var(--color-primary)]">165.00 EGP</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="/Orders/Track/1"
+                       class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors cursor-pointer">
+                        Track Order
+                    </a>
+                    <a href="/Dishes/Details/1"
+                       class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                        Re-order
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

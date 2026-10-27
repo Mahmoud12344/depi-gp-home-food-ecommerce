@@ -1,6 +1,6 @@
-<!-- Views/Customer/Partials/_EditCustomerProfileModal.cshtml -->
-<!-- Subtask SCRUM-325: Edit Customer Profile and Saved Addresses Modal -->
-<!-- TODO [Backend]: POST /api/customer/profile with updated customer name, phone, address, and dietary preferences -->
+@* Views/Customer/Partials/_EditCustomerProfileModal.cshtml *@
+@* Subtask SCRUM-325: Edit Customer Profile and Saved Addresses Modal *@
+@* TODO [Backend]: @model depiR5gp.Models.Users.AppUser *@
 
 <div x-show="showEditModal"
      x-transition.opacity.duration.200ms
@@ -9,7 +9,8 @@
      role="dialog"
      aria-modal="true"
      x-data="{
-         name: 'Tamer Zaki',
+         firstName: 'Tamer',
+         lastName: 'Zaki',
          email: 'tamer.zaki@example.com',
          phone: '+20 100 234 5678',
          area: 'Maadi, Cairo',
@@ -43,40 +44,48 @@
             </button>
         </div>
 
-        <form @@submit.prevent="
-            showEditModal = false;
-            $store.app.addNotification({
-                title: $store.app.language === 'ar' ? 'تم تحديث الملف الشخصي' : 'Profile Updated',
-                message: $store.app.language === 'ar' ? 'تم حفظ التعديلات الجديدة بنجاح.' : 'Your profile details and address have been saved successfully.',
-                type: 'success'
-            });
-        " class="space-y-4 text-xs">
+        <form method="post" asp-controller="Customer" asp-action="Profile" class="space-y-4 text-xs">
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Name -->
+                <!-- First Name -->
                 <div>
                     <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
-                           x-text="$store.app.language === 'ar' ? 'الاسم بالكامل' : 'Full Name'">
-                        Full Name
+                           x-text="$store.app.language === 'ar' ? 'الاسم الأول' : 'First Name'">
+                        First Name
                     </label>
                     <input type="text"
-                           x-model="name"
+                           name="FirstName"
+                           x-model="firstName"
                            required
                            class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
                 </div>
 
-                <!-- Phone -->
+                <!-- Last Name -->
                 <div>
                     <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
-                           x-text="$store.app.language === 'ar' ? 'رقم الهاتف المحمول' : 'Phone Number'">
-                        Phone Number
+                           x-text="$store.app.language === 'ar' ? 'اسم العائلة' : 'Last Name'">
+                        Last Name
                     </label>
-                    <input type="tel"
-                           x-model="phone"
+                    <input type="text"
+                           name="LastName"
+                           x-model="lastName"
                            required
-                           placeholder="+20 100 000 0000"
                            class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
                 </div>
+            </div>
+
+            <!-- Phone -->
+            <div>
+                <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
+                       x-text="$store.app.language === 'ar' ? 'رقم الهاتف المحمول' : 'Phone Number'">
+                    Phone Number
+                </label>
+                <input type="tel"
+                       name="PhoneNumber"
+                       x-model="phone"
+                       required
+                       placeholder="+20 100 000 0000"
+                       class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
             </div>
 
             <!-- Email (Disabled / Read-only note) -->
@@ -86,8 +95,9 @@
                     Email Address
                 </label>
                 <input type="email"
+                       name="Email"
                        x-model="email"
-                       disabled
+                       readonly
                        class="w-full bg-neutral-100 dark:bg-neutral-800 border border-[var(--color-border-light)] rounded-xl px-3.5 py-2 text-[var(--color-text-muted)] cursor-not-allowed opacity-80" />
                 <span class="text-[10px] text-[var(--color-text-muted)] mt-1 block"
                       x-text="$store.app.language === 'ar' ? 'لتغيير البريد الإلكتروني، يرجى التواصل مع فريق الدعم لحماية الحساب.' : 'To modify your login email, contact customer support.'"></span>
@@ -117,6 +127,7 @@
                         Street & Building Details
                     </label>
                     <input type="text"
+                           name="Address"
                            x-model="address"
                            required
                            class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />

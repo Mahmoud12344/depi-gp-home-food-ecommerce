@@ -2,6 +2,7 @@
   Reject Order Modal Dialog Partial
   Backlog Subtask: SCRUM-81 (Story SCRUM-78)
   Epic: SCRUM-32 Chef Orders & Dashboard
+  TODO [Backend]: Bind to ChefDashboardController.Orders(int OrderId, string NextStatus = "Rejected", string CancellationReason)
 *@
 <div x-cloak
      x-show="rejectOrderModalOpen"
@@ -21,61 +22,57 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x-circle"></use></svg>
             </div>
             <div>
-                <h3 class="text-base font-bold uppercase tracking-tight text-[var(--color-text)]"
-                    x-text="$store.app.language === 'ar' ? 'اعتذار عن قبول الطلب' : 'Reject Order Request'">
+                <h3 class="text-base font-bold uppercase tracking-tight text-[var(--color-text)]">
                     Reject Order Request
                 </h3>
                 <p class="text-xs text-[var(--color-text-muted)]"
-                   x-text="`Order #${rejectingOrder?.orderNumber} · ${rejectingOrder?.customerName}`"></p>
+                   x-text="`Order #${rejectingOrder?.orderNumber || 'HC-2026-9042'} · ${rejectingOrder?.customerName || 'Nour El-Din'}`"></p>
             </div>
         </div>
 
-        <p class="text-xs text-[var(--color-text-muted)] leading-relaxed"
-           x-text="$store.app.language === 'ar' ? 'يرجى تحديد سبب عدم التمكن من قبول الطلب لإشعار الزبائن فورياً وإلغاء حجز الدفع:' : 'Select a verified reason to notify the customer immediately and trigger card authorization release:'">
+        <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
             Select a verified reason to notify the customer immediately and trigger card authorization release:
         </p>
 
-        <!-- Reject Form -->
-        <!-- TODO [Backend]: POST /api/chef/orders/{id}/reject with RejectionReasonDto, update order status to 'Rejected', reverse Stripe card pre-auth -->
-        <form @@submit.prevent="confirmRejectOrder()" class="space-y-4 text-xs">
+        <!-- Reject Form (Standard MVC POST Form) -->
+        @* TODO [Backend]: Updates depiR5gp.Models.Orders.Order (Status = "Rejected", CancellationReason) *@
+        <form method="post" asp-controller="ChefDashboard" asp-action="Orders" class="space-y-4 text-xs">
+            <input type="hidden" name="OrderId" :value="rejectingOrder?.id || 102" />
+            <input type="hidden" name="NextStatus" value="Rejected" />
+
             <div class="space-y-2.5">
                 <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
-                    <input type="radio" name="rejectReason" value="capacity" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
-                    <span class="text-[var(--color-text)] font-medium"
-                          x-text="$store.app.language === 'ar' ? 'المطبخ في أقصى طاقته الاستيعابية لهذه الفترة' : 'Kitchen at maximum capacity for this time slot'">
+                    <input type="radio" name="CancellationReason" value="Kitchen at maximum capacity for this time slot" checked class="accent-[var(--color-primary)]" />
+                    <span class="text-[var(--color-text)] font-medium">
                         Kitchen at maximum capacity for this time slot
                     </span>
                 </label>
 
                 <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
-                    <input type="radio" name="rejectReason" value="ingredients" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
-                    <span class="text-[var(--color-text)] font-medium"
-                          x-text="$store.app.language === 'ar' ? 'نفاد المكونات الطازجة اللازمة لتحضير هذا الطبق' : 'Fresh baladi ingredients out of stock for today'">
+                    <input type="radio" name="CancellationReason" value="Fresh baladi ingredients out of stock for today" class="accent-[var(--color-primary)]" />
+                    <span class="text-[var(--color-text)] font-medium">
                         Fresh baladi ingredients out of stock for today
                     </span>
                 </label>
 
                 <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
-                    <input type="radio" name="rejectReason" value="early_close" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
-                    <span class="text-[var(--color-text)] font-medium"
-                          x-text="$store.app.language === 'ar' ? 'إغلاق المطبخ مبكراً لظروف طارئة' : 'Kitchen counter closed early today'">
+                    <input type="radio" name="CancellationReason" value="Kitchen counter closed early today" class="accent-[var(--color-primary)]" />
+                    <span class="text-[var(--color-text)] font-medium">
                         Kitchen counter closed early today
                     </span>
                 </label>
 
                 <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
-                    <input type="radio" name="rejectReason" value="instructions" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
-                    <span class="text-[var(--color-text)] font-medium"
-                          x-text="$store.app.language === 'ar' ? 'تعذر تلبية الملاحظات الخاصة المطلوبة في هذا الوقت' : 'Special customer instructions cannot be accommodated'">
+                    <input type="radio" name="CancellationReason" value="Special customer instructions cannot be accommodated" class="accent-[var(--color-primary)]" />
+                    <span class="text-[var(--color-text)] font-medium">
                         Special customer instructions cannot be accommodated
                     </span>
                 </label>
             </div>
 
             <div>
-                <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                       x-text="$store.app.language === 'ar' ? 'رسالة اعتذار إضافية (اختياري)' : 'Optional Customer Courtesy Note'">Optional Note</label>
-                <textarea rows="2" x-model="rejectionNote" placeholder="e.g. Apologies, our freshly slaughtered duck order was fully reserved for tonight..."
+                <label for="reject-courtesy-note" class="block font-semibold mb-1 text-[var(--color-text)]">Optional Customer Courtesy Note</label>
+                <textarea id="reject-courtesy-note" name="CourtesyNote" rows="2" placeholder="e.g. Apologies, our freshly slaughtered duck order was fully reserved for tonight..."
                           class="w-full p-2.5 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
             </div>
 
@@ -83,14 +80,13 @@
             <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border)]">
                 <button type="button" @@click="rejectOrderModalOpen = false"
                         class="px-5 py-2 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer">
-                    <span x-text="$store.app.language === 'ar' ? 'إلغاء' : 'Cancel'">Cancel</span>
+                    Cancel
                 </button>
                 <button type="submit"
                         class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider px-6 py-2 rounded-full transition-all shadow-xs cursor-pointer">
-                    <span x-text="$store.app.language === 'ar' ? 'تأكيد الاعتذار' : 'Confirm Rejection'">Confirm Rejection</span>
+                    Confirm Rejection
                 </button>
             </div>
         </form>
     </div>
 </div>
-

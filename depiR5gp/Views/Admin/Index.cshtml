@@ -1,6 +1,314 @@
+@* Views/Admin/Index.cshtml *@
+@* TODO [Backend]: @model AdminDashboardViewModel *@
 @{
-    ViewData["Title"] = "Platform Overview";
+    ViewData["Title"] = "Platform Admin Dashboard - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+<main x-data="{
+    showCashModal: false,
+    showPayoutModal: false,
+    showSettlementModal: false
+}" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 space-y-8">
+
+    @* TODO [Backend]: Bind platform KPI totals (Gross GMV, Platform Commission, Held Escrow Funds, Verified Kitchens) from AdminDashboardViewModel *@
+    <!-- 4 KPI Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Total Gross GMV (October)
+            </span>
+            <p class="text-2xl font-bold text-[var(--color-text)] mt-1">48,920.00 EGP</p>
+            <p class="text-[11px] text-emerald-600 mt-1 font-semibold">+18.4% vs last month</p>
+        </div>
+
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Net Commission (15%)
+            </span>
+            <p class="text-2xl font-bold text-[var(--color-primary)] mt-1">7,338.00 EGP</p>
+            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Simulated platform ledger</p>
+        </div>
+
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Held Escrow Funds
+            </span>
+            <p class="text-2xl font-bold text-amber-600 mt-1">3,240.00 EGP</p>
+            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Active pending orders</p>
+        </div>
+
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Verified Kitchens
+            </span>
+            <p class="text-2xl font-bold text-emerald-600 mt-1">4 Verified</p>
+            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+                <a href="/Admin/Chefs" class="text-[var(--color-primary)] hover:underline font-semibold">1 application pending &rarr;</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Financial Ledger Summary Cards & Actions -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Platform Financial Position &amp; Ledger Actions
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                    Real-time breakdown of card collections, cash on pickup balances, and chef payout liabilities.
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button"
+                        @@click="showCashModal = true"
+                        class="px-3.5 py-1.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                    <span>Reconcile Cash</span>
+                </button>
+                <button type="button"
+                        @@click="showPayoutModal = true"
+                        class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#credit-card"></use></svg>
+                    <span>Disburse Payout</span>
+                </button>
+                <button type="button"
+                        @@click="showSettlementModal = true"
+                        class="px-3.5 py-1.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-[var(--color-text)] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#file-text"></use></svg>
+                    <span>Inspect Settlement</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                <span class="font-bold text-[var(--color-text-muted)] block">Card Payments (Stripe Test):</span>
+                <p class="text-lg font-bold text-[var(--color-text)] mt-1">36,400.00 EGP</p>
+                <span class="text-[11px] text-[var(--color-text-muted)]">Held in platform settlement account</span>
+            </div>
+            <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                <span class="font-bold text-[var(--color-text-muted)] block">Cash on Pickup Collections:</span>
+                <p class="text-lg font-bold text-[var(--color-text)] mt-1">12,520.00 EGP</p>
+                <span class="text-[11px] text-amber-600 font-semibold">340.50 EGP pending commission offset</span>
+            </div>
+            <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                <span class="font-bold text-[var(--color-text-muted)] block">Total Chef Payout Liabilities:</span>
+                <p class="text-lg font-bold text-emerald-600 mt-1">41,582.00 EGP</p>
+                <a href="/Admin/Payouts" class="text-[11px] text-[var(--color-primary)] hover:underline font-semibold">View payout schedule &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly GMV Sales Velocity Trend -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">Weekly GMV Sales Velocity Trend</h3>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Daily gross volume velocity across domestic kitchens over past 7 days</p>
+            </div>
+            <span class="text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 rounded-full">+24.2% Growth</span>
+        </div>
+        <div class="h-36 w-full pt-4">
+            <svg class="w-full h-full overflow-visible" viewBox="0 0 600 120" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="kpiGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.25"></stop>
+                        <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0"></stop>
+                    </linearGradient>
+                </defs>
+                <path d="M 0,95 Q 100,75 150,80 T 300,50 T 450,30 T 600,10 L 600,120 L 0,120 Z" fill="url(#kpiGrad)" />
+                <path d="M 0,95 Q 100,75 150,80 T 300,50 T 450,30 T 600,10" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-linecap="round" />
+                <circle cx="0" cy="95" r="4" fill="var(--color-primary)" />
+                <circle cx="150" cy="80" r="4" fill="var(--color-primary)" />
+                <circle cx="300" cy="50" r="4" fill="var(--color-primary)" />
+                <circle cx="450" cy="30" r="4" fill="var(--color-primary)" />
+                <circle cx="600" cy="10" r="4" fill="var(--color-primary)" />
+            </svg>
+        </div>
+        <div class="flex justify-between text-[11px] text-[var(--color-text-muted)] pt-2 border-t border-[var(--color-border-light)] overflow-x-auto gap-2">
+            <span>Sat: 4.2k</span>
+            <span>Sun: 5.1k</span>
+            <span>Mon: 6.4k</span>
+            <span>Tue: 7.2k</span>
+            <span>Wed: 8.1k</span>
+            <span>Thu: 8.9k</span>
+            <span class="font-bold text-[var(--color-text)]">Fri: 9.0k EGP</span>
+        </div>
+    </div>
+
+    <!-- Review Moderation Section (SCRUM-552) -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-5 shadow-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
+            <div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Customer Review Moderation Queue
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                    Approve verified customer feedback or reject/delete policy-violating reviews.
+                </p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
+                1 Pending Moderation
+            </span>
+        </div>
+
+        @* TODO [Backend]: @foreach (var review in Model.PendingReviews) — depiR5gp.Models.ReviewsLoyalty.Review *@
+        <div class="space-y-3 text-xs">
+            <!-- Review Row 1: Pending -->
+            <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-[var(--color-text)]">Nouran Samir</span>
+                        <span class="text-[var(--color-primary)] font-semibold">&rarr; Om Nabil Casseroles</span>
+                        <span class="text-[10px] text-amber-600 font-bold">(5 Stars)</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-200">
+                            Pending
+                        </span>
+                    </div>
+                    <p class="text-[var(--color-text-muted)] italic">&ldquo;Superb okra with lamb meat tagine! Packaged perfectly hot and sealed.&rdquo;</p>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <form method="post" asp-controller="Admin" asp-action="ModerateReview" class="inline">
+                        <input type="hidden" name="ReviewId" value="4" />
+                        <input type="hidden" name="Decision" value="Approve" />
+                        <button type="submit"
+                                class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                            Approve
+                        </button>
+                    </form>
+                    <form method="post" asp-controller="Admin" asp-action="ModerateReview" class="inline">
+                        <input type="hidden" name="ReviewId" value="4" />
+                        <input type="hidden" name="Decision" value="Reject" />
+                        <button type="submit"
+                                class="px-3.5 py-1.5 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                            Reject
+                        </button>
+                    </form>
+                    <form method="post" asp-controller="Admin" asp-action="ModerateReview" class="inline">
+                        <input type="hidden" name="ReviewId" value="4" />
+                        <input type="hidden" name="Decision" value="Delete" />
+                        <button type="submit"
+                                class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                title="Delete review">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Review Row 2: Approved -->
+            <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-[var(--color-text)]">Youssef Nabil</span>
+                        <span class="text-[var(--color-primary)] font-semibold">&rarr; Amina's Heritage Kitchen</span>
+                        <span class="text-[10px] text-amber-600 font-bold">(5 Stars)</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200">
+                            Approved
+                        </span>
+                    </div>
+                    <p class="text-[var(--color-text-muted)] italic">&ldquo;The duck was browned to perfection and the molokhia was piping hot. Best homemade dinner in Maadi!&rdquo;</p>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <form method="post" asp-controller="Admin" asp-action="ModerateReview" class="inline">
+                        <input type="hidden" name="ReviewId" value="1" />
+                        <input type="hidden" name="Decision" value="Reject" />
+                        <button type="submit"
+                                class="px-3 py-1.5 rounded-full border border-[var(--color-border)] hover:border-rose-300 text-[var(--color-text-muted)] hover:text-rose-600 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                            Reject
+                        </button>
+                    </form>
+                    <form method="post" asp-controller="Admin" asp-action="ModerateReview" class="inline">
+                        <input type="hidden" name="ReviewId" value="1" />
+                        <input type="hidden" name="Decision" value="Delete" />
+                        <button type="submit"
+                                class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                title="Delete review">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Review Row 3: Approved -->
+            <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-[var(--color-text)]">Salma Fathy</span>
+                        <span class="text-[var(--color-primary)] font-semibold">&rarr; Hany's Gourmet Grills</span>
+                        <span class="text-[10px] text-amber-600 font-bold">(5 Stars)</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200">
+                            Approved
+                        </span>
+                    </div>
+                    <p class="text-[var(--color-text-muted)] italic">&ldquo;Braised oxtail was incredibly tender and the caramelized shallots gave it deep sweetness.&rdquo;</p>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <form method="post" asp-controller="Admin" asp-action="ModerateReview" class="inline">
+                        <input type="hidden" name="ReviewId" value="2" />
+                        <input type="hidden" name="Decision" value="Reject" />
+                        <button type="submit"
+                                class="px-3 py-1.5 rounded-full border border-[var(--color-border)] hover:border-rose-300 text-[var(--color-text-muted)] hover:text-rose-600 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                            Reject
+                        </button>
+                    </form>
+                    <form method="post" asp-controller="Admin" asp-action="ModerateReview" class="inline">
+                        <input type="hidden" name="ReviewId" value="2" />
+                        <input type="hidden" name="Decision" value="Delete" />
+                        <button type="submit"
+                                class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                title="Delete review">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Review Row 4: Approved -->
+            <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-[var(--color-text)]">Karim Gad</span>
+                        <span class="text-[var(--color-primary)] font-semibold">&rarr; Amina's Heritage Kitchen</span>
+                        <span class="text-[10px] text-amber-600 font-bold">(4 Stars)</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200">
+                            Approved
+                        </span>
+                    </div>
+                    <p class="text-[var(--color-text-muted)] italic">&ldquo;Authentic baladi ghee flavor in the feteer. Portion was generous for 4 people.&rdquo;</p>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <form method="post" asp-controller="Admin" asp-action="ModerateReview" class="inline">
+                        <input type="hidden" name="ReviewId" value="3" />
+                        <input type="hidden" name="Decision" value="Reject" />
+                        <button type="submit"
+                                class="px-3 py-1.5 rounded-full border border-[var(--color-border)] hover:border-rose-300 text-[var(--color-text-muted)] hover:text-rose-600 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                            Reject
+                        </button>
+                    </form>
+                    <form method="post" asp-controller="Admin" asp-action="ModerateReview" class="inline">
+                        <input type="hidden" name="ReviewId" value="3" />
+                        <input type="hidden" name="Decision" value="Delete" />
+                        <button type="submit"
+                                class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                title="Delete review">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Operational Modals -->
+    <partial name="~/Views/Admin/Partials/_CashReconciliationModal.cshtml" />
+    <partial name="~/Views/Admin/Partials/_AdminPayoutModal.cshtml" />
+    <partial name="~/Views/Admin/Partials/_OrderSettlementModal.cshtml" />
+</main>

@@ -1,6 +1,174 @@
+@* Views/Admin/Orders.cshtml *@
+@* TODO [Backend]: @model IEnumerable<depiR5gp.Models.Orders.Order> *@
 @{
-    ViewData["Title"] = "Order Monitoring";
+    ViewData["Title"] = "Orders & Cash Reconciliation - Admin Portal";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+<main x-data="{
+    showCashModal: false,
+    showSettlementModal: false
+}" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 space-y-6">
+
+    <!-- Financial Summary & Modal Triggers -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                Platform Orders &amp; Cash Collection Reconciliation
+            </h2>
+            <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                Monitor live kitchen orders, inspect 15% commission itemization, and reconcile cash-on-pickup offsets.
+            </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button"
+                    @@click="showCashModal = true"
+                    class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                <span>Open Cash Reconciliation</span>
+            </button>
+            <button type="button"
+                    @@click="showSettlementModal = true"
+                    class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-[var(--color-text)] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#file-text"></use></svg>
+                <span>Inspect Order Settlement</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Server-Rendered Platform Orders Table -->
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+        <div class="overflow-x-auto">
+            <table class="w-full text-start text-xs">
+                <thead class="bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] font-bold text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
+                    <tr>
+                        <th class="p-4 text-start">Order #</th>
+                        <th class="p-4 text-start">Customer &amp; Kitchen</th>
+                        <th class="p-4 text-end">Subtotal</th>
+                        <th class="p-4 text-end">Commission (15%)</th>
+                        <th class="p-4 text-end">Net Chef Earnings</th>
+                        <th class="p-4 text-center">Payment Method</th>
+                        <th class="p-4 text-center">Status</th>
+                        <th class="p-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--color-border-light)]">
+                    @* TODO [Backend]: @foreach (var order in Model) — depiR5gp.Models.Orders.Order *@
+
+                    <!-- Order 1: #HC-2026-9041 -->
+                    <tr class="hover:bg-[var(--color-surface-subtle)]/40 transition-colors">
+                        <td class="p-4 font-mono font-bold text-[var(--color-primary)]">
+                            #HC-2026-9041
+                            <span class="block text-[10px] font-sans font-normal text-[var(--color-text-muted)]">Today, 12:15 PM</span>
+                        </td>
+                        <td class="p-4">
+                            <span class="font-bold text-[var(--color-text)] block">Tamer Zaki</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">Kitchen: Amina's Heritage Kitchen</span>
+                        </td>
+                        <td class="p-4 text-end font-bold text-[var(--color-text)]">240.00 EGP</td>
+                        <td class="p-4 text-end font-bold text-rose-600">-36.00 EGP</td>
+                        <td class="p-4 text-end font-bold text-emerald-600">204.00 EGP</td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-200 border border-sky-300 dark:border-sky-800">
+                                Card
+                            </span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
+                                Cooking
+                            </span>
+                        </td>
+                        <td class="p-4 text-end space-x-2 whitespace-nowrap">
+                            <a href="/Orders/Track/1"
+                               class="inline-block px-3 py-1 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] font-bold text-[10px] uppercase tracking-wider transition-colors">
+                                Track Order
+                            </a>
+                            <button type="button"
+                                    @@click="showSettlementModal = true"
+                                    class="inline-block px-3 py-1 rounded-full bg-[var(--color-surface-subtle)] hover:bg-[var(--color-primary-light)] text-[var(--color-primary)] font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer">
+                                Settlement
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Order 2: #HC-2026-9042 -->
+                    <tr class="hover:bg-[var(--color-surface-subtle)]/40 transition-colors">
+                        <td class="p-4 font-mono font-bold text-[var(--color-primary)]">
+                            #HC-2026-9042
+                            <span class="block text-[10px] font-sans font-normal text-[var(--color-text-muted)]">Today, 12:30 PM</span>
+                        </td>
+                        <td class="p-4">
+                            <span class="font-bold text-[var(--color-text)] block">Youssef Nabil</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">Kitchen: Hany's Gourmet Grills</span>
+                        </td>
+                        <td class="p-4 text-end font-bold text-[var(--color-text)]">420.00 EGP</td>
+                        <td class="p-4 text-end font-bold text-rose-600">-63.00 EGP</td>
+                        <td class="p-4 text-end font-bold text-emerald-600">357.00 EGP</td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
+                                Cash
+                            </span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800">
+                                Ready for Pickup
+                            </span>
+                        </td>
+                        <td class="p-4 text-end space-x-2 whitespace-nowrap">
+                            <a href="/Orders/Track/1"
+                               class="inline-block px-3 py-1 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] font-bold text-[10px] uppercase tracking-wider transition-colors">
+                                Track Order
+                            </a>
+                            <button type="button"
+                                    @@click="showCashModal = true"
+                                    class="inline-block px-3 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer">
+                                Reconcile Cash
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Order 3: #HC-2026-8840 -->
+                    <tr class="hover:bg-[var(--color-surface-subtle)]/40 transition-colors">
+                        <td class="p-4 font-mono font-bold text-[var(--color-primary)]">
+                            #HC-2026-8840
+                            <span class="block text-[10px] font-sans font-normal text-[var(--color-text-muted)]">Oct 25, 2026</span>
+                        </td>
+                        <td class="p-4">
+                            <span class="font-bold text-[var(--color-text)] block">Nouran Samir</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">Kitchen: Om Nabil Casseroles</span>
+                        </td>
+                        <td class="p-4 text-end font-bold text-[var(--color-text)]">310.00 EGP</td>
+                        <td class="p-4 text-end font-bold text-rose-600">-46.50 EGP</td>
+                        <td class="p-4 text-end font-bold text-emerald-600">263.50 EGP</td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-200 border border-sky-300 dark:border-sky-800">
+                                Card
+                            </span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700">
+                                Completed
+                            </span>
+                        </td>
+                        <td class="p-4 text-end space-x-2 whitespace-nowrap">
+                            <a href="/Orders/Track/1"
+                               class="inline-block px-3 py-1 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] font-bold text-[10px] uppercase tracking-wider transition-colors">
+                                Track Order
+                            </a>
+                            <button type="button"
+                                    @@click="showSettlementModal = true"
+                                    class="inline-block px-3 py-1 rounded-full bg-[var(--color-surface-subtle)] hover:bg-[var(--color-primary-light)] text-[var(--color-primary)] font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer">
+                                Settlement
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <partial name="~/Views/Admin/Partials/_CashReconciliationModal.cshtml" />
+    <partial name="~/Views/Admin/Partials/_OrderSettlementModal.cshtml" />
+</main>

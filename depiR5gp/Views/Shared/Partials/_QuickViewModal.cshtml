@@ -21,7 +21,7 @@
              const dish = $store.app.quickViewDish;
              if (!dish) return;
              $store.app.quickViewDish = null;
-             $store.app.navigate('#dish/' + dish.id);
+             window.location.href = '/Dishes/Details/1';
          }
      }"
      x-transition:enter="transition ease-out duration-200"

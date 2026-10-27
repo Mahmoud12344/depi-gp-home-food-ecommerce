@@ -1,6 +1,99 @@
+@* TODO [Backend]: @model depiR5gp.Models.Orders.Order *@
 @{
-    ViewData["Title"] = "Order Confirmation";
+    ViewData["Title"] = "Order Confirmation - HomeChef";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+
+<main>
+<!-- Views/Orders/Partials/_OrderConfirmation.cshtml -->
+<!-- Source: home_chef/src/pages/OrderConfirmationPage.tsx -->
+@* TODO [Backend]: @model depiR5gp.Models.Orders.Order *@
+
+<div class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'تأكيد الطلب' : 'Confirmation'">Confirmation</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                x-text="$store.app.language === 'ar' ? 'تم تأكيد طلبك' : 'Order Confirmed!'">
+                Order Confirmed!
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                Reference: #@(ViewContext.RouteData.Values["id"]?.ToString() ?? "HC-2026-9041")
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-8 sm:p-10 shadow-sm text-center space-y-6">
+            <!-- Animated Success Checkmark -->
+            <div class="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+                <svg class="w-10 h-10 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+            </div>
+
+            <div class="space-y-1">
+                <!-- TODO [Backend]: Bind confirmed OrderNumber and Customer.Name from Order confirmation query -->
+                <span class="text-xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400"
+                      x-text="$store.app.language === 'ar' ? 'تم إرسال الطلب للمطبخ بنجاح' : 'Order Dispatched to Kitchen'">
+                    Order Dispatched to Kitchen
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">#@(ViewContext.RouteData.Values["id"]?.ToString() ?? "HC-2026-9041")</h1>
+                <p class="text-xs sm:text-sm text-[var(--color-text-muted)] pt-1"
+                   x-text="$store.app.language === 'ar' ? 'شكراً لك! يقوم الشيف الآن بمراجعة الطلب لبدء الطهي في الأفران الفخارية.' : 'Thank you! The home chef has been alerted and will accept your order shortly.'">
+                    Thank you! The home chef has been alerted and will accept your order shortly.
+                </p>
+            </div>
+
+            <!-- Kitchen Pickup Details Card -->
+            <!-- TODO [Backend]: Bind Chef.KitchenName, Chef.Address / PickupCounterInstructions, and EstimatedReadyTime from Order.Chef -->
+            <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] rounded-2xl p-5 text-start space-y-3 text-xs">
+                <h3 class="font-bold uppercase tracking-wider text-[var(--color-text)] border-b border-[var(--color-border-light)] pb-2"
+                    x-text="$store.app.language === 'ar' ? 'تعليمات استلام الوجبة من المطبخ' : 'Kitchen Pickup Instructions'">
+                    Kitchen Pickup Instructions
+                </h3>
+
+                <div class="flex items-start gap-2.5">
+                    <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                    <div>
+                        <span class="font-bold text-[var(--color-text)] block">
+                            Amina's Heritage Kitchen (مطبخ أمينة التراثي)
+                        </span>
+                        <span class="text-[var(--color-text-muted)]">
+                            Bldg 14, Road 9, Degla, Maadi, Cairo (Ground Floor Domestic Kitchen Gate)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 text-[var(--color-text-muted)]">
+                    <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الوقت المقدر للتحضير: ٤٥ دقيقة' : 'Estimated Preparation Time: ~45 minutes'">
+                        Estimated Preparation Time: ~45 minutes
+                    </span>
+                </div>
+            </div>
+
+            <!-- Action CTAs -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <a href="/Orders/Track/1"
+                   class="w-full sm:w-auto inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98]">
+                    <span x-text="$store.app.language === 'ar' ? 'تتبع حالة التحضير المباشرة' : 'Track Live Order Progress'">Track Live Order Progress</span>
+                    <svg class="w-4 h-4" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+                </a>
+
+                <a href="/"
+                   class="w-full sm:w-auto inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white">
+                    <span x-text="$store.app.language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'">Back to Home</span>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+</main>
