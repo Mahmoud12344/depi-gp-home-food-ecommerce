@@ -2,6 +2,7 @@
   Delete Menu Item Confirmation Dialog Partial
   Backlog Subtask: SCRUM-51 (Story SCRUM-48)
   Epic: SCRUM-31 Menu Management
+  TODO [Backend]: Soft-delete dish (Dish.IsArchived = true) via MenuManagementController.Delete(int Id)
 *@
 <div x-cloak
      x-show="deleteDishConfirmOpen"
@@ -21,37 +22,34 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
             </div>
             <div>
-                <h3 class="text-base font-bold uppercase tracking-tight text-[var(--color-text)]"
-                    x-text="$store.app.language === 'ar' ? 'تأكيد حذف الطبق من القائمة' : 'Confirm Dish Deletion'">
+                <h3 class="text-base font-bold uppercase tracking-tight text-[var(--color-text)]">
                     Confirm Dish Deletion
                 </h3>
-                <span class="text-xs text-[var(--color-text-muted)] block" x-text="deletingDish?.name"></span>
+                <span class="text-xs text-[var(--color-text-muted)] block" x-text="deletingDish?.name || 'Selected Dish'"></span>
             </div>
         </div>
 
         <div class="p-3.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl text-xs space-y-1.5 text-amber-900 dark:text-amber-200">
             <p class="font-bold flex items-center gap-1.5">
                 <svg class="w-4 h-4 shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
-                <span x-text="$store.app.language === 'ar' ? 'تنبيه بشأن الطلبات النشطة' : 'Active Orders Policy Notice:'">Active Orders Policy Notice:</span>
+                <span>Active Orders Policy Notice:</span>
             </p>
-            <p class="leading-relaxed text-[11px]"
-               x-text="$store.app.language === 'ar' ? 'حذف هذا الطبق سيمنع الزبائن من طلبه مستقبلاً، لكنه لن يؤثر على أي طلبات حالية تم قبولها أو قيد التحضير في مطبخك.' : 'Deleting this dish removes it immediately from public marketplace browse. Any already-accepted active orders remain valid for preparation.'">
-                Deleting this dish removes it immediately from public marketplace browse. Any already-accepted active orders remain valid for preparation.
+            <p class="leading-relaxed text-[11px]">
+                Deleting this dish sets <code>Dish.IsArchived = true</code> and removes it from public marketplace browse. Any already-accepted active orders remain valid for preparation.
             </p>
         </div>
 
-        <!-- Action Buttons -->
-        <!-- TODO [Backend]: DELETE /api/chef/dishes/{id}, check for unresolved active orders and soft-delete in database -->
-        <div class="flex items-center justify-end gap-3 pt-2">
+        <!-- Action Buttons (Standard MVC POST Form) -->
+        <form method="post" asp-controller="MenuManagement" asp-action="Index" class="flex items-center justify-end gap-3 pt-2">
+            <input type="hidden" name="DeleteDishId" :value="deletingDish?.id || 1" />
             <button type="button" @@click="deleteDishConfirmOpen = false"
                     class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer">
-                <span x-text="$store.app.language === 'ar' ? 'إلغاء' : 'Cancel'">Cancel</span>
+                Cancel
             </button>
-            <button type="button" @@click="confirmDeleteDish()"
+            <button type="submit"
                     class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
-                <span x-text="$store.app.language === 'ar' ? 'نعم، حذف الطبق' : 'Yes, Delete Dish'">Yes, Delete Dish</span>
+                Yes, Delete Dish
             </button>
-        </div>
+        </form>
     </div>
 </div>
-

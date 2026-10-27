@@ -1,8 +1,68 @@
 @{
     ViewData["Title"] = "Saved Favorites - HomeChef";
 }
+@* TODO [Backend]:
+    @model IEnumerable<depiR5gp.Models.ReviewsLoyalty.Favorite>
+    @foreach (var fav in Model)
+    {
+        ... render favorite dishes and chefs ...
+    }
+*@
 
-<!-- Customer Favorites Page -->
-<main>
-    @await Html.PartialAsync("~/Views/Customer/Partials/_CustomerProfile.cshtml")
+<main class="w-full pb-24">
+    <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" />
+
+    <div x-data="{ favoriteTab: 'dishes' }" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+        <!-- Sub-tabs: Dishes vs Chefs -->
+        <div class="flex items-center gap-2 border-b border-[var(--color-border-light)] pb-3">
+            <button type="button"
+                    @@click="favoriteTab = 'dishes'"
+                    :class="favoriteTab === 'dishes' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                    class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'الأطباق المحفوظة' : 'Favorite Dishes'">Favorite Dishes</span>
+            </button>
+            <button type="button"
+                    @@click="favoriteTab = 'chefs'"
+                    :class="favoriteTab === 'chefs' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                    class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer">
+                <span x-text="$store.app.language === 'ar' ? 'طهاة المفضلين' : 'Favorite Chefs'">Favorite Chefs</span>
+            </button>
+        </div>
+
+        <!-- Sub-tab 1: Dishes -->
+        <div x-show="favoriteTab === 'dishes'">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <partial name="~/Views/Shared/Partials/_DishCard.cshtml" />
+            </div>
+        </div>
+
+        <!-- Sub-tab 2: Chefs -->
+        <div x-show="favoriteTab === 'chefs'" style="display: none;">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl overflow-hidden p-4 space-y-4 hover:shadow-md transition-shadow">
+                    <div class="relative h-44 rounded-xl overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&auto=format&fit=crop&q=80"
+                             alt="Amina's Heritage Kitchen"
+                             class="w-full h-full object-cover" />
+                        <span class="absolute bottom-2.5 start-2.5 bg-neutral-950/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            Maadi, Cairo
+                        </span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-[var(--color-text)]">Amina's Heritage Kitchen</h3>
+                        <p class="text-xs text-[var(--color-primary)] font-semibold">Chef Amina Mansour</p>
+                        <div class="flex items-center gap-1 text-xs text-amber-500 font-bold mt-1">
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <span>4.9</span>
+                            <span class="text-[var(--color-text-muted)] font-normal">(124 reviews)</span>
+                        </div>
+                    </div>
+                    <a href="/Chefs/Details/1"
+                       class="block text-center w-full py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                        View Kitchen Menu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>

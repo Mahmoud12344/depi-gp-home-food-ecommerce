@@ -2,6 +2,7 @@
   Edit Chef Profile Modal Partial
   Backlog Subtask: SCRUM-30 (Story SCRUM-27)
   Epic: SCRUM-22 Chef Profile
+  TODO [Backend]: Bind to ChefDashboardController.Profile(ChefProfile model)
 *@
 <div x-cloak
      x-show="editProfileOpen"
@@ -23,12 +24,10 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
                 </div>
                 <div>
-                    <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]"
-                        x-text="$store.app.language === 'ar' ? 'تعديل بيانات الشيف والمطبخ' : 'Edit Chef & Kitchen Profile'">
+                    <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
                         Edit Chef &amp; Kitchen Profile
                     </h3>
-                    <p class="text-[11px] text-[var(--color-text-muted)]"
-                       x-text="$store.app.language === 'ar' ? 'تحديث النبذة التعريفية، مواعيد العمل، وعنوان الاستلام' : 'Update kitchen bio, operating schedule, and pickup counter location'">
+                    <p class="text-[11px] text-[var(--color-text-muted)]">
                         Update kitchen bio, operating schedule, and pickup counter location
                     </p>
                 </div>
@@ -38,20 +37,18 @@
             </button>
         </div>
 
-        <!-- Edit Form -->
-        <!-- TODO [Backend]: POST /api/chef/profile with ChefProfileEditModel, validate authorized chef claim, save bio and schedule -->
-        <form @@submit.prevent="saveChefProfile()" class="space-y-6 text-xs">
+        <!-- Edit Form (Standard MVC POST Form) -->
+        @* TODO [Backend]: POST ChefDashboardController.Profile(ChefProfile model) *@
+        <form method="post" asp-controller="ChefDashboard" asp-action="Profile" class="space-y-6 text-xs">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'اسم المطبخ (بالإنجليزية)' : 'Kitchen Name (English)'">Kitchen Name (English)</label>
-                    <input type="text" required x-model="profileForm.kitchenName"
+                    <label for="modal-kitchen-name" class="block font-semibold mb-1 text-[var(--color-text)]">Kitchen Name (English)</label>
+                    <input id="modal-kitchen-name" name="KitchenName" type="text" required value="Amina's Heritage Kitchen"
                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'اسم المطبخ (بالعربية)' : 'Kitchen Name (Arabic)'">Kitchen Name (Arabic)</label>
-                    <input type="text" required x-model="profileForm.kitchenNameAr"
+                    <label for="modal-kitchen-name-ar" class="block font-semibold mb-1 text-[var(--color-text)]">Kitchen Name (Arabic)</label>
+                    <input id="modal-kitchen-name-ar" name="KitchenNameAr" type="text" required value="مطبخ أمينة التراثي"
                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
                 </div>
             </div>
@@ -59,92 +56,56 @@
             <!-- Bio -->
             <div class="space-y-4">
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'نبذة عن الشيف والمطبخ (بالإنجليزية)' : 'Chef Bio & Culinary Heritage (English)'">Chef Bio (English)</label>
-                    <textarea rows="3" required x-model="profileForm.bio"
-                              class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed"></textarea>
+                    <label for="modal-bio" class="block font-semibold mb-1 text-[var(--color-text)]">Chef Bio &amp; Culinary Heritage (English)</label>
+                    <textarea id="modal-bio" name="Bio" rows="3" required
+                              class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed">Cooking traditional Egyptian baladi recipes inherited from my grandmother in Upper Egypt, using 100% pure baladi ghee and farm-fresh poultry.</textarea>
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'نبذة عن الشيف والمطبخ (بالعربية)' : 'Chef Bio (Arabic)'">Chef Bio (Arabic)</label>
-                    <textarea rows="3" required x-model="profileForm.bioAr"
-                              class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed"></textarea>
+                    <label for="modal-bio-ar" class="block font-semibold mb-1 text-[var(--color-text)]">Chef Bio (Arabic)</label>
+                    <textarea id="modal-bio-ar" name="BioAr" rows="3" required
+                              class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed">أطبخ أشهى الأكلات والوصفات المصرية التراثية المتوارثة عن جدتي من صعيد مصر، بالسمن البلدي الفلاحي والطيور الطازجة يومياً.</textarea>
                 </div>
             </div>
 
             <!-- Photo URL & Pickup Area -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'حي الاستلام (ظاهر للعامة)' : 'Pickup Neighborhood Area (Public)'">Pickup Area</label>
-                    <select x-model="profileForm.pickupArea"
+                    <label for="modal-area" class="block font-semibold mb-1 text-[var(--color-text)]">Pickup Neighborhood Area (Public)</label>
+                    <select id="modal-area" name="PickupArea"
                             class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
-                        <option value="Maadi">Maadi (المعادي)</option>
+                        <option value="Maadi" selected>Maadi (المعادي)</option>
                         <option value="Zamalek">Zamalek (الزمالك)</option>
                         <option value="New Cairo">New Cairo (القاهرة الجديدة)</option>
                         <option value="Nasr City">Nasr City (مدينة نصر)</option>
                         <option value="Heliopolis">Heliopolis (مصر الجديدة)</option>
                         <option value="Dokki">Dokki (الدقي)</option>
-                        <option value="Mohandessin">Mohandessin (المهندسين)</option>
-                        <option value="6th of October">6th of October (السادس من أكتوبر)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                           x-text="$store.app.language === 'ar' ? 'رابط الصورة الشخصية' : 'Profile Photo URL'">Profile Photo URL</label>
-                    <input type="url" required x-model="profileForm.avatarUrl"
+                    <label for="modal-photo" class="block font-semibold mb-1 text-[var(--color-text)]">Profile Photo URL</label>
+                    <input id="modal-photo" name="PhotoUrl" type="url" required value="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=300&auto=format&fit=crop&q=80"
                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
                 </div>
             </div>
 
             <!-- Exact Pickup Street Address -->
             <div>
-                <label class="block font-semibold mb-1 text-[var(--color-text)]"
-                       x-text="$store.app.language === 'ar' ? 'عنوان الاستلام التفصيلي (يظهر للزبون بعد تأكيد الطلب)' : 'Exact Pickup Counter Address (Disclosed to customer after order confirmation)'">
-                    Exact Pickup Counter Address
+                <label for="modal-address" class="block font-semibold mb-1 text-[var(--color-text)]">
+                    Exact Pickup Counter Address (Disclosed to customer after order confirmation)
                 </label>
-                <input type="text" required x-model="profileForm.address"
+                <input id="modal-address" name="Address" type="text" required value="Bldg 14, Road 9, Degla, Maadi, Cairo (Ground Floor Gate)"
                        class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
-                <p class="text-[11px] text-[var(--color-text-muted)] mt-1"
-                   x-text="$store.app.language === 'ar' ? 'حماية لخصوصية المطبخ المنزلي: يتم مشاركة الحي العام فقط في التصفح، والعنوان التفصيلي بعد الشراء.' : 'Home kitchen privacy guard: Only neighborhood area is public before ordering.'">
-                    Home kitchen privacy guard: Only neighborhood area is public before ordering.
-                </p>
-            </div>
-
-            <!-- Operating Working Hours Schedule -->
-            <!-- Backlog: SCRUM-66 & SCRUM-30 working hours support per day -->
-            <div class="space-y-3 pt-2 border-t border-[var(--color-border-light)]">
-                <h4 class="font-bold uppercase tracking-wider text-[var(--color-text)] flex items-center gap-1.5"
-                    x-text="$store.app.language === 'ar' ? 'مواعيد العمل واستقبال الطلبات' : 'Kitchen Operating Hours Schedule'">
-                    <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
-                    <span>Kitchen Operating Hours Schedule</span>
-                </h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xl border border-[var(--color-border-light)] space-y-1">
-                        <span class="font-bold text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? 'أيام العمل الأسبوعية:' : 'Working Days:'">Working Days:</span>
-                        <div class="flex items-center gap-2 pt-1">
-                            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100 text-[11px] font-bold">Tuesday – Sunday</span>
-                            <span class="text-[10px] text-neutral-400 font-medium">(Mondays Closed)</span>
-                        </div>
-                    </div>
-                    <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xl border border-[var(--color-border-light)] space-y-1">
-                        <span class="font-bold text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? 'ساعات استلام الوجبات:' : 'Daily Pickup Hours:'">Daily Pickup Hours:</span>
-                        <div class="flex items-center gap-2 pt-1 font-bold text-[var(--color-primary)]">
-                            <span>12:00 PM – 10:30 PM (Cairo Time)</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Actions -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
                 <button type="button" @@click="editProfileOpen = false"
                         class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider transition-colors cursor-pointer">
-                    <span x-text="$store.app.language === 'ar' ? 'إلغاء' : 'Cancel'">Cancel</span>
+                    Cancel
                 </button>
                 <button type="submit"
                         class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
-                    <span x-text="$store.app.language === 'ar' ? 'حفظ التعديلات' : 'Save Profile Changes'">Save Profile Changes</span>
+                    Save Profile Changes
                 </button>
             </div>
         </form>

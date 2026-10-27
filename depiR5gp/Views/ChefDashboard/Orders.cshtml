@@ -1,8 +1,400 @@
+@*
+    TODO [Backend]: Strongly-typed view binding for Chef Live Kitchen Orders & Order History
+    1. Uncomment the model directive once ChefDashboardController.Orders() passes the ChefProfile or Order list:
+       @model depiR5gp.Models.Chefs.ChefProfile
+    2. In [HttpGet] ChefDashboardController.Orders(string? status):
+       Load active orders (Pending, Preparing, Ready) and historical orders (Completed, Cancelled, Rejected)
+       including Order.User and Order.Items.
+    3. In [HttpPost] ChefDashboardController.Orders(int OrderId, string NextStatus):
+       Update Order.Status, append OrderStatusHistory { OrderId, Status = NextStatus, ChangedAt = DateTime.UtcNow },
+       call await unitOfWork.CompleteAsync(), and RedirectToAction(nameof(Orders)).
+*@
 @{
-    ViewData["Title"] = "Chef Portal - Live Kitchen Orders & Menu";
+    ViewData["Title"] = "Chef Portal - Live Kitchen Orders & Queue";
 }
 
 <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
-<main>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_ChefDashboard.cshtml")
+
+<main x-data="{
+          rejectOrderModalOpen: false,
+          rejectingOrder: { id: 102, orderNumber: 'HC-2026-9042', customerName: 'Nour El-Din' },
+          addDishModalOpen: false,
+          editDishModalOpen: false,
+          deleteDishConfirmOpen: false,
+          editingDish: { id: 1, name: 'Baladi Duck Molokhia with Vermicelli Rice', nameAr: 'ملوخية بالبط البلدي مع أرز بالشعرية', category: 'Traditional Egyptian', price: 240, isAvailable: true },
+          deletingDish: { id: 1, name: 'Baladi Duck Molokhia with Vermicelli Rice' },
+          dishForm: {
+              isAvailable: true,
+              optionGroups: [
+                  {
+                      title: 'Rice Choice',
+                      type: 'radio',
+                      required: true,
+                      options: [
+                          { name: 'Vermicelli Rice (أرز بالشعرية)', extraPrice: 0 },
+                          { name: 'Egyptian White Rice (أرز مصري مفلفل)', extraPrice: 0 }
+                      ]
+                  }
+              ]
+          },
+          addOptionGroup() {
+              this.dishForm.optionGroups.push({ title: '', type: 'radio', required: false, options: [{ name: '', extraPrice: 0 }] });
+          },
+          removeOptionGroup(idx) {
+              this.dishForm.optionGroups.splice(idx, 1);
+          },
+          addOptionItem(gIdx) {
+              this.dishForm.optionGroups[gIdx].options.push({ name: '', extraPrice: 0 });
+          },
+          removeOptionItem(gIdx, oIdx) {
+              this.dishForm.optionGroups[gIdx].options.splice(oIdx, 1);
+          }
+      }"
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 pb-24">
+
+    <!-- Section 1: Live Kitchen Orders Queue -->
+    <section class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+                    Live Kitchen Orders Queue (2 Active)
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                    Accept incoming pickup orders, update cooking progress, and notify customers when ready at the gate.
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a asp-controller="MenuManagement" asp-action="Index"
+                   class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] transition-colors">
+                    Manage Full Menu
+                </a>
+                <button type="button" @@click="addDishModalOpen = true"
+                        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase px-4 py-2 rounded-full cursor-pointer transition-all shadow-xs flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
+                    <span>+ Quick Add Dish</span>
+                </button>
+            </div>
+        </div>
+
+        @*
+            TODO [Backend]: Replace static live order cards below with a Razor @foreach loop over active orders:
+            @foreach (var ord in Model.Orders.Where(o => o.Status is "Pending" or "Preparing" or "Ready"))
+            {
+                ...
+            }
+        *@
+
+        <!-- Live Order Card 1: Pending Acceptance -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                    <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-9042</span>
+                    <span class="bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-100 text-xs px-2.5 py-1 rounded-full font-bold border">
+                        Pending
+                    </span>
+                </div>
+                <h3 class="font-bold text-base text-[var(--color-text)]">
+                    Oxtail Tagine with Baby Caramelized Onions (x1)
+                </h3>
+                <div class="flex flex-wrap items-center gap-4 text-xs text-[var(--color-text-muted)]">
+                    <span><strong class="text-[var(--color-text)]">Customer:</strong> Nour El-Din</span>
+                    <span>·</span>
+                    <span><strong class="text-[var(--color-text)]">Pickup Slot:</strong> 16:30 - 17:00</span>
+                    <span>·</span>
+                    <span class="font-bold text-[var(--color-primary)]">310.00 EGP</span>
+                </div>
+                <p class="text-xs bg-[var(--color-surface-subtle)] p-2.5 rounded-xl border border-[var(--color-border-light)] text-[var(--color-text-muted)]">
+                    <strong>Instructions:</strong> Mild garlic, extra bread
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                <button type="button"
+                        @@click="rejectingOrder = { id: 102, orderNumber: 'HC-2026-9042', customerName: 'Nour El-Din' }; rejectOrderModalOpen = true"
+                        class="px-4 py-2.5 border border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-bold uppercase rounded-full transition-colors cursor-pointer">
+                    Reject Order
+                </button>
+                <form method="post" asp-controller="ChefDashboard" asp-action="Orders" class="inline">
+                    <input type="hidden" name="OrderId" value="102" />
+                    <input type="hidden" name="NextStatus" value="Preparing" />
+                    <button type="submit"
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                        Accept &amp; Start Cooking
+                    </button>
+                </form>
+                <a asp-controller="Chat" asp-action="Conversation" asp-route-id="1"
+                   class="border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all">
+                    Chat Customer
+                </a>
+            </div>
+        </div>
+
+        <!-- Live Order Card 2: In Preparation -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                    <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-9041</span>
+                    <span class="bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-100 text-xs px-2.5 py-1 rounded-full font-bold border">
+                        Preparing
+                    </span>
+                </div>
+                <h3 class="font-bold text-base text-[var(--color-text)]">
+                    Baladi Duck Molokhia with Vermicelli Rice (x1)
+                </h3>
+                <div class="flex flex-wrap items-center gap-4 text-xs text-[var(--color-text-muted)]">
+                    <span><strong class="text-[var(--color-text)]">Customer:</strong> Tamer Zaki</span>
+                    <span>·</span>
+                    <span><strong class="text-[var(--color-text)]">Pickup Slot:</strong> 15:45 - 16:15</span>
+                    <span>·</span>
+                    <span class="font-bold text-[var(--color-primary)]">240.00 EGP</span>
+                </div>
+                <p class="text-xs bg-[var(--color-surface-subtle)] p-2.5 rounded-xl border border-[var(--color-border-light)] text-[var(--color-text-muted)]">
+                    <strong>Instructions:</strong> Extra crispy duck skin please
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                <form method="post" asp-controller="ChefDashboard" asp-action="Orders" class="inline">
+                    <input type="hidden" name="OrderId" value="101" />
+                    <input type="hidden" name="NextStatus" value="Ready" />
+                    <button type="submit"
+                            class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                        Mark Ready for Pickup
+                    </button>
+                </form>
+                <a asp-controller="Chat" asp-action="Conversation" asp-route-id="1"
+                   class="border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all">
+                    Chat Customer
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Quick Menu & Dish Availability -->
+    <section class="space-y-4">
+        <div class="flex items-center justify-between pb-2">
+            <div>
+                <h2 class="text-base font-bold uppercase text-[var(--color-text)]">
+                    Listed Kitchen Dishes (3)
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                    Quick-toggle availability or edit dishes directly from your kitchen queue.
+                </p>
+            </div>
+            <a asp-controller="MenuManagement" asp-action="Create"
+               class="text-xs font-bold text-[var(--color-primary)] hover:underline">
+                Open Full Dish Creator &rarr;
+            </a>
+        </div>
+
+        @*
+            TODO [Backend]: Loop over Model.Dishes.Where(d => !d.IsArchived) (depiR5gp.Models.Menu.Dish)
+        *@
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Dish Card 1 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs flex flex-col justify-between gap-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-sm text-[var(--color-text)]">Baladi Duck Molokhia with Vermicelli Rice</h3>
+                        <span class="text-xs text-[var(--color-primary)] font-bold block mt-1">240.00 EGP</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">Traditional Egyptian</span>
+                    </div>
+                    <form method="post" asp-controller="MenuManagement" asp-action="Edit">
+                        <input type="hidden" name="Id" value="1" />
+                        <input type="hidden" name="ToggleAvailability" value="true" />
+                        <button type="submit"
+                                class="text-xs px-3 py-1.5 rounded-full font-bold border transition-colors cursor-pointer shrink-0 bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100">
+                            Available
+                        </button>
+                    </form>
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-[var(--color-border-light)]">
+                    <a asp-controller="MenuManagement" asp-action="ManageOptions" asp-route-dishId="1"
+                       class="px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-semibold rounded-lg hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        Options
+                    </a>
+                    <button type="button"
+                            @@click="editingDish = { id: 1, name: 'Baladi Duck Molokhia with Vermicelli Rice', nameAr: 'ملوخية بالبط البلدي مع أرز بالشعرية', category: 'Traditional Egyptian', price: 240, isAvailable: true }; editDishModalOpen = true"
+                            class="px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-semibold rounded-lg hover:bg-[var(--color-surface-subtle)] transition-colors flex items-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
+                        <span>Edit</span>
+                    </button>
+                    <button type="button"
+                            @@click="deletingDish = { id: 1, name: 'Baladi Duck Molokhia with Vermicelli Rice' }; deleteDishConfirmOpen = true"
+                            class="px-3 py-1.5 text-xs text-rose-600 hover:text-rose-800 font-semibold rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dish Card 2 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs flex flex-col justify-between gap-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-sm text-[var(--color-text)]">Pigeon Stuffed with Spiced Freekeh</h3>
+                        <span class="text-xs text-[var(--color-primary)] font-bold block mt-1">270.00 EGP</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">Traditional Egyptian</span>
+                    </div>
+                    <form method="post" asp-controller="MenuManagement" asp-action="Edit">
+                        <input type="hidden" name="Id" value="2" />
+                        <input type="hidden" name="ToggleAvailability" value="true" />
+                        <button type="submit"
+                                class="text-xs px-3 py-1.5 rounded-full font-bold border transition-colors cursor-pointer shrink-0 bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100">
+                            Available
+                        </button>
+                    </form>
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-[var(--color-border-light)]">
+                    <a asp-controller="MenuManagement" asp-action="ManageOptions" asp-route-dishId="2"
+                       class="px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-semibold rounded-lg hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        Options
+                    </a>
+                    <button type="button"
+                            @@click="editingDish = { id: 2, name: 'Pigeon Stuffed with Spiced Freekeh', nameAr: 'حمام محشي بالفريك البلدي المحمر', category: 'Traditional Egyptian', price: 270, isAvailable: true }; editDishModalOpen = true"
+                            class="px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-semibold rounded-lg hover:bg-[var(--color-surface-subtle)] transition-colors flex items-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
+                        <span>Edit</span>
+                    </button>
+                    <button type="button"
+                            @@click="deletingDish = { id: 2, name: 'Pigeon Stuffed with Spiced Freekeh' }; deleteDishConfirmOpen = true"
+                            class="px-3 py-1.5 text-xs text-rose-600 hover:text-rose-800 font-semibold rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dish Card 3 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs flex flex-col justify-between gap-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-sm text-[var(--color-text)]">Clay Oven Oxtail Tagine with Shallots</h3>
+                        <span class="text-xs text-[var(--color-primary)] font-bold block mt-1">310.00 EGP</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">Tagines &amp; Casseroles</span>
+                    </div>
+                    <form method="post" asp-controller="MenuManagement" asp-action="Edit">
+                        <input type="hidden" name="Id" value="3" />
+                        <input type="hidden" name="ToggleAvailability" value="true" />
+                        <button type="submit"
+                                class="text-xs px-3 py-1.5 rounded-full font-bold border transition-colors cursor-pointer shrink-0 bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100">
+                            Available
+                        </button>
+                    </form>
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-[var(--color-border-light)]">
+                    <a asp-controller="MenuManagement" asp-action="ManageOptions" asp-route-dishId="3"
+                       class="px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-semibold rounded-lg hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        Options
+                    </a>
+                    <button type="button"
+                            @@click="editingDish = { id: 3, name: 'Clay Oven Oxtail Tagine with Shallots', nameAr: 'طاجن عكاوي بلدي بالبصل القاورما في الفرن', category: 'Tagines & Casseroles', price: 310, isAvailable: true }; editDishModalOpen = true"
+                            class="px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-semibold rounded-lg hover:bg-[var(--color-surface-subtle)] transition-colors flex items-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
+                        <span>Edit</span>
+                    </button>
+                    <button type="button"
+                            @@click="deletingDish = { id: 3, name: 'Clay Oven Oxtail Tagine with Shallots' }; deleteDishConfirmOpen = true"
+                            class="px-3 py-1.5 text-xs text-rose-600 hover:text-rose-800 font-semibold rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Historical Order Records -->
+    <section class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+            <h2 class="text-base font-bold uppercase text-[var(--color-text)]">
+                Historical Order Records
+            </h2>
+            <form method="get" asp-controller="ChefDashboard" asp-action="Orders" class="flex items-center gap-2">
+                <select name="status" onchange="this.form.submit()" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs font-semibold">
+                    <option value="all">All Historical Statuses</option>
+                    <option value="Completed">Completed Only</option>
+                    <option value="Cancelled">Cancelled Only</option>
+                    <option value="Rejected">Rejected Only</option>
+                </select>
+            </form>
+        </div>
+
+        @*
+            TODO [Backend]: Loop over historical orders (Completed, Cancelled, Rejected):
+            @foreach (var h in Model.Orders.Where(o => o.Status is "Completed" or "Cancelled" or "Rejected"))
+            {
+                ...
+            }
+        *@
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+            <div class="divide-y divide-[var(--color-border-light)] text-xs">
+                <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-8840</span>
+                            <span class="bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100 text-[10px] px-2 py-0.5 rounded-full font-bold border">Completed</span>
+                        </div>
+                        <h4 class="font-semibold text-xs text-[var(--color-text)]">Feteer Meshaltet with Baladi Honey</h4>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">Customer: Sara Ahmed · Date: 2026-10-23 18:30</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="font-bold text-sm text-[var(--color-text)] block">190.00 EGP</span>
+                        <span class="text-[10px] text-emerald-600 font-semibold">Net: 161.50 EGP</span>
+                    </div>
+                </div>
+
+                <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-8812</span>
+                            <span class="bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100 text-[10px] px-2 py-0.5 rounded-full font-bold border">Completed</span>
+                        </div>
+                        <h4 class="font-semibold text-xs text-[var(--color-text)]">Trio Hawawshi Box with Tahini</h4>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">Customer: Dina Magdy · Date: 2026-10-22 14:15</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="font-bold text-sm text-[var(--color-text)] block">160.00 EGP</span>
+                        <span class="text-[10px] text-emerald-600 font-semibold">Net: 136.00 EGP</span>
+                    </div>
+                </div>
+
+                <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-8790</span>
+                            <span class="bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-200 text-[10px] px-2 py-0.5 rounded-full font-bold border">Cancelled</span>
+                        </div>
+                        <h4 class="font-semibold text-xs text-[var(--color-text)]">Stuffed Cabbage Rolls (Mahshi Koronb)</h4>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">Customer: Karim Gad · Date: 2026-10-21 16:00</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="font-bold text-sm text-[var(--color-text)] block">220.00 EGP</span>
+                        <span class="text-[10px] text-neutral-400 font-semibold">Net: 0.00 EGP</span>
+                    </div>
+                </div>
+
+                <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-8744</span>
+                            <span class="bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-100 text-[10px] px-2 py-0.5 rounded-full font-bold border">Rejected</span>
+                        </div>
+                        <h4 class="font-semibold text-xs text-[var(--color-text)]">Baladi Duck Molokhia with Rice</h4>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">Customer: Mohamed Tarek · Date: 2026-10-20 19:45</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="font-bold text-sm text-[var(--color-text)] block">240.00 EGP</span>
+                        <span class="text-[10px] text-rose-600 font-semibold">Net: 0.00 EGP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Dialog Modals (Alpine strictly controls open/close visibility) -->
+    <partial name="~/Views/Chefs/Partials/_AddDishModal.cshtml" />
+    <partial name="~/Views/Chefs/Partials/_EditDishModal.cshtml" />
+    <partial name="~/Views/Chefs/Partials/_DeleteDishConfirmDialog.cshtml" />
+    <partial name="~/Views/Chefs/Partials/_RejectOrderDialog.cshtml" />
 </main>

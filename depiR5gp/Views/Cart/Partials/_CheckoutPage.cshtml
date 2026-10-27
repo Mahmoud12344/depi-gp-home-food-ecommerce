@@ -1,6 +1,6 @@
 <!-- Views/Cart/Partials/_CheckoutPage.cshtml -->
 <!-- Source: home_chef/src/pages/CheckoutPage.tsx -->
-<!-- TODO [Backend]: Integrate with Payment Gateway (e.g. Stripe, Paymob) and Order Placement API -->
+@* TODO [Backend]: @model depiR5gp.Models.Orders.Order *@
 
 <div x-data="{
     paymentMethod: 'card',
@@ -22,7 +22,7 @@
         this.paymentError = '';
         if ($store.app.cart.items.length === 0) {
             $store.app.showToast('error', 'Your cart is empty.');
-            $store.app.navigate('#dishes');
+            window.location.href = '/Dishes';
             return;
         }
 
@@ -49,7 +49,7 @@
             $store.app.clearCart();
             this.isSubmitting = false;
             $store.app.showToast('success', $store.app.language === 'ar' ? 'تم تأكيد طلبك بنجاح!' : 'Order confirmed successfully!');
-            $store.app.navigate('#order-confirmation/' + generatedRef);
+            window.location.href = '/Orders/Confirmation/1';
         }, 1200);
     }
 }"
@@ -59,12 +59,12 @@
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
-                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
                     <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
                 </a>
                 <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
-                <a href="#cart" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium" x-text="$store.app.language === 'ar' ? 'السلة' : 'Cart'">Cart</a>
+                <a href="/Cart" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium" x-text="$store.app.language === 'ar' ? 'السلة' : 'Cart'">Cart</a>
                 <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
                 <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'إتمام الطلب' : 'Checkout'">Checkout</span>
             </nav>
@@ -80,7 +80,9 @@
     </div>
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
-        <form @@submit.prevent="handlePlaceOrder()" class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <form method="post" asp-controller="Checkout" asp-action="Index" @@submit.prevent="handlePlaceOrder()" class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <input type="hidden" name="PaymentMethod" :value="paymentMethod" />
+            <input type="hidden" name="RedeemPoints" :value="redeemPoints" />
             <!-- Left Column: Form Details -->
             <div class="lg:col-span-7 space-y-8">
                 <!-- 1. Contact Information -->
@@ -94,19 +96,19 @@
                         <div>
                             <label class="block font-semibold mb-1 text-[var(--color-text)]"
                                    x-text="$store.app.language === 'ar' ? 'الاسم بالكامل' : 'Your Full Name'">Your Full Name</label>
-                            <input type="text" required x-model="customerName"
+                            <input type="text" name="CustomerName" required x-model="customerName"
                                    class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
                         </div>
                         <div>
                             <label class="block font-semibold mb-1 text-[var(--color-text)]"
                                    x-text="$store.app.language === 'ar' ? 'رقم الهاتف (للتنسيق عند الوصول)' : 'Mobile Phone (for pickup calls)'">Mobile Phone</label>
-                            <input type="tel" required x-model="customerPhone"
+                            <input type="tel" name="CustomerPhone" required x-model="customerPhone"
                                    class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
                         </div>
                         <div class="sm:col-span-2">
                             <label class="block font-semibold mb-1 text-[var(--color-text)]"
                                    x-text="$store.app.language === 'ar' ? 'البريد الإلكتروني للإيصال والتتبع' : 'Email Address'">Email Address</label>
-                            <input type="email" required x-model="customerEmail"
+                            <input type="email" name="CustomerEmail" required x-model="customerEmail"
                                    class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
                         </div>
                     </div>

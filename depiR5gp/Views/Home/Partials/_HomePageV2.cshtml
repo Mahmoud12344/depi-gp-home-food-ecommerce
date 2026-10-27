@@ -37,7 +37,7 @@
                 </h2>
             </div>
 
-            <a href="#dishes"
+            <a href="/Dishes"
                class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto">
                 <span x-text="$store.app.language === 'ar' ? 'عرض كامل القائمة' : 'View Full Menu'">View Full Menu</span>
                 <svg class="w-3.5 h-3.5" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +59,7 @@
             <partial name="Partials/_DishCard" />
 
             <!-- Dish 2 -->
-            <div @@click="$store.app.navigate('#dish/dish-2')"
+            <div @@click="window.location.href = '/Dishes/Details/2'"
                  class="group relative bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between overflow-hidden hover:-translate-y-1">
                 <div class="relative w-full aspect-square bg-neutral-100 dark:bg-neutral-800 overflow-hidden rounded-xl mb-3.5">
                     <img src="https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=600&auto=format&fit=crop&q=80"
@@ -100,7 +100,7 @@
             </div>
 
             <!-- Dish 3 -->
-            <div @@click="$store.app.navigate('#dish/dish-4')"
+            <div @@click="window.location.href = '/Dishes/Details/4'"
                  class="group relative bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between overflow-hidden hover:-translate-y-1">
                 <div class="relative w-full aspect-square bg-neutral-100 dark:bg-neutral-800 overflow-hidden rounded-xl mb-3.5">
                     <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80"
@@ -141,7 +141,7 @@
             </div>
 
             <!-- Dish 4 -->
-            <div @@click="$store.app.navigate('#dish/dish-6')"
+            <div @@click="window.location.href = '/Dishes/Details/6'"
                  class="group relative bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between overflow-hidden hover:-translate-y-1">
                 <div class="relative w-full aspect-square bg-neutral-100 dark:bg-neutral-800 overflow-hidden rounded-xl mb-3.5">
                     <img src="https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600&auto=format&fit=crop&q=80"
@@ -225,7 +225,7 @@
                     </button>
                 </div>
 
-                <a href="#chefs"
+                <a href="/Chefs"
                    class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] hover:underline flex items-center gap-1 cursor-pointer">
                     <span x-text="$store.app.language === 'ar' ? 'استعراض الكل' : 'View All'">View All</span>
                     <svg class="w-3.5 h-3.5" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -304,7 +304,7 @@
                     <!-- View Menu CTA Pill Button (Styled like reference MORE button) -->
                     <div class="pt-2">
                         <button type="button"
-                                @@click="$store.app.navigate('#chef/chef-1')"
+                                @@click="window.location.href = '/Chefs/Details/1'"
                                 class="chef-menu-btn inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
                             <span x-text="$store.app.language === 'ar' ? 'استعراض قائمة أطباق الشيف' : 'View Chef\'s Menu'">View Chef's Menu</span>
                             <svg class="w-4 h-4 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -389,7 +389,7 @@
 
                     <div class="pt-2">
                         <button type="button"
-                                @@click="$store.app.navigate('#chef/chef-2')"
+                                @@click="window.location.href = '/Chefs/Details/1'"
                                 class="chef-menu-btn inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
                             <span x-text="$store.app.language === 'ar' ? 'استعراض قائمة أطباق الشيف' : 'View Chef\'s Menu'">View Chef's Menu</span>
                             <svg class="w-4 h-4 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -472,7 +472,7 @@
 
                     <div class="pt-2">
                         <button type="button"
-                                @@click="$store.app.navigate('#chef/chef-3')"
+                                @@click="window.location.href = '/Chefs/Details/1'"
                                 class="chef-menu-btn inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
                             <span x-text="$store.app.language === 'ar' ? 'استعراض قائمة أطباق الشيف' : 'View Chef\'s Menu'">View Chef's Menu</span>
                             <svg class="w-4 h-4 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -511,7 +511,7 @@
             <partial name="Partials/_ChefCard" />
 
             <!-- Chef 2 -->
-            <div @@click="$store.app.navigate('#chef/chef-2')"
+            <div @@click="window.location.href = '/Chefs/Details/2'"
                  class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
                 <div>
                     <div class="relative h-48 w-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
@@ -553,7 +553,7 @@
             </div>
 
             <!-- Chef 3 -->
-            <div @@click="$store.app.navigate('#chef/chef-3')"
+            <div @@click="window.location.href = '/Chefs/Details/3'"
                  class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
                 <div>
                     <div class="relative h-48 w-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">

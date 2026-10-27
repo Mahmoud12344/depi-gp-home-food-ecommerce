@@ -1,6 +1,6 @@
-<!-- Views/Admin/Partials/_OrderSettlementModal.cshtml -->
-<!-- Subtasks SCRUM-507 & SCRUM-515: Admin Order Financial Drill-Down & Settlement Modal -->
-<!-- TODO [Backend]: GET /api/admin/orders/{id}/settlement returning GMV, commission itemization, net payout, and settlement status -->
+@* Views/Admin/Partials/_OrderSettlementModal.cshtml *@
+@* Subtasks SCRUM-507 & SCRUM-515: Admin Order Financial Drill-Down & Settlement Modal *@
+@* TODO [Backend]: GET /Admin/OrderSettlement/{id} returning GMV, commission itemization, net payout, and settlement status *@
 
 <div x-show="showSettlementModal"
      x-transition.opacity.duration.200ms
@@ -24,7 +24,7 @@
                         x-text="$store.app.language === 'ar' ? 'تفاصيل التسوية المالية للطلب' : 'Order Financial Settlement Breakdown'">
                         Order Financial Settlement Breakdown
                     </h3>
-                    <p class="text-xs text-[var(--color-text-muted)]">Order #HC-2026-9041 · Amina's Heritage Kitchen</p>
+                    <p class="text-xs text-[var(--color-text-muted)]">Order #HC-2026-9041 &middot; Amina's Heritage Kitchen</p>
                 </div>
             </div>
             <button type="button"
@@ -58,7 +58,7 @@
         <div class="grid grid-cols-2 gap-3 text-xs">
             <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xl border border-[var(--color-border-light)]">
                 <span class="text-[10px] uppercase font-bold text-[var(--color-text-muted)] block">Payment Channel</span>
-                <span class="font-semibold text-[var(--color-text)]">Stripe Card (Visa ···· 4242)</span>
+                <span class="font-semibold text-[var(--color-text)]">Stripe Card (Visa &middot;&middot;&middot;&middot; 4242)</span>
             </div>
             <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xl border border-[var(--color-border-light)]">
                 <span class="text-[10px] uppercase font-bold text-[var(--color-text-muted)] block">Settlement Status</span>
@@ -67,11 +67,10 @@
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
-            <button type="button"
-                    @@click="$store.app.showToast('info', 'Settlement receipt PDF export initiated.'); showSettlementModal = false;"
-                    class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]">
-                Export Receipt
-            </button>
+            <a href="/Orders/Track/1"
+               class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]">
+                View Order Details
+            </a>
             <button type="button"
                     @@click="showSettlementModal = false"
                     class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
@@ -80,4 +79,3 @@
         </div>
     </div>
 </div>
-

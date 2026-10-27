@@ -1,6 +1,6 @@
-<!-- Views/Support/Partials/_ContactSupportModal.cshtml -->
-<!-- Subtask SCRUM-389: Contact Support Form Modal with Optional Order Field -->
-<!-- TODO [Backend]: POST /api/support/tickets with subject, category, orderId, and message -->
+@* Views/Support/Partials/_ContactSupportModal.cshtml *@
+@* Subtask SCRUM-389: Contact Support Form Modal with Optional Order Field *@
+@* TODO [Backend]: @model depiR5gp.Models.Support.SupportCase *@
 
 <div x-show="$store.app.contactSupportOpen"
      x-transition.opacity.duration.200ms
@@ -35,16 +35,8 @@
             </button>
         </div>
 
-        <form @@submit.prevent="
-            const caseCode = 'CASE-' + Math.floor(1000 + Math.random() * 9000);
-            $store.app.contactSupportOpen = false;
-            $store.app.addNotification({
-                title: $store.app.language === 'ar' ? 'تم إنشاء التذكرة بنجاح' : 'Ticket Submitted (' + caseCode + ')',
-                message: $store.app.language === 'ar' ? 'تم تسجيل طلبك وسيقوم فريق الدعم بالرد خلال دقائق. يمكنك متابعة التذكرة في قسم قضايا الدعم.' : 'Your inquiry has been received. Our team will review and respond shortly. Track it under My Support Cases.',
-                type: 'success'
-            });
-            $store.app.navigate('#my-cases');
-        " class="space-y-4">
+        <form method="post" asp-controller="Support" asp-action="NewCase" class="space-y-4">
+            <input type="hidden" name="RequesterRole" value="Customer" />
 
             <!-- Subject -->
             <div>
@@ -53,6 +45,7 @@
                     Subject / Issue Summary
                 </label>
                 <input type="text"
+                       name="Subject"
                        required
                        minlength="5"
                        placeholder="e.g. Order pickup delay at Degla Villa"
@@ -65,7 +58,8 @@
                        x-text="$store.app.language === 'ar' ? 'تصنيف المشكلة' : 'Category'">
                     Category
                 </label>
-                <select required
+                <select name="Category"
+                        required
                         class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
                     <option value="order_issue" x-text="$store.app.language === 'ar' ? 'مشكلة في استلام أو تحضير الطلب' : 'Order Pickup or Readiness Delay'">Order Pickup or Readiness Delay</option>
                     <option value="food_quality" x-text="$store.app.language === 'ar' ? 'جودة الطعام أو نضارة المكونات' : 'Food Quality & Packaging Condition'">Food Quality & Packaging Condition</option>
@@ -81,11 +75,11 @@
                     <span x-text="$store.app.language === 'ar' ? 'رقم الطلب المرتبط بالمشكلة (اختياري)' : 'Related Order Reference (Optional)'"></span>
                     <span class="text-neutral-400 font-normal lowercase">(optional)</span>
                 </label>
-                <select class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                <select name="OrderId" class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
                     <option value="" x-text="$store.app.language === 'ar' ? 'غير مرتبطة بطلب محدد (استفسار عام)' : 'None / General Inquiry (No specific order)'">None / General Inquiry (No specific order)</option>
-                    <option value="ord-101" selected>Order #HC-2026-9041 - Amina's Heritage Kitchen (240.00 EGP)</option>
-                    <option value="ord-102">Order #HC-2026-8890 - Om Nabil Casseroles (310.00 EGP)</option>
-                    <option value="ord-100">Order #HC-2026-9150 - Amina's Heritage Kitchen (285.00 EGP)</option>
+                    <option value="1" selected>Order #HC-2026-9041 - Amina's Heritage Kitchen (240.00 EGP)</option>
+                    <option value="2">Order #HC-2026-8890 - Om Nabil Casseroles (310.00 EGP)</option>
+                    <option value="3">Order #HC-2026-9150 - Amina's Heritage Kitchen (285.00 EGP)</option>
                 </select>
             </div>
 
@@ -95,7 +89,8 @@
                        x-text="$store.app.language === 'ar' ? 'تفاصيل المشكلة والرسالة' : 'Detailed Message'">
                     Detailed Message
                 </label>
-                <textarea rows="4"
+                <textarea name="Description"
+                          rows="4"
                           required
                           minlength="10"
                           placeholder="Provide details of your experience, counter location, or questions so our team can immediately help you..."

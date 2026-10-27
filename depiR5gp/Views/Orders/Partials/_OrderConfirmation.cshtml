@@ -1,17 +1,14 @@
 <!-- Views/Orders/Partials/_OrderConfirmation.cshtml -->
 <!-- Source: home_chef/src/pages/OrderConfirmationPage.tsx -->
-<!-- TODO [Backend]: Load order summary and pickup details via orderNumber parameter -->
+@* TODO [Backend]: @model depiR5gp.Models.Orders.Order *@
 
-<div x-data="{
-    orderNumber: '@(ViewContext.RouteData.Values["id"]?.ToString() ?? "")' || (window.location.pathname.includes('/Confirmation/') ? window.location.pathname.split('/').pop() : 'HC-2026-9041')
-}"
-     class="w-full pb-24">
+<div class="w-full pb-24">
 
     <!-- Breadcrumb banner -->
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
-                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
                     <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
                 </a>
@@ -22,9 +19,8 @@
                 x-text="$store.app.language === 'ar' ? 'تم تأكيد طلبك' : 'Order Confirmed!'">
                 Order Confirmed!
             </h1>
-            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed"
-               x-text="($store.app.language === 'ar' ? 'رقم المرجع: ' : 'Reference: ') + orderNumber">
-                Reference: HC-2026-9041
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                Reference: #@(ViewContext.RouteData.Values["id"]?.ToString() ?? "HC-2026-9041")
             </p>
         </div>
     </div>
@@ -42,7 +38,7 @@
                       x-text="$store.app.language === 'ar' ? 'تم إرسال الطلب للمطبخ بنجاح' : 'Order Dispatched to Kitchen'">
                     Order Dispatched to Kitchen
                 </span>
-                <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]" x-text="orderNumber"></h1>
+                <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">#@(ViewContext.RouteData.Values["id"]?.ToString() ?? "HC-2026-9041")</h1>
                 <p class="text-xs sm:text-sm text-[var(--color-text-muted)] pt-1"
                    x-text="$store.app.language === 'ar' ? 'شكراً لك! يقوم الشيف الآن بمراجعة الطلب لبدء الطهي في الأفران الفخارية.' : 'Thank you! The home chef has been alerted and will accept your order shortly.'">
                     Thank you! The home chef has been alerted and will accept your order shortly.
@@ -79,13 +75,13 @@
 
             <!-- Action CTAs -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <a href="#orders"
+                <a href="/Orders/Track/1"
                    class="w-full sm:w-auto inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98]">
                     <span x-text="$store.app.language === 'ar' ? 'تتبع حالة التحضير المباشرة' : 'Track Live Order Progress'">Track Live Order Progress</span>
                     <svg class="w-4 h-4" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
                 </a>
 
-                <a href="#home"
+                <a href="/"
                    class="w-full sm:w-auto inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white">
                     <span x-text="$store.app.language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'">Back to Home</span>
                 </a>
@@ -93,4 +89,3 @@
         </div>
     </div>
 </div>
-

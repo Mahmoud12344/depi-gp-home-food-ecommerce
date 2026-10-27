@@ -83,12 +83,12 @@
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
-                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
                     <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
                 </a>
                 <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
-                <a href="#profile" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium" x-text="$store.app.language === 'ar' ? 'حسابي' : 'My Account'">My Account</a>
+                <a href="/Customer/Profile" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium" x-text="$store.app.language === 'ar' ? 'حسابي' : 'My Account'">My Account</a>
                 <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
                 <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'قضايا وتذاكر الدعم' : 'My Support Cases'">My Support Cases</span>
             </nav>

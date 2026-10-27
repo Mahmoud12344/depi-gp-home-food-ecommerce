@@ -1,6 +1,138 @@
+@*
+    TODO [Backend]: Strongly-typed view binding for Chef Menu Management Index
+    1. Uncomment the model directive once MenuManagementController.Index() passes the dish list:
+       @model IEnumerable<depiR5gp.Models.Menu.Dish>
+    2. In [HttpGet] MenuManagementController.Index():
+       var dishes = await unitOfWork.Dishes.FindAsync(d => d.ChefProfileId == currentChefId && !d.IsArchived);
+       return View(dishes);
+*@
 @{
-    ViewData["Title"] = "Menu Management";
+    ViewData["Title"] = "Chef Portal - Menu Management";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 pb-24">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+                Kitchen Menu &amp; Dish Catalog
+            </h2>
+            <p class="text-xs text-[var(--color-text-muted)]">
+                Add new baladi dishes, update pricing, manage preset option groups, or toggle availability.
+            </p>
+        </div>
+        <a asp-controller="MenuManagement" asp-action="Create"
+           class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase px-5 py-2.5 rounded-full cursor-pointer transition-all shadow-xs inline-flex items-center gap-1.5 self-start sm:self-auto">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
+            <span>+ Add New Dish</span>
+        </a>
+    </div>
+
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-start">
+                <thead>
+                    <tr class="border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] font-bold uppercase text-[10px]">
+                        <th class="p-4 text-start">Dish</th>
+                        <th class="p-4 text-start">Category</th>
+                        <th class="p-4 text-end">Base Price</th>
+                        <th class="p-4 text-center">Availability</th>
+                        <th class="p-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--color-border-light)]">
+                    @*
+                        TODO [Backend]: Replace static rows below with @foreach (var dish in Model)
+                    *@
+                    <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=120&auto=format&fit=crop&q=80" alt="Baladi Duck Molokhia" class="w-12 h-12 rounded-xl object-cover border border-[var(--color-border)]" />
+                                <div>
+                                    <p class="font-bold text-sm text-[var(--color-text)]">Baladi Duck Molokhia with Vermicelli Rice</p>
+                                    <p class="text-[11px] text-[var(--color-text-muted)]">ملوخية بالبط البلدي مع أرز بالشعرية</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 text-[var(--color-text-muted)] font-medium">Traditional Egyptian</td>
+                        <td class="p-4 text-end font-bold text-[var(--color-primary)]">240.00 EGP</td>
+                        <td class="p-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Available</span>
+                        </td>
+                        <td class="p-4 text-end">
+                            <div class="inline-flex items-center gap-2">
+                                <a asp-controller="MenuManagement" asp-action="ManageOptions" asp-route-dishId="1"
+                                   class="px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-primary)] font-semibold text-[var(--color-text)]">
+                                    Options
+                                </a>
+                                <a asp-controller="MenuManagement" asp-action="Edit" asp-route-id="1"
+                                   class="px-3 py-1.5 rounded-lg bg-[var(--color-surface-subtle)] hover:bg-[var(--color-primary)] hover:text-white font-semibold text-[var(--color-text)] transition-colors">
+                                    Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=120&auto=format&fit=crop&q=80" alt="Pigeon Stuffed with Freekeh" class="w-12 h-12 rounded-xl object-cover border border-[var(--color-border)]" />
+                                <div>
+                                    <p class="font-bold text-sm text-[var(--color-text)]">Pigeon Stuffed with Spiced Freekeh</p>
+                                    <p class="text-[11px] text-[var(--color-text-muted)]">حمام محشي بالفريك البلدي المحمر</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 text-[var(--color-text-muted)] font-medium">Traditional Egyptian</td>
+                        <td class="p-4 text-end font-bold text-[var(--color-primary)]">270.00 EGP</td>
+                        <td class="p-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Available</span>
+                        </td>
+                        <td class="p-4 text-end">
+                            <div class="inline-flex items-center gap-2">
+                                <a asp-controller="MenuManagement" asp-action="ManageOptions" asp-route-dishId="2"
+                                   class="px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-primary)] font-semibold text-[var(--color-text)]">
+                                    Options
+                                </a>
+                                <a asp-controller="MenuManagement" asp-action="Edit" asp-route-id="2"
+                                   class="px-3 py-1.5 rounded-lg bg-[var(--color-surface-subtle)] hover:bg-[var(--color-primary)] hover:text-white font-semibold text-[var(--color-text)] transition-colors">
+                                    Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=120&auto=format&fit=crop&q=80" alt="Clay Oven Oxtail Tagine" class="w-12 h-12 rounded-xl object-cover border border-[var(--color-border)]" />
+                                <div>
+                                    <p class="font-bold text-sm text-[var(--color-text)]">Clay Oven Oxtail Tagine with Shallots</p>
+                                    <p class="text-[11px] text-[var(--color-text-muted)]">طاجن عكاوي بلدي بالبصل القاورما في الفرن</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 text-[var(--color-text-muted)] font-medium">Tagines &amp; Casseroles</td>
+                        <td class="p-4 text-end font-bold text-[var(--color-primary)]">310.00 EGP</td>
+                        <td class="p-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Available</span>
+                        </td>
+                        <td class="p-4 text-end">
+                            <div class="inline-flex items-center gap-2">
+                                <a asp-controller="MenuManagement" asp-action="ManageOptions" asp-route-dishId="3"
+                                   class="px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-primary)] font-semibold text-[var(--color-text)]">
+                                    Options
+                                </a>
+                                <a asp-controller="MenuManagement" asp-action="Edit" asp-route-id="3"
+                                   class="px-3 py-1.5 rounded-lg bg-[var(--color-surface-subtle)] hover:bg-[var(--color-primary)] hover:text-white font-semibold text-[var(--color-text)] transition-colors">
+                                    Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>

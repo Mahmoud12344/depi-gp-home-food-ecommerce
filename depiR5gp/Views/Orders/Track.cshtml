@@ -1,8 +1,366 @@
+@* TODO [Backend]: @model depiR5gp.Models.Orders.Order *@
 @{
     ViewData["Title"] = "Order Tracking - HomeChef";
 }
 
-<!-- Order Tracking Page -->
 <main>
-    @await Html.PartialAsync("~/Views/Orders/Partials/_OrderTracking.cshtml")
+<!-- Views/Orders/Partials/_OrderTracking.cshtml -->
+<!-- Source: home_chef/src/pages/OrderTrackingPage.tsx -->
+@* TODO [Backend]: @model depiR5gp.Models.Orders.Order *@
+
+<div x-data="{
+    selectedOrderIndex: 0,
+    showCancelDialog: false,
+    showReviewModal: false,
+    showRefundModal: false,
+    cancelReason: 'changed_mind',
+    cancelNotes: '',
+    reviewRating: 5,
+    reviewComment: '',
+    reviewAnonymous: false,
+    refundReason: 'cancelled',
+    orders: [
+        {
+            id: 'ord-100',
+            orderNumber: 'HC-2026-9150',
+            kitchenName: 'Amina\'s Heritage Kitchen (مطبخ أمينة التراثي)',
+            chefId: 'chef-1',
+            status: 'Pending',
+            createdAt: 'Just now (15:10)',
+            dishTitle: 'Stuffed Pigeon with Spiced Freekeh',
+            totalPrice: 285,
+            image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80',
+            address: 'Villa 14, Road 9, Degla, Maadi, Cairo',
+            pickupSlot: '16:30 – 17:00',
+            presets: ['Freekeh Stuffing', 'Extra Tahina (+15.00 EGP)'],
+            paymentMethod: 'Credit Card (Visa ···· 4242)'
+        },
+        {
+            id: 'ord-101',
+            orderNumber: 'HC-2026-9041',
+            kitchenName: 'Amina\'s Heritage Kitchen (مطبخ أمينة التراثي)',
+            chefId: 'chef-1',
+            status: 'Preparing',
+            createdAt: '14:30',
+            dishTitle: 'Baladi Duck Molokhia with Vermicelli Rice',
+            totalPrice: 240,
+            image: 'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80',
+            address: 'Villa 14, Road 9, Degla, Maadi, Cairo',
+            pickupSlot: '15:45 – 16:15',
+            presets: ['Vermicelli Rice', 'Mild Ta\'sheya'],
+            paymentMethod: 'InstaPay Wallet'
+        },
+        {
+            id: 'ord-102',
+            orderNumber: 'HC-2026-8890',
+            kitchenName: 'Om Nabil Casseroles (طواجن أم نبيل)',
+            chefId: 'chef-2',
+            status: 'Completed',
+            createdAt: 'Yesterday',
+            dishTitle: 'Oxtail Tagine with Baby Caramelized Onions',
+            totalPrice: 310,
+            image: 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=600&auto=format&fit=crop&q=80',
+            address: '22 Hassan Sabry St, Zamalek, Cairo',
+            pickupSlot: 'Picked Up',
+            presets: ['Extra Caramelized Onions', 'Pickled Eggplant (+15.00 EGP)'],
+            paymentMethod: 'Credit Card (Mastercard ···· 8821)'
+        }
+    ],
+    get activeOrder() {
+        return this.orders[this.selectedOrderIndex] || this.orders[0];
+    },
+    get currentStep() {
+        switch(this.activeOrder.status) {
+            case 'Pending': return 0;
+            case 'Accepted': return 1;
+            case 'Preparing': return 2;
+            case 'Ready': return 3;
+            case 'Completed': return 4;
+            default: return 0;
+        }
+    }
+}"
+     class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'الطلبات' : 'My Orders'">My Orders</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                x-text="$store.app.language === 'ar' ? 'متابعة الطلبات المباشرة' : 'Order Tracking & Lifecycle'">
+                Order Tracking & Lifecycle
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed"
+               x-text="$store.app.language === 'ar' ? 'تتبع مراحل تحضير وجبتك في مطبخ الشيف خطوة بخطوة' : 'Follow live kitchen preparation stages and pickup updates'">
+                Follow live kitchen preparation stages and pickup updates
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- Order Selector Tabs -->
+        <!-- TODO [Backend]: Loop through Customer.Orders (e.g. Model.CustomerOrders); bind OrderNumber, Status, KitchenName, and DishTitle -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[var(--color-border)]">
+            <template x-for="(ord, idx) in orders" :key="ord.id">
+                <button type="button"
+                        @@click="selectedOrderIndex = idx"
+                        :class="selectedOrderIndex === idx ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                        class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer flex items-center gap-2">
+                    <span x-text="'#' + ord.orderNumber"></span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
+                          :class="{
+                              'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200': ord.status === 'Pending',
+                              'bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-200': ord.status === 'Preparing',
+                              'bg-teal-100 text-teal-900 dark:bg-teal-950 dark:text-teal-200': ord.status === 'Ready',
+                              'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200': ord.status === 'Completed',
+                              'bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-200': ord.status === 'Cancelled'
+                          }"
+                          x-text="ord.status"></span>
+                </button>
+            </template>
+        </div>
+
+        <!-- Active Order Card -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-8">
+            <!-- Header Info -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-border-light)] pb-6">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-xl sm:text-2xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                            x-text="'#' + activeOrder.orderNumber"></h2>
+                        <span class="text-xs px-2.5 py-1 rounded-full font-bold border"
+                              :class="{
+                                  'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-100': activeOrder.status === 'Pending',
+                                  'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-100': activeOrder.status === 'Preparing',
+                                  'bg-teal-100 text-teal-900 border-teal-300 dark:bg-teal-950 dark:text-teal-100': activeOrder.status === 'Ready',
+                                  'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100': activeOrder.status === 'Completed'
+                              }"
+                              x-text="activeOrder.status"></span>
+                    </div>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                        <span x-text="$store.app.language === 'ar' ? 'مطبخ الشيف:' : 'Kitchen:'">Kitchen:</span>
+                        <span class="font-semibold text-[var(--color-primary)]" x-text="activeOrder.kitchenName"></span> ·
+                        <span x-text="activeOrder.createdAt"></span>
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Cancel Order Button (SCRUM-463) -->
+                    <template x-if="activeOrder.status === 'Pending'">
+                        <button type="button"
+                                @@click="showCancelDialog = true"
+                                class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-2xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x-circle"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'إلغاء الطلب (استرداد 100%)' : 'Cancel Order (100% Refund)'">Cancel Order (100% Refund)</span>
+                        </button>
+                    </template>
+
+                    <!-- Rate & Review Button (SCRUM-245, SCRUM-548) -->
+                    <template x-if="activeOrder.status === 'Completed'">
+                        <button type="button"
+                                @@click="showReviewModal = true"
+                                class="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-2xs">
+                            <svg class="w-4 h-4 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'تقييم الشيف والوجبة' : 'Rate Chef & Food'">Rate Chef & Food</span>
+                        </button>
+                    </template>
+
+                    <!-- Request Refund Button (SCRUM-527, SCRUM-539) -->
+                    <template x-if="activeOrder.status === 'Cancelled'">
+                        <button type="button"
+                                @@click="showRefundModal = true"
+                                class="inline-flex items-center gap-1.5 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/60 dark:hover:bg-teal-900 border border-teal-300 dark:border-teal-700 text-teal-800 dark:text-teal-200 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-2xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'طلب استرداد المبلغ' : 'Request Refund'">Request Refund</span>
+                        </button>
+                    </template>
+
+                    <!-- Need Help / Support Button -->
+                    <a href="/Support"
+                       class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] hover:bg-neutral-200 dark:hover:bg-neutral-800 border border-[var(--color-border)] text-[var(--color-text)] px-3.5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#help-circle"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'مساعدة في هذا الطلب' : 'Need Help?'">Need Help?</span>
+                    </a>
+
+                    <!-- Chat with Chef -->
+                    <a href="/Chat"
+                       class="inline-flex items-center gap-1.5 bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#message-circle"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'محادثة الشيف' : 'Chat with Chef'">Chat with Chef</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cancelled Order Banner if Cancelled -->
+            <template x-if="activeOrder.status === 'Cancelled'">
+                <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl p-5 text-rose-900 dark:text-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x-circle"></use></svg>
+                        <div>
+                            <h4 class="font-bold text-sm" x-text="$store.app.language === 'ar' ? 'تم إلغاء هذا الطلب بنجاح' : 'This order has been cancelled'">This order has been cancelled</h4>
+                            <p class="text-xs text-rose-700 dark:text-rose-300 mt-0.5" x-text="$store.app.language === 'ar' ? 'تمت معالجة استرداد المبلغ بنسبة 100%. يمكنك متابعة الرصيد في محفظتك أو طلب تحويله لحسابك البنكي.' : 'A 100% full refund was processed. You can review your wallet balance or request reversal.'">A 100% full refund was processed. You can review your wallet balance or request reversal.</p>
+                        </div>
+                    </div>
+                    <button type="button"
+                            @@click="showRefundModal = true"
+                            class="px-4 py-2 rounded-full bg-rose-600 text-white hover:bg-rose-700 text-xs font-bold uppercase tracking-wider transition-colors shrink-0">
+                        <span x-text="$store.app.language === 'ar' ? 'تفاصيل الاسترداد' : 'Refund Details'">Refund Details</span>
+                    </button>
+                </div>
+            </template>
+
+            <!-- 5-Step Visual Progress Bar (Hidden when cancelled) -->
+            <!-- TODO [Backend]: Subscribe to SignalR OrderHub 'OrderStatusChanged' event to update step progress bar in real-time -->
+            <div x-show="activeOrder.status !== 'Cancelled'" class="py-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-6"
+                    x-text="$store.app.language === 'ar' ? 'مراحل الطلب المباشرة' : 'Live Preparation Timeline'">
+                    Live Preparation Timeline
+                </h3>
+
+                <div class="relative flex items-center justify-between max-w-3xl mx-auto">
+                    <!-- Connecting line -->
+                    <div class="absolute top-1/2 inset-x-0 -translate-y-1/2 h-1 bg-neutral-200 dark:bg-neutral-800 -z-0"></div>
+                    <div class="absolute top-1/2 start-0 -translate-y-1/2 h-1 bg-[var(--color-primary)] transition-all duration-500 -z-0"
+                         :style="'width: ' + ((currentStep / 4) * 100) + '%;'"></div>
+
+                    <!-- Step 1 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)] shadow-xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                        </div>
+                        <span class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center" x-text="$store.app.language === 'ar' ? 'تم إرسال الطلب' : 'Order Placed'">Order Placed</span>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)] shadow-xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                        </div>
+                        <span class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center" x-text="$store.app.language === 'ar' ? 'تم قبول الطلب' : 'Kitchen Accepted'">Kitchen Accepted</span>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div :class="currentStep >= 2 ? 'bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)]' : 'bg-white dark:bg-neutral-900 border-2 border-neutral-300 dark:border-neutral-700 text-neutral-400'"
+                             class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-xs">
+                            <svg x-show="currentStep >= 2" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-show="currentStep < 2">3</span>
+                        </div>
+                        <span :class="currentStep === 2 ? 'text-[var(--color-primary)] font-bold' : (currentStep > 2 ? 'text-[var(--color-text)]' : 'text-neutral-400')"
+                              class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center"
+                              x-text="$store.app.language === 'ar' ? 'جاري الطهي' : 'Cooking in Oven'">Cooking in Oven</span>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div :class="currentStep >= 3 ? 'bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)]' : 'bg-white dark:bg-neutral-900 border-2 border-neutral-300 dark:border-neutral-700 text-neutral-400'"
+                             class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-xs">
+                            <svg x-show="currentStep >= 3" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-show="currentStep < 3">4</span>
+                        </div>
+                        <span :class="currentStep === 3 ? 'text-[var(--color-primary)] font-bold' : (currentStep > 3 ? 'text-[var(--color-text)]' : 'text-neutral-400')"
+                              class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center"
+                              x-text="$store.app.language === 'ar' ? 'جاهز للاستلام' : 'Ready at Counter'">Ready at Counter</span>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div :class="currentStep >= 4 ? 'bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)]' : 'bg-white dark:bg-neutral-900 border-2 border-neutral-300 dark:border-neutral-700 text-neutral-400'"
+                             class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-xs">
+                            <svg x-show="currentStep >= 4" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-show="currentStep < 4">5</span>
+                        </div>
+                        <span :class="currentStep >= 4 ? 'text-[var(--color-primary)] font-bold' : 'text-neutral-400'"
+                              class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center"
+                              x-text="$store.app.language === 'ar' ? 'تم الاستلام' : 'Picked Up'">Picked Up</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items, Options & Coordinates -->
+            <!-- TODO [Backend]: Bind active order items list, pickup gate coordinates, and Google Maps counter navigation -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4 border-t border-[var(--color-border-light)]">
+                <!-- Items & Presets (SCRUM-230) -->
+                <div class="lg:col-span-7 space-y-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]"
+                        x-text="$store.app.language === 'ar' ? 'الوجبات والخيارات المطلوبة' : 'Order Items & Options'">Order Items & Options</h4>
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-3">
+                        <div class="flex items-start gap-3">
+                            <img :src="activeOrder.image" :alt="activeOrder.dishTitle" class="w-16 h-16 rounded-xl object-cover border border-[var(--color-border)] shrink-0" />
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between gap-2">
+                                    <h5 class="font-bold text-sm text-[var(--color-text)]" x-text="activeOrder.dishTitle"></h5>
+                                    <span class="text-sm font-bold text-[var(--color-primary)]" x-text="activeOrder.totalPrice.toFixed(2) + ' EGP'"></span>
+                                </div>
+                                
+                                <!-- Presets list -->
+                                <template x-if="activeOrder.presets && activeOrder.presets.length > 0">
+                                    <div class="mt-2 flex flex-wrap gap-1.5">
+                                        <template x-for="opt in activeOrder.presets" :key="opt">
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-neutral-200 dark:bg-neutral-800 text-[11px] text-[var(--color-text)] font-medium">
+                                                <svg class="w-3 h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check"></use></svg>
+                                                <span x-text="opt"></span>
+                                            </span>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method & Receipt Summary (SCRUM-230) -->
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-2">
+                        <div class="flex items-center justify-between text-[var(--color-text-muted)]">
+                            <span class="font-bold uppercase tracking-wider text-[10px]" x-text="$store.app.language === 'ar' ? 'وسيلة الدفع' : 'Payment Method'">Payment Method</span>
+                            <span class="font-semibold text-[var(--color-text)]" x-text="activeOrder.paymentMethod || 'Credit Card'"></span>
+                        </div>
+                        <div class="flex items-center justify-between text-[var(--color-text-muted)] pt-1 border-t border-[var(--color-border-light)]">
+                            <span x-text="$store.app.language === 'ar' ? 'سعر الوجبة الأساسي' : 'Dish Base Price'">Dish Base Price</span>
+                            <span x-text="(activeOrder.totalPrice - 15).toFixed(2) + ' EGP'"></span>
+                        </div>
+                        <div class="flex items-center justify-between text-[var(--color-text-muted)]">
+                            <span x-text="$store.app.language === 'ar' ? 'إضافات وخيارات خاصة' : 'Custom Options'">Custom Options</span>
+                            <span>15.00 EGP</span>
+                        </div>
+                        <div class="flex items-center justify-between font-bold text-[var(--color-text)] pt-1 border-t border-[var(--color-border-light)]">
+                            <span x-text="$store.app.language === 'ar' ? 'الإجمالي المدفوع' : 'Total Paid'">Total Paid</span>
+                            <span class="text-sm text-[var(--color-primary)]" x-text="activeOrder.totalPrice.toFixed(2) + ' EGP'"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pickup Coordinates -->
+                <div class="lg:col-span-5 bg-[var(--color-surface-subtle)] p-5 rounded-2xl border border-[var(--color-border-light)] space-y-3 text-xs">
+                    <h4 class="font-bold uppercase text-[var(--color-text)] flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'عنوان شباك استلام الطلب' : 'Kitchen Pickup Counter'">Kitchen Pickup Counter</span>
+                    </h4>
+                    <p class="text-[var(--color-text)]" x-text="activeOrder.address"></p>
+                    <div class="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                        <span x-text="'Target Slot: ' + activeOrder.pickupSlot"></span>
+                    </div>
+
+                    <div class="pt-3 border-t border-[var(--color-border-light)] text-[11px] text-[var(--color-text-muted)]">
+                        <p x-text="$store.app.language === 'ar' ? 'يرجى إبراز رقم الطلب عند الوصول لشباك المطبخ المنزلي لاستلام وجبتك طازجة وساخنة.' : 'Please present your order code at the kitchen pickup counter for hot handover.'"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals for Phase 2 Lifecycle -->
+    <partial name="~/Views/Orders/Partials/_CancelOrderDialog.cshtml" />
+    <partial name="~/Views/Orders/Partials/_OrderReviewModal.cshtml" />
+    <partial name="~/Views/Orders/Partials/_RequestRefundModal.cshtml" />
+</div>
+
+
 </main>

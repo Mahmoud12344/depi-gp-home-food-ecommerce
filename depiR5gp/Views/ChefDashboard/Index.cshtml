@@ -1,8 +1,228 @@
+@*
+    TODO [Backend]: Strongly-typed view binding for Chef Overview, Wallet Ledger & Customer Reviews
+    1. Uncomment the model directive once ChefDashboardController.Index() passes the ChefProfile:
+       @model depiR5gp.Models.Chefs.ChefProfile
+    2. In [HttpGet] ChefDashboardController.Index():
+       Include Orders, LedgerEntries, Payouts, and Reviews for the authenticated ChefProfile.
+    3. Bind KPI metrics from Model.Orders (Pending, Preparing, Ready counts) and Model.LedgerEntries.Sum(l => l.Amount).
+*@
 @{
     ViewData["Title"] = "Chef Portal - Overview & Earnings";
 }
 
 <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
-<main>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_ChefDashboard.cshtml")
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 pb-24">
+
+    <!-- 4 Metric KPI Cards -->
+    @* TODO [Backend]: Bind counts from Model.Orders.Count(o => o.Status == "Pending"), etc. *@
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block mb-1">Pending Acceptance</span>
+            <span class="text-2xl sm:text-3xl font-bold text-amber-600">1</span>
+        </div>
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block mb-1">In Preparation</span>
+            <span class="text-2xl sm:text-3xl font-bold text-purple-600">1</span>
+        </div>
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block mb-1">Ready for Pickup</span>
+            <span class="text-2xl sm:text-3xl font-bold text-teal-600">0</span>
+        </div>
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block mb-1">Net Wallet Earnings</span>
+            <span class="text-2xl sm:text-3xl font-bold text-[var(--color-primary)]">4,820.00 EGP</span>
+        </div>
+    </div>
+
+    <!-- Wallet & Payout Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block">Available Balance</span>
+            <strong class="text-2xl text-[var(--color-primary)] block mt-1">4,820.00 EGP</strong>
+            <span class="text-[11px] text-emerald-600 font-semibold mt-1 block">Ready for Instant InstaPay Payout</span>
+        </div>
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block">Commission Deducted (15%)</span>
+            <strong class="text-2xl text-[var(--color-text)] block mt-1">850.50 EGP</strong>
+            <span class="text-[11px] text-[var(--color-text-muted)] mt-1 block">Current month platform operations</span>
+        </div>
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+            <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block">Registered IBAN / InstaPay</span>
+            <strong class="text-sm text-[var(--color-text)] block mt-2 font-mono">EG890002000100000000012345678</strong>
+            <span class="text-[11px] text-[var(--color-text-muted)] mt-1 block">Verified Domestic Account</span>
+        </div>
+    </div>
+
+    <!-- Instant Payout Request Form (Pure MVC POST) -->
+    @* TODO [Backend]: POST ChefDashboardController.RequestPayout(decimal Amount) -> creates Payout entity in depiR5gp.Models.Payments.Payout *@
+    <form method="post" asp-controller="ChefDashboard" asp-action="Index"
+          class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+        <input type="hidden" name="RequestPayout" value="true" />
+        <input type="hidden" name="Amount" value="4820.00" />
+        <div>
+            <h2 class="font-bold uppercase text-[var(--color-text)] text-sm">Request Balance Payout</h2>
+            <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Dispatches instant electronic transfer via InstaPay (0 fees).</p>
+        </div>
+        <button type="submit"
+                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+            Transfer Balance Now
+        </button>
+    </form>
+
+    <!-- Financial Transaction Ledger Table -->
+    @*
+        TODO [Backend]: Loop over Model.LedgerEntries (depiR5gp.Models.Payments.LedgerEntry):
+        @foreach (var entry in Model.LedgerEntries.OrderByDescending(e => e.CreatedAt))
+        {
+            <tr>
+                <td>@entry.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@(entry.Order?.Reference ?? $"PAYOUT-{entry.PayoutId}")</td>
+                <td>@entry.Type</td>
+                <td>@entry.Amount.ToString("F2") EGP</td>
+            </tr>
+        }
+    *@
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="font-bold uppercase text-[var(--color-text)] text-sm">
+                Financial Transaction Ledger
+            </h2>
+            <a asp-controller="ChefDashboard" asp-action="Orders" class="text-xs font-bold text-[var(--color-primary)] hover:underline">
+                View Active Orders &rarr;
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-start">
+                <thead>
+                    <tr class="border-b border-[var(--color-border)] text-[var(--color-text-muted)] font-bold uppercase text-[10px]">
+                        <th class="pb-3 text-start">Date &amp; Time</th>
+                        <th class="pb-3 text-start">Reference #</th>
+                        <th class="pb-3 text-start">Type</th>
+                        <th class="pb-3 text-end">Gross (EGP)</th>
+                        <th class="pb-3 text-end">Commission (15%)</th>
+                        <th class="pb-3 text-end">Net (EGP)</th>
+                        <th class="pb-3 text-end">Balance</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--color-border-light)] font-medium">
+                    <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        <td class="py-3 text-[var(--color-text-muted)]">2026-10-23 18:30</td>
+                        <td class="py-3 font-bold text-[var(--color-primary)]">HC-2026-8840</td>
+                        <td class="py-3 text-[var(--color-text)]">Order Credit (+85%)</td>
+                        <td class="py-3 text-end">190.00</td>
+                        <td class="py-3 text-end text-neutral-400">-28.50</td>
+                        <td class="py-3 text-end font-bold text-emerald-600">+161.50</td>
+                        <td class="py-3 text-end font-bold text-[var(--color-text)]">4,820.00 EGP</td>
+                    </tr>
+                    <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        <td class="py-3 text-[var(--color-text-muted)]">2026-10-22 14:15</td>
+                        <td class="py-3 font-bold text-[var(--color-primary)]">HC-2026-8812</td>
+                        <td class="py-3 text-[var(--color-text)]">Order Credit (+85%)</td>
+                        <td class="py-3 text-end">160.00</td>
+                        <td class="py-3 text-end text-neutral-400">-24.00</td>
+                        <td class="py-3 text-end font-bold text-emerald-600">+136.00</td>
+                        <td class="py-3 text-end font-bold text-[var(--color-text)]">4,658.50 EGP</td>
+                    </tr>
+                    <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        <td class="py-3 text-[var(--color-text-muted)]">2026-10-21 11:00</td>
+                        <td class="py-3 font-bold text-[var(--color-primary)]">PAYOUT-2026-90</td>
+                        <td class="py-3 text-[var(--color-text)]">InstaPay Payout (Disbursed)</td>
+                        <td class="py-3 text-end">—</td>
+                        <td class="py-3 text-end text-neutral-400">—</td>
+                        <td class="py-3 text-end font-bold text-rose-600">-3,500.00</td>
+                        <td class="py-3 text-end font-bold text-[var(--color-text)]">4,522.50 EGP</td>
+                    </tr>
+                    <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                        <td class="py-3 text-[var(--color-text-muted)]">2026-10-20 20:00</td>
+                        <td class="py-3 font-bold text-[var(--color-primary)]">REF-2026-092</td>
+                        <td class="py-3 text-[var(--color-text)]">Refund Reversal</td>
+                        <td class="py-3 text-end">-240.00</td>
+                        <td class="py-3 text-end text-neutral-400">36.00</td>
+                        <td class="py-3 text-end font-bold text-rose-600">-204.00</td>
+                        <td class="py-3 text-end font-bold text-[var(--color-text)]">8,022.50 EGP</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Verified Kitchen Customer Reviews Section -->
+    @*
+        TODO [Backend]: Loop over Model.Reviews (depiR5gp.Models.ReviewsLoyalty.Review):
+        @foreach (var rev in Model.Reviews.Where(r => r.ModerationStatus == "Approved"))
+        {
+            <div>@rev.User.FirstName @rev.User.LastName · @rev.Rating stars · @rev.Comment</div>
+        }
+    *@
+    <div class="space-y-4">
+        <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] p-4 rounded-2xl flex items-center justify-between text-xs">
+            <div>
+                <h2 class="font-bold uppercase text-[var(--color-text)]">
+                    Verified Kitchen Customer Feedback
+                </h2>
+                <p class="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                    Rating average: <strong class="text-[var(--color-primary)]">4.9 / 5.0</strong> from 24 orders.
+                </p>
+            </div>
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                Read-Only (Platform Policy)
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-[var(--color-text)]">Youssef Nabil</span>
+                    <span class="text-[11px] text-[var(--color-text-muted)]">2026-10-23</span>
+                </div>
+                <span class="text-[11px] text-[var(--color-primary)] font-semibold block">Baladi Duck Molokhia</span>
+                <div class="flex items-center gap-1 text-amber-500">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                </div>
+                <p class="text-[var(--color-text)] leading-relaxed italic">
+                    &ldquo;The duck was browned to perfection with crispy skin and the molokhia was piping hot. Best homemade dinner in Maadi!&rdquo;
+                </p>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-[var(--color-text)]">Salma Fathy</span>
+                    <span class="text-[11px] text-[var(--color-text-muted)]">2026-10-21</span>
+                </div>
+                <span class="text-[11px] text-[var(--color-primary)] font-semibold block">Feteer Meshaltet</span>
+                <div class="flex items-center gap-1 text-amber-500">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                </div>
+                <p class="text-[var(--color-text)] leading-relaxed italic">
+                    &ldquo;Authentic baladi ghee flavor in the feteer. Portion was very generous for our family gathering.&rdquo;
+                </p>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-[var(--color-text)]">Karim Gad</span>
+                    <span class="text-[11px] text-[var(--color-text-muted)]">2026-10-18</span>
+                </div>
+                <span class="text-[11px] text-[var(--color-primary)] font-semibold block">Clay Oven Oxtail Tagine</span>
+                <div class="flex items-center gap-1 text-amber-500">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                </div>
+                <p class="text-[var(--color-text)] leading-relaxed italic">
+                    &ldquo;Very tasty tagine, oxtail was fork-tender. Picked up on time right at the kitchen gate.&rdquo;
+                </p>
+            </div>
+        </div>
+    </div>
 </main>

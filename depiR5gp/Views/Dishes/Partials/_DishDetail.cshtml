@@ -1,6 +1,5 @@
 <!-- Views/Dishes/Partials/_DishDetail.cshtml -->
-<!-- Canonical Dish Detail View: #dish/{id} -->
-<!-- TODO [Backend]: Bind dish model, dynamic reviews, and option groups from database -->
+@* TODO [Backend]: @model depiR5gp.Models.Menu.Dish — Bind Model.Name, Model.Price, Model.Description, Model.DishOptions, Model.ChefProfile *@
 
 <div x-data="{
     dishId: '@(ViewContext.RouteData.Values["id"]?.ToString() ?? "dish-1")',
@@ -71,7 +70,7 @@
         if (!this.dish.isAvailable) return;
         const added = $store.app.addToCart(this.dish, this.quantity, this.allSelected, this.note.trim());
         if (added) {
-            $store.app.navigate('#checkout');
+            window.location.href = '/Checkout';
         }
     }
 }"
@@ -81,14 +80,14 @@
     <div class="w-full h-14 min-h-[56px] bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] flex items-center">
         <div class="max-w-[1600px] mx-auto px-[8px] w-full">
             <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap">
-                <a href="#home" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
                     <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
                 </a>
                 <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="#chevron-right"></use>
                 </svg>
-                <a href="#dishes" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium"
+                <a href="/Dishes" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium"
                    x-text="$store.app.language === 'ar' ? 'قائمة الأطباق' : 'Dishes'">Dishes</a>
                 <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="#chevron-right"></use>
@@ -244,7 +243,7 @@
                     <div class="flex items-center gap-2 text-[13px] text-[var(--color-text-muted)] mb-2 font-medium">
                         <span x-text="$store.app.language === 'ar' ? dish.categoryAr : dish.category"></span>
                         <span>·</span>
-                        <a href="#chef/chef-1" class="text-[var(--color-primary)] font-bold hover:underline cursor-pointer"
+                        <a href="/Chefs/Details/1" class="text-[var(--color-primary)] font-bold hover:underline cursor-pointer"
                            x-text="$store.app.language === 'ar' ? dish.kitchenNameAr : dish.kitchenName"></a>
                     </div>
 
@@ -371,7 +370,7 @@
                         <span class="font-bold text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? dish.kitchenNameAr : dish.kitchenName">Amina's Heritage Kitchen</span>
                         <p class="text-[13px] text-[var(--color-text-muted)]" x-text="dish.address">Villa 14, Road 9, Degla, Maadi, Cairo</p>
                     </div>
-                    <a href="#messages" class="text-[var(--color-primary)] hover:underline font-semibold flex items-center gap-1.5 cursor-pointer text-[13px]">
+                    <a href="/Chat" class="text-[var(--color-primary)] hover:underline font-semibold flex items-center gap-1.5 cursor-pointer text-[13px]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#message-circle"></use></svg>
                         <span x-text="$store.app.language === 'ar' ? 'محادثة' : 'Chat'">Chat</span>
                     </a>

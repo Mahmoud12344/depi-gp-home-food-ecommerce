@@ -72,7 +72,7 @@
         <div class="space-y-6 pt-2">
             <!-- Action Buttons -->
             <div class="flex flex-wrap items-center justify-center gap-3.5">
-                <a href="#dishes"
+                <a href="/Dishes"
                    class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] focus-visible:outline-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/20">
                     <span x-text="$store.app.language === 'ar' ? 'استعرض أطباق اليوم' : 'Order Fresh Today'">Order Fresh Today</span>
                     <svg class="w-4 h-4" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,19 +80,20 @@
                     </svg>
                 </a>
 
-                <a href="#chefs"
+                <a href="/Chefs"
                    class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white focus-visible:outline-[var(--color-primary)]">
                     <span x-text="$store.app.language === 'ar' ? 'تعرف على طهاة الحي' : 'Meet The Chefs'">Meet The Chefs</span>
                 </a>
             </div>
 
             <!-- Search Bar pill -->
-            <form @@submit.prevent="if ($store.app.searchQuery.trim()) { $store.app.navigate('#dishes'); }" class="max-w-md mx-auto">
+            <form method="get" action="/Dishes" class="max-w-md mx-auto">
                 <div class="relative flex items-center bg-white dark:bg-neutral-900 rounded-full border-2 border-[var(--color-border)] p-1.5 shadow-lg focus-within:border-[var(--color-primary)] transition-all">
                     <svg class="w-5 h-5 text-[var(--color-primary)] ms-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="#search"></use>
                     </svg>
                     <input type="text"
+                           name="q"
                            x-model="$store.app.searchQuery"
                            :placeholder="$store.app.language === 'ar' ? 'ابحث عن ملوخية، طواجن، فطير، كبدة...' : 'Search Molokhia, Oxtail Tagine, Feteer...'"
                            class="w-full text-xs sm:text-sm px-3 py-1.5 bg-transparent text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-hidden font-semibold" />

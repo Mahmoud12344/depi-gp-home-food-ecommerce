@@ -1,6 +1,6 @@
 <!-- Views/Orders/Partials/_RequestRefundModal.cshtml -->
 <!-- Subtasks SCRUM-527 & SCRUM-539: Customer Refund Claim Modal -->
-<!-- TODO [Backend]: POST /api/refunds/request with orderId, amount, reasonCategory, and refundMethod -->
+@* TODO [Backend]: @model depiR5gp.Models.Orders.Order — POST OrdersController.RequestRefund(int OrderId, string Reason, string RefundMethod) *@
 
 <div x-show="showRefundModal"
      x-transition.opacity.duration.200ms
@@ -25,7 +25,7 @@
                         Request Order Refund
                     </h3>
                     <p class="text-xs text-[var(--color-text-muted)]"
-                       x-text="'Order #' + (activeOrder ? activeOrder.orderNumber : '')"></p>
+                       x-text="'Order #' + (activeOrder ? activeOrder.orderNumber : 'HC-2026-9150')"></p>
                 </div>
             </div>
             <button type="button"
@@ -48,21 +48,15 @@
             </span>
         </div>
 
-        <form @@submit.prevent="
-            showRefundModal = false;
-            $store.app.addNotification({
-                title: $store.app.language === 'ar' ? 'تم تقديم طلب الاسترداد' : 'Refund Claim Submitted',
-                message: $store.app.language === 'ar' ? 'تمت معالجة استرداد المبلغ وتم إيداعه في رصيد محفظتك على المنصة بنجاح.' : 'Your refund request has been processed and credited to your wallet balance.',
-                type: 'success'
-            });
-        " class="space-y-4">
+        <form method="post" asp-controller="Orders" asp-action="RequestRefund" class="space-y-4">
+            <input type="hidden" name="OrderId" value="1" />
 
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"
                        x-text="$store.app.language === 'ar' ? 'سبب طلب الاسترداد' : 'Reason for Refund'">
                     Reason for Refund
                 </label>
-                <select x-model="refundReason"
+                <select name="Reason"
                         required
                         class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
                     <option value="cancelled" x-text="$store.app.language === 'ar' ? 'تم إلغاء الطلب قبل بدء التحضير' : 'Order was cancelled before preparation started'">Order was cancelled before preparation started</option>
@@ -81,7 +75,7 @@
                 </label>
                 <div class="space-y-2">
                     <label class="flex items-start gap-3 p-3 rounded-xl border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-colors">
-                        <input type="radio" name="refundMethod" value="wallet" checked class="mt-1 text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
+                        <input type="radio" name="RefundMethod" value="wallet" checked class="mt-1 text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
                         <div>
                             <span class="block text-xs font-bold text-[var(--color-text)]"
                                   x-text="$store.app.language === 'ar' ? 'رصيد محفظة المنصة (فوري بدون انتظار)' : 'Platform Wallet Credit (Instant)'">Platform Wallet Credit (Instant)</span>
@@ -90,7 +84,7 @@
                         </div>
                     </label>
                     <label class="flex items-start gap-3 p-3 rounded-xl border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-colors">
-                        <input type="radio" name="refundMethod" value="original" class="mt-1 text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
+                        <input type="radio" name="RefundMethod" value="original" class="mt-1 text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
                         <div>
                             <span class="block text-xs font-bold text-[var(--color-text)]"
                                   x-text="$store.app.language === 'ar' ? 'إرجاع للبطاقة البنكية الأصلية' : 'Reverse to Original Payment Card'">Reverse to Original Payment Card</span>
@@ -107,6 +101,7 @@
                     Details & Evidence Note
                 </label>
                 <textarea rows="2"
+                          name="Notes"
                           placeholder="Provide details to assist customer support..."
                           class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
             </div>
@@ -127,4 +122,3 @@
         </form>
     </div>
 </div>
-

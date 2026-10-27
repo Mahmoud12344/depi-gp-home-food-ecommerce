@@ -1,5 +1,10 @@
 @* Views/ChefDashboard/Partials/_ChefNav.cshtml *@
+@*
+    TODO [Backend]: Bind ChefProfile header summary (Model.KitchenName, Model.Address, Model.Status)
+    from authenticated Chef session or ViewBag.ChefProfile.
+*@
 @{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "ChefDashboard";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
 }
 
@@ -7,12 +12,12 @@
 <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
-            <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+            <a asp-controller="Home" asp-action="Index" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
-                <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                <span>Home</span>
             </a>
-            <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
-            <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'لوحة تحكم الشيف' : 'Chef Portal'">Chef Portal</span>
+            <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+            <span class="text-[var(--color-text)] font-semibold">Chef Portal</span>
         </nav>
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -36,26 +41,29 @@
 <!-- Chef Portal Navigation Tabs -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
     <div class="flex border-b border-[var(--color-border)] gap-2 sm:gap-6 overflow-x-auto pb-1">
-        <a href="/ChefDashboard"
-           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Index" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+        <a asp-controller="ChefDashboard" asp-action="Index"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentController == "ChefDashboard" && currentAction == "Index" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
             Overview &amp; Earnings
         </a>
-        <a href="/ChefDashboard/Orders"
-           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Orders" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
-            Live Orders &amp; Menu
+        <a asp-controller="ChefDashboard" asp-action="Orders"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentController == "ChefDashboard" && currentAction == "Orders" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Live Orders &amp; Queue
         </a>
-        <a href="/ChefDashboard/Profile"
-           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Profile" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+        <a asp-controller="MenuManagement" asp-action="Index"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentController == "MenuManagement" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Menu Management
+        </a>
+        <a asp-controller="ChefDashboard" asp-action="Profile"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentController == "ChefDashboard" && currentAction == "Profile" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
             Kitchen Profile
         </a>
-        <a href="/ChefDashboard/WorkingHours"
-           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "WorkingHours" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+        <a asp-controller="ChefDashboard" asp-action="WorkingHours"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentController == "ChefDashboard" && currentAction == "WorkingHours" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
             Working Hours
         </a>
-        <a href="/ChefDashboard/Documents"
-           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentAction == "Documents" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+        <a asp-controller="ChefDashboard" asp-action="Documents"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(currentController == "ChefDashboard" && currentAction == "Documents" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
             Certificates &amp; Verification
         </a>
     </div>
 </div>
-

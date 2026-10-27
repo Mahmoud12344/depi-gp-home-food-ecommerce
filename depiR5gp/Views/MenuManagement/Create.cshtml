@@ -1,6 +1,99 @@
+@*
+    TODO [Backend]: Strongly-typed view binding for Create Dish
+    1. Uncomment the model directive once MenuManagementController.Create() uses Dish:
+       @model depiR5gp.Models.Menu.Dish
+    2. In [HttpPost] MenuManagementController.Create(Dish model):
+       Validate ModelState, set model.ChefProfileId = currentChefId, call await unitOfWork.Dishes.AddAsync(model),
+       await unitOfWork.CompleteAsync(), and RedirectToAction(nameof(Index)).
+*@
 @{
-    ViewData["Title"] = "Add New Dish";
+    ViewData["Title"] = "Chef Portal - Create New Dish";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)]">
+            <div>
+                <h2 class="text-lg font-bold text-[var(--color-text)] uppercase tracking-wide">
+                    Create New Kitchen Dish
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                    Publish a new homemade dish to your verified domestic kitchen menu.
+                </p>
+            </div>
+            <a asp-controller="MenuManagement" asp-action="Index"
+               class="text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)]">
+                &larr; Back to Menu
+            </a>
+        </div>
+
+        <form method="post" asp-controller="MenuManagement" asp-action="Create" class="space-y-6 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="Name" class="block font-semibold mb-1.5 text-[var(--color-text)]">Dish Title (English)</label>
+                    <input id="Name" name="Name" type="text" required placeholder="e.g. Stuffed Pigeon with Spiced Freekeh"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+                <div>
+                    <label for="Price" class="block font-semibold mb-1.5 text-[var(--color-text)]">Base Price (EGP)</label>
+                    <input id="Price" name="Price" type="number" step="5" min="10" value="220" required
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="CategoryId" class="block font-semibold mb-1.5 text-[var(--color-text)]">Category</label>
+                    <select id="CategoryId" name="CategoryId"
+                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
+                        <option value="1">Traditional Egyptian</option>
+                        <option value="2">Tagines &amp; Casseroles</option>
+                        <option value="3">Stuffed &amp; Mahshi</option>
+                        <option value="4">Grills &amp; Poultry</option>
+                        <option value="5">Bakery &amp; Desserts</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="CuisineId" class="block font-semibold mb-1.5 text-[var(--color-text)]">Cuisine</label>
+                    <select id="CuisineId" name="CuisineId"
+                            class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
+                        <option value="1">Egyptian Baladi</option>
+                        <option value="2">Alexandrian</option>
+                        <option value="3">Levantine &amp; Oriental</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="Description" class="block font-semibold mb-1.5 text-[var(--color-text)]">Dish Description &amp; Ingredients</label>
+                <textarea id="Description" name="Description" rows="3" required placeholder="Describe your cooking method, baladi ghee, and side portions..."
+                          class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                <div class="sm:col-span-8">
+                    <label for="ImageUrl" class="block font-semibold mb-1.5 text-[var(--color-text)]">Dish Photo URL</label>
+                    <input id="ImageUrl" name="ImageUrl" type="url" required placeholder="https://images.unsplash.com/..."
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                </div>
+                <div class="sm:col-span-4 flex items-center gap-2.5 sm:pt-6">
+                    <input id="IsAvailable" name="IsAvailable" type="checkbox" value="true" checked class="w-4 h-4 rounded accent-[var(--color-primary)] cursor-pointer" />
+                    <label for="IsAvailable" class="font-bold text-emerald-600 cursor-pointer">Available for Orders</label>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-[var(--color-border)] flex items-center justify-end gap-3">
+                <a asp-controller="MenuManagement" asp-action="Index"
+                   class="px-5 py-2.5 rounded-full border border-[var(--color-border)] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="px-6 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider rounded-full shadow-xs transition-colors cursor-pointer">
+                    Save &amp; Publish Dish
+                </button>
+            </div>
+        </form>
+    </div>
+</main>

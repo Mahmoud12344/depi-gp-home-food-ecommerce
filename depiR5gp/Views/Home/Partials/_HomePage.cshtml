@@ -42,7 +42,7 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3.5 pt-2">
-                        <a href="#dishes"
+                        <a href="/Dishes"
                            class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] focus-visible:outline-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/20">
                             <span x-text="$store.app.language === 'ar' ? 'استعرض أطباق اليوم' : 'Order Fresh Today'">Order Fresh Today</span>
                             <svg class="w-4 h-4" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,22 +50,23 @@
                             </svg>
                         </a>
 
-                        <a href="#chefs"
+                        <a href="/Chefs"
                            class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white focus-visible:outline-[var(--color-primary)]">
                             <span x-text="$store.app.language === 'ar' ? 'تعرف على طهاة الحي' : 'Meet The Chefs'">Meet The Chefs</span>
                         </a>
                     </div>
 
                     <!-- Search Bar pill -->
-                    <form @@submit.prevent="if ($store.app.searchQuery.trim()) { $store.app.navigate('#dishes'); }" class="pt-4 max-w-md mx-auto lg:mx-0">
+                    <form method="get" action="/Dishes" class="pt-4 max-w-md mx-auto lg:mx-0">
                         <div class="relative flex items-center bg-white dark:bg-neutral-900 rounded-full border-2 border-[var(--color-border)] p-1.5 shadow-lg focus-within:border-[var(--color-primary)] transition-all">
                             <svg class="w-5 h-5 text-[var(--color-primary)] ms-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
                             <input type="text"
+                                   name="q"
                                    x-model="$store.app.searchQuery"
                                    :placeholder="$store.app.language === 'ar' ? 'ابحث عن ملوخية، طواجن، فطير، كبدة...' : 'Search Molokhia, Oxtail Tagine, Feteer...'"
                                    class="w-full text-xs sm:text-sm px-3 py-1.5 bg-transparent text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-hidden font-semibold" />
                             <button type="submit"
-                                    class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all cursor-pointer shadow-md shrink-0">
+                                     class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all cursor-pointer shadow-md shrink-0">
                                 <span x-text="$store.app.language === 'ar' ? 'بحث' : 'Find'">Find</span>
                             </button>
                         </div>
@@ -102,7 +103,7 @@
                                 </p>
                             </div>
                             <button type="button"
-                                    @@click="$store.app.navigate('#dish/dish-2')"
+                                    @@click="window.location.href = '/Dishes/Details/2'"
                                     class="w-10 h-10 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white flex items-center justify-center transition-all shadow-md cursor-pointer shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
                             </button>
@@ -128,7 +129,7 @@
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
             <!-- Egyptian -->
-            <div @@click="$store.app.selectedCuisine = 'egyptian'; $store.app.navigate('#dishes')"
+            <div @@click="window.location.href = '/Dishes?cuisine=egyptian'"
                  class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
                 <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
                     <img src="https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=300&auto=format&fit=crop&q=80" alt="Traditional Egyptian" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -138,7 +139,7 @@
                 <span class="text-[10px] text-[var(--color-text-muted)] mt-1 font-medium">12 Dishes</span>
             </div>
             <!-- Tagines -->
-            <div @@click="$store.app.selectedCuisine = 'tagines'; $store.app.navigate('#dishes')"
+            <div @@click="window.location.href = '/Dishes?cuisine=tagines'"
                  class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
                 <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
                     <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=300&auto=format&fit=crop&q=80" alt="Clay Tagines" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -148,7 +149,7 @@
                 <span class="text-[10px] text-[var(--color-text-muted)] mt-1 font-medium">8 Dishes</span>
             </div>
             <!-- Bakery -->
-            <div @@click="$store.app.selectedCuisine = 'bakery'; $store.app.navigate('#dishes')"
+            <div @@click="window.location.href = '/Dishes?cuisine=bakery'"
                  class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
                 <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
                     <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80" alt="Artisan Bakery" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -158,7 +159,7 @@
                 <span class="text-[10px] text-[var(--color-text-muted)] mt-1 font-medium">9 Dishes</span>
             </div>
             <!-- Alexandrian -->
-            <div @@click="$store.app.selectedCuisine = 'alexandrian'; $store.app.navigate('#dishes')"
+            <div @@click="window.location.href = '/Dishes?cuisine=alexandrian'"
                  class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
                 <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
                     <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&auto=format&fit=crop&q=80" alt="Alexandrian Liver & Seafood" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -168,7 +169,7 @@
                 <span class="text-[10px] text-[var(--color-text-muted)] mt-1 font-medium">6 Dishes</span>
             </div>
             <!-- Desserts -->
-            <div @@click="$store.app.selectedCuisine = 'desserts'; $store.app.navigate('#dishes')"
+            <div @@click="window.location.href = '/Dishes?cuisine=desserts'"
                  class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)] hover:-translate-y-1.5 flex flex-col items-center justify-between">
                 <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-[var(--color-primary)] transition-all shadow-sm">
                     <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300&auto=format&fit=crop&q=80" alt="Oriental Desserts" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -190,7 +191,7 @@
                 <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)] mt-1"
                     x-text="$store.app.language === 'ar' ? 'أطباق طازجة من أفران الطهاة' : 'Fresh From Home Ovens'">Fresh From Home Ovens</h2>
             </div>
-            <a href="#dishes" class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto">
+            <a href="/Dishes" class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto">
                 <span x-text="$store.app.language === 'ar' ? 'عرض كامل القائمة' : 'View Full Menu'">View Full Menu</span>
                 <svg class="w-3.5 h-3.5" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
             </a>

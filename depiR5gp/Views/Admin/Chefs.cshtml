@@ -1,6 +1,239 @@
+@* Views/Admin/Chefs.cshtml *@
+@* TODO [Backend]: @model IEnumerable<depiR5gp.Models.Chefs.ChefProfile> *@
 @{
-    ViewData["Title"] = "Chef Approval Queue";
+    ViewData["Title"] = "Chef Applications & Approvals - Admin Portal";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 space-y-8">
+
+    <!-- Pending Chef Applications Section -->
+    <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Pending Domestic Kitchen Applications
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                    Verify national identity, food safety certificates, and kitchen hygiene inspections before granting marketplace access.
+                </p>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                2 Applications Pending
+            </span>
+        </div>
+
+        @* TODO [Backend]: @foreach (var chef in Model.Where(c => !c.IsVerified)) — depiR5gp.Models.Chefs.ChefProfile *@
+        <div class="space-y-4">
+            <!-- Pending Chef Card 1: Kareem's Alexandria Seafood -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs space-y-5">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="space-y-1.5 text-xs">
+                        <span class="inline-block text-[10px] font-bold uppercase tracking-widest text-amber-950 dark:text-amber-100 bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 px-2.5 py-0.5 rounded-full">
+                            Application Pending Review
+                        </span>
+                        <h3 class="text-base font-bold uppercase text-[var(--color-text)]">
+                            Kareem's Alexandria Seafood (Chef Kareem Nour)
+                        </h3>
+                        <p class="text-[var(--color-text-muted)]">
+                            Building 12, Abbas El-Akkad, Nasr City, Cairo &middot; Pickup Area: Nasr City
+                        </p>
+                        <div class="flex flex-wrap items-center gap-3 pt-1">
+                            <span class="text-[var(--color-primary)] font-semibold">
+                                National ID: EGY-2930411-NAT
+                            </span>
+                            <span class="text-neutral-300 dark:text-neutral-700">|</span>
+                            <span class="text-emerald-600 font-semibold">
+                                Food Safety Cert: FS-CAIRO-2026-992
+                            </span>
+                            <span class="text-neutral-300 dark:text-neutral-700">|</span>
+                            <span class="text-[var(--color-text-muted)]">
+                                Specialty: Alexandrian Seafood &amp; Sayadiyah Tagines
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-[var(--color-border-light)] text-xs">
+                    <!-- Approve Form -->
+                    <form method="post" asp-controller="Admin" asp-action="ApproveChef" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input type="hidden" name="ChefProfileId" value="4" />
+                        <input type="text"
+                               name="ApprovalNotes"
+                               placeholder="Approval verification note (optional)..."
+                               value="National ID & FS-CAIRO-2026-992 verified."
+                               class="flex-1 px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] text-xs focus:outline-hidden focus:border-emerald-600" />
+                        <button type="submit"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer shrink-0 shadow-xs">
+                            Approve &amp; Grant Kitchen
+                        </button>
+                    </form>
+
+                    <!-- Reject Form -->
+                    <form method="post" asp-controller="Admin" asp-action="RejectChef" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input type="hidden" name="ChefProfileId" value="4" />
+                        <input type="text"
+                               name="RejectionReason"
+                               required
+                               placeholder="Reason for rejection (required if rejecting)..."
+                               class="flex-1 px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] text-xs focus:outline-hidden focus:border-rose-500" />
+                        <button type="submit"
+                                class="px-4 py-2 border border-rose-300 dark:border-rose-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-rose-600 text-xs font-bold uppercase tracking-wider rounded-full transition-colors cursor-pointer shrink-0">
+                            Reject Application
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Pending Chef Card 2: Nadia's Upper Egyptian Oven -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs space-y-5">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="space-y-1.5 text-xs">
+                        <span class="inline-block text-[10px] font-bold uppercase tracking-widest text-amber-950 dark:text-amber-100 bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 px-2.5 py-0.5 rounded-full">
+                            Application Pending Review
+                        </span>
+                        <h3 class="text-base font-bold uppercase text-[var(--color-text)]">
+                            Nadia's Upper Egyptian Oven (Chef Nadia Abdel-frame)
+                        </h3>
+                        <p class="text-[var(--color-text-muted)]">
+                            Villa 8, Sheikh Zayed District 4, Giza &middot; Pickup Area: Sheikh Zayed
+                        </p>
+                        <div class="flex flex-wrap items-center gap-3 pt-1">
+                            <span class="text-[var(--color-primary)] font-semibold">
+                                National ID: EGY-2881104-NAT
+                            </span>
+                            <span class="text-neutral-300 dark:text-neutral-700">|</span>
+                            <span class="text-emerald-600 font-semibold">
+                                Food Safety Cert: FS-GIZA-2026-441
+                            </span>
+                            <span class="text-neutral-300 dark:text-neutral-700">|</span>
+                            <span class="text-[var(--color-text-muted)]">
+                                Specialty: Clay-Pot Bamia, Feteer Meshaltet &amp; Sun-Bread
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-[var(--color-border-light)] text-xs">
+                    <!-- Approve Form -->
+                    <form method="post" asp-controller="Admin" asp-action="ApproveChef" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input type="hidden" name="ChefProfileId" value="5" />
+                        <input type="text"
+                               name="ApprovalNotes"
+                               placeholder="Approval verification note (optional)..."
+                               value="Hygiene inspection passed with A+ grade."
+                               class="flex-1 px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] text-xs focus:outline-hidden focus:border-emerald-600" />
+                        <button type="submit"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer shrink-0 shadow-xs">
+                            Approve &amp; Grant Kitchen
+                        </button>
+                    </form>
+
+                    <!-- Reject Form -->
+                    <form method="post" asp-controller="Admin" asp-action="RejectChef" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input type="hidden" name="ChefProfileId" value="5" />
+                        <input type="text"
+                               name="RejectionReason"
+                               required
+                               placeholder="Reason for rejection (required if rejecting)..."
+                               class="flex-1 px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] text-xs focus:outline-hidden focus:border-rose-500" />
+                        <button type="submit"
+                                class="px-4 py-2 border border-rose-300 dark:border-rose-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-rose-600 text-xs font-bold uppercase tracking-wider rounded-full transition-colors cursor-pointer shrink-0">
+                            Reject Application
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verified Domestic Kitchens Section -->
+    <div class="space-y-4 pt-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Active &amp; Verified Domestic Kitchens
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                    Approved home kitchens currently published on the HomeChef marketplace.
+                </p>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700">
+                3 Verified Kitchens
+            </span>
+        </div>
+
+        @* TODO [Backend]: @foreach (var chef in Model.Where(c => c.IsVerified)) — depiR5gp.Models.Chefs.ChefProfile *@
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <!-- Verified Chef 1 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                            Verified &middot; Active
+                        </span>
+                        <span class="font-bold text-amber-600">4.9 &#9733; (84 orders)</span>
+                    </div>
+                    <h3 class="text-sm font-bold uppercase text-[var(--color-text)]">Amina's Heritage Kitchen</h3>
+                    <p class="text-[var(--color-text-muted)]">Chef Amina Mansour &middot; Maadi, Cairo</p>
+                    <p class="text-[11px] text-[var(--color-primary)] font-semibold">Cert: FS-CAIRO-2026-104</p>
+                </div>
+                <div class="pt-3 border-t border-[var(--color-border-light)] flex items-center justify-between">
+                    <a href="/Chefs/Details/1" class="text-[var(--color-primary)] font-bold hover:underline">View Public Storefront &rarr;</a>
+                    <form method="post" asp-controller="Admin" asp-action="RejectChef" class="inline">
+                        <input type="hidden" name="ChefProfileId" value="1" />
+                        <input type="hidden" name="RejectionReason" value="Administrative compliance review" />
+                        <button type="submit" class="text-rose-600 hover:underline font-semibold cursor-pointer">Revoke Badge</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Verified Chef 2 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                            Verified &middot; Active
+                        </span>
+                        <span class="font-bold text-amber-600">4.8 &#9733; (62 orders)</span>
+                    </div>
+                    <h3 class="text-sm font-bold uppercase text-[var(--color-text)]">Hany's Gourmet Grills</h3>
+                    <p class="text-[var(--color-text-muted)]">Chef Hany El-Sayed &middot; Heliopolis, Cairo</p>
+                    <p class="text-[11px] text-[var(--color-primary)] font-semibold">Cert: FS-CAIRO-2026-218</p>
+                </div>
+                <div class="pt-3 border-t border-[var(--color-border-light)] flex items-center justify-between">
+                    <a href="/Chefs/Details/2" class="text-[var(--color-primary)] font-bold hover:underline">View Public Storefront &rarr;</a>
+                    <form method="post" asp-controller="Admin" asp-action="RejectChef" class="inline">
+                        <input type="hidden" name="ChefProfileId" value="2" />
+                        <input type="hidden" name="RejectionReason" value="Administrative compliance review" />
+                        <button type="submit" class="text-rose-600 hover:underline font-semibold cursor-pointer">Revoke Badge</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Verified Chef 3 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                            Verified &middot; Active
+                        </span>
+                        <span class="font-bold text-amber-600">4.9 &#9733; (51 orders)</span>
+                    </div>
+                    <h3 class="text-sm font-bold uppercase text-[var(--color-text)]">Om Nabil Casseroles</h3>
+                    <p class="text-[var(--color-text-muted)]">Chef Samira Nabil &middot; Dokki, Giza</p>
+                    <p class="text-[11px] text-[var(--color-primary)] font-semibold">Cert: FS-GIZA-2026-309</p>
+                </div>
+                <div class="pt-3 border-t border-[var(--color-border-light)] flex items-center justify-between">
+                    <a href="/Chefs/Details/3" class="text-[var(--color-primary)] font-bold hover:underline">View Public Storefront &rarr;</a>
+                    <form method="post" asp-controller="Admin" asp-action="RejectChef" class="inline">
+                        <input type="hidden" name="ChefProfileId" value="3" />
+                        <input type="hidden" name="RejectionReason" value="Administrative compliance review" />
+                        <button type="submit" class="text-rose-600 hover:underline font-semibold cursor-pointer">Revoke Badge</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

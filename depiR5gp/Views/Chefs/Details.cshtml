@@ -1,8 +1,127 @@
+@* TODO [Backend]: @model depiR5gp.Models.Chefs.ChefProfile *@
 @{
     ViewData["Title"] = "Chef Profile - HomeChef";
 }
 
 <!-- Public Chef Profile Page -->
 <main>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_PublicChef.cshtml")
+    <div x-data="{ activeTab: 'menu' }" class="w-full pb-24">
+
+        <!-- Breadcrumb banner with Blurred / Transparent Thumbnail Background -->
+        <div class="relative w-full border-b border-[var(--color-border)] py-8 md:py-12 overflow-hidden bg-neutral-900">
+            <!-- Blurred / Transparent Thumbnail Image -->
+            <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&auto=format&fit=crop&q=80"
+                 alt="Amina's Heritage Kitchen"
+                 class="absolute inset-0 w-full h-full object-cover scale-105 filter blur-xs opacity-30 dark:opacity-20 pointer-events-none select-none transition-transform duration-700" />
+            
+            <!-- Dark Gradient Overlay for Maximum Text Readability -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/55 to-black/40 pointer-events-none"></div>
+
+            <!-- Foreground Content: Clean Breadcrumb & Chef Title -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white">
+                <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-white/75 gap-2 flex-wrap mb-3">
+                    <a href="/" class="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                    </a>
+                    <svg class="w-4 h-4 text-white/50 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                    <a href="/Chefs" class="hover:text-white transition-colors cursor-pointer font-medium" x-text="$store.app.language === 'ar' ? 'الطهاة' : 'Chefs'">Chefs</a>
+                    <svg class="w-4 h-4 text-white/50 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                    <span class="text-white font-semibold truncate" x-text="$store.app.language === 'ar' ? 'مطبخ أمينة التراثي' : 'Amina\'s Heritage Kitchen'">Amina's Heritage Kitchen</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold uppercase tracking-tight text-white drop-shadow-md"
+                    x-text="$store.app.language === 'ar' ? 'مطبخ أمينة التراثي' : 'Amina\'s Heritage Kitchen'">
+                    Amina's Heritage Kitchen
+                </h1>
+                <p class="text-xs sm:text-sm text-white/80 mt-2 leading-relaxed font-medium"
+                   x-text="$store.app.language === 'ar' ? 'الشيف أمينة منصور · المعادي، القاهرة' : 'Chef Amina Mansour · Maadi, Cairo'">
+                    Chef Amina Mansour · Maadi, Cairo
+                </p>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-10">
+            <!-- Navigation Tabs & Action Bar -->
+            <div class="flex flex-wrap items-center justify-between border-b border-[var(--color-border)] gap-4 pb-2 sm:pb-0">
+                <!-- Tabs -->
+                <div class="flex gap-6 overflow-x-auto">
+                    <button type="button"
+                            @@click="activeTab = 'menu'"
+                            :class="activeTab === 'menu' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                            class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer shrink-0">
+                        <span x-text="$store.app.language === 'ar' ? 'قائمة أطباق المطبخ' : 'Kitchen Menu'">Kitchen Menu</span> (2)
+                    </button>
+                    <button type="button"
+                            @@click="activeTab = 'reviews'"
+                            :class="activeTab === 'reviews' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                            class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer shrink-0">
+                        <span x-text="$store.app.language === 'ar' ? 'تقييمات الزبائن' : 'Customer Reviews'">Customer Reviews</span> (1)
+                    </button>
+                    <button type="button"
+                            @@click="activeTab = 'about'"
+                            :class="activeTab === 'about' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                            class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer shrink-0">
+                        <span x-text="$store.app.language === 'ar' ? 'معايير النظافة والتحضير' : 'Hygiene & Story'">Hygiene & Story</span>
+                    </button>
+                </div>
+
+                <!-- Actions: Chat with Chef & Favorite -->
+                <div class="flex items-center gap-2 pb-2 sm:pb-3">
+                    <button type="button"
+                            @@click="$store.app.toggleFavorite('chef-1')"
+                            class="p-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-rose-500 transition-colors cursor-pointer"
+                            title="Favorite chef">
+                        <svg class="w-4 h-4" :class="$store.app.isFavorite('chef-1') ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#heart"></use></svg>
+                    </button>
+                    <a href="/Chat"
+                       class="inline-flex items-center gap-1.5 bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#message-circle"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'محادثة الشيف' : 'Chat with Chef'">Chat with Chef</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tab 1: Menu -->
+            @* TODO [Backend]: Loop through Model.Dishes — @foreach (var dish in Model.Dishes) { render _DishCard } *@
+            <div x-show="activeTab === 'menu'">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <partial name="~/Views/Shared/Partials/_DishCard.cshtml" />
+                </div>
+            </div>
+
+            <!-- Tab 2: Reviews -->
+            @* TODO [Backend]: Loop through Model.Reviews — @foreach (var review in Model.Reviews) { ... } *@
+            <div x-show="activeTab === 'reviews'" class="space-y-4 max-w-3xl">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-xs text-[var(--color-text)]">Karim El-Gohary</span>
+                        <div class="flex items-center text-[var(--color-star)]">
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        </div>
+                    </div>
+                    <p class="text-xs text-[var(--color-text)] leading-relaxed italic">
+                        “The Molokhia with duck was outstanding. Truly authentic grandmother style recipe with generous portions and hot pickup ready on the minute.”
+                    </p>
+                    <span class="text-[10px] text-[var(--color-text-muted)] block" x-text="$store.app.language === 'ar' ? 'طلب موثق ومكتمل' : 'Verified Completed Order'">Verified Completed Order</span>
+                </div>
+            </div>
+
+            <!-- Tab 3: About -->
+            @* TODO [Backend]: Bind Model.Bio, Model.HygieneCertificates, and domestic inspection summary *@
+            <div x-show="activeTab === 'about'" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 sm:p-8 space-y-4 max-w-3xl">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]"
+                    x-text="$store.app.language === 'ar' ? 'معايير الجودة وسلامة الغذاء' : 'Culinary Hygiene & Pure Ingredients'">
+                    Culinary Hygiene & Pure Ingredients
+                </h3>
+                <p class="text-xs text-[var(--color-text-muted)] leading-relaxed"
+                   x-text="$store.app.language === 'ar' ? 'يلتزم هذا المطبخ المنزلي بجميع المعايير الصحية المعتمدة من المنصة. يتم استخدام اللحوم الطازجة المذبوحة محلياً، والسمن البلدي الفلاحي النقي بنسبة 100%، بدون أي دهون مهدرجة أو نكهات صناعية. جميع الوجبات يتم طهيها في أواني فخارية وأفران معقمة يومياً.' : 'This domestic kitchen complies with platform health inspection standards. Meals are cooked using only 100% baladi ghee, fresh butcher meats, and organic produce without artificial preservatives. Cookware is sanitized between every preparation.'">
+                    This domestic kitchen complies with platform health inspection standards. Meals are cooked using only 100% baladi ghee, fresh butcher meats, and organic produce without artificial preservatives. Cookware is sanitized between every preparation.
+                </p>
+            </div>
+        </div>
+    </div>
 </main>

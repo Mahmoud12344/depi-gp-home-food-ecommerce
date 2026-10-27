@@ -1,8 +1,494 @@
 @{
     ViewData["Title"] = "AI Culinary Assistant - HomeChef";
 }
+@* TODO [Backend]: @model depiR5gp.Models.AIAssistant.AssistantConversation *@
 
 <!-- AI Assistant Page -->
 <main>
-    @await Html.PartialAsync("~/Views/AIAssistant/Partials/_AIAssistant.cshtml")
+    <div x-data="{
+        status: 'idle',
+        currentPrompt: '',
+        inputValue: '',
+        thinkEnabled: true,
+        steps: [],
+        answer: '',
+        elapsedSeconds: 0,
+        recommendedDishes: [],
+        activePresetId: null,
+        timerId: null,
+        intervalId: null,
+        allDishes: [
+            {
+                id: 'dish-1',
+                name: 'Baladi Duck Molokhia with Vermicelli Rice',
+                nameAr: 'ملوخية بالبط البلدي مع أرز بالشعرية',
+                price: 240,
+                originalPrice: 280,
+                rating: 4.9,
+                prepTimeMinutes: 45,
+                kitchenName: 'Amina\'s Heritage Kitchen',
+                isSale: true,
+                image: 'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80'
+            },
+            {
+                id: 'dish-2',
+                name: 'Braised Oxtail Clay Pot with Caramelized Onions',
+                nameAr: 'طاجن عكاوي بلدي بالبصل القاورما المكرمل',
+                price: 275,
+                originalPrice: 310,
+                rating: 5.0,
+                prepTimeMinutes: 60,
+                kitchenName: 'Hany\'s Gourmet Grills',
+                isSale: true,
+                image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80'
+            },
+            {
+                id: 'dish-4',
+                name: 'Authentic Baladi Feteer Meshaltet (Plain & Sweet)',
+                nameAr: 'فطير مشلتت فلاحي مورق بالسمن البلدي',
+                price: 160,
+                originalPrice: null,
+                rating: 4.9,
+                prepTimeMinutes: 40,
+                kitchenName: 'Amina\'s Heritage Kitchen',
+                isSale: false,
+                image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80'
+            },
+            {
+                id: 'dish-6',
+                name: 'Royal Egyptian Om Ali with Clotted Cream & Nuts',
+                nameAr: 'طاجن أم علي ملوكي بالقشطة الفلاحي والمكسرات',
+                price: 135,
+                originalPrice: null,
+                rating: 4.9,
+                prepTimeMinutes: 25,
+                kitchenName: 'Amina\'s Heritage Kitchen',
+                isSale: false,
+                image: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600&auto=format&fit=crop&q=80'
+            }
+        ],
+        presets: [
+            {
+                id: 'family-feast',
+                icon: '🍲',
+                titleEn: 'Traditional Family Feast for 6',
+                titleAr: 'عزومة عائلية متكاملة لـ 6 أفراد',
+                promptEn: 'Plan a traditional Egyptian family dinner for 6 under 750 EGP with authentic baladi ghee',
+                promptAr: 'خطط لعشاء عائلي مصري أصيل لـ 6 أفراد بأقل من 750 جنيه مع سمن بلدي طبيعي',
+                stepsEn: [
+                    'Scanning verified domestic kitchens in Maadi & Zamalek…',
+                    'Filtering for 100% baladi ghee and slow-cooked roasts…',
+                    'Balancing portions: duck, tagines, rice, and freshly baked bread…',
+                    'Verifying live kitchen capacity and counter pickup readiness…',
+                    'Finalizing tailored multi-course menu under 750 EGP…'
+                ],
+                stepsAr: [
+                    'فحص المطابخ المنزلية المعتمدة في المعادي والزمالك…',
+                    'التصفية للأكلات المحضرة بالسمن البلدي الفلاحي ١٠٠٪…',
+                    'موازنة الحصص: بط محمر، طواجن فخار، أرز معمر، وفطير مشلتت…',
+                    'التحقق من جاهزية المطابخ ومواعيد الاستلام الساخن…',
+                    'إتمام قائمة العزومة المتكاملة بميزانية موفرة…'
+                ],
+                answerEn: 'Here is a curated authentic home-cooked feast tailored for 6 people:\n\n1. Main Course: Molokhia with Roasted Baladi Duck (Chef Amina Mansour, Maadi) · Rich slow-simmered duck broth with fragrant garlic coriander ta\'shaa and vermicelli rice.\n2. Centerpiece Tagine: Braised Oxtail Clay Pot with Caramelized Baby Onions (Chef Hany El-Sayed, Zamalek) · Slow-braised in Egyptian earthenware until meltingly tender.\n3. Artisan Side: Rustic Baladi Feteer Meshaltet served warm with clover honey and aged old roomi cheese.\n\nTotal Estimate: ~710 EGP · High in traditional flavor, zero industrial oils, direct counter pickup.',
+                answerAr: 'إليك قائمة عزومة بيتية فاخرة ومحسوبة بالكامل لـ 6 أفراد:\n\n١. الطبق الرئيسي: ملوخية خضراء بالبط البلدي المحمر (مطبخ الشيف أمينة، المعادي) · مطهوة بمرقة بط دسمة مع طشة الثوم والكزبرة والأرز بالشعرية.\n٢. طاجن الفخار الملكي: طاجن عكاوي بلدي بالبصل القاورما المكرمل (الشيف هاني، الزمالك) · لحم بلدي طري ومطهو على نار هادئة.\n٣. مخبوزات التراث: فطير مشلتت فلاحي بالسمن البلدي مورق وخفيف يقدم مع عسل النحل والجبن القديم.\n\nالتكلفة الإجمالية: ~٧١٠ ج.م فقط · طهي بيتي نظيف ١٠٠٪ بدون زيوت مهدرجة، واستلام مباشر ساخن.',
+                matchedDishIds: ['dish-1', 'dish-2', 'dish-4']
+            },
+            {
+                id: 'spicy-tagines',
+                icon: '🔥',
+                titleEn: 'Slow-Cooked Meat Tagines',
+                titleAr: 'طواجن فخار ولحوم بلدي',
+                promptEn: 'Recommend rich clay pot tagines and tender meat dishes ready for pickup this evening',
+                promptAr: 'اقترح علي طواجن فخار غنية باللحم البلدي جاهزة للاستلام الساخن هذا المساء',
+                stepsEn: [
+                    'Querying active casseroles and wood-fired ovens…',
+                    'Checking meat cuts: Egyptian veal shanks and braised oxtail…',
+                    'Filtering kitchens with 4.8+ customer food safety ratings…',
+                    'Synthesizing chef cooking secrets and spice notes…'
+                ],
+                stepsAr: [
+                    'البحث في الأفران الفخارية والمطابخ العاملة حالياً…',
+                    'فحص قطع اللحم: عكاوي بلدي، موزة ضاني، ولحم بتلو متبل…',
+                    'مطابقة المطابخ الحاصلة على تقييم ٤.٨ فأعلى…',
+                    'تجهيز الملاحظات العطرية وتوصيات الطهاة…'
+                ],
+                answerEn: 'For lovers of slow-simmered, tender meats cooked in genuine clay pots:\n\n• Braised Oxtail Clay Pot (Chef Hany El-Sayed, Zamalek) · 275 EGP · Cooked with nutmeg, cardamom, and sweet caramelized shallots.\n• Molokhia with Roasted Baladi Duck (Chef Amina Mansour, Maadi) · 240 EGP · Fall-off-the-bone tender roasted bird with heritage stock.\n\nBoth dishes are freshly prepped in earthenware vessels that seal in the savory aromas.',
+                answerAr: 'لعشاق اللحوم البلدية المطهوة على نار هادئة داخل الطواجن الفخارية التراثية:\n\n• طاجن عكاوي بلدي بالبصل القاورما (الشيف هاني السيد، الزمالك) · ٢٧٥ ج.م · لحم دايب مع حلاوة البصل والتوابل الشرقية.\n• ملوخية خضراء ببط بلدي محمر (الشيف أمينة، المعادي) · ٢٤٠ ج.م · بط بلدي محمر بالسمن مع مرقة غنية ومتبلة بعناية.\n\nالأطباق يتم تسليمها ساخنة وطازجة في أواني فخارية تحفظ النكهة والحرارة.',
+                matchedDishIds: ['dish-2', 'dish-1']
+            },
+            {
+                id: 'sweet-treats',
+                icon: '🍯',
+                titleEn: 'Desserts & Sweets',
+                titleAr: 'حلويات شرقية بالقشطة',
+                promptEn: 'What is the best warm dessert with pure baladi cream for a weekend treat?',
+                promptAr: 'ما هي أفضل تحلية شرقية ساخنة بالقشطة الفلاحي لعطلة نهاية الأسبوع؟',
+                stepsEn: [
+                    'Scanning pastry chefs and domestic confectionery ovens…',
+                    'Verifying real water-buffalo clotted cream (eshta baladi)…',
+                    'Calculating baking times for piping hot service…'
+                ],
+                stepsAr: [
+                    'فحص صواني الحلويات الشرقية المتاحة لدى طهاة المعجنات…',
+                    'التأكد من استخدام القشطة الفلاحي الطبيعية والحليب الطازج…',
+                    'حساب أوقات الخبز والتسليم الساخن…'
+                ],
+                answerEn: 'The gold standard for a comforting Egyptian dessert:\n\n• Royal Egyptian Om Ali with Clotted Cream (Chef Amina Mansour) · 135 EGP · Flaky baked puff pastry drowned in sweetened rich buffalo milk, layered with toasted pistachios, almonds, raisins, and a scorched golden crust of pure eshta baladi.\n\nServed warm directly from the domestic oven!',
+                answerAr: 'الاختيار الأفضل بلا منازع للتحلية الشرقية الدافئة:\n\n• طاجن أم علي ملوكي بالقشطة الفلاحي والمكسرات (الشيف أمينة منصور) · ١٣٥ ج.م · رقائق الميلفاي المحمصة المشبعة بالحليب الطازج والمكسرات الفاخرة مع طبقة قشطة فلاحي مكرملة تحت الشواية.\n\nيُقدم ساخناً ومقرمشاً مباشرة من الفرن المنزلي!',
+                matchedDishIds: ['dish-6', 'dish-4']
+            },
+            {
+                id: 'quick-pickup',
+                icon: '⚡',
+                titleEn: 'Quick Pickup (< 45 min)',
+                titleAr: 'استلام سريع في أقل من 45 دقيقة',
+                promptEn: 'Suggest freshly made home meals ready for pickup in under 45 minutes in Maadi or Zamalek',
+                promptAr: 'اقترح وجبات بيتية طازجة جاهزة للاستلام في أقل من 45 دقيقة في المعادي أو الزمالك',
+                stepsEn: [
+                    'Querying kitchens with active immediate cook status…',
+                    'Sorting dishes with prep time <= 45 minutes…',
+                    'Verifying counter pickup parking and access…'
+                ],
+                stepsAr: [
+                    'تحديد المطابخ المنزلية الجاهزة للاستلام الفوري الآن…',
+                    'ترتيب الأطباق ذات وقت تحضير ٤٥ دقيقة أو أقل…',
+                    'فحص سهولة الوصول واستلام الطلب من الشيف…'
+                ],
+                answerEn: 'Top recommendations ready on short notice:\n\n1. Molokhia with Roasted Duck · 45 mins prep · Kitchen counter pickup in Degla, Maadi.\n2. Authentic Feteer Meshaltet · 40 mins prep · Warm layered pastry, ready for quick pickup in Maadi.\n\nSave delivery wait times and pick up steaming hot directly from the chef\'s counter!',
+                answerAr: 'أفضل الخيارات السريعة الجاهزة للاستلام العاجل:\n\n١. ملوخية خضراء بالبط المحمر · ٤٥ دقيقة تحضير · استلام من بوابة مطبخ المعادي (دجلة).\n٢. فطير مشلتت فلاحي مورق · ٤٠ دقيقة تحضير · طازج وساخن من الفرن مباشرة.\n\nوفر رسوم وتأخير الدليفري واستلم طلبك ساخناً من يد الشيف!',
+                matchedDishIds: ['dish-1', 'dish-4']
+            }
+        ],
+        clearAll() {
+            if (this.timerId) clearInterval(this.timerId);
+            if (this.intervalId) clearInterval(this.intervalId);
+        },
+        handlePresetClick(preset) {
+            this.activePresetId = preset.id;
+            const text = $store.app.language === 'ar' ? preset.promptAr : preset.promptEn;
+            this.inputValue = text;
+            this.executePrompt(text, this.thinkEnabled, preset);
+        },
+        executePrompt(userPrompt, useThinking, presetObj) {
+            this.clearAll();
+            this.currentPrompt = userPrompt;
+            this.answer = '';
+            this.elapsedSeconds = 0;
+            this.recommendedDishes = [];
+
+            const preset = presetObj || this.presets.find(p => p.id === this.activePresetId) || this.presets[0];
+            const stepTexts = $store.app.language === 'ar' ? preset.stepsAr : preset.stepsEn;
+            const targetAnswer = $store.app.language === 'ar' ? preset.answerAr : preset.answerEn;
+            const dishes = this.allDishes.filter(d => preset.matchedDishIds.includes(d.id));
+
+            if (useThinking) {
+                this.status = 'thinking';
+                this.steps = [];
+
+                this.timerId = setInterval(() => {
+                    this.elapsedSeconds += 1;
+                }, 950);
+
+                stepTexts.forEach((text, idx) => {
+                    setTimeout(() => {
+                        this.steps = this.steps.map(s => ({ ...s, status: 'complete' }));
+                        this.steps.push({ id: `step-${idx}`, text, status: 'active' });
+                    }, (idx + 1) * 600);
+                });
+
+                setTimeout(() => {
+                    if (this.timerId) clearInterval(this.timerId);
+                    this.steps = this.steps.map(s => ({ ...s, status: 'complete' }));
+                    this.status = 'answering';
+                    this.recommendedDishes = dishes;
+
+                    let charIndex = 0;
+                    this.intervalId = setInterval(() => {
+                        charIndex += 4;
+                        this.answer = targetAnswer.slice(0, charIndex);
+                        if (charIndex >= targetAnswer.length) {
+                            clearInterval(this.intervalId);
+                            this.status = 'done';
+                        }
+                    }, 20);
+                }, (stepTexts.length + 1) * 600);
+            } else {
+                this.status = 'answering';
+                this.steps = [];
+                this.recommendedDishes = dishes;
+
+                let charIndex = 0;
+                this.intervalId = setInterval(() => {
+                    charIndex += 5;
+                    this.answer = targetAnswer.slice(0, charIndex);
+                    if (charIndex >= targetAnswer.length) {
+                        clearInterval(this.intervalId);
+                        this.status = 'done';
+                    }
+                }, 18);
+            }
+        },
+        handleFormSubmit() {
+            if (!this.inputValue.trim()) return;
+            this.executePrompt(this.inputValue.trim(), this.thinkEnabled);
+        },
+        resetChat() {
+            this.clearAll();
+            this.status = 'idle';
+            this.answer = '';
+            this.recommendedDishes = [];
+            this.activePresetId = null;
+            this.inputValue = '';
+        }
+    }" class="w-full min-h-[calc(100vh-160px)] bg-[var(--color-bg)] py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
+
+        <div class="max-w-[1520px] w-full mx-auto space-y-6">
+            <!-- 1. Breadcrumb banner -->
+            <div class="flex items-center gap-2 text-xs text-[var(--color-text-muted)] font-medium">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                   x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</a>
+                <span>/</span>
+                <span class="text-[var(--color-primary)] font-semibold flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
+                    <span x-text="$store.app.language === 'ar' ? 'مساعد الذكاء الاصطناعي الذواقة' : 'AI Culinary Concierge'">AI Culinary Concierge</span>
+                </span>
+            </div>
+
+            <!-- 2. Main Interactive Workspace: 2-Column Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                <!-- Left / Center Column: Thinking Prompt Input Component -->
+                <div class="lg:col-span-8 space-y-6">
+
+                    <!-- Thinking Prompt Card Container -->
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 sm:p-7 shadow-lg flex flex-col min-h-[560px]">
+                        <div class="mb-4 pb-3 border-b border-[var(--color-border)] flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]"
+                                        x-text="$store.app.language === 'ar' ? 'محادثة المساعد الذكي' : 'Interactive Concierge Session'">
+                                        Interactive Concierge Session
+                                    </h2>
+                                    <p class="text-[11px] text-[var(--color-text-muted)]"
+                                       x-text="status === 'thinking' ? ($store.app.language === 'ar' ? 'جاري التحليل المنطقي والبحث في المطابخ…' : 'Thinking through ingredients and kitchen availability…') : (status === 'answering' ? ($store.app.language === 'ar' ? 'جاري بث التوصية الذواقة…' : 'Streaming culinary recommendation…') : ($store.app.language === 'ar' ? 'اكتب ما تشتهيه أو اختر من الاقتراحات أدناه' : 'Ask anything about dishes, ingredients, or portions'))">
+                                    </p>
+                                </div>
+                            </div>
+
+                            <template x-if="status !== 'idle'">
+                                <button type="button"
+                                        @@click="resetChat()"
+                                        class="flex items-center gap-1 text-[11px] font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#rotate-ccw"></use></svg>
+                                    <span x-text="$store.app.language === 'ar' ? 'بدء محادثة جديدة' : 'New Query'">New Query</span>
+                                </button>
+                            </template>
+                        </div>
+
+                        <!-- Conversation and Steps display -->
+                        <div class="flex-1 flex flex-col justify-end w-full space-y-4">
+                            <!-- Thinking Steps (if active) -->
+                            <div x-show="status === 'thinking' || steps.length > 0" class="bg-[var(--color-surface-subtle)] p-4 rounded-2xl border border-[var(--color-border-light)] space-y-2">
+                                <div class="flex items-center justify-between text-xs font-bold text-[var(--color-primary)]">
+                                    <span class="flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 animate-spin text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
+                                        <span x-text="$store.app.language === 'ar' ? 'خطوات التفكير الذواقة:' : 'Culinary Reasoning:'">Culinary Reasoning:</span>
+                                    </span>
+                                    <span class="font-mono text-[10px]" x-text="`${elapsedSeconds}s`"></span>
+                                </div>
+
+                                <div class="space-y-1.5 text-xs">
+                                    <template x-for="(s, idx) in steps" :key="idx">
+                                        <div class="flex items-center gap-2"
+                                             :class="s.status === 'active' ? 'text-[var(--color-primary)] font-semibold' : 'text-[var(--color-text-muted)] opacity-70'">
+                                            <template x-if="s.status === 'complete'">
+                                                <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                                            </template>
+                                            <template x-if="s.status === 'active'">
+                                                <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0"></span>
+                                            </template>
+                                            <span x-text="s.text"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Streamed Answer -->
+                            <div x-show="answer" class="p-4 rounded-2xl bg-white dark:bg-neutral-800 border border-[var(--color-border-light)] text-xs text-[var(--color-text)] leading-relaxed whitespace-pre-line shadow-xs">
+                                <p x-text="answer"></p>
+                                <p class="text-[10px] text-[var(--color-text-muted)] mt-3 pt-2 border-t border-[var(--color-border-light)] italic"
+                                   x-text="$store.app.language === 'ar' ? 'توصيات مبنية على القائمة الحقيقية للمطابخ المنزلية المعتمدة في القاهرة والجيزة.' : 'Recommendations grounded in verified Cairo & Giza home kitchen menus and certified hygiene standards.'">
+                                </p>
+                            </div>
+
+                            <!-- Prompt Input Form -->
+                            <form @@submit.prevent="handleFormSubmit()" class="relative pt-2">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <label class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[var(--color-text-muted)] cursor-pointer">
+                                        <input type="checkbox" x-model="thinkEnabled" class="rounded text-[var(--color-primary)] focus:ring-0 cursor-pointer" />
+                                        <span x-text="$store.app.language === 'ar' ? 'تفعيل التفكير المتسلسل (Step-by-step reasoning)' : 'Enable step-by-step thinking'">Enable step-by-step thinking</span>
+                                    </label>
+                                </div>
+
+                                <div class="relative flex items-center">
+                                    <input type="text"
+                                           name="Prompt"
+                                           x-model="inputValue"
+                                           :placeholder="$store.app.language === 'ar' ? 'اسأل المساعد: خطط لعشاء عائلي، أو اقترح طاجن لحم بلدي دسم...' : 'Ask anything (e.g. Plan a family feast, recommend spicy clay pot tagine)...'"
+                                           class="w-full text-xs sm:text-sm p-3.5 pe-12 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium shadow-inner" />
+                                    <button type="submit"
+                                            class="absolute end-2 w-9 h-9 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white flex items-center justify-center transition-all cursor-pointer shadow-md">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-up"></use></svg>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Quick Inspiration Prompts -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)] flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'اقتراحات أسئلة سريعة وجاهزة' : 'Inspiration & Quick Inquiries'">Inspiration &amp; Quick Inquiries</span>
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <template x-for="preset in presets" :key="preset.id">
+                                <button @@click="handlePresetClick(preset)"
+                                        class="text-start p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start gap-3"
+                                        :class="activePresetId === preset.id ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5 shadow-xs' : 'border-[var(--color-border)] bg-[var(--color-card-bg)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-surface-subtle)]'">
+                                    <span class="text-xl shrink-0 p-1 bg-white/60 dark:bg-neutral-800 rounded-lg" x-text="preset.icon"></span>
+                                    <div class="min-w-0">
+                                        <h4 class="text-xs font-bold text-[var(--color-text)]"
+                                            x-text="$store.app.language === 'ar' ? preset.titleAr : preset.titleEn">
+                                        </h4>
+                                        <p class="text-[11px] text-[var(--color-text-muted)] line-clamp-2 mt-0.5"
+                                           x-text="$store.app.language === 'ar' ? preset.promptAr : preset.promptEn">
+                                        </p>
+                                    </div>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Grounded Recommended Dishes Panel -->
+                <div class="lg:col-span-4 space-y-6">
+
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 sm:p-6 shadow-sm">
+                        <div class="flex items-center justify-between pb-3 mb-4 border-b border-[var(--color-border)]">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]"
+                                    x-text="$store.app.language === 'ar' ? 'الأطباق المقترحة في هذه الجلسة' : 'Recommended Fresh Dishes'">
+                                    Recommended Fresh Dishes
+                                </h3>
+                            </div>
+                            <span class="text-[11px] font-bold text-[var(--color-primary)]"
+                                  x-text="recommendedDishes.length > 0 ? `${recommendedDishes.length} ${$store.app.language === 'ar' ? 'أطباق متطابقة' : 'Dishes'}` : ($store.app.language === 'ar' ? 'اختر أو اكتب سؤالاً' : 'Awaiting prompt')">
+                            </span>
+                        </div>
+
+                        <template x-if="recommendedDishes.length === 0">
+                            <div class="py-12 text-center space-y-3">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-[var(--color-surface-subtle)] flex items-center justify-center text-[var(--color-text-muted)]">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                                </div>
+                                <p class="text-xs text-[var(--color-text-muted)] max-w-xs mx-auto"
+                                   x-text="$store.app.language === 'ar' ? 'اختر أحد الاقتراحات السريعة أو اكتب استفسارك في الصندوق وسيقوم المساعد باقتراح الأطباق المناسبة مباشرة من قائمة المطابخ الحية.' : 'Ask the assistant or choose a prompt to discover freshly prepared dishes matched to your craving.'">
+                                </p>
+                            </div>
+                        </template>
+
+                        <template x-if="recommendedDishes.length > 0">
+                            <div class="space-y-4">
+                                <template x-for="dish in recommendedDishes" :key="dish.id">
+                                    <div class="group border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-3.5 bg-white dark:bg-neutral-800/80 transition-all shadow-xs flex flex-col gap-3">
+                                        <div class="flex items-start gap-3">
+                                            <img :src="dish.image"
+                                                 :alt="dish.name"
+                                                 class="w-20 h-20 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-300" />
+                                            <div class="flex-1 min-w-0 space-y-1">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-[10px] font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-2 py-0.5 rounded-full uppercase"
+                                                          x-text="dish.kitchenName">
+                                                    </span>
+                                                    <template x-if="dish.isSale">
+                                                        <span class="text-[10px] font-bold text-white bg-[var(--color-sale)] px-1.5 py-0.2 rounded-xs">
+                                                            SALE
+                                                        </span>
+                                                    </template>
+                                                </div>
+
+                                                <h4 @@click="window.location.href = '/Dishes/Details/1'"
+                                                    class="font-bold text-xs text-[var(--color-text)] truncate cursor-pointer hover:text-[var(--color-primary)] transition-colors"
+                                                    x-text="$store.app.language === 'ar' ? dish.nameAr : dish.name">
+                                                </h4>
+
+                                                <div class="flex items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                                                    <span class="flex items-center gap-1 text-amber-500 font-semibold">
+                                                        <svg class="w-3 h-3 fill-amber-400 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                                        <span x-text="dish.rating"></span>
+                                                    </span>
+                                                    <span>•</span>
+                                                    <span class="flex items-center gap-1">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                                                        <span x-text="`${dish.prepTimeMinutes} ${$store.app.language === 'ar' ? 'دقيقة' : 'min'}`"></span>
+                                                    </span>
+                                                </div>
+
+                                                <div class="flex items-baseline gap-2 pt-0.5">
+                                                    <span class="text-xs font-bold text-[var(--color-primary)]"
+                                                          x-text="`${dish.price.toFixed(2)} EGP`">
+                                                    </span>
+                                                    <template x-if="dish.originalPrice">
+                                                        <span class="text-[10px] text-[var(--color-text-muted)] line-through"
+                                                              x-text="`${dish.originalPrice.toFixed(2)} EGP`">
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </div>
+                        </div>
+
+                                        <div class="pt-2 border-t border-[var(--color-border-light)] flex items-center justify-between gap-2">
+                                            <a href="/Dishes/Details/1"
+                                               class="text-[11px] font-semibold text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                                                <span x-text="$store.app.language === 'ar' ? 'تفاصيل الطبق والخيارات' : 'View Full Details'">View Full Details</span>
+                                                <svg class="w-3 h-3" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+                                            </a>
+
+                                            <button type="button"
+                                                    @@click="$store.app.addToCart(dish, 1, [])"
+                                                    class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                                                <span x-text="$store.app.language === 'ar' ? 'إضافة للسلة' : 'Add to Cart'">Add to Cart</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Chef Credentials Box -->
+                    <div class="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 space-y-2 text-xs">
+                        <div class="flex items-center gap-2 font-bold text-[var(--color-text)]">
+                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'معايير مطبخ هوم شيف' : 'HomeChef Kitchen Standard'">HomeChef Kitchen Standard</span>
+                        </div>
+                        <p class="text-[11px] text-[var(--color-text-muted)] leading-relaxed"
+                           x-text="$store.app.language === 'ar' ? 'جميع الأطباق المقترحة من قبل الذكاء الاصطناعي تطهى بواسطة طهاة منزليين مرخصين ومفتشين صحياً، وتعتمد حصراً على لحوم بلدية وسمن طبيعي بدون أية منكهات صناعية.' : 'All dishes suggested by our culinary AI are prepared by vetted, food-safety inspected domestic home chefs using fresh natural ingredients and zero artificial preservatives.'">
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 </main>

@@ -161,7 +161,7 @@
             </div>
             <div class="flex items-center gap-1">
                 <button type="button"
-                        @@click="$store.app.navigate('#ai-assistant'); isOpen = false;"
+                        @@click="window.location.href = '/AIAssistant'; isOpen = false;"
                         :title="$store.app.language === 'ar' ? 'تكبير لصفحة المساعد المخصصة' : 'Maximize to full AI Assistant page'"
                         class="p-1 hover:bg-white/20 rounded-full transition-colors cursor-pointer text-white"
                         aria-label="Maximize">
@@ -195,7 +195,7 @@
                     <template x-if="m.recommendedDishes && m.recommendedDishes.length > 0">
                         <div class="space-y-2 pt-1">
                             <template x-for="dish in m.recommendedDishes" :key="dish.id">
-                                <div @@click="$store.app.navigate('#dish/' + dish.id); isOpen = false;"
+                                <div @@click="window.location.href = '/Dishes/Details/1'; isOpen = false;"
                                      class="flex items-center gap-3 p-2.5 rounded-xl border border-[var(--color-border)] bg-white dark:bg-neutral-800 hover:border-[var(--color-primary)] cursor-pointer transition-all shadow-xs">
                                     <img :src="dish.image"
                                          :alt="dish.name"

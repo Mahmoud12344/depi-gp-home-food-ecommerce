@@ -1,27 +1,20 @@
+@*
+    TODO [Backend]: Strongly-typed view binding for Chef Working Hours
+    1. Uncomment the model directive once ChefDashboardController.WorkingHours() passes the schedule:
+       @model IList<depiR5gp.Models.Chefs.ChefWorkingHours>
+    2. In [HttpGet] ChefDashboardController.WorkingHours():
+       var hours = await unitOfWork.ChefWorkingHours.FindAsync(w => w.ChefProfileId == currentChefId);
+       return View(hours.OrderBy(w => w.DayOfWeek).ToList());
+    3. In [HttpPost] ChefDashboardController.WorkingHours(IList<ChefWorkingHours> WorkingHours, bool IsTakingOrders):
+       Persist updated OpenTime/CloseTime per DayOfWeek (0=Sunday .. 6=Saturday) and RedirectToAction(nameof(WorkingHours)).
+*@
 @{
     ViewData["Title"] = "Chef Portal - Working Hours & Availability";
 }
 
 <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
 
-<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
-      x-data="{
-          isTakingOrders: true,
-          prepTimeMinutes: 45,
-          schedule: [
-              { day: 'Saturday', open: '12:00 PM', close: '09:00 PM', active: true },
-              { day: 'Sunday', open: '12:00 PM', close: '09:00 PM', active: true },
-              { day: 'Monday', open: '12:00 PM', close: '09:00 PM', active: true },
-              { day: 'Tuesday', open: '12:00 PM', close: '09:00 PM', active: true },
-              { day: 'Wednesday', open: '12:00 PM', close: '09:00 PM', active: true },
-              { day: 'Thursday', open: '12:00 PM', close: '10:00 PM', active: true },
-              { day: 'Friday', open: '01:00 PM', close: '08:00 PM', active: false }
-          ],
-          saveSchedule() {
-              $store.app.showToast('success', 'Operating hours updated successfully!');
-          }
-      }">
-
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
         <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] flex-wrap gap-4">
             <div>
@@ -32,33 +25,148 @@
                     Control when customers can place pickup orders from your home kitchen.
                 </p>
             </div>
-            <!-- Online status switch -->
-            <button type="button" @@click="isTakingOrders = !isTakingOrders; $store.app.showToast('info', isTakingOrders ? 'Kitchen is now accepting orders' : 'Kitchen is paused')"
-                    :class="isTakingOrders ? 'bg-emerald-600 text-white' : 'bg-neutral-200 dark:bg-neutral-800 text-[var(--color-text-muted)]'"
-                    class="px-4 py-2 rounded-full font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-2xs">
-                <span class="w-2.5 h-2.5 rounded-full" :class="isTakingOrders ? 'bg-white animate-pulse' : 'bg-neutral-400'"></span>
-                <span x-text="isTakingOrders ? 'Online: Accepting Orders' : 'Offline: Kitchen Paused'"></span>
-            </button>
+
+            <!-- Kitchen Availability Toggle Form (MVC POST) -->
+            <form method="post" asp-controller="ChefDashboard" asp-action="WorkingHours">
+                <input type="hidden" name="ToggleAvailability" value="true" />
+                <button type="submit"
+                        class="px-4 py-2 rounded-full font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-2xs bg-emerald-600 hover:bg-emerald-700 text-white">
+                    <span class="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span>
+                    <span>Online: Accepting Orders</span>
+                </button>
+            </form>
         </div>
 
-        <form @@submit.prevent="saveSchedule()" class="space-y-4 text-xs">
+        <form method="post" asp-controller="ChefDashboard" asp-action="WorkingHours" class="space-y-4 text-xs">
+            @*
+                TODO [Backend]: Replace static 7-day rows below with a @for loop over Model:
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    <input type="hidden" asp-for="@Model[i].ChefProfileId" />
+                    <input type="hidden" asp-for="@Model[i].DayOfWeek" />
+                    <input type="time" asp-for="@Model[i].OpenTime" />
+                    <input type="time" asp-for="@Model[i].CloseTime" />
+                }
+            *@
             <div class="space-y-3">
-                <template x-for="item in schedule" :key="item.day">
-                    <div class="flex items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl gap-4">
-                        <div class="flex items-center gap-3 w-32">
-                            <input type="checkbox" x-model="item.active" class="rounded accent-[var(--color-primary)] cursor-pointer" />
-                            <span class="font-bold text-[var(--color-text)]" x-text="item.day"></span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[var(--color-text-muted)]">Open:</span>
-                            <input type="text" x-model="item.open" :disabled="!item.active"
-                                   class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-24 disabled:opacity-40" />
-                            <span class="text-[var(--color-text-muted)]">Close:</span>
-                            <input type="text" x-model="item.close" :disabled="!item.active"
-                                   class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-24 disabled:opacity-40" />
-                        </div>
+                <!-- Day 0: Saturday (DayOfWeek = 6) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl gap-4">
+                    <div class="flex items-center gap-3 w-36">
+                        <input type="hidden" name="WorkingHours[0].DayOfWeek" value="6" />
+                        <input type="checkbox" id="day-sat" name="WorkingHours[0].IsActive" value="true" checked class="rounded accent-[var(--color-primary)] cursor-pointer" />
+                        <label for="day-sat" class="font-bold text-[var(--color-text)] cursor-pointer">Saturday</label>
                     </div>
-                </template>
+                    <div class="flex items-center gap-2">
+                        <label for="open-sat" class="text-[var(--color-text-muted)]">Open:</label>
+                        <input id="open-sat" name="WorkingHours[0].OpenTime" type="time" value="12:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                        <label for="close-sat" class="text-[var(--color-text-muted)]">Close:</label>
+                        <input id="close-sat" name="WorkingHours[0].CloseTime" type="time" value="21:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                    </div>
+                </div>
+
+                <!-- Day 1: Sunday (DayOfWeek = 0) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl gap-4">
+                    <div class="flex items-center gap-3 w-36">
+                        <input type="hidden" name="WorkingHours[1].DayOfWeek" value="0" />
+                        <input type="checkbox" id="day-sun" name="WorkingHours[1].IsActive" value="true" checked class="rounded accent-[var(--color-primary)] cursor-pointer" />
+                        <label for="day-sun" class="font-bold text-[var(--color-text)] cursor-pointer">Sunday</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="open-sun" class="text-[var(--color-text-muted)]">Open:</label>
+                        <input id="open-sun" name="WorkingHours[1].OpenTime" type="time" value="12:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                        <label for="close-sun" class="text-[var(--color-text-muted)]">Close:</label>
+                        <input id="close-sun" name="WorkingHours[1].CloseTime" type="time" value="21:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                    </div>
+                </div>
+
+                <!-- Day 2: Monday (DayOfWeek = 1) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl gap-4">
+                    <div class="flex items-center gap-3 w-36">
+                        <input type="hidden" name="WorkingHours[2].DayOfWeek" value="1" />
+                        <input type="checkbox" id="day-mon" name="WorkingHours[2].IsActive" value="true" checked class="rounded accent-[var(--color-primary)] cursor-pointer" />
+                        <label for="day-mon" class="font-bold text-[var(--color-text)] cursor-pointer">Monday</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="open-mon" class="text-[var(--color-text-muted)]">Open:</label>
+                        <input id="open-mon" name="WorkingHours[2].OpenTime" type="time" value="12:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                        <label for="close-mon" class="text-[var(--color-text-muted)]">Close:</label>
+                        <input id="close-mon" name="WorkingHours[2].CloseTime" type="time" value="21:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                    </div>
+                </div>
+
+                <!-- Day 3: Tuesday (DayOfWeek = 2) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl gap-4">
+                    <div class="flex items-center gap-3 w-36">
+                        <input type="hidden" name="WorkingHours[3].DayOfWeek" value="2" />
+                        <input type="checkbox" id="day-tue" name="WorkingHours[3].IsActive" value="true" checked class="rounded accent-[var(--color-primary)] cursor-pointer" />
+                        <label for="day-tue" class="font-bold text-[var(--color-text)] cursor-pointer">Tuesday</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="open-tue" class="text-[var(--color-text-muted)]">Open:</label>
+                        <input id="open-tue" name="WorkingHours[3].OpenTime" type="time" value="12:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                        <label for="close-tue" class="text-[var(--color-text-muted)]">Close:</label>
+                        <input id="close-tue" name="WorkingHours[3].CloseTime" type="time" value="21:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                    </div>
+                </div>
+
+                <!-- Day 4: Wednesday (DayOfWeek = 3) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl gap-4">
+                    <div class="flex items-center gap-3 w-36">
+                        <input type="hidden" name="WorkingHours[4].DayOfWeek" value="3" />
+                        <input type="checkbox" id="day-wed" name="WorkingHours[4].IsActive" value="true" checked class="rounded accent-[var(--color-primary)] cursor-pointer" />
+                        <label for="day-wed" class="font-bold text-[var(--color-text)] cursor-pointer">Wednesday</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="open-wed" class="text-[var(--color-text-muted)]">Open:</label>
+                        <input id="open-wed" name="WorkingHours[4].OpenTime" type="time" value="12:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                        <label for="close-wed" class="text-[var(--color-text-muted)]">Close:</label>
+                        <input id="close-wed" name="WorkingHours[4].CloseTime" type="time" value="21:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                    </div>
+                </div>
+
+                <!-- Day 5: Thursday (DayOfWeek = 4) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl gap-4">
+                    <div class="flex items-center gap-3 w-36">
+                        <input type="hidden" name="WorkingHours[5].DayOfWeek" value="4" />
+                        <input type="checkbox" id="day-thu" name="WorkingHours[5].IsActive" value="true" checked class="rounded accent-[var(--color-primary)] cursor-pointer" />
+                        <label for="day-thu" class="font-bold text-[var(--color-text)] cursor-pointer">Thursday</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="open-thu" class="text-[var(--color-text-muted)]">Open:</label>
+                        <input id="open-thu" name="WorkingHours[5].OpenTime" type="time" value="12:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                        <label for="close-thu" class="text-[var(--color-text-muted)]">Close:</label>
+                        <input id="close-thu" name="WorkingHours[5].CloseTime" type="time" value="22:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                    </div>
+                </div>
+
+                <!-- Day 6: Friday (DayOfWeek = 5) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl gap-4">
+                    <div class="flex items-center gap-3 w-36">
+                        <input type="hidden" name="WorkingHours[6].DayOfWeek" value="5" />
+                        <input type="checkbox" id="day-fri" name="WorkingHours[6].IsActive" value="true" class="rounded accent-[var(--color-primary)] cursor-pointer" />
+                        <label for="day-fri" class="font-bold text-[var(--color-text)] cursor-pointer">Friday</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="open-fri" class="text-[var(--color-text-muted)]">Open:</label>
+                        <input id="open-fri" name="WorkingHours[6].OpenTime" type="time" value="13:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                        <label for="close-fri" class="text-[var(--color-text-muted)]">Close:</label>
+                        <input id="close-fri" name="WorkingHours[6].CloseTime" type="time" value="20:00"
+                               class="p-1.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-lg text-center w-28" />
+                    </div>
+                </div>
             </div>
 
             <div class="pt-4 border-t border-[var(--color-border)] flex items-center justify-end">

@@ -1,6 +1,222 @@
+@* Views/Admin/Users.cshtml *@
+@* TODO [Backend]: @model IEnumerable<depiR5gp.Models.Users.AppUser> *@
 @{
-    ViewData["Title"] = "User Management";
+    ViewData["Title"] = "User Accounts & Moderation - Admin Portal";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
-</div>
+
+<partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 space-y-6">
+
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+        <!-- Header & GET Filter Bar -->
+        <div class="p-6 border-b border-[var(--color-border)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Registered Platform User Accounts
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                    Search, filter by role, and enforce account compliance suspensions across customers, chefs, and support agents.
+                </p>
+            </div>
+
+            <!-- Standard GET Search & Role Filter Form -->
+            <form method="get" asp-controller="Admin" asp-action="Users" class="flex flex-wrap items-center gap-2">
+                <input type="text"
+                       name="q"
+                       value="@Context.Request.Query["q"]"
+                       placeholder="Search by name or email..."
+                       class="text-xs px-3.5 py-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium min-w-[200px]" />
+                <select name="role"
+                        class="text-xs font-semibold px-3.5 py-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden cursor-pointer">
+                    <option value="all">All Roles</option>
+                    <option value="Customer">Customers</option>
+                    <option value="Chef">Chefs</option>
+                    <option value="Support">Support Agents</option>
+                </select>
+                <button type="submit"
+                        class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                    Filter
+                </button>
+            </form>
+        </div>
+
+        <!-- Server-Rendered Users Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-start text-xs">
+                <thead class="bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] font-bold text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
+                    <tr>
+                        <th class="p-4 text-start">User / Contact</th>
+                        <th class="p-4 text-start">Role</th>
+                        <th class="p-4 text-center">Orders Count</th>
+                        <th class="p-4 text-center">Account Status</th>
+                        <th class="p-4 text-end">Moderation Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--color-border-light)]">
+                    @* TODO [Backend]: @foreach (var user in Model) — depiR5gp.Models.Users.AppUser *@
+
+                    <!-- Row 1: Tamer Zaki -->
+                    <tr class="hover:bg-[var(--color-surface-subtle)]/40 transition-colors">
+                        <td class="p-4">
+                            <span class="font-bold text-[var(--color-text)] block text-sm">Tamer Zaki</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">tamer.zaki&#64;example.com &middot; ID #101</span>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-neutral-100 dark:bg-neutral-800 text-[var(--color-text)]">
+                                Customer
+                            </span>
+                        </td>
+                        <td class="p-4 text-center font-bold text-[var(--color-text)]">14</td>
+                        <td class="p-4 text-center">
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                                Active
+                            </span>
+                        </td>
+                        <td class="p-4 text-end">
+                            <form method="post" asp-controller="Admin" asp-action="ToggleSuspendUser" class="inline-flex items-center justify-end gap-2">
+                                <input type="hidden" name="UserId" value="101" />
+                                <select name="Reason" class="text-[11px] px-2.5 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)]">
+                                    <option value="dispute">Payment/Counter Dispute</option>
+                                    <option value="cancellations">Excessive Cancellations</option>
+                                    <option value="abusive">Terms / Conduct Breach</option>
+                                </select>
+                                <button type="submit"
+                                        class="px-3 py-1 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 font-bold uppercase tracking-wider text-[10px] transition-colors cursor-pointer">
+                                    Suspend
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Row 2: Chef Amina Mansour -->
+                    <tr class="hover:bg-[var(--color-surface-subtle)]/40 transition-colors">
+                        <td class="p-4">
+                            <span class="font-bold text-[var(--color-text)] block text-sm">Chef Amina Mansour</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">amina.chef&#64;example.com &middot; ID #102</span>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-[var(--color-primary-light)] text-[var(--color-primary)]">
+                                Chef
+                            </span>
+                        </td>
+                        <td class="p-4 text-center font-bold text-[var(--color-text)]">84</td>
+                        <td class="p-4 text-center">
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                                Active
+                            </span>
+                        </td>
+                        <td class="p-4 text-end">
+                            <form method="post" asp-controller="Admin" asp-action="ToggleSuspendUser" class="inline-flex items-center justify-end gap-2">
+                                <input type="hidden" name="UserId" value="102" />
+                                <select name="Reason" class="text-[11px] px-2.5 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)]">
+                                    <option value="hygiene">Food Hygiene Breach</option>
+                                    <option value="cancellations">Unfulfilled Orders</option>
+                                    <option value="abusive">Terms / Conduct Breach</option>
+                                </select>
+                                <button type="submit"
+                                        class="px-3 py-1 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 font-bold uppercase tracking-wider text-[10px] transition-colors cursor-pointer">
+                                    Suspend
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Row 3: Chef Hany El-Sayed -->
+                    <tr class="hover:bg-[var(--color-surface-subtle)]/40 transition-colors">
+                        <td class="p-4">
+                            <span class="font-bold text-[var(--color-text)] block text-sm">Chef Hany El-Sayed</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">hany.chef&#64;example.com &middot; ID #103</span>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-[var(--color-primary-light)] text-[var(--color-primary)]">
+                                Chef
+                            </span>
+                        </td>
+                        <td class="p-4 text-center font-bold text-[var(--color-text)]">62</td>
+                        <td class="p-4 text-center">
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                                Active
+                            </span>
+                        </td>
+                        <td class="p-4 text-end">
+                            <form method="post" asp-controller="Admin" asp-action="ToggleSuspendUser" class="inline-flex items-center justify-end gap-2">
+                                <input type="hidden" name="UserId" value="103" />
+                                <select name="Reason" class="text-[11px] px-2.5 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)]">
+                                    <option value="hygiene">Food Hygiene Breach</option>
+                                    <option value="cancellations">Unfulfilled Orders</option>
+                                    <option value="abusive">Terms / Conduct Breach</option>
+                                </select>
+                                <button type="submit"
+                                        class="px-3 py-1 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 font-bold uppercase tracking-wider text-[10px] transition-colors cursor-pointer">
+                                    Suspend
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Row 4: Ahmed Badawi (Suspended Example for Reactivation) -->
+                    <tr class="hover:bg-[var(--color-surface-subtle)]/40 transition-colors">
+                        <td class="p-4">
+                            <span class="font-bold text-[var(--color-text)] block text-sm">Ahmed Badawi</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">ahmed.b&#64;example.com &middot; ID #104</span>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-neutral-100 dark:bg-neutral-800 text-[var(--color-text)]">
+                                Customer
+                            </span>
+                        </td>
+                        <td class="p-4 text-center font-bold text-[var(--color-text)]">2</td>
+                        <td class="p-4 text-center">
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-rose-100 dark:bg-rose-950 text-rose-950 dark:text-rose-100 border border-rose-300 dark:border-rose-700">
+                                Suspended
+                            </span>
+                        </td>
+                        <td class="p-4 text-end">
+                            <form method="post" asp-controller="Admin" asp-action="ToggleSuspendUser" class="inline-flex items-center justify-end gap-2">
+                                <input type="hidden" name="UserId" value="104" />
+                                <input type="hidden" name="Reason" value="Reactivated after dispute resolution" />
+                                <button type="submit"
+                                        class="px-3.5 py-1 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider text-[10px] transition-colors cursor-pointer">
+                                    Reactivate Account
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Row 5: Layla Sherif -->
+                    <tr class="hover:bg-[var(--color-surface-subtle)]/40 transition-colors">
+                        <td class="p-4">
+                            <span class="font-bold text-[var(--color-text)] block text-sm">Layla Sherif</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">layla.support&#64;example.com &middot; ID #105</span>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200">
+                                Support
+                            </span>
+                        </td>
+                        <td class="p-4 text-center font-bold text-[var(--color-text)]">0</td>
+                        <td class="p-4 text-center">
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                                Active
+                            </span>
+                        </td>
+                        <td class="p-4 text-end">
+                            <form method="post" asp-controller="Admin" asp-action="ToggleSuspendUser" class="inline-flex items-center justify-end gap-2">
+                                <input type="hidden" name="UserId" value="105" />
+                                <select name="Reason" class="text-[11px] px-2.5 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)]">
+                                    <option value="abusive">Terms / Conduct Breach</option>
+                                    <option value="dispute">Administrative Audit</option>
+                                </select>
+                                <button type="submit"
+                                        class="px-3 py-1 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 font-bold uppercase tracking-wider text-[10px] transition-colors cursor-pointer">
+                                    Suspend
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>

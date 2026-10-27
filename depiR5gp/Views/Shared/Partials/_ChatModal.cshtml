@@ -3,7 +3,7 @@
 <!-- TODO [Backend]: Connect to SignalR ChatHub for real-time order messaging -->
 
 <div x-cloak
-     x-show="$store.app.currentRoute.startsWith('#messages')"
+     x-show="$store.app.chatModalOpen"
      x-data="{
          input: '',
          messages: [
@@ -71,7 +71,7 @@
      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
 
     <div class="relative w-full max-w-lg bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[560px]"
-         @@click.away="$store.app.navigate('#orders')">
+         @@click.away="window.location.href = '/Orders/Track/1'">
 
         <!-- Header with Chef Online status -->
         <!-- TODO [Backend]: Bind Chef name, kitchen name, order reference number, and real-time online status via SignalR presence tracker -->
@@ -97,7 +97,7 @@
             </div>
 
             <button type="button"
-                    @@click="$store.app.navigate('#orders')"
+                    @@click="window.location.href = '/Orders/Track/1'"
                     class="p-1.5 hover:bg-white/20 rounded-full transition-colors cursor-pointer"
                     aria-label="Close chat">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,8 +1,236 @@
 @{
     ViewData["Title"] = "Messages & Live Chat - HomeChef";
 }
+@* TODO [Backend]:
+    @model IEnumerable<depiR5gp.Models.Messaging.Conversation>
+    @foreach (var conv in Model)
+    {
+        ... render conv.ConversationId, conv.OrderId, conv.CreatedAt, conv.Messages ...
+    }
+*@
 
 <!-- Chat Inbox Page -->
-<main>
-    @await Html.PartialAsync("~/Views/Shared/Partials/_ChatInboxPage.cshtml")
+<main class="w-full pb-24">
+    <div x-data="{
+        activeConvId: 'conv-1',
+        searchQuery: '',
+        messageText: '',
+        conversations: [
+            {
+                id: 'conv-1',
+                name: 'Chef Amina Mansour',
+                nameAr: 'الشيف أمينة منصور',
+                kitchen: 'Amina\'s Heritage Kitchen',
+                avatar: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=200&auto=format&fit=crop&q=80',
+                online: true,
+                orderNumber: 'HC-2026-9041',
+                lastMessage: 'Ta\'sha is bubbling in the pot, your order will be ready at 15:45!',
+                lastMessageTime: '14:32',
+                unreadCount: 2,
+                messages: [
+                    { id: 'm1', isMe: false, text: 'Hello Tamer! Welcome to Amina\'s Heritage Kitchen. We started browning your Baladi duck.', time: '14:20' },
+                    { id: 'm2', isMe: true, text: 'Thank you Chef Amina! Please make sure the ta\'sheya garlic is well browned.', time: '14:25' },
+                    { id: 'm3', isMe: false, text: 'Ta\'sha is bubbling in the pot, your order will be ready at 15:45!', time: '14:32' }
+                ]
+            },
+            {
+                id: 'conv-2',
+                name: 'Om Nabil',
+                nameAr: 'أم نبيل',
+                kitchen: 'Om Nabil Casseroles',
+                avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80',
+                online: false,
+                orderNumber: 'HC-2026-8890',
+                lastMessage: 'Glad you enjoyed the caramelized oxtail! Blessings to your home.',
+                lastMessageTime: 'Yesterday',
+                unreadCount: 0,
+                messages: [
+                    { id: 'm4', isMe: true, text: 'Thank you for the delicious oxtail casserole yesterday!', time: 'Yesterday 18:30' },
+                    { id: 'm5', isMe: false, text: 'Glad you enjoyed the caramelized oxtail! Blessings to your home.', time: 'Yesterday 19:10' }
+                ]
+            },
+            {
+                id: 'conv-3',
+                name: 'HomeChef Support Desk',
+                nameAr: 'مكتب دعم منصة هوم شيف',
+                kitchen: 'Quality & Delivery Assistance',
+                avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
+                online: true,
+                orderNumber: 'CASE-7701',
+                lastMessage: 'Your refund claim has been verified and processed.',
+                lastMessageTime: 'Oct 21',
+                unreadCount: 0,
+                messages: [
+                    { id: 'm6', isMe: false, text: 'Your refund claim has been verified and processed.', time: 'Oct 21, 11:00 AM' }
+                ]
+            }
+        ],
+        get activeConv() {
+            return this.conversations.find(c => c.id === this.activeConvId) || this.conversations[0];
+        },
+        get filteredConversations() {
+            if (!this.searchQuery.trim()) return this.conversations;
+            const q = this.searchQuery.toLowerCase();
+            return this.conversations.filter(c => c.name.toLowerCase().includes(q) || c.kitchen.toLowerCase().includes(q));
+        },
+        sendMessage() {
+            if (!this.messageText.trim()) return;
+            this.activeConv.messages.push({
+                id: 'm-' + Date.now(),
+                isMe: true,
+                text: this.messageText.trim(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            this.activeConv.lastMessage = this.messageText.trim();
+            this.activeConv.lastMessageTime = 'Just now';
+            this.messageText = '';
+            $store.app.showToast('info', 'Message sent to ' + this.activeConv.name);
+        }
+    }" class="w-full">
+
+        <!-- Breadcrumb banner -->
+        <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                    <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                        <span x-text="$store.app.language === 'ar' ? 'الرئيسية' : 'Home'">Home</span>
+                    </a>
+                    <svg class="w-4 h-4 text-neutral-400 shrink-0" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                    <span class="text-[var(--color-text)] font-semibold" x-text="$store.app.language === 'ar' ? 'صندوق المحادثات والرسائل' : 'Live Messages & Inbox'">Live Messages &amp; Inbox</span>
+                </nav>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                            x-text="$store.app.language === 'ar' ? 'محادثات الطهاة والدعم المباشرة' : 'Direct Kitchen & Support Inbox'">
+                            Direct Kitchen &amp; Support Inbox
+                        </h1>
+                        <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed"
+                           x-text="$store.app.language === 'ar' ? 'تواصل مباشرة مع طهاة الوجبات للترتيبات الخاصة والاستلام، أو تحدث مع فريق الدعم.' : 'Communicate directly with domestic chefs for order customization, pickup directions, and live kitchen updates.'">
+                            Communicate directly with domestic chefs for order customization, pickup directions, and live kitchen updates.
+                        </p>
+                    </div>
+                    <a href="/Chat/Conversation/1"
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors shrink-0">
+                        <span>Open Full Thread View</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
+
+                <!-- Left Panel: Conversations Sidebar (4 cols) -->
+                <div class="lg:col-span-4 border-e border-[var(--color-border)] flex flex-col bg-[var(--color-card-bg)]">
+                    <!-- Search header -->
+                    <div class="p-4 border-b border-[var(--color-border-light)]">
+                        <div class="relative">
+                            <svg class="w-4 h-4 text-neutral-400 absolute start-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
+                            <input type="text"
+                                   x-model="searchQuery"
+                                   placeholder="Search conversations..."
+                                   class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full ps-9 pe-3 py-2 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                        </div>
+                    </div>
+
+                    <!-- Conversation list -->
+                    <div class="flex-1 overflow-y-auto divide-y divide-[var(--color-border-light)]">
+                        <template x-for="c in filteredConversations" :key="c.id">
+                            <div @@click="activeConvId = c.id; c.unreadCount = 0;"
+                                 class="p-4 cursor-pointer transition-colors flex items-start gap-3 text-xs"
+                                 :class="activeConvId === c.id ? 'bg-[var(--color-primary-light)]' : 'hover:bg-[var(--color-surface-subtle)]'">
+                                <!-- Avatar with online dot -->
+                                <div class="relative shrink-0">
+                                    <img :src="c.avatar" :alt="c.name" class="w-11 h-11 rounded-full object-cover border border-[var(--color-border)]" />
+                                    <span class="absolute bottom-0 end-0 w-3 h-3 rounded-full border-2 border-white dark:border-neutral-900"
+                                          :class="c.online ? 'bg-emerald-500' : 'bg-neutral-400'"></span>
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-1 mb-0.5">
+                                        <h4 class="font-bold text-[var(--color-text)] truncate" x-text="$store.app.language === 'ar' ? c.nameAr : c.name"></h4>
+                                        <span class="text-[10px] text-[var(--color-text-muted)] shrink-0" x-text="c.lastMessageTime"></span>
+                                    </div>
+                                    <p class="text-[11px] text-[var(--color-primary)] font-medium truncate mb-1" x-text="c.kitchen"></p>
+                                    <p class="text-[11px] text-[var(--color-text-muted)] line-clamp-1" x-text="c.lastMessage"></p>
+                                    <a href="/Chat/Conversation/1" class="text-[10px] font-semibold text-[var(--color-primary)] hover:underline inline-block mt-1">View dedicated thread &rarr;</a>
+                                </div>
+
+                                <!-- Unread count badge -->
+                                <template x-if="c.unreadCount > 0">
+                                    <span class="w-5 h-5 rounded-full bg-[var(--color-primary)] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                                        <span x-text="c.unreadCount"></span>
+                                    </span>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Conversation Thread & Message Input (8 cols) -->
+                <div class="lg:col-span-8 flex flex-col bg-[var(--color-surface-subtle)]/40">
+                    <!-- Thread Header -->
+                    <div class="p-4 sm:px-6 bg-[var(--color-card-bg)] border-b border-[var(--color-border)] flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <img :src="activeConv.avatar" :alt="activeConv.name" class="w-10 h-10 rounded-full object-cover border border-[var(--color-border)]" />
+                                <span class="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-neutral-900"
+                                      :class="activeConv.online ? 'bg-emerald-500' : 'bg-neutral-400'"></span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm text-[var(--color-text)]" x-text="$store.app.language === 'ar' ? activeConv.nameAr : activeConv.name"></h3>
+                                    <span class="text-[10px] font-bold px-2 py-0.2 rounded-full"
+                                          :class="activeConv.online ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'"
+                                          x-text="activeConv.online ? ($store.app.language === 'ar' ? 'متصل الآن' : 'Online') : ($store.app.language === 'ar' ? 'غير متصل' : 'Offline')"></span>
+                                </div>
+                                <p class="text-xs text-[var(--color-text-muted)]" x-text="activeConv.kitchen"></p>
+                            </div>
+                        </div>
+
+                        <!-- Order link badge -->
+                        <template x-if="activeConv.orderNumber">
+                            <a href="/Orders/Track/1"
+                               class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-surface-subtle)] hover:bg-neutral-200 dark:hover:bg-neutral-800 border border-[var(--color-border)] text-[11px] font-semibold text-[var(--color-primary)] transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#receipt"></use></svg>
+                                <span x-text="'Ref: #' + activeConv.orderNumber"></span>
+                            </a>
+                        </template>
+                    </div>
+
+                    <!-- Messages Stream -->
+                    <div class="flex-1 p-4 sm:p-6 space-y-3.5 overflow-y-auto max-h-[420px]">
+                        <template x-for="m in activeConv.messages" :key="m.id">
+                            <div class="flex flex-col text-xs" :class="m.isMe ? 'items-end' : 'items-start'">
+                                <div class="p-3.5 rounded-2xl max-w-md shadow-2xs space-y-1"
+                                     :class="m.isMe ? 'bg-[var(--color-primary)] text-white rounded-ee-xs' : 'bg-[var(--color-card-bg)] text-[var(--color-text)] border border-[var(--color-border-light)] rounded-es-xs'">
+                                    <p class="leading-relaxed" x-text="m.text"></p>
+                                    <span class="text-[9px] block text-end"
+                                          :class="m.isMe ? 'text-white/70' : 'text-[var(--color-text-muted)]'"
+                                          x-text="m.time"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Message Input Bar -->
+                    <form method="post" asp-controller="Chat" asp-action="SendMessage" class="p-4 bg-[var(--color-card-bg)] border-t border-[var(--color-border)] flex items-center gap-2">
+                        <input type="hidden" name="ConversationId" value="1" />
+                        <input type="text"
+                               name="Text"
+                               x-model="messageText"
+                               required
+                               placeholder="Type a message to the kitchen..."
+                               class="flex-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full px-4 py-2.5 text-xs text-[var(--color-text)] placeholder:text-neutral-500 focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                        <button type="submit"
+                                class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5 shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#send"></use></svg>
+                            <span x-text="$store.app.language === 'ar' ? 'إرسال' : 'Send'">Send</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
