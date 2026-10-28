@@ -1,6 +1,69 @@
+@model depiR5gp.Models.Chefs.ChefApplicationViewModel
+
 @{
-    ViewData["Title"] = "Chef Onboarding";
+    ViewData["Title"] = "Chef Application";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="card border-0 shadow-sm rounded-4 bg-white">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-dark mb-2">Become a HomeChef</h2>
+                        <p class="text-muted fs-6">Fill out your kitchen details and upload the required documents for review.</p>
+                    </div>
+
+                    <form asp-action="Onboarding" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+                        <!-- Kitchen Name -->
+                        <div class="mb-3">
+                            <label asp-for="KitchenName" class="form-label fw-semibold text-secondary">Kitchen Name</label>
+                            <input asp-for="KitchenName" class="form-control form-control-lg fs-6" placeholder="e.g. Mama's Kitchen" />
+                            <span asp-validation-for="KitchenName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Kitchen Address -->
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label fw-semibold text-secondary">Kitchen Address</label>
+                            <textarea asp-for="Address" class="form-control form-control-lg fs-6" rows="3" placeholder="Enter full detailed kitchen address..."></textarea>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+
+                        <!-- ID Document -->
+                        <div class="mb-3">
+                            <label asp-for="IdDocument" class="form-label fw-semibold text-secondary">ID Document (PDF / JPG / PNG)</label>
+                            <input asp-for="IdDocument" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                            <span asp-validation-for="IdDocument" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Health Certificate -->
+                        <div class="mb-3">
+                            <label asp-for="HealthCertificate" class="form-label fw-semibold text-secondary">Health Certificate (PDF / JPG / PNG)</label>
+                            <input asp-for="HealthCertificate" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                            <span asp-validation-for="HealthCertificate" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Culinary License -->
+                        <div class="mb-4">
+                            <label asp-for="CulinaryLicense" class="form-label fw-semibold text-secondary">Culinary License / Permit (Optional)</label>
+                            <input asp-for="CulinaryLicense" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                            <span asp-validation-for="CulinaryLicense" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-dark btn-lg fs-6 fw-bold py-3 rounded-3">Submit Application</button>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-link text-decoration-none text-muted">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
