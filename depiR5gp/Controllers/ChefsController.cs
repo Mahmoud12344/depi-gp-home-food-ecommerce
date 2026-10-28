@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using depiR5gp.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using depiR5gp.Services.Interfaces;
 
 namespace depiR5gp.Controllers;
 
 //[Authorize] comment for test
-public class ChefsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment, ApplicationDbContext context) : Controller
+public class ChefsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment, ApplicationDbContext context,IFileService fileService) : Controller
 {
     public IActionResult Index() => View();
 
@@ -32,8 +33,15 @@ public class ChefsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHost
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Onboarding(ChefApplicationViewModel model)
-    {
+    public async Task<IActionResult> Onboarding(ChefApplicationViewModel model) {
+        const string  ChefFolder = "chef_documents";
+        var documents = new (IFormFile? File, string DocType)[]
+        {
+            (model.IdDocument,        "Identity"),
+            (model.HealthCertificate, "HealthCertificate"),
+            (model.CulinaryLicense,   "CulinaryLicense"),
+        };
+
         int userId = GetCurrentUserId();
 
         // فحص تكرار الطلب عند الإرسال
@@ -59,36 +67,13 @@ public class ChefsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHost
         };
 
         // رفع وحفظ الملفات في مجلد wwwroot/uploads/chef_documents
-        if (model.IdDocument != null)
+        foreach (var (file, docType) in documents)
         {
-            string idUrl = await SaveFileAsync(model.IdDocument, "Identity");
-            chefProfile.Documents.Add(new ChefDocument
-            {
-                DocType = "Identity",
-                FileUrl = idUrl
-            });
-        }
+            if (file is null) continue;
 
-        if (model.HealthCertificate != null)
-        {
-            string healthUrl = await SaveFileAsync(model.HealthCertificate, "HealthCertificate");
-            chefProfile.Documents.Add(new ChefDocument
-            {
-                DocType = "HealthCertificate",
-                FileUrl = healthUrl
-            });
+            var url = await fileService.SaveAsync(file, ChefFolder, docType);
+            chefProfile.Documents.Add(new ChefDocument { DocType = docType, FileUrl = url });
         }
-
-        if (model.CulinaryLicense != null)
-        {
-            string licenseUrl = await SaveFileAsync(model.CulinaryLicense, "CulinaryLicense");
-            chefProfile.Documents.Add(new ChefDocument
-            {
-                DocType = "CulinaryLicense",
-                FileUrl = licenseUrl
-            });
-        }
-
         // إضافة البيانات وحفظها عبر UnitOfWork
         await unitOfWork.Chefs.AddAsync(chefProfile);
         await unitOfWork.SaveChangesAsync();
@@ -125,22 +110,22 @@ public class ChefsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHost
         return dummyUser.Id;
     }
 
-    private async Task<string> SaveFileAsync(IFormFile file, string docType)
-    {
-        string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "uploads", "chef_documents");
-        if (!Directory.Exists(uploadsFolder))
-        {
-            Directory.CreateDirectory(uploadsFolder);
-        }
-
-        string uniqueFileName = $"{Guid.NewGuid()}_{docType}{Path.GetExtension(file.FileName)}";
-        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(fileStream);
-        }
-
-        return $"/uploads/chef_documents/{uniqueFileName}";
-    }
+    // private async Task<string> SaveFileAsync(IFormFile file, string docType)
+    // {
+    //     string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "uploads", "chef_documents");
+    //     if (!Directory.Exists(uploadsFolder))
+    //     {
+    //         Directory.CreateDirectory(uploadsFolder);
+    //     }
+    //  
+    //     string uniqueFileName = $"{Guid.NewGuid()}_{docType}{Path.GetExtension(file.FileName)}";
+    //     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+    //
+    //     using (var fileStream = new FileStream(filePath, FileMode.Create))
+    //     {
+    //         await file.CopyToAsync(fileStream);
+    //     }
+    //
+    //     return $"/uploads/chef_documents/{uniqueFileName}";
+    // }
 }
