@@ -1,100 +1,402 @@
 @{
-    ViewData["Title"] = "HomeChef Marketplace - Egyptian Heritage Cuisine";
+    ViewData["Title"] = "Home";
 }
+<!-- Views/Home/Index.cshtml -->
+<!-- Ported from Views/Home/Partials/_HomePageV2.cshtml on main -->
+<!-- TODO(backend): Bind dynamic categories, popular dishes, featured chefs, and reviews from database -->
 
-<!-- Master Screen Switcher matching home_chef/src/App.tsx based on $store.app.currentRoute -->
+<div class="w-full space-y-20 pb-24 overflow-hidden">
+    <!-- 1. Floating Food Hero Section -->
+    <partial name="Partials/_HeroSection7" />
 
-<!-- 1. Home Page V1 (Hero Split) -->
-<div x-show="$store.app.currentRoute === '#home-v1'" x-cloak>
-    @await Html.PartialAsync("~/Views/Home/Partials/_HomePage.cshtml")
-</div>
+    <!-- 2. Popular Cuisines (Interactive Hover-Reveal Category Cards) -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-10 space-y-2">
+            <span class="text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
+                Explore Cuisines
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                Handcrafted Dishes By Category
+            </h2>
+        </div>
 
-<!-- 2. Home Page V2 (Default Hero 7 & Food Hub) -->
-<div x-show="$store.app.currentRoute === '' || $store.app.currentRoute === '#' || $store.app.currentRoute === '#home' || $store.app.currentRoute === '#home-v2'">
-    @await Html.PartialAsync("~/Views/Home/Partials/_HomePageV2.cshtml")
-</div>
+        <!-- Hover Reveal Cards Partial -->
+        <partial name="Partials/_HoverRevealCards" />
+    </section>
 
-<!-- 3. Browse Dishes & Search -->
-<div x-show="$store.app.currentRoute === '#dishes' || $store.app.currentRoute.startsWith('#search')" x-cloak>
-    @await Html.PartialAsync("~/Views/Dishes/Partials/_BrowseDishes.cshtml")
-</div>
+    <!-- 3. Fresh Today: 3D Coverflow Carousel -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 border-b border-[var(--color-border)] pb-4">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
+                    Today's Favorites
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)] mt-1">
+                    Fresh From Home Ovens
+                </h2>
+            </div>
 
-<!-- 4. Dish Detail -->
-<div x-show="$store.app.currentRoute.startsWith('#dish/')" x-cloak>
-    @await Html.PartialAsync("~/Views/Dishes/Partials/_DishDetail.cshtml")
-</div>
+            <a href="/Dishes"
+               class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto">
+                <span>View Full Menu</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#arrow-right"></use>
+                </svg>
+            </a>
+        </div>
 
-<!-- 5. Browse Chefs -->
-<div x-show="$store.app.currentRoute === '#chefs'" x-cloak>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_BrowseChefs.cshtml")
-</div>
+        <!-- 3D Coverflow Carousel: Fresh From Home Ovens -->
+        <partial name="Partials/_CoverflowCarousel" />
+    </section>
 
-<!-- 6. Chef Dashboard & Menu -->
-<div x-show="$store.app.currentRoute === '#chef/dashboard' || $store.app.currentRoute === '#chef/menu'" x-cloak>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_ChefDashboard.cshtml")
-</div>
+    <!-- 4. Meet Neighborhood Home Chefs (Editorial Spotlight Showcase) -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+             x-data="{ activeChef: 'chef-1' }">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 border-b border-[var(--color-border)] pb-4">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
+                    Featured Home Chefs
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)] mt-1">
+                    Meet Passionate Home Cooks Behind Every Dish
+                </h2>
+            </div>
 
-<!-- 7. Chef Onboarding -->
-<div x-show="$store.app.currentRoute === '#chef/onboarding'" x-cloak>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_ChefOnboarding.cshtml")
-</div>
+            <div class="flex items-center gap-4 self-start sm:self-auto">
+                <!-- Chef Switcher Pills -->
+                <div class="inline-flex p-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full text-xs font-bold">
+                    <button type="button"
+                            @@click="activeChef = 'chef-1'"
+                            :class="activeChef === 'chef-1' ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                            class="px-3.5 py-1.5 rounded-full transition-all cursor-pointer">
+                        Amina
+                    </button>
+                    <button type="button"
+                            @@click="activeChef = 'chef-2'"
+                            :class="activeChef === 'chef-2' ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                            class="px-3.5 py-1.5 rounded-full transition-all cursor-pointer">
+                        Om Nabil
+                    </button>
+                    <button type="button"
+                            @@click="activeChef = 'chef-3'"
+                            :class="activeChef === 'chef-3' ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                            class="px-3.5 py-1.5 rounded-full transition-all cursor-pointer">
+                        Fatma
+                    </button>
+                </div>
 
-<!-- 8. Public Chef Profile -->
-<div x-show="$store.app.currentRoute.startsWith('#chef/') && $store.app.currentRoute !== '#chef/dashboard' && $store.app.currentRoute !== '#chef/menu' && $store.app.currentRoute !== '#chef/onboarding'" x-cloak>
-    @await Html.PartialAsync("~/Views/Chefs/Partials/_PublicChef.cshtml")
-</div>
+                <a href="/Chefs"
+                   class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] hover:underline flex items-center gap-1 cursor-pointer">
+                    <span>View All</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="#arrow-right"></use>
+                    </svg>
+                </a>
+            </div>
+        </div>
 
-<!-- 9. Cart -->
-<div x-show="$store.app.currentRoute === '#cart'" x-cloak>
-    @await Html.PartialAsync("~/Views/Cart/Partials/_CartPage.cshtml")
-</div>
+        <!-- Featured Home Chef Spotlight (Editorial Style matching main) -->
+        <!-- TODO(backend): Loop through featured home chefs (Model.FeaturedChefs) -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm relative overflow-hidden transition-colors mb-8">
+            <!-- BEGIN SAMPLE: 3 Featured Chefs Editorial Spotlight -->
+            <!-- Chef 1: Amina Mansour -->
+            <div x-show="activeChef === 'chef-1'"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                
+                <!-- Left Details Column (Content, Story & Actions) -->
+                <div class="lg:col-span-7 space-y-6 text-start">
+                    <div>
+                        <h3 class="text-3xl sm:text-4xl lg:text-5xl font-serif font-black tracking-tight text-[var(--color-text)] leading-tight">
+                            Amina Mansour
+                        </h3>
+                        <p class="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#c9955e] dark:text-[#e0a870] mt-1.5">
+                            Home Chef · Heirloom Egyptian Recipes &amp; Slow Roasts
+                        </p>
+                    </div>
 
-<!-- 10. Checkout -->
-<div x-show="$store.app.currentRoute === '#checkout'" x-cloak>
-    @await Html.PartialAsync("~/Views/Cart/Partials/_CheckoutPage.cshtml")
-</div>
+                    <p class="text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed font-normal max-w-xl">
+                        I cook heirloom family recipes right from my home kitchen in Maadi, exactly as my grandmother taught me. Using 100% natural baladi ghee, inspected fresh butchery, and organic garden herbs, each dish is handcrafted with genuine care.
+                    </p>
 
-<!-- 11. Order Confirmation -->
-<div x-show="$store.app.currentRoute.startsWith('#order-confirmation')" x-cloak>
-    @await Html.PartialAsync("~/Views/Orders/Partials/_OrderConfirmation.cshtml")
-</div>
+                    <!-- Handwritten Signature Script -->
+                    <div class="py-1">
+                        <svg class="h-10 text-[var(--color-primary)] opacity-85 select-none" viewBox="0 0 140 45" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M 10 32 C 15 12, 28 8, 38 18 C 45 25, 42 38, 25 35 C 15 32, 25 15, 50 22 C 70 28, 85 10, 95 24 C 102 32, 115 28, 128 20" />
+                            <circle cx="132" cy="30" r="2.5" fill="currentColor" />
+                        </svg>
+                    </div>
 
-<!-- 12. Order Tracking -->
-<div x-show="$store.app.currentRoute === '#orders' || $store.app.currentRoute.startsWith('#order-track')" x-cloak>
-    @await Html.PartialAsync("~/Views/Orders/Partials/_OrderTracking.cshtml")
-</div>
+                    <!-- Marketplace Details Row: Rate, Location, Time & Taking Orders -->
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 border-t border-[var(--color-border-light)] text-xs">
+                        <!-- Rating -->
+                        <div class="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-700/60 px-3 py-1.5 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                            <svg class="w-4 h-4 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <span>4.9</span>
+                            <span class="text-amber-700 dark:text-amber-300 font-medium">(124)</span>
+                        </div>
 
-<!-- 13. Customer Profile & Loyalty & Favorites -->
-<div x-show="$store.app.currentRoute === '#profile' || $store.app.currentRoute === '#loyalty' || $store.app.currentRoute === '#favorites'" x-cloak>
-    @await Html.PartialAsync("~/Views/Customer/Partials/_CustomerProfile.cshtml")
-</div>
+                        <!-- Location -->
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                            <span>Maadi, Cairo</span>
+                        </div>
 
-<!-- 14. Admin Dashboard -->
-<div x-show="$store.app.currentRoute === '#admin'" x-cloak>
-    @await Html.PartialAsync("~/Views/Admin/Partials/_AdminDashboard.cshtml")
-</div>
+                        <!-- Pickup / Preparation Time -->
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                            <span>Pickup in 45m · 12:00 PM - 9:00 PM</span>
+                        </div>
 
-<!-- 15. Support Desk -->
-<div x-show="$store.app.currentRoute === '#support' || $store.app.currentRoute === '#support/desk'" x-cloak>
-    @await Html.PartialAsync("~/Views/Support/Partials/_SupportPortal.cshtml")
-</div>
+                        <!-- Availability Status -->
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Taking Orders Today</span>
+                        </div>
+                    </div>
 
-<!-- 16. Style Guide & Design Tokens -->
-<div x-show="$store.app.currentRoute === '#styleguide'" x-cloak>
-    @await Html.PartialAsync("~/Views/StyleGuide/Partials/_StyleGuide.cshtml")
-</div>
+                    <!-- View Menu CTA Pill Button -->
+                    <div class="pt-2">
+                        <a href="/Chefs/Details/1"
+                           class="chef-menu-btn inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                            <span>View Chef's Menu</span>
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#arrow-right"></use>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
 
-<!-- 17. Dedicated AI Assistant Page -->
-<div x-show="$store.app.currentRoute === '#ai-assistant'" x-cloak>
-    @await Html.PartialAsync("~/Views/AIAssistant/Partials/_AIAssistant.cshtml")
-</div>
+                <!-- Right Visual Column (Chef Portrait & Aura) -->
+                <div class="lg:col-span-5 relative flex items-center justify-center">
+                    <div class="absolute w-64 h-64 bg-[#c9955e]/15 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                    <div class="relative w-full max-w-xs aspect-square rounded-3xl overflow-hidden shadow-xl border-4 border-white dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800" style="max-height: 320px;">
+                        <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=900&auto=format&fit=crop&q=80"
+                             alt="Chef Amina Mansour"
+                             class="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+                    </div>
+                </div>
+            </div>
 
-<!-- 18. Live Chat Inbox (SCRUM-308) -->
-<div x-show="$store.app.currentRoute === '#inbox' || $store.app.currentRoute === '#messages'" x-cloak>
-    @await Html.PartialAsync("~/Views/Shared/Partials/_ChatInboxPage.cshtml")
-</div>
+            <!-- Chef 2: Om Nabil -->
+            <div x-show="activeChef === 'chef-2'"
+                 x-cloak
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                
+                <div class="lg:col-span-7 space-y-6 text-start">
+                    <div>
+                        <h3 class="text-3xl sm:text-4xl lg:text-5xl font-serif font-black tracking-tight text-[var(--color-text)] leading-tight">
+                            Om Nabil
+                        </h3>
+                        <p class="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#c9955e] dark:text-[#e0a870] mt-1.5">
+                            Home Chef · Master of Earthenware Tagines &amp; Casseroles
+                        </p>
+                    </div>
 
-<!-- 19. My Support Cases (SCRUM-409) -->
-<div x-show="$store.app.currentRoute === '#my-cases'" x-cloak>
-    @await Html.PartialAsync("~/Views/Customer/Partials/_MySupportCases.cshtml")
+                    <p class="text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed font-normal max-w-xl">
+                        Crafting slow-braised earthenware clay tagines from my home in Zamalek. Traditional Aswan spicing and sweet caramelized baladi onions cooked patiently over embers make every meal memorable.
+                    </p>
+
+                    <div class="py-1">
+                        <svg class="h-10 text-[var(--color-primary)] opacity-85 select-none" viewBox="0 0 140 45" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M 12 28 C 22 10, 35 15, 45 25 C 55 35, 30 40, 20 25 C 35 10, 60 20, 80 15 C 95 10, 110 30, 125 18" />
+                            <circle cx="130" cy="25" r="2.5" fill="currentColor" />
+                        </svg>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 border-t border-[var(--color-border-light)] text-xs">
+                        <div class="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-700/60 px-3 py-1.5 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                            <svg class="w-4 h-4 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <span>4.8</span>
+                            <span class="text-amber-700 dark:text-amber-300 font-medium">(98)</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                            <span>Zamalek, Cairo</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                            <span>Pickup in 60m · 1:00 PM - 10:00 PM</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Taking Orders Today</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <a href="/Chefs/Details/2"
+                           class="chef-menu-btn inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                            <span>View Chef's Menu</span>
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#arrow-right"></use>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 relative flex items-center justify-center">
+                    <div class="absolute w-64 h-64 bg-[#c9955e]/15 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                    <div class="relative w-full max-w-xs aspect-square rounded-3xl overflow-hidden shadow-xl border-4 border-white dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800" style="max-height: 320px;">
+                        <img src="https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=900&auto=format&fit=crop&q=80"
+                             alt="Om Nabil"
+                             class="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chef 3: Hajjah Fatma -->
+            <div x-show="activeChef === 'chef-3'"
+                 x-cloak
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                
+                <div class="lg:col-span-7 space-y-6 text-start">
+                    <div>
+                        <h3 class="text-3xl sm:text-4xl lg:text-5xl font-serif font-black tracking-tight text-[var(--color-text)] leading-tight">
+                            Hajjah Fatma
+                        </h3>
+                        <p class="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#c9955e] dark:text-[#e0a870] mt-1.5">
+                            Home Chef · Country Flaky Feteer &amp; Heirloom Breads
+                        </p>
+                    </div>
+
+                    <p class="text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed font-normal max-w-xl">
+                        Preparing rustic Egyptian layered feteer and fresh home bakery in Heliopolis. Dough rested patiently and laminated with 100% natural country butter and fresh clotted cream each morning.
+                    </p>
+
+                    <div class="py-1">
+                        <svg class="h-10 text-[var(--color-primary)] opacity-85 select-none" viewBox="0 0 140 45" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M 15 22 C 25 15, 40 10, 50 25 C 60 40, 40 35, 30 20 C 45 5, 75 15, 90 28 C 105 35, 120 15, 130 22" />
+                            <circle cx="134" cy="22" r="2.5" fill="currentColor" />
+                        </svg>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 border-t border-[var(--color-border-light)] text-xs">
+                        <div class="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-700/60 px-3 py-1.5 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                            <svg class="w-4 h-4 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                            <span>4.9</span>
+                            <span class="text-amber-700 dark:text-amber-300 font-medium">(180)</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                            <span>Heliopolis, Cairo</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1.5 rounded-full text-[var(--color-text)] font-semibold">
+                            <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                            <span>Pickup in 30m · 9:00 AM - 6:00 PM</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Taking Orders Today</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <a href="/Chefs/Details/3"
+                           class="chef-menu-btn inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                            <span>View Chef's Menu</span>
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="#arrow-right"></use>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 relative flex items-center justify-center">
+                    <div class="absolute w-64 h-64 bg-[#c9955e]/15 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                    <div class="relative w-full max-w-xs aspect-square rounded-3xl overflow-hidden shadow-xl border-4 border-white dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800" style="max-height: 320px;">
+                        <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=900&auto=format&fit=crop&q=80"
+                             alt="Hajjah Fatma"
+                             class="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+                    </div>
+                </div>
+            </div>
+            <!-- END SAMPLE -->
+        </div>
+    </section>
+
+    <!-- 6. Customer Testimonials -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-xl mx-auto mb-10 space-y-2">
+            <span class="text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
+                Verified Reviews
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                Customer Love
+            </h2>
+        </div>
+
+        <!-- TODO(backend): Loop through verified 5-star customer reviews (e.g. Model.CustomerReviews); bind ReviewerName, Rating, CommentText, and ChefName -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- BEGIN SAMPLE: 3 Verified Customer Reviews -->
+            <!-- Review 1 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-1 text-[var(--color-star)] mb-3">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    </div>
+                    <p class="text-xs text-[var(--color-text)] leading-relaxed italic mb-4">
+                        “The Molokhia with duck was outstanding. Truly authentic grandmother style recipe with generous portions and hot pickup ready on the minute.”
+                    </p>
+                </div>
+                <div class="flex items-center justify-between border-t border-[var(--color-border-light)] pt-3 text-[11px]">
+                    <span class="font-bold text-[var(--color-text)]">Karim El-Gohary</span>
+                    <span class="text-[var(--color-primary)] font-semibold">Amina's Heritage Kitchen</span>
+                </div>
+            </div>
+
+            <!-- Review 2 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-1 text-[var(--color-star)] mb-3">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    </div>
+                    <p class="text-xs text-[var(--color-text)] leading-relaxed italic mb-4">
+                        “Best oxtail tagine in Zamalek. Rich savory caramelization on the baby onions. Loved picking it up directly from the kitchen door.”
+                    </p>
+                </div>
+                <div class="flex items-center justify-between border-t border-[var(--color-border-light)] pt-3 text-[11px]">
+                    <span class="font-bold text-[var(--color-text)]">Mona El-Sherif</span>
+                    <span class="text-[var(--color-primary)] font-semibold">Om Nabil Casseroles</span>
+                </div>
+            </div>
+
+            <!-- Review 3 -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-1 text-[var(--color-star)] mb-3">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    </div>
+                    <p class="text-xs text-[var(--color-text)] leading-relaxed italic mb-4">
+                        “Flaky layers, aroma of pure country ghee, absolutely heavenly fresh pastry. Truly grateful to have real inspected home cooks accessible like this.”
+                    </p>
+                </div>
+                <div class="flex items-center justify-between border-t border-[var(--color-border-light)] pt-3 text-[11px]">
+                    <span class="font-bold text-[var(--color-text)]">Ahmed Nasser</span>
+                    <span class="text-[var(--color-primary)] font-semibold">Hajjah Fatma Bakery</span>
+                </div>
+            </div>
+            <!-- END SAMPLE -->
+        </div>
+    </section>
 </div>

@@ -1,6 +1,131 @@
 @{
     ViewData["Title"] = "Customer Profile";
+    ViewData["CustomerActivePage"] = "Profile";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Customer/Profile.cshtml -->
+<!-- Ported from Views/Customer/Partials/_CustomerProfile.cshtml & _EditCustomerProfileModal.cshtml on main -->
+<!-- TODO(backend): Load customer profile, saved addresses, and dietary preferences from backend session -->
+
+<div class="w-full pb-24">
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">Profile</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                My Account &amp; Activity
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                Track orders, loyalty balance, and favorite kitchens
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" />
+
+        <!-- Profile & Saved Address Details Form (SCRUM-325) -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div class="flex items-center gap-3 border-b border-[var(--color-border-light)] pb-4">
+                <div class="w-11 h-11 rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-[var(--color-text)]">
+                        Personal Details &amp; Saved Pickup Neighborhood
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)]">Update your contact details, default address, and dietary notes</p>
+                </div>
+            </div>
+
+            <!-- TODO(backend): POST /Customer/UpdateProfile -->
+            <form method="post" action="/Customer/UpdateProfile" class="space-y-4 text-xs">
+                @Html.AntiForgeryToken()
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                            Full Name
+                        </label>
+                        <input type="text"
+                               name="name"
+                               value="Tamer Zaki"
+                               required
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    </div>
+
+                    <div>
+                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                            Phone Number
+                        </label>
+                        <input type="tel"
+                               name="phone"
+                               value="+20 100 234 5678"
+                               required
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Email Address
+                    </label>
+                    <input type="email"
+                           value="tamer.zaki@example.com"
+                           disabled
+                           class="w-full bg-neutral-100 dark:bg-neutral-800 border border-[var(--color-border-light)] rounded-xl px-3.5 py-2.5 text-[var(--color-text-muted)] cursor-not-allowed opacity-80" />
+                    <span class="text-[10px] text-[var(--color-text-muted)] mt-1 block">To modify your login email, contact customer support.</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-1">
+                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                            Primary Area
+                        </label>
+                        <select name="area" class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-2.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                            <option value="Maadi, Cairo" selected>Maadi</option>
+                            <option value="Zamalek, Cairo">Zamalek</option>
+                            <option value="Nasr City, Cairo">Nasr City</option>
+                            <option value="Heliopolis, Cairo">Heliopolis</option>
+                            <option value="Dokki & Mohandessin">Dokki</option>
+                            <option value="New Cairo / 5th Settlement">New Cairo</option>
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                            Street &amp; Building Details
+                        </label>
+                        <input type="text"
+                               name="address"
+                               value="Villa 14, Road 9, Degla, Maadi, Cairo"
+                               required
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Dietary Preferences &amp; Allergies
+                    </label>
+                    <textarea name="dietaryNotes"
+                              rows="2"
+                              class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">No artificial preservatives, prefer baladi ghee and mild spices</textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                    <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

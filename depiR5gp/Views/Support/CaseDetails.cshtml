@@ -1,6 +1,91 @@
 @{
     ViewData["Title"] = "Support Case Details";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Support/CaseDetails.cshtml -->
+<!-- Source: Views/Customer/Partials/_MySupportCases.cshtml lines 150-222 (SCRUM-409 & SCRUM-397) -->
+<!-- TODO(backend): Bind SupportCaseDetailViewModel and handle POST /Support/CaseDetails follow-up reply -->
+
+<div class="w-full pb-24">
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="/Support" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">My Support Cases</a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">CASE-7701</span>
+            </nav>
+            <div class="flex items-center justify-between gap-4">
+                <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                    Support Case Thread
+                </h1>
+                <a href="/Support" class="text-xs font-bold text-[var(--color-primary)] hover:underline">← All Support Cases</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+            <!-- Case Header Details -->
+            <div class="border-b border-[var(--color-border-light)] pb-4 space-y-2">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-base text-[var(--color-text)]">CASE-7701: Late pickup readiness notification</span>
+                        </div>
+                        <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                            <span>Category:</span>
+                            <strong class="text-[var(--color-text)]">Order Pickup Delay</strong> ·
+                            <span>Order Ref:</span>
+                            <span class="font-medium text-[var(--color-primary)]">HC-2026-9041</span>
+                        </p>
+                    </div>
+                    <span class="text-xs px-3 py-1 rounded-full font-bold border bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-200">
+                        In Progress
+                    </span>
+                </div>
+            </div>
+
+            <!-- Messages Thread -->
+            <div class="space-y-3.5 max-h-80 overflow-y-auto pe-1">
+                <!-- BEGIN SAMPLE: Unrolled Thread Messages from _MySupportCases.cshtml -->
+                <div class="p-3.5 rounded-2xl text-xs space-y-1.5 max-w-[85%] ms-auto bg-[var(--color-primary)] text-white shadow-2xs">
+                    <div class="flex items-center justify-between gap-4 text-[10px] font-semibold text-white/80">
+                        <span>You (Customer)</span>
+                        <span>12:40 PM</span>
+                    </div>
+                    <p class="leading-relaxed">I arrived at Degla villa at 2:00 PM as scheduled, but had to wait 15 extra minutes on the patio while the chef wrapped the duck.</p>
+                </div>
+
+                <div class="p-3.5 rounded-2xl text-xs space-y-1.5 max-w-[85%] me-auto bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] text-[var(--color-text)]">
+                    <div class="flex items-center justify-between gap-4 text-[10px] font-semibold text-[var(--color-primary)]">
+                        <span>Layla Sherif (HomeChef Support)</span>
+                        <span>12:45 PM</span>
+                    </div>
+                    <p class="leading-relaxed">We reached out to Chef Amina. She extends her sincere apologies and added complimentary hot feteer with honey to your package.</p>
+                </div>
+                <!-- END SAMPLE -->
+            </div>
+
+            <!-- Follow-up reply box -->
+            <form method="post" action="/Support/CaseDetails" class="pt-2 border-t border-[var(--color-border-light)] flex gap-2">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="caseId" value="case-1" />
+                <input type="text"
+                       name="replyText"
+                       required
+                       placeholder="Type your follow-up reply to support agent..."
+                       class="flex-1 text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                <button type="submit"
+                        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#send"></use></svg>
+                    <span>Reply</span>
+                </button>
+            </form>
+        </div>
+    </div>
 </div>

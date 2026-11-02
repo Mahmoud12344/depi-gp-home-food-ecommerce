@@ -1,6 +1,70 @@
 @{
-    ViewData["Title"] = "Verification Documents";
+    ViewData["Title"] = "Documents & Hygiene - Chef Portal";
+    ViewData["ActiveChefTab"] = "documents";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/ChefDashboard/Documents.cshtml -->
+<!-- Source: Views/Chefs/Partials/_ChefOnboarding.cshtml -->
+<!-- TODO(backend): Bind ChefDocumentsViewModel (NationalIdNumber, FoodSafetyCertificateNumber, InspectionStatus) and handle document renewal upload -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)]">
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+                        Verified Identity &amp; Hygiene Certificates
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                        Compliance records audited by HomeChef Quality &amp; Food Safety Assurance
+                    </p>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100 border border-emerald-300 text-xs font-bold uppercase">
+                    Verified &amp; Active
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] space-y-1">
+                    <span class="text-[10px] font-bold uppercase text-[var(--color-text-muted)] block">Egyptian National ID</span>
+                    <strong class="text-sm font-mono text-[var(--color-text)] block">EGY-2880915-NAT</strong>
+                    <span class="text-[11px] text-emerald-600 font-semibold block">Verified on Jan 15, 2026</span>
+                </div>
+                <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] space-y-1">
+                    <span class="text-[10px] font-bold uppercase text-[var(--color-text-muted)] block">Food Safety &amp; Hygiene Certificate</span>
+                    <strong class="text-sm font-mono text-[var(--color-text)] block">FS-CAIRO-2026-418</strong>
+                    <span class="text-[11px] text-emerald-600 font-semibold block">Valid through Dec 31, 2026</span>
+                </div>
+            </div>
+
+            <!-- TODO(backend): POST /ChefDashboard/Documents (multipart/form-data) to upload updated certificate or IBAN proof -->
+            <form method="post" action="/ChefDashboard/Documents" enctype="multipart/form-data" class="space-y-4 text-xs pt-4 border-t border-[var(--color-border-light)]">
+                @Html.AntiForgeryToken()
+                <h4 class="font-bold uppercase tracking-wider text-[var(--color-text)]">Submit Updated Certificate or Payout IBAN</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Food Safety Certificate Reference #</label>
+                        <input type="text" name="FoodSafetyCertificate" value="FS-CAIRO-2026-418" required
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium" />
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Domestic Bank IBAN / InstaPay Handle</label>
+                        <input type="text" name="Iban" value="EG890002000100000000012345678" required
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-mono" />
+                    </div>
+                </div>
+                <div class="flex justify-end pt-2">
+                    <button type="submit"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                        <span>Update Compliance Records</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

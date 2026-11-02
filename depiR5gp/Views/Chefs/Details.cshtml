@@ -1,6 +1,191 @@
 @{
-    ViewData["Title"] = "Chef Profile";
+    ViewData["Title"] = "Amina's Heritage Kitchen";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Chefs/Details.cshtml -->
+<!-- Ported from Views/Chefs/Partials/_PublicChef.cshtml on main -->
+<!-- TODO(backend): Bind public chef profile, published dishes menu, customer reviews, and hygiene credentials -->
+
+<div x-data="{
+    activeTab: 'menu',
+    isAvailable: true,
+    favorited: false
+}"
+     class="w-full pb-24">
+
+    <!-- Breadcrumb banner with Blurred / Transparent Thumbnail Background -->
+    <div class="relative w-full border-b border-[var(--color-border)] py-8 md:py-12 overflow-hidden bg-neutral-900">
+        <!-- Blurred / Transparent Thumbnail Image -->
+        <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&auto=format&fit=crop&q=80"
+             alt="Amina's Heritage Kitchen"
+             class="absolute inset-0 w-full h-full object-cover scale-105 filter blur-xs opacity-30 dark:opacity-20 pointer-events-none select-none transition-transform duration-700" />
+        
+        <!-- Dark Gradient Overlay for Maximum Text Readability -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/55 to-black/40 pointer-events-none"></div>
+
+        <!-- Foreground Content: Clean Breadcrumb & Chef Title -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-white/75 gap-2 flex-wrap mb-3">
+                <a href="/" class="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-4 h-4 text-white/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="/Chefs" class="hover:text-white transition-colors cursor-pointer font-medium">Chefs</a>
+                <svg class="w-4 h-4 text-white/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-white font-semibold truncate">Amina's Heritage Kitchen</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold uppercase tracking-tight text-white drop-shadow-md">
+                Amina's Heritage Kitchen
+            </h1>
+            <p class="text-xs sm:text-sm text-white/80 mt-2 leading-relaxed font-medium">
+                Chef Amina Mansour · Maadi, Cairo
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-10">
+        <!-- Navigation Tabs & Action Bar -->
+        <div class="flex flex-wrap items-center justify-between border-b border-[var(--color-border)] gap-4 pb-2 sm:pb-0">
+            <!-- Tabs -->
+            <div class="flex gap-6 overflow-x-auto">
+                <button type="button"
+                        @@click="activeTab = 'menu'"
+                        :class="activeTab === 'menu' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                        class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer shrink-0">
+                    <span>Kitchen Menu</span> (2)
+                </button>
+                <button type="button"
+                        @@click="activeTab = 'reviews'"
+                        :class="activeTab === 'reviews' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                        class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer shrink-0">
+                    <span>Customer Reviews</span> (1)
+                </button>
+                <button type="button"
+                        @@click="activeTab = 'about'"
+                        :class="activeTab === 'about' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                        class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer shrink-0">
+                    <span>Hygiene &amp; Story</span>
+                </button>
+            </div>
+
+            <!-- Actions: Chat with Chef & Favorite -->
+            <div class="flex items-center gap-2 pb-2 sm:pb-3">
+                <button type="button"
+                        @@click="favorited = !favorited"
+                        class="p-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-rose-500 transition-colors cursor-pointer"
+                        title="Favorite chef">
+                    <svg class="w-4 h-4" :class="favorited ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#heart"></use></svg>
+                </button>
+                <a href="/Chat"
+                   class="inline-flex items-center gap-1.5 bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#message-circle"></use></svg>
+                    <span>Chat with Chef</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Tab 1: Menu -->
+        <!-- TODO(backend): Loop through Chef's published dishes (Model.ChefDishes); render _DishCard for each dish -->
+        <div x-show="activeTab === 'menu'">
+            <div x-show="!isAvailable" x-cloak class="mb-5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2.5 shadow-xs">
+                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                <span>Adding dishes to cart is temporarily paused while this kitchen is closed.</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" :class="!isAvailable ? 'opacity-75 pointer-events-none' : ''">
+                <!-- BEGIN SAMPLE: Chef's published dishes -->
+                <partial name="~/Views/Shared/Partials/_DishCard.cshtml" />
+
+                <!-- Dish 2: Pigeon Stuffed with Spiced Freekeh -->
+                <div onclick="window.location.href='/Dishes/Details/5'"
+                     class="group relative bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--color-primary)]/5 cursor-pointer flex flex-col justify-between overflow-hidden hover:-translate-y-1">
+                    <div class="relative w-full aspect-square bg-neutral-100 dark:bg-neutral-800 overflow-hidden rounded-xl mb-3.5">
+                        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80"
+                             alt="Pigeon Stuffed with Spiced Freekeh"
+                             class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+                             loading="lazy" />
+
+                        <div class="absolute bottom-3 inset-x-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-3 group-hover:translate-y-0 z-20"
+                             x-data="{ fav: false }">
+                            <button type="button"
+                                    @@click.stop="fav = !fav"
+                                    class="w-9 h-9 bg-neutral-950/95 hover:bg-[var(--color-primary)] text-white border border-white/20 rounded-full flex items-center justify-center transition-all shadow-md hover:scale-110 cursor-pointer backdrop-blur-xs">
+                                <svg class="w-4 h-4" :class="fav ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#heart"></use>
+                                </svg>
+                            </button>
+                            <button type="button"
+                                    @@click.stop="$dispatch('open-options-modal', { id: 'dish-5', name: 'Pigeon Stuffed with Spiced Freekeh', price: 270, kitchenName: 'Amina\'s Heritage Kitchen' })"
+                                    class="w-9 h-9 bg-neutral-950/95 hover:bg-[var(--color-primary)] text-white border border-white/20 rounded-full flex items-center justify-center transition-all shadow-md hover:scale-110 cursor-pointer backdrop-blur-xs">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#shopping-bag"></use>
+                                </svg>
+                            </button>
+                            <button type="button"
+                                    @@click.stop="$dispatch('open-quick-view', { id: 'dish-5', name: 'Pigeon Stuffed with Spiced Freekeh', price: 270, rating: 4.8, reviewCount: 41, prepTimeMinutes: 50, kitchenName: 'Amina\'s Heritage Kitchen', category: 'Traditional Egyptian', pickupArea: 'Maadi, Cairo', isAvailable: true, isSale: false, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80' })"
+                                    class="w-9 h-9 bg-neutral-950/95 hover:bg-[var(--color-primary)] text-white border border-white/20 rounded-full flex items-center justify-center transition-all shadow-md hover:scale-110 cursor-pointer backdrop-blur-xs">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="#eye"></use>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-[11px] text-[var(--color-text-muted)] truncate mb-1">
+                            <span>Traditional Egyptian</span>
+                            <span class="mx-1.5 opacity-60">·</span>
+                            <span class="text-[var(--color-primary)] font-semibold">Amina's Heritage Kitchen</span>
+                        </div>
+                        <h3 class="text-sm sm:text-base font-bold uppercase tracking-tight text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors line-clamp-1 mb-1.5">
+                            Pigeon Stuffed with Spiced Freekeh
+                        </h3>
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <span class="text-base font-bold text-[var(--color-primary)]">270.00 EGP</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-[var(--color-text-muted)] pt-2 border-t border-[var(--color-border-light)]">
+                            <div class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                <span class="text-[11px] font-bold">4.8</span>
+                                <span class="text-[10px]">(41)</span>
+                            </div>
+                            <span class="text-[11px]">50m</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END SAMPLE -->
+            </div>
+        </div>
+
+        <!-- Tab 2: Reviews -->
+        <!-- TODO(backend): Loop through Chef.Reviews; bind ReviewerName, Rating, CommentText, CreatedAt, and VerifiedOrder flag -->
+        <div x-show="activeTab === 'reviews'" x-cloak class="space-y-4 max-w-3xl">
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-xs text-[var(--color-text)]">Karim El-Gohary</span>
+                    <div class="flex items-center text-[var(--color-star)]">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    </div>
+                </div>
+                <p class="text-xs text-[var(--color-text)] leading-relaxed italic">
+                    “The Molokhia with duck was outstanding. Truly authentic grandmother style recipe with generous portions and hot pickup ready on the minute.”
+                </p>
+                <span class="text-[10px] text-[var(--color-text-muted)] block">Verified Completed Order</span>
+            </div>
+        </div>
+
+        <!-- Tab 3: About -->
+        <!-- TODO(backend): Bind Chef.HygieneCertificates, domestic inspection summary, and culinary heritage narrative -->
+        <div x-show="activeTab === 'about'" x-cloak class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 sm:p-8 space-y-4 max-w-3xl">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                Culinary Hygiene &amp; Pure Ingredients
+            </h3>
+            <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+                This domestic kitchen complies with platform health inspection standards. Meals are cooked using only 100% baladi ghee, fresh butcher meats, and organic produce without artificial preservatives. Cookware is sanitized between every preparation.
+            </p>
+        </div>
+    </div>
 </div>

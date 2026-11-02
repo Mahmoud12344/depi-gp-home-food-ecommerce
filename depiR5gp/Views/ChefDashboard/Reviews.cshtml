@@ -1,0 +1,99 @@
+@{
+    ViewData["Title"] = "Customer Reviews - Chef Portal";
+    ViewData["ActiveChefTab"] = "reviews";
+}
+<!-- Views/ChefDashboard/Reviews.cshtml -->
+<!-- Source: home_chef/src/pages/ChefDashboardPage.tsx (Views/Chefs/Partials/_ChefDashboard.cshtml lines 476-513) -->
+<!-- Backlog Subtask: SCRUM-556 -->
+<!-- TODO(backend): Add Reviews() action to ChefDashboardController and bind Model.Reviews and Model.AverageRating -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <!-- TAB 4: Customer Reviews (SCRUM-556) -->
+        <div class="space-y-4">
+            <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] p-4 rounded-2xl flex items-center justify-between text-xs">
+                <div>
+                    <h3 class="font-bold uppercase text-[var(--color-text)]">
+                        Verified Kitchen Customer Feedback
+                    </h3>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                        Rating average: <strong class="text-[var(--color-primary)]">4.9 / 5.0</strong> from 24 orders.
+                    </p>
+                </div>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                    Read-Only (Platform Policy)
+                </span>
+            </div>
+
+            <div class="space-y-3">
+                <!-- BEGIN SAMPLE: Unrolled 3 Reviews from _ChefDashboard.cshtml -->
+                <!-- Review 1: Youssef Nabil -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-[var(--color-text)]">Youssef Nabil</span>
+                            <span class="text-[var(--color-text-muted)]">·</span>
+                            <span class="text-[11px] text-[var(--color-primary)] font-semibold">Baladi Duck Molokhia</span>
+                        </div>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">2026-10-23</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-amber-500">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    </div>
+                    <p class="text-[var(--color-text)] leading-relaxed italic">“The duck was browned to perfection with crispy skin and the molokhia was piping hot. Best homemade dinner in Maadi!”</p>
+                </div>
+
+                <!-- Review 2: Salma Fathy -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-[var(--color-text)]">Salma Fathy</span>
+                            <span class="text-[var(--color-text-muted)]">·</span>
+                            <span class="text-[11px] text-[var(--color-primary)] font-semibold">Feteer Meshaltet</span>
+                        </div>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">2026-10-21</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-amber-500">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    </div>
+                    <p class="text-[var(--color-text)] leading-relaxed italic">“Authentic baladi ghee flavor in the feteer. Portion was very generous for our family gathering.”</p>
+                </div>
+
+                <!-- Review 3: Karim Gad -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-[var(--color-text)]">Karim Gad</span>
+                            <span class="text-[var(--color-text-muted)]">·</span>
+                            <span class="text-[11px] text-[var(--color-primary)] font-semibold">Clay Oven Oxtail Tagine</span>
+                        </div>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">2026-10-18</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-amber-500">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    </div>
+                    <p class="text-[var(--color-text)] leading-relaxed italic">“Very tasty tagine, oxtail was fork-tender. Picked up on time right at the kitchen gate.”</p>
+                </div>
+                <!-- END SAMPLE -->
+            </div>
+        </div>
+    </div>
+</div>
+

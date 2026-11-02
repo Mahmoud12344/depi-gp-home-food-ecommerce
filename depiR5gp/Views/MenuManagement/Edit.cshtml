@@ -1,6 +1,102 @@
 @{
-    ViewData["Title"] = "Edit Dish";
+    ViewData["Title"] = "Edit Menu Dish - Menu Management";
+    ViewData["ActiveChefTab"] = "menu";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/MenuManagement/Edit.cshtml -->
+<!-- Source: Views/Chefs/Partials/_EditDishModal.cshtml (SCRUM-46) -->
+<!-- TODO(backend): Bind UpdateDishDto and persist updates via POST /MenuManagement/Edit -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false,
+    editingDish: {
+        id: 'd-1',
+        name: 'Baladi Duck Molokhia with Vermicelli Rice',
+        nameAr: 'ملوخية بالبط البلدي مع أرز بالشعرية',
+        price: 240,
+        isAvailable: true,
+        category: 'Traditional Egyptian'
+    }
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs">
+            <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] mb-6">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+                            Edit Menu Dish
+                        </h3>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">
+                            Update pricing, ingredients, prep time, or preset option surcharges
+                        </p>
+                    </div>
+                </div>
+                <a href="/MenuManagement" class="text-xs font-bold text-[var(--color-primary)] hover:underline">← Back to Menu</a>
+            </div>
+
+            <form method="post" action="/MenuManagement/Edit" class="space-y-6 text-xs">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="DishId" value="d-1" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Title (English)</label>
+                        <input type="text" name="Name" required x-model="editingDish.name"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Title (Arabic)</label>
+                        <input type="text" name="NameAr" required x-model="editingDish.nameAr"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Category</label>
+                        <select name="Category" x-model="editingDish.category"
+                                class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
+                            <option value="Traditional Egyptian">Traditional Egyptian (أكلات مصرية أصيلة)</option>
+                            <option value="Tagines & Casseroles">Tagines &amp; Casseroles (طواجن فرن بلدي)</option>
+                            <option value="Stuffed & Mahshi">Stuffed &amp; Mahshi (محاشي ومحمرات)</option>
+                            <option value="Grills & Poultry">Grills &amp; Poultry (مشويات وطيور)</option>
+                            <option value="Bakery & Desserts">Bakery &amp; Desserts (فطير ومخبوزات وحلويات)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Base Price (EGP)</label>
+                        <input type="number" name="Price" step="5" min="10" required x-model.number="editingDish.price"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Availability Status</label>
+                        <input type="hidden" name="IsAvailable" :value="editingDish.isAvailable" />
+                        <button type="button"
+                                @@click="editingDish.isAvailable = !editingDish.isAvailable"
+                                class="w-full p-2.5 rounded-xl font-bold border transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                                :class="editingDish.isAvailable ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100' : 'bg-neutral-100 text-neutral-500 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-400'">
+                            <span class="w-2 h-2 rounded-full" :class="editingDish.isAvailable ? 'bg-emerald-500' : 'bg-neutral-400'"></span>
+                            <span x-text="editingDish.isAvailable ? 'Available for Orders' : 'Marked Unavailable'"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+                    <a href="/MenuManagement"
+                       class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider transition-colors cursor-pointer">
+                        <span>Cancel</span>
+                    </a>
+                    <button type="submit"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                        <span>Save Dish Changes</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

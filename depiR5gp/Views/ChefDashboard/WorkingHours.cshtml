@@ -1,6 +1,151 @@
 @{
-    ViewData["Title"] = "Working Hours";
+    ViewData["Title"] = "Working Hours - Chef Portal";
+    ViewData["ActiveChefTab"] = "hours";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/ChefDashboard/WorkingHours.cshtml -->
+<!-- Source: Views/Chefs/Partials/_EditChefProfileModal.cshtml (SCRUM-66 & SCRUM-30) -->
+<!-- TODO(backend): Bind ChefWorkingHoursViewModel and persist weekly operating schedule via POST /ChefDashboard/WorkingHours -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)]">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+                            Kitchen Operating Hours Schedule
+                        </h3>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">
+                            Configure weekly working days and daily pickup counter hours
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] space-y-1">
+                    <span class="font-bold text-[var(--color-text)]">Working Days:</span>
+                    <div class="flex items-center gap-2 pt-1">
+                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100 text-[11px] font-bold">Tuesday – Sunday</span>
+                        <span class="text-[10px] text-neutral-400 font-medium">(Mondays Closed)</span>
+                    </div>
+                </div>
+                <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] space-y-1">
+                    <span class="font-bold text-[var(--color-text)]">Daily Pickup Hours:</span>
+                    <div class="flex items-center gap-2 pt-1 font-bold text-[var(--color-primary)]">
+                        <span>12:00 PM – 10:30 PM (Cairo Time)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TODO(backend): POST /ChefDashboard/WorkingHours with daily open/close times and active day flags -->
+            <form method="post" action="/ChefDashboard/WorkingHours" class="space-y-4 text-xs">
+                @Html.AntiForgeryToken()
+                <div class="divide-y divide-[var(--color-border-light)] border border-[var(--color-border)] rounded-2xl overflow-hidden">
+                    <!-- BEGIN SAMPLE: Weekly Days Schedule -->
+                    <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[var(--color-surface-subtle)]/40">
+                        <label class="flex items-center gap-2.5 font-bold text-[var(--color-text)] w-36">
+                            <input type="checkbox" name="Days" value="Monday" class="rounded accent-[var(--color-primary)]" />
+                            <span>Monday</span>
+                        </label>
+                        <span class="text-[11px] text-rose-600 font-semibold">Closed (Weekly Kitchen Rest Day)</span>
+                        <div class="flex items-center gap-2">
+                            <input type="time" name="MonOpen" value="12:00" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                            <span>to</span>
+                            <input type="time" name="MonClose" value="22:30" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                        </div>
+                    </div>
+                    <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <label class="flex items-center gap-2.5 font-bold text-[var(--color-text)] w-36">
+                            <input type="checkbox" name="Days" value="Tuesday" checked class="rounded accent-[var(--color-primary)]" />
+                            <span>Tuesday</span>
+                        </label>
+                        <span class="text-[11px] text-emerald-600 font-semibold">Open for Pickup Orders</span>
+                        <div class="flex items-center gap-2">
+                            <input type="time" name="TueOpen" value="12:00" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                            <span>to</span>
+                            <input type="time" name="TueClose" value="22:30" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                        </div>
+                    </div>
+                    <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <label class="flex items-center gap-2.5 font-bold text-[var(--color-text)] w-36">
+                            <input type="checkbox" name="Days" value="Wednesday" checked class="rounded accent-[var(--color-primary)]" />
+                            <span>Wednesday</span>
+                        </label>
+                        <span class="text-[11px] text-emerald-600 font-semibold">Open for Pickup Orders</span>
+                        <div class="flex items-center gap-2">
+                            <input type="time" name="WedOpen" value="12:00" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                            <span>to</span>
+                            <input type="time" name="WedClose" value="22:30" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                        </div>
+                    </div>
+                    <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <label class="flex items-center gap-2.5 font-bold text-[var(--color-text)] w-36">
+                            <input type="checkbox" name="Days" value="Thursday" checked class="rounded accent-[var(--color-primary)]" />
+                            <span>Thursday</span>
+                        </label>
+                        <span class="text-[11px] text-emerald-600 font-semibold">Open for Pickup Orders</span>
+                        <div class="flex items-center gap-2">
+                            <input type="time" name="ThuOpen" value="12:00" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                            <span>to</span>
+                            <input type="time" name="ThuClose" value="22:30" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                        </div>
+                    </div>
+                    <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <label class="flex items-center gap-2.5 font-bold text-[var(--color-text)] w-36">
+                            <input type="checkbox" name="Days" value="Friday" checked class="rounded accent-[var(--color-primary)]" />
+                            <span>Friday</span>
+                        </label>
+                        <span class="text-[11px] text-emerald-600 font-semibold">Open for Pickup Orders</span>
+                        <div class="flex items-center gap-2">
+                            <input type="time" name="FriOpen" value="12:00" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                            <span>to</span>
+                            <input type="time" name="FriClose" value="22:30" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                        </div>
+                    </div>
+                    <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <label class="flex items-center gap-2.5 font-bold text-[var(--color-text)] w-36">
+                            <input type="checkbox" name="Days" value="Saturday" checked class="rounded accent-[var(--color-primary)]" />
+                            <span>Saturday</span>
+                        </label>
+                        <span class="text-[11px] text-emerald-600 font-semibold">Open for Pickup Orders</span>
+                        <div class="flex items-center gap-2">
+                            <input type="time" name="SatOpen" value="12:00" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                            <span>to</span>
+                            <input type="time" name="SatClose" value="22:30" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                        </div>
+                    </div>
+                    <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <label class="flex items-center gap-2.5 font-bold text-[var(--color-text)] w-36">
+                            <input type="checkbox" name="Days" value="Sunday" checked class="rounded accent-[var(--color-primary)]" />
+                            <span>Sunday</span>
+                        </label>
+                        <span class="text-[11px] text-emerald-600 font-semibold">Open for Pickup Orders</span>
+                        <div class="flex items-center gap-2">
+                            <input type="time" name="SunOpen" value="12:00" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                            <span>to</span>
+                            <input type="time" name="SunClose" value="22:30" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs" />
+                        </div>
+                    </div>
+                    <!-- END SAMPLE -->
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+                    <button type="submit"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                        <span>Save Working Hours</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

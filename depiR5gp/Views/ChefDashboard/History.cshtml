@@ -1,0 +1,107 @@
+@{
+    ViewData["Title"] = "Order History - Chef Portal";
+    ViewData["ActiveChefTab"] = "history";
+}
+<!-- Views/ChefDashboard/History.cshtml -->
+<!-- Source: home_chef/src/pages/ChefDashboardPage.tsx (Views/Chefs/Partials/_ChefDashboard.cshtml lines 433-474) -->
+<!-- Backlog Subtask: SCRUM-96 -->
+<!-- TODO(backend): Add History() action to ChefDashboardController and bind Model.OrderHistory filtered by status query param -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <!-- TAB 3: Order History (SCRUM-96) -->
+        <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+                <h3 class="text-base font-bold uppercase text-[var(--color-text)]">
+                    Historical Order Records
+                </h3>
+                <!-- Plain GET form for status filter -->
+                <form method="get" action="/ChefDashboard/History" class="flex items-center gap-2">
+                    <select name="status" onchange="this.form.submit()" class="p-2 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs font-semibold">
+                        <option value="all">All Historical Statuses</option>
+                        <option value="Completed">Completed Only</option>
+                        <option value="Cancelled">Cancelled Only</option>
+                        <option value="Rejected">Rejected Only</option>
+                    </select>
+                </form>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+                <div class="divide-y divide-[var(--color-border-light)] text-xs">
+                    <!-- BEGIN SAMPLE: Unrolled 4 Historical Orders from _ChefDashboard.cshtml -->
+                    <!-- History 1: #HC-2026-8840 (Completed) -->
+                    <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-8840</span>
+                                <span class="bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100 text-[10px] px-2 py-0.5 rounded-full font-bold border">Completed</span>
+                            </div>
+                            <h5 class="font-semibold text-xs text-[var(--color-text)]">Feteer Meshaltet with Baladi Honey</h5>
+                            <p class="text-[11px] text-[var(--color-text-muted)]">Customer: Sara Ahmed · Date: 2026-10-23 18:30</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="font-bold text-sm text-[var(--color-text)] block">190.00 EGP</span>
+                            <span class="text-[10px] text-emerald-600 font-semibold">Net: 161.50 EGP</span>
+                        </div>
+                    </div>
+
+                    <!-- History 2: #HC-2026-8812 (Completed) -->
+                    <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-8812</span>
+                                <span class="bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100 text-[10px] px-2 py-0.5 rounded-full font-bold border">Completed</span>
+                            </div>
+                            <h5 class="font-semibold text-xs text-[var(--color-text)]">Trio Hawawshi Box with Tahini</h5>
+                            <p class="text-[11px] text-[var(--color-text-muted)]">Customer: Dina Magdy · Date: 2026-10-22 14:15</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="font-bold text-sm text-[var(--color-text)] block">160.00 EGP</span>
+                            <span class="text-[10px] text-emerald-600 font-semibold">Net: 136.00 EGP</span>
+                        </div>
+                    </div>
+
+                    <!-- History 3: #HC-2026-8790 (Cancelled) -->
+                    <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-8790</span>
+                                <span class="bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-200 text-[10px] px-2 py-0.5 rounded-full font-bold border">Cancelled</span>
+                            </div>
+                            <h5 class="font-semibold text-xs text-[var(--color-text)]">Stuffed Cabbage Rolls (Mahshi Koronb)</h5>
+                            <p class="text-[11px] text-[var(--color-text-muted)]">Customer: Karim Gad · Date: 2026-10-21 16:00</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="font-bold text-sm text-[var(--color-text)] block">220.00 EGP</span>
+                            <span class="text-[10px] text-emerald-600 font-semibold">Net: 187.00 EGP</span>
+                        </div>
+                    </div>
+
+                    <!-- History 4: #HC-2026-8744 (Rejected) -->
+                    <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-8744</span>
+                                <span class="bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-100 text-[10px] px-2 py-0.5 rounded-full font-bold border">Rejected</span>
+                            </div>
+                            <h5 class="font-semibold text-xs text-[var(--color-text)]">Baladi Duck Molokhia with Rice</h5>
+                            <p class="text-[11px] text-[var(--color-text-muted)]">Customer: Mohamed Tarek · Date: 2026-10-20 19:45</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="font-bold text-sm text-[var(--color-text)] block">240.00 EGP</span>
+                            <span class="text-[10px] text-emerald-600 font-semibold">Net: 204.00 EGP</span>
+                        </div>
+                    </div>
+                    <!-- END SAMPLE -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

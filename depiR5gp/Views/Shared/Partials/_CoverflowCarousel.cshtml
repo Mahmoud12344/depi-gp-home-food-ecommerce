@@ -1,109 +1,11 @@
 @*
   CoverflowCarousel Component Partial
-  Used in: Views/Home/Partials/_HomePageV2.cshtml (Section 3: Fresh From Home Ovens)
+  Used in: Views/Home/Index.cshtml (Section 3: Fresh From Home Ovens)
   Provides an interactive 3D coverflow carousel with drag/touch support, keyboard navigation,
   and active dish captions with instant cart and favorite actions.
 *@
 
 <div x-data="{
-    slides: [
-        {
-            id: 'dish-2',
-            title: 'Oxtail Tagine with Caramelized Onions',
-            titleAr: 'طاجن عكاوي بلدي بالبصل القاورما المكرمل',
-            subtitle: 'Om Nabil Casseroles · Zamalek',
-            subtitleAr: 'طواجن أم نبيل · الزمالك',
-            chefId: 'chef-2',
-            kitchenName: 'Om Nabil Casseroles',
-            price: 310,
-            originalPrice: 350,
-            rating: 5.0,
-            reviewCount: 36,
-            prepTime: '60m',
-            src: 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=800&auto=format&fit=crop&q=80',
-            alt: 'Oxtail Tagine with Baby Caramelized Onions'
-        },
-        {
-            id: 'dish-4',
-            title: 'Authentic Baladi Meshaltet Feteer (Large)',
-            titleAr: 'فطير مشلتت فلاحي بالسمن البلدي (كبير)',
-            subtitle: 'Hajjah Fatma Bakery · Heliopolis',
-            subtitleAr: 'مخبوزات الحاجة فاطمة · مصر الجديدة',
-            chefId: 'chef-3',
-            kitchenName: 'Hajjah Fatma Bakery',
-            price: 180,
-            originalPrice: 210,
-            rating: 4.9,
-            reviewCount: 52,
-            prepTime: '35m',
-            src: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80',
-            alt: 'Authentic Baladi Meshaltet Feteer'
-        },
-        {
-            id: 'dish-6',
-            title: 'Baladi Cream Om Ali with Pistachios',
-            titleAr: 'أم علي بالقشطة البلدي والمكسرات',
-            subtitle: 'Hajjah Fatma Bakery · Heliopolis',
-            subtitleAr: 'مخبوزات الحاجة فاطمة · مصر الجديدة',
-            chefId: 'chef-3',
-            kitchenName: 'Hajjah Fatma Bakery',
-            price: 110,
-            originalPrice: 130,
-            rating: 4.8,
-            reviewCount: 64,
-            prepTime: '25m',
-            src: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=800&auto=format&fit=crop&q=80',
-            alt: 'Baladi Cream Om Ali'
-        },
-        {
-            id: 'dish-1',
-            title: 'Slow-Cooked Duck Tagine with Molokhia',
-            titleAr: 'طاجن بط بلدي بالمرقة والملوخية الخضراء',
-            subtitle: 'Amina\'s Heritage Kitchen · Maadi',
-            subtitleAr: 'مطبخ أمينة التراثي · المعادي',
-            chefId: 'chef-1',
-            kitchenName: 'Amina\'s Heritage Kitchen',
-            price: 280,
-            originalPrice: 320,
-            rating: 4.9,
-            reviewCount: 88,
-            prepTime: '55m',
-            src: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80',
-            alt: 'Duck Tagine with Molokhia'
-        },
-        {
-            id: 'dish-5',
-            title: 'Egyptian Stuffed Pigeon (Hamam Mahshi)',
-            titleAr: 'حمام بلدي محشي بالفريك البلدي والمكسرات',
-            subtitle: 'Om Nabil Casseroles · Zamalek',
-            subtitleAr: 'طواجن أم نبيل · الزمالك',
-            chefId: 'chef-2',
-            kitchenName: 'Om Nabil Casseroles',
-            price: 290,
-            originalPrice: 330,
-            rating: 4.9,
-            reviewCount: 42,
-            prepTime: '50m',
-            src: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80',
-            alt: 'Egyptian Stuffed Pigeon'
-        },
-        {
-            id: 'dish-3',
-            title: 'Crispy Baladi Beef Hawawshi',
-            titleAr: 'حواوشي بلدي مقرمش باللحم المتبل والبهارات',
-            subtitle: 'Amina\'s Heritage Kitchen · Maadi',
-            subtitleAr: 'مطبخ أمينة التراثي · المعادي',
-            chefId: 'chef-1',
-            kitchenName: 'Amina\'s Heritage Kitchen',
-            price: 150,
-            originalPrice: 175,
-            rating: 4.8,
-            reviewCount: 75,
-            prepTime: '30m',
-            src: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&auto=format&fit=crop&q=80',
-            alt: 'Crispy Baladi Beef Hawawshi'
-        }
-    ],
     pos: 0,
     target: 0,
     selected: 0,
@@ -120,7 +22,7 @@
     drag: null,
 
     init() {
-        this.count = this.slides.length;
+        this.count = this.$refs.cards?.children?.length || 6;
         this.measure();
         window.addEventListener('resize', () => {
             this.measure();
@@ -238,10 +140,6 @@
         const carried = Math.max(-2, Math.min(2, (this.drag.v || 0) * 0.18));
         this.drag = null;
         this.settle(this.clamp(Math.round(this.pos + carried)));
-    },
-
-    get active() {
-        return this.slides[this.selected] || this.slides[0];
     }
 }"
      class="w-full select-none"
@@ -262,47 +160,150 @@
              style="perspective: calc(var(--cf-card) * 3); touch-action: pan-y;">
 
             <!-- Carousel Ring Track -->
+            <!-- TODO(backend): Loop through Model.FeaturedOvenDishes -->
             <div x-ref="cards"
                  class="cf-carousel-track"
                  style="height: var(--cf-card); transform-style: preserve-3d;">
-                
-                <template x-for="(slide, index) in slides" :key="slide.id">
-                    <div role="group"
-                         :aria-label="slide.title"
-                         @@click="if (selected === index) { $store.app.navigate('#dish/' + slide.id); } else { goTo(index); }"
-                         class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow hover:shadow-[var(--color-primary)]/20"
-                         style="width: var(--cf-card); transform-style: preserve-3d;">
-                        
-                        <!-- Food Photography -->
-                        <img :src="slide.src"
-                             :alt="slide.alt"
-                             draggable="false"
-                             class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108 pointer-events-none select-none" />
 
-                        <!-- Dark Scrim Gradient for Depth -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none"></div>
-
-                        <!-- Card Badges -->
-                        <div class="absolute top-3 start-3 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-white/15 pointer-events-none">
-                            <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                            <span x-text="slide.rating.toFixed(1)"></span>
-                        </div>
-
-                        <!-- Bottom Tag & Price On Card -->
-                        <div class="absolute bottom-3 inset-x-3 z-10 text-white pointer-events-none">
-                            <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-300 block truncate"
-                                  x-text="$store.app.language === 'ar' ? slide.subtitleAr : slide.subtitle"></span>
-                            <p class="text-xs sm:text-sm font-bold truncate text-white leading-tight mt-0.5"
-                               x-text="$store.app.language === 'ar' ? slide.titleAr : slide.title"></p>
-                            <span class="inline-block mt-1 font-bold text-xs text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-md shadow-xs"
-                                  x-text="slide.price + ' EGP'"></span>
-                        </div>
-
-                        <!-- Active Ring Indicator Glow -->
-                        <div x-show="selected === index"
-                             class="absolute inset-0 rounded-1.25rem ring-4 ring-[var(--color-primary)] pointer-events-none"></div>
+                <!-- BEGIN SAMPLE -->
+                <!-- Slide 0: dish-2 -->
+                <div role="group"
+                     aria-label="Oxtail Tagine with Caramelized Onions"
+                     @@click="if (selected === 0) { window.location.href = '/Dishes/Details/2'; } else { goTo(0); }"
+                     class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
+                     style="width: var(--cf-card); transform-style: preserve-3d;">
+                    <img src="https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=800&auto=format&fit=crop&q=80"
+                         alt="Oxtail Tagine with Baby Caramelized Onions"
+                         draggable="false"
+                         class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108 pointer-events-none select-none" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none"></div>
+                    <div class="absolute top-3 start-3 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-white/15 pointer-events-none">
+                        <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <span>5.0</span>
                     </div>
-                </template>
+                    <div class="absolute bottom-3 inset-x-3 z-10 text-white pointer-events-none">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-300 block truncate">Om Nabil Casseroles · Zamalek</span>
+                        <p class="text-xs sm:text-sm font-bold truncate text-white leading-tight mt-0.5">Oxtail Tagine with Caramelized Onions</p>
+                        <span class="inline-block mt-1 font-bold text-xs text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-md shadow-xs">310 EGP</span>
+                    </div>
+                    <div x-show="selected === 0" class="absolute inset-0 rounded-2xl ring-4 ring-[var(--color-primary)] pointer-events-none"></div>
+                </div>
+
+                <!-- Slide 1: dish-4 -->
+                <div role="group"
+                     aria-label="Authentic Baladi Meshaltet Feteer (Large)"
+                     @@click="if (selected === 1) { window.location.href = '/Dishes/Details/4'; } else { goTo(1); }"
+                     class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
+                     style="width: var(--cf-card); transform-style: preserve-3d;">
+                    <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80"
+                         alt="Authentic Baladi Meshaltet Feteer"
+                         draggable="false"
+                         class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108 pointer-events-none select-none" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none"></div>
+                    <div class="absolute top-3 start-3 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-white/15 pointer-events-none">
+                        <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <span>4.9</span>
+                    </div>
+                    <div class="absolute bottom-3 inset-x-3 z-10 text-white pointer-events-none">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-300 block truncate">Hajjah Fatma Bakery · Heliopolis</span>
+                        <p class="text-xs sm:text-sm font-bold truncate text-white leading-tight mt-0.5">Authentic Baladi Meshaltet Feteer (Large)</p>
+                        <span class="inline-block mt-1 font-bold text-xs text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-md shadow-xs">180 EGP</span>
+                    </div>
+                    <div x-show="selected === 1" style="display: none;" class="absolute inset-0 rounded-2xl ring-4 ring-[var(--color-primary)] pointer-events-none"></div>
+                </div>
+
+                <!-- Slide 2: dish-6 -->
+                <div role="group"
+                     aria-label="Baladi Cream Om Ali with Pistachios"
+                     @@click="if (selected === 2) { window.location.href = '/Dishes/Details/6'; } else { goTo(2); }"
+                     class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
+                     style="width: var(--cf-card); transform-style: preserve-3d;">
+                    <img src="https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=800&auto=format&fit=crop&q=80"
+                         alt="Baladi Cream Om Ali"
+                         draggable="false"
+                         class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108 pointer-events-none select-none" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none"></div>
+                    <div class="absolute top-3 start-3 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-white/15 pointer-events-none">
+                        <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <span>4.8</span>
+                    </div>
+                    <div class="absolute bottom-3 inset-x-3 z-10 text-white pointer-events-none">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-300 block truncate">Hajjah Fatma Bakery · Heliopolis</span>
+                        <p class="text-xs sm:text-sm font-bold truncate text-white leading-tight mt-0.5">Baladi Cream Om Ali with Pistachios</p>
+                        <span class="inline-block mt-1 font-bold text-xs text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-md shadow-xs">110 EGP</span>
+                    </div>
+                    <div x-show="selected === 2" style="display: none;" class="absolute inset-0 rounded-2xl ring-4 ring-[var(--color-primary)] pointer-events-none"></div>
+                </div>
+
+                <!-- Slide 3: dish-1 -->
+                <div role="group"
+                     aria-label="Slow-Cooked Duck Tagine with Molokhia"
+                     @@click="if (selected === 3) { window.location.href = '/Dishes/Details/1'; } else { goTo(3); }"
+                     class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
+                     style="width: var(--cf-card); transform-style: preserve-3d;">
+                    <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80"
+                         alt="Duck Tagine with Molokhia"
+                         draggable="false"
+                         class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108 pointer-events-none select-none" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none"></div>
+                    <div class="absolute top-3 start-3 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-white/15 pointer-events-none">
+                        <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <span>4.9</span>
+                    </div>
+                    <div class="absolute bottom-3 inset-x-3 z-10 text-white pointer-events-none">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-300 block truncate">Amina's Heritage Kitchen · Maadi</span>
+                        <p class="text-xs sm:text-sm font-bold truncate text-white leading-tight mt-0.5">Slow-Cooked Duck Tagine with Molokhia</p>
+                        <span class="inline-block mt-1 font-bold text-xs text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-md shadow-xs">280 EGP</span>
+                    </div>
+                    <div x-show="selected === 3" style="display: none;" class="absolute inset-0 rounded-2xl ring-4 ring-[var(--color-primary)] pointer-events-none"></div>
+                </div>
+
+                <!-- Slide 4: dish-5 -->
+                <div role="group"
+                     aria-label="Egyptian Stuffed Pigeon (Hamam Mahshi)"
+                     @@click="if (selected === 4) { window.location.href = '/Dishes/Details/5'; } else { goTo(4); }"
+                     class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
+                     style="width: var(--cf-card); transform-style: preserve-3d;">
+                    <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80"
+                         alt="Egyptian Stuffed Pigeon"
+                         draggable="false"
+                         class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108 pointer-events-none select-none" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none"></div>
+                    <div class="absolute top-3 start-3 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-white/15 pointer-events-none">
+                        <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <span>4.9</span>
+                    </div>
+                    <div class="absolute bottom-3 inset-x-3 z-10 text-white pointer-events-none">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-300 block truncate">Om Nabil Casseroles · Zamalek</span>
+                        <p class="text-xs sm:text-sm font-bold truncate text-white leading-tight mt-0.5">Egyptian Stuffed Pigeon (Hamam Mahshi)</p>
+                        <span class="inline-block mt-1 font-bold text-xs text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-md shadow-xs">290 EGP</span>
+                    </div>
+                    <div x-show="selected === 4" style="display: none;" class="absolute inset-0 rounded-2xl ring-4 ring-[var(--color-primary)] pointer-events-none"></div>
+                </div>
+
+                <!-- Slide 5: dish-3 -->
+                <div role="group"
+                     aria-label="Crispy Baladi Beef Hawawshi"
+                     @@click="if (selected === 5) { window.location.href = '/Dishes/Details/3'; } else { goTo(5); }"
+                     class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
+                     style="width: var(--cf-card); transform-style: preserve-3d;">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&auto=format&fit=crop&q=80"
+                         alt="Crispy Baladi Beef Hawawshi"
+                         draggable="false"
+                         class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108 pointer-events-none select-none" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none"></div>
+                    <div class="absolute top-3 start-3 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-white/15 pointer-events-none">
+                        <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <span>4.8</span>
+                    </div>
+                    <div class="absolute bottom-3 inset-x-3 z-10 text-white pointer-events-none">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-300 block truncate">Amina's Heritage Kitchen · Maadi</span>
+                        <p class="text-xs sm:text-sm font-bold truncate text-white leading-tight mt-0.5">Crispy Baladi Beef Hawawshi</p>
+                        <span class="inline-block mt-1 font-bold text-xs text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-md shadow-xs">150 EGP</span>
+                    </div>
+                    <div x-show="selected === 5" style="display: none;" class="absolute inset-0 rounded-2xl ring-4 ring-[var(--color-primary)] pointer-events-none"></div>
+                </div>
+                <!-- END SAMPLE -->
             </div>
         </div>
 
@@ -329,86 +330,191 @@
     </div>
 
     <!-- Active Slide Caption & Quick Action Center -->
-    <div class="mt-4 max-w-2xl mx-auto bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-lg transition-all duration-300 text-center">
-        <div class="space-y-3">
-            <!-- Kitchen / Subtitle -->
-            <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]"
-               x-text="$store.app.language === 'ar' ? active.subtitleAr : active.subtitle">
-            </p>
-
-            <!-- Main Dish Title -->
-            <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors"
-                @@click="$store.app.navigate('#dish/' + active.id)"
-                x-text="$store.app.language === 'ar' ? active.titleAr : active.title">
+    <div x-data="{ isFav: false }" class="mt-4 max-w-2xl mx-auto bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-lg transition-all duration-300 text-center">
+        <!-- BEGIN SAMPLE -->
+        <!-- Caption 0 -->
+        <div x-show="selected === 0" class="space-y-3">
+            <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Om Nabil Casseroles · Zamalek</p>
+            <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
+                <a href="/Dishes/Details/2">Oxtail Tagine with Caramelized Onions</a>
             </h3>
-
-            <!-- Dish Meta Information -->
             <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
-                <!-- Rating -->
-                <div class="inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
                     <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                    <span x-text="active.rating"></span>
-                    <span class="text-amber-700 dark:text-amber-300 font-normal" x-text="'(' + active.reviewCount + ')'"></span>
+                    <span>5.0</span>
+                    <span class="text-amber-700 dark:text-amber-300 font-normal">(36)</span>
                 </div>
-
-                <!-- Prep Time -->
                 <div class="inline-flex items-center gap-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1 rounded-full text-[var(--color-text)] font-semibold">
                     <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
-                    <span x-text="active.prepTime"></span>
+                    <span>60m</span>
                 </div>
-
-                <!-- Price Pill -->
-                <div class="inline-flex items-baseline gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 font-bold text-emerald-800 dark:text-emerald-200">
-                    <span class="text-sm font-black" x-text="active.price + ' EGP'"></span>
-                    <span class="text-[11px] line-through text-neutral-400 font-normal" x-text="active.originalPrice + ' EGP'"></span>
+                <div class="inline-flex items-baseline gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 dark:border-emerald-800 font-bold text-emerald-800 dark:text-emerald-200">
+                    <span class="text-sm font-black">310 EGP</span>
+                    <span class="text-[11px] line-through text-neutral-400 font-normal">350 EGP</span>
                 </div>
             </div>
+        </div>
 
-            <!-- Action Buttons: Add to Cart, Favorite & View Dish -->
-            <div class="pt-4 flex flex-wrap items-center justify-center gap-3 border-t border-[var(--color-border-light)]">
-                <!-- Favorite Heart Button -->
-                <button type="button"
-                        @@click="$store.app.toggleFavorite(active.id)"
-                        class="p-3 rounded-full border border-[var(--color-border)] hover:border-rose-400 text-[var(--color-text)] hover:text-rose-500 transition-colors cursor-pointer shadow-xs"
-                        title="Favorite this dish">
-                    <svg class="w-4 h-4" :class="$store.app.isFavorite(active.id) ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <use href="#heart"></use>
-                    </svg>
-                </button>
+        <!-- Caption 1 -->
+        <div x-show="selected === 1" style="display: none;" class="space-y-3">
+            <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Hajjah Fatma Bakery · Heliopolis</p>
+            <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
+                <a href="/Dishes/Details/4">Authentic Baladi Meshaltet Feteer (Large)</a>
+            </h3>
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
+                <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <span>4.9</span>
+                    <span class="text-amber-700 dark:text-amber-300 font-normal">(52)</span>
+                </div>
+                <div class="inline-flex items-center gap-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1 rounded-full text-[var(--color-text)] font-semibold">
+                    <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span>35m</span>
+                </div>
+                <div class="inline-flex items-baseline gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 dark:border-emerald-800 font-bold text-emerald-800 dark:text-emerald-200">
+                    <span class="text-sm font-black">180 EGP</span>
+                    <span class="text-[11px] line-through text-neutral-400 font-normal">210 EGP</span>
+                </div>
+            </div>
+        </div>
 
-                <!-- Add to Cart CTA -->
-                <button type="button"
-                        @@click="$store.app.addToCart({ id: active.id, name: active.title, price: active.price, chefId: active.chefId, kitchenName: active.kitchenName, isAvailable: true })"
-                        class="chef-menu-btn inline-flex items-center gap-2 px-6 sm:px-8 py-3 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+        <!-- Caption 2 -->
+        <div x-show="selected === 2" style="display: none;" class="space-y-3">
+            <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Hajjah Fatma Bakery · Heliopolis</p>
+            <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
+                <a href="/Dishes/Details/6">Baladi Cream Om Ali with Pistachios</a>
+            </h3>
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
+                <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <span>4.8</span>
+                    <span class="text-amber-700 dark:text-amber-300 font-normal">(64)</span>
+                </div>
+                <div class="inline-flex items-center gap-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1 rounded-full text-[var(--color-text)] font-semibold">
+                    <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span>25m</span>
+                </div>
+                <div class="inline-flex items-baseline gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 dark:border-emerald-800 font-bold text-emerald-800 dark:text-emerald-200">
+                    <span class="text-sm font-black">110 EGP</span>
+                    <span class="text-[11px] line-through text-neutral-400 font-normal">130 EGP</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Caption 3 -->
+        <div x-show="selected === 3" style="display: none;" class="space-y-3">
+            <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Amina's Heritage Kitchen · Maadi</p>
+            <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
+                <a href="/Dishes/Details/1">Slow-Cooked Duck Tagine with Molokhia</a>
+            </h3>
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
+                <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <span>4.9</span>
+                    <span class="text-amber-700 dark:text-amber-300 font-normal">(88)</span>
+                </div>
+                <div class="inline-flex items-center gap-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1 rounded-full text-[var(--color-text)] font-semibold">
+                    <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span>55m</span>
+                </div>
+                <div class="inline-flex items-baseline gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 dark:border-emerald-800 font-bold text-emerald-800 dark:text-emerald-200">
+                    <span class="text-sm font-black">280 EGP</span>
+                    <span class="text-[11px] line-through text-neutral-400 font-normal">320 EGP</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Caption 4 -->
+        <div x-show="selected === 4" style="display: none;" class="space-y-3">
+            <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Om Nabil Casseroles · Zamalek</p>
+            <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
+                <a href="/Dishes/Details/5">Egyptian Stuffed Pigeon (Hamam Mahshi)</a>
+            </h3>
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
+                <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <span>4.9</span>
+                    <span class="text-amber-700 dark:text-amber-300 font-normal">(42)</span>
+                </div>
+                <div class="inline-flex items-center gap-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1 rounded-full text-[var(--color-text)] font-semibold">
+                    <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span>50m</span>
+                </div>
+                <div class="inline-flex items-baseline gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 dark:border-emerald-800 font-bold text-emerald-800 dark:text-emerald-200">
+                    <span class="text-sm font-black">290 EGP</span>
+                    <span class="text-[11px] line-through text-neutral-400 font-normal">330 EGP</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Caption 5 -->
+        <div x-show="selected === 5" style="display: none;" class="space-y-3">
+            <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Amina's Heritage Kitchen · Maadi</p>
+            <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
+                <a href="/Dishes/Details/3">Crispy Baladi Beef Hawawshi</a>
+            </h3>
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
+                <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
+                    <svg class="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    <span>4.8</span>
+                    <span class="text-amber-700 dark:text-amber-300 font-normal">(75)</span>
+                </div>
+                <div class="inline-flex items-center gap-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] px-3 py-1 rounded-full text-[var(--color-text)] font-semibold">
+                    <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span>30m</span>
+                </div>
+                <div class="inline-flex items-baseline gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 dark:border-emerald-800 font-bold text-emerald-800 dark:text-emerald-200">
+                    <span class="text-sm font-black">150 EGP</span>
+                    <span class="text-[11px] line-through text-neutral-400 font-normal">175 EGP</span>
+                </div>
+            </div>
+        </div>
+        <!-- END SAMPLE -->
+
+        <!-- Action Buttons: Add to Cart, Favorite & View Dish -->
+        <div class="pt-4 mt-3 flex flex-wrap items-center justify-center gap-3 border-t border-[var(--color-border-light)]">
+            <!-- Favorite Heart Button -->
+            <button type="button"
+                    @@click="isFav = !isFav"
+                    class="p-3 rounded-full border border-[var(--color-border)] hover:border-rose-400 text-[var(--color-text)] hover:text-rose-500 transition-colors cursor-pointer shadow-xs"
+                    title="Favorite this dish">
+                <svg class="w-4 h-4" :class="isFav ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#heart"></use>
+                </svg>
+            </button>
+
+            <!-- Add to Cart CTA -->
+            <form method="post" action="/Cart/Add" class="inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="dishId" value="1" />
+                <input type="hidden" name="quantity" value="1" />
+                <button type="submit"
+                        class="chef-menu-btn inline-flex items-center gap-2 px-6 sm:px-8 py-3 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="#shopping-bag"></use>
                     </svg>
-                    <span x-text="$store.app.language === 'ar' ? 'أضف إلى السلة' : 'Add to Cart'">Add to Cart</span>
+                    <span>Add to Cart</span>
                 </button>
+            </form>
 
-                <!-- View Dish Page -->
-                <button type="button"
-                        @@click="$store.app.navigate('#dish/' + active.id)"
-                        class="inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white font-bold uppercase tracking-wider text-xs sm:text-sm transition-all cursor-pointer">
-                    <span x-text="$store.app.language === 'ar' ? 'تفاصيل الطبق' : 'Dish Details'">Dish Details</span>
-                    <svg class="w-4 h-4" :class="$store.app.language === 'ar' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <use href="#arrow-right"></use>
-                    </svg>
-                </button>
-            </div>
+            <!-- View Dish Page -->
+            <a href="/Dishes/Details/1"
+               class="inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white font-bold uppercase tracking-wider text-xs sm:text-sm transition-all cursor-pointer">
+                <span>Dish Details</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#arrow-right"></use>
+                </svg>
+            </a>
         </div>
     </div>
 
     <!-- Pagination Dots -->
     <div class="mt-6 flex items-center justify-center gap-2">
-        <template x-for="(slide, index) in slides" :key="'dot-' + slide.id">
-            <button type="button"
-                    :aria-label="'Go to slide ' + (index + 1)"
-                    @@click="goTo(index)"
-                    :class="selected === index ? 'w-8 bg-[var(--color-primary)]' : 'w-2.5 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400'"
-                    class="h-2.5 rounded-full transition-all duration-300 cursor-pointer">
-            </button>
-        </template>
+        <button type="button" aria-label="Go to slide 1" @@click="goTo(0)" :class="selected === 0 ? 'w-8 bg-[var(--color-primary)]' : 'w-2.5 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400'" class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"></button>
+        <button type="button" aria-label="Go to slide 2" @@click="goTo(1)" :class="selected === 1 ? 'w-8 bg-[var(--color-primary)]' : 'w-2.5 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400'" class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"></button>
+        <button type="button" aria-label="Go to slide 3" @@click="goTo(2)" :class="selected === 2 ? 'w-8 bg-[var(--color-primary)]' : 'w-2.5 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400'" class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"></button>
+        <button type="button" aria-label="Go to slide 4" @@click="goTo(3)" :class="selected === 3 ? 'w-8 bg-[var(--color-primary)]' : 'w-2.5 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400'" class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"></button>
+        <button type="button" aria-label="Go to slide 5" @@click="goTo(4)" :class="selected === 4 ? 'w-8 bg-[var(--color-primary)]' : 'w-2.5 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400'" class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"></button>
+        <button type="button" aria-label="Go to slide 6" @@click="goTo(5)" :class="selected === 5 ? 'w-8 bg-[var(--color-primary)]' : 'w-2.5 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400'" class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"></button>
     </div>
 </div>
-
