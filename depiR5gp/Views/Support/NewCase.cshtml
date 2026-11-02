@@ -1,6 +1,96 @@
 @{
     ViewData["Title"] = "Open Support Ticket";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Support/NewCase.cshtml -->
+<!-- Source: Views/Support/Partials/_ContactSupportModal.cshtml (Subtask SCRUM-389) -->
+<!-- TODO(backend): POST /Support/NewCase with subject, category, orderId, and message -->
+
+<div class="w-full py-12 px-4 sm:px-6 lg:px-8 flex justify-center">
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-xs space-y-6">
+
+        <div class="flex items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#help-circle"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-[var(--color-text)]">
+                        Open Support Ticket
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)]">
+                        Our support desk responds promptly to assist with orders and inquiries
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" action="/Support/NewCase" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <!-- Subject -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                    Subject / Issue Summary
+                </label>
+                <input type="text"
+                       name="Subject"
+                       required
+                       minlength="5"
+                       placeholder="e.g. Order pickup delay at Degla Villa"
+                       class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+            </div>
+
+            <!-- Category -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                    Category
+                </label>
+                <select name="Category" required
+                        class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                    <option value="order_issue">Order Pickup or Readiness Delay</option>
+                    <option value="food_quality">Food Quality &amp; Packaging Condition</option>
+                    <option value="refund_payment">Payments, Card Reversals &amp; Wallet Refund</option>
+                    <option value="account">Account &amp; Verification</option>
+                    <option value="other">General Platform Inquiry</option>
+                </select>
+            </div>
+
+            <!-- Optional Order Reference (SCRUM-389) -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                    <span>Related Order Reference (Optional)</span>
+                    <span class="text-neutral-400 font-normal lowercase">(optional)</span>
+                </label>
+                <select name="OrderId" class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                    <option value="">None / General Inquiry (No specific order)</option>
+                    <option value="ord-101" selected>Order #HC-2026-9041 - Amina's Heritage Kitchen (240.00 EGP)</option>
+                    <option value="ord-102">Order #HC-2026-8890 - Om Nabil Casseroles (310.00 EGP)</option>
+                    <option value="ord-100">Order #HC-2026-9150 - Amina's Heritage Kitchen (285.00 EGP)</option>
+                </select>
+            </div>
+
+            <!-- Message Description -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                    Detailed Message
+                </label>
+                <textarea rows="4"
+                          name="Message"
+                          required
+                          minlength="10"
+                          placeholder="Provide details of your experience, counter location, or questions so our team can immediately help you..."
+                          class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                <a href="/Support"
+                   class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+                    Submit Ticket
+                </button>
+            </div>
+        </form>
+    </div>
 </div>

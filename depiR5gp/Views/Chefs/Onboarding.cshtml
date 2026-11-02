@@ -1,22 +1,37 @@
 @model depiR5gp.Models.Chefs.ChefApplicationViewModel
 
 @{
-    ViewData["Title"] = "Chef Application";
+    ViewData["Title"] = "Chef Onboarding";
 }
+<!-- Views/Chefs/Onboarding.cshtml -->
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-7 col-md-9">
-            <div class="card border-0 shadow-sm rounded-4 bg-white">
-                <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <h2 class="fw-bold text-dark mb-2">Become a HomeChef</h2>
-                        <p class="text-muted fs-6">Fill out your kitchen details and upload the required documents for review.</p>
-                    </div>
+<div x-data="{
+    step: 'form',
+    kitchenName: '@(Model?.KitchenName ?? "")',
+    address: '@(Model?.Address ?? "")'
+}" class="w-full pb-24">
 
-                    <form asp-action="Onboarding" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">Chef Onboarding</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                Become a Certified Home Chef
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 max-w-2xl leading-relaxed">
+                Turn your domestic kitchen into an approved culinary hub with direct customer pickup
+            </p>
+        </div>
+    </div>
 
+<<<<<<< HEAD
                         <!-- Kitchen Name -->
                         <div class="mb-3">
                             <label asp-for="KitchenName" class="form-label fw-semibold text-secondary">Kitchen Name</label>
@@ -71,9 +86,141 @@
                             <a asp-controller="Home" asp-action="Index" class="btn btn-link text-decoration-none text-muted">Cancel</a>
                         </div>
                     </form>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <!-- Application Status Tracker -->
+        <div x-show="step === 'status'" x-cloak class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-8 sm:p-12 shadow-sm text-center space-y-6">
+            <div class="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center mx-auto">
+                <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+            </div>
+            <div class="space-y-1">
+                <span class="text-xs font-bold uppercase tracking-widest text-amber-700">Application Status: Under Review</span>
+                <h2 class="text-2xl font-bold uppercase tracking-tight text-[var(--color-text)]" x-text="kitchenName || 'Amina\'s Heritage Kitchen'">Amina's Heritage Kitchen</h2>
+                <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-md mx-auto pt-1 leading-relaxed">
+                    Your government ID, domestic kitchen photos, and food safety credentials have been dispatched to platform compliance. Approval takes under 24 hours.
+                </p>
+            </div>
+            <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs text-start max-w-md mx-auto space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-[var(--color-text)]">Platform Commission Agreement:</span>
+                    <span class="font-semibold text-emerald-600">15% Agreed</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-[var(--color-text)]">Inspection Status:</span>
+                    <span class="font-semibold text-amber-600">Document Verification Pending</span>
                 </div>
             </div>
+            <div class="pt-4 flex justify-center gap-3">
+                <a href="/ChefDashboard"
+                   class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)]">
+                    Go to Kitchen Dashboard (Preview)
+                </a>
+            </div>
         </div>
+
+        <!-- Application Form -->
+        <form x-show="step === 'form'"
+              method="post"
+              action="/Chefs/Onboarding"
+              enctype="multipart/form-data"
+              class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-8 sm:p-10 shadow-sm space-y-8">
+            @Html.AntiForgeryToken()
+
+            <div class="border-b border-[var(--color-border-light)] pb-4">
+                <h2 class="text-xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                    Kitchen Credentials &amp; Culinary Hygiene
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                    Every domestic kitchen must submit identity documents and food hygiene proof.
+                </p>
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 rounded-xl text-xs font-medium"></div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
+                <!-- Kitchen Name -->
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">Kitchen Brand Name *</label>
+                    <input asp-for="KitchenName"
+                           placeholder="e.g. Grandma's Maadi Oven"
+                           class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                    <span asp-validation-for="KitchenName" class="text-rose-500 text-xs mt-1 block"></span>
+                </div>
+
+                <!-- Kitchen Address -->
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">Exact Pickup Counter Address *</label>
+                    <input asp-for="Address"
+                           placeholder="e.g. Building 24, Road 200, Ground Floor, Degla, Maadi"
+                           class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                    <span asp-validation-for="Address" class="text-rose-500 text-xs mt-1 block"></span>
+                </div>
+            </div>
+
+            <!-- Upload Documents Section -->
+            <div class="border-t border-[var(--color-border-light)] pt-6 space-y-5">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Required Verification Documents
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
+                    <!-- National ID -->
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">
+                            Egyptian National ID (PDF / JPG / PNG) *
+                        </label>
+                        <input asp-for="IdDocument"
+                               type="file"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[var(--color-primary-light)] file:text-[var(--color-primary)] cursor-pointer" />
+                        <span asp-validation-for="IdDocument" class="text-rose-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <!-- Health Certificate -->
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">
+                            Health Certificate (PDF / JPG / PNG) *
+                        </label>
+                        <input asp-for="HealthCertificate"
+                               type="file"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[var(--color-primary-light)] file:text-[var(--color-primary)] cursor-pointer" />
+                        <span asp-validation-for="HealthCertificate" class="text-rose-500 text-xs mt-1 block"></span>
+                    </div>
+                </div>
+
+                <!-- Culinary License (Optional) -->
+                <div class="text-xs">
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">
+                        Culinary License / Commercial Permit (Optional)
+                    </label>
+                    <input asp-for="CulinaryLicense"
+                           type="file"
+                           accept=".pdf,.jpg,.jpeg,.png"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[var(--color-primary-light)] file:text-[var(--color-primary)] cursor-pointer" />
+                    <span asp-validation-for="CulinaryLicense" class="text-rose-500 text-xs mt-1 block"></span>
+                </div>
+            </div>
+
+            <!-- Agreement Checkbox -->
+            <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-2">
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox"
+                           required
+                           class="mt-1 w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)] border-neutral-300" />
+                    <span class="text-[var(--color-text)] leading-relaxed">
+                        <strong class="block">Agree to 15% Platform Commission &amp; Domestic Hygiene Terms</strong>
+                        <span class="text-[var(--color-text-muted)] text-[11px]">
+                            I certify that meals are prepared using pure butter and fresh ingredients in a sanitized kitchen, with timely customer handover.
+                        </span>
+                    </span>
+                </label>
+            </div>
+
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-8 py-3.5 gap-2.5 shadow-md bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98]">
+                <span>Submit Kitchen for Verification</span>
+            </button>
+        </form>
     </div>
 </div>
 

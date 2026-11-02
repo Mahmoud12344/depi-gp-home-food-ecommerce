@@ -1,6 +1,147 @@
 @{
-    ViewData["Title"] = "Order Monitoring";
+    ViewData["Title"] = "Order Financial Settlements - Admin Portal";
+    ViewData["ActiveAdminTab"] = "orders";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Admin/Orders.cshtml -->
+<!-- Source: Views/Admin/Partials/_OrderSettlementModal.cshtml (SCRUM-507 & SCRUM-515) -->
+<!-- TODO(backend): Bind OrderSettlements list and per-order financial itemization breakdown -->
+
+<div x-data="{
+    showSettlementModal: false,
+    selectedOrderNumber: 'HC-2026-9041',
+    selectedKitchenName: 'Amina\'s Heritage Kitchen',
+    selectedGross: '240.00',
+    selectedCommission: '-36.00',
+    selectedNet: '204.00',
+    selectedChannel: 'Stripe Card (Visa ···· 4242)'
+}" class="w-full pb-24">
+
+    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- Featured Settlement Breakdown Card (from _OrderSettlementModal.cshtml) -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#file-text"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[var(--color-text)]">
+                            Order Financial Settlement Breakdown
+                        </h3>
+                        <p class="text-xs text-[var(--color-text-muted)]" x-text="`Order #${selectedOrderNumber} · ${selectedKitchenName}`">Order #HC-2026-9041 · Amina's Heritage Kitchen</p>
+                    </div>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-xs font-bold uppercase">
+                    Settled to Chef Wallet
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Financial Itemization Breakdown Table -->
+                <div class="lg:col-span-7 space-y-3 bg-[var(--color-surface-subtle)] p-5 rounded-2xl border border-[var(--color-border-light)] text-xs">
+                    <div class="flex justify-between items-center text-[var(--color-text-muted)]">
+                        <span>Customer Paid (Gross GMV):</span>
+                        <span class="font-bold text-[var(--color-text)] text-sm" x-text="`${selectedGross} EGP`">240.00 EGP</span>
+                    </div>
+                    <div class="flex justify-between items-center text-rose-600 dark:text-rose-400">
+                        <span>Platform Commission (15%):</span>
+                        <span class="font-bold" x-text="`${selectedCommission} EGP`">-36.00 EGP</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[var(--color-text-muted)]">
+                        <span>Payment Gateway Processing (0% promo):</span>
+                        <span class="font-semibold">0.00 EGP</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-[var(--color-border)] text-sm font-bold">
+                        <span class="text-[var(--color-text)]">Net Chef Earnings Payable:</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 text-base" x-text="`${selectedNet} EGP`">204.00 EGP</span>
+                    </div>
+                </div>
+
+                <!-- Meta coordinates -->
+                <div class="lg:col-span-5 grid grid-cols-1 gap-3 text-xs">
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <span class="text-[10px] uppercase font-bold text-[var(--color-text-muted)] block">Payment Channel</span>
+                        <span class="font-semibold text-[var(--color-text)]" x-text="selectedChannel">Stripe Card (Visa ···· 4242)</span>
+                    </div>
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <span class="text-[10px] uppercase font-bold text-[var(--color-text-muted)] block">Settlement Status</span>
+                        <span class="font-bold text-emerald-600">Settled to Chef Wallet</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Settlements Ledger Table -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                Platform Order Settlements Ledger
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-start">
+                    <thead>
+                        <tr class="border-b border-[var(--color-border)] text-[var(--color-text-muted)] font-bold uppercase text-[10px]">
+                            <th class="pb-3 text-start">Order #</th>
+                            <th class="pb-3 text-start">Kitchen</th>
+                            <th class="pb-3 text-start">Customer</th>
+                            <th class="pb-3 text-end">Gross GMV</th>
+                            <th class="pb-3 text-end">Commission (15%)</th>
+                            <th class="pb-3 text-end">Net Payable</th>
+                            <th class="pb-3 text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--color-border-light)] font-medium">
+                        <!-- BEGIN SAMPLE: Unrolled Order Settlements -->
+                        <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                            <td class="py-3 font-bold text-[var(--color-primary)]">#HC-2026-9041</td>
+                            <td class="py-3 text-[var(--color-text)]">Amina's Heritage Kitchen</td>
+                            <td class="py-3 text-[var(--color-text-muted)]">Tamer Zaki</td>
+                            <td class="py-3 text-end">240.00 EGP</td>
+                            <td class="py-3 text-end text-rose-600">-36.00 EGP</td>
+                            <td class="py-3 text-end font-bold text-emerald-600">204.00 EGP</td>
+                            <td class="py-3 text-end">
+                                <button type="button"
+                                        @@click="selectedOrderNumber = 'HC-2026-9041'; selectedKitchenName = 'Amina\'s Heritage Kitchen'; selectedGross = '240.00'; selectedCommission = '-36.00'; selectedNet = '204.00'; selectedChannel = 'Stripe Card (Visa ···· 4242)'"
+                                        class="text-xs font-bold text-[var(--color-primary)] hover:underline cursor-pointer">
+                                    Inspect
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                            <td class="py-3 font-bold text-[var(--color-primary)]">#HC-2026-8890</td>
+                            <td class="py-3 text-[var(--color-text)]">Om Nabil Casseroles</td>
+                            <td class="py-3 text-[var(--color-text-muted)]">Tamer Zaki</td>
+                            <td class="py-3 text-end">310.00 EGP</td>
+                            <td class="py-3 text-end text-rose-600">-46.50 EGP</td>
+                            <td class="py-3 text-end font-bold text-emerald-600">263.50 EGP</td>
+                            <td class="py-3 text-end">
+                                <button type="button"
+                                        @@click="selectedOrderNumber = 'HC-2026-8890'; selectedKitchenName = 'Om Nabil Casseroles'; selectedGross = '310.00'; selectedCommission = '-46.50'; selectedNet = '263.50'; selectedChannel = 'Cash on Pickup Counter'"
+                                        class="text-xs font-bold text-[var(--color-primary)] hover:underline cursor-pointer">
+                                    Inspect
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                            <td class="py-3 font-bold text-[var(--color-primary)]">#HC-2026-8840</td>
+                            <td class="py-3 text-[var(--color-text)]">Amina's Heritage Kitchen</td>
+                            <td class="py-3 text-[var(--color-text-muted)]">Sara Ahmed</td>
+                            <td class="py-3 text-end">190.00 EGP</td>
+                            <td class="py-3 text-end text-rose-600">-28.50 EGP</td>
+                            <td class="py-3 text-end font-bold text-emerald-600">161.50 EGP</td>
+                            <td class="py-3 text-end">
+                                <button type="button"
+                                        @@click="selectedOrderNumber = 'HC-2026-8840'; selectedKitchenName = 'Amina\'s Heritage Kitchen'; selectedGross = '190.00'; selectedCommission = '-28.50'; selectedNet = '161.50'; selectedChannel = 'Stripe Card (Mastercard ···· 8810)'"
+                                        class="text-xs font-bold text-[var(--color-primary)] hover:underline cursor-pointer">
+                                    Inspect
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- END SAMPLE -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>

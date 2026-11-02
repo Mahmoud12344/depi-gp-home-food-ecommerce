@@ -1,6 +1,126 @@
 @{
-    ViewData["Title"] = "Write a Review";
+    ViewData["Title"] = "Rate Your Dish & Experience";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Reviews/Create.cshtml -->
+<!-- Ported from Views/Orders/Partials/_OrderReviewModal.cshtml on main -->
+<!-- TODO(backend): POST /Reviews/Create with orderId, rating, comment, and anonymous flag -->
+
+<div x-data="{
+    reviewRating: 5,
+    reviewComment: '',
+    reviewAnonymous: false
+}"
+     class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="/Customer/MyOrders" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">My Orders</a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">Write a Review</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                Rate Your Dish &amp; Experience
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                Share your honest feedback for Order #HC-2026-8890 · Oxtail Tagine with Baby Caramelized Onions
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl w-full p-6 sm:p-8 shadow-sm space-y-6">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-[var(--color-text)]">
+                        Rate Your Dish &amp; Experience
+                    </h2>
+                    <p class="text-xs text-[var(--color-text-muted)]">Oxtail Tagine with Baby Caramelized Onions · #HC-2026-8890</p>
+                </div>
+            </div>
+
+            <form method="post" action="/Reviews/Create" class="space-y-5">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="1" />
+                <input type="hidden" name="rating" :value="reviewRating" />
+
+                <!-- Star selector (1 to 5) -->
+                <div class="text-center py-2 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] p-4">
+                    <span class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2.5">Select Star Rating</span>
+                    <div class="flex items-center justify-center gap-2">
+                        <button type="button" @@click="reviewRating = 1" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="1 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                        <button type="button" @@click="reviewRating = 2" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="2 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                        <button type="button" @@click="reviewRating = 3" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="3 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                        <button type="button" @@click="reviewRating = 4" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="4 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                        <button type="button" @@click="reviewRating = 5" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="5 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                    </div>
+                    <p class="text-xs font-semibold text-[var(--color-primary)] mt-2"
+                       x-text="reviewRating === 5 ? 'Exceptional & Exceeded Expectations! 🌟' :
+                               reviewRating === 4 ? 'Very Good & Delicious 👍' :
+                               reviewRating === 3 ? 'Average / Acceptable 👌' :
+                               reviewRating === 2 ? 'Needs Improvement 👎' : 'Disappointed ⚠️'"></p>
+                </div>
+
+                <!-- Review Feedback Textarea -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Your Detailed Feedback
+                    </label>
+                    <textarea name="comment"
+                              rows="3"
+                              x-model="reviewComment"
+                              required
+                              minlength="5"
+                              placeholder="Tell other foodies about the taste, seasoning, freshness, packaging, and pickup experience..."
+                              class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
+                    <p class="text-[10px] text-[var(--color-text-muted)] mt-1">Your honest review helps domestic chefs refine their craft and guides fellow food lovers.</p>
+                </div>
+
+                <!-- Quick compliments tags -->
+                <div>
+                    <span class="block text-[11px] font-bold text-[var(--color-text-muted)] mb-2">What stood out most?</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="px-2.5 py-1 rounded-full text-[11px] bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-primary)] cursor-pointer">
+                            🍗 Generous Portions
+                        </span>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-primary)] cursor-pointer">
+                            🔥 Hot &amp; Fresh Pickup
+                        </span>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-primary)] cursor-pointer">
+                            🌿 Authentic Baladi Spices
+                        </span>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-primary)] cursor-pointer">
+                            ✨ Clean Packaging
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Anonymous Review Checkbox -->
+                <label class="flex items-center gap-2 cursor-pointer text-xs text-[var(--color-text)]">
+                    <input type="checkbox" name="anonymous" value="true" x-model="reviewAnonymous" class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
+                    <span>Publish review anonymously (hide my full name)</span>
+                </label>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                    <a href="/Customer/MyOrders"
+                       class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+                        Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

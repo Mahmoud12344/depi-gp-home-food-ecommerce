@@ -1,6 +1,199 @@
 @{
-    ViewData["Title"] = "Platform Settings";
+    ViewData["Title"] = "Platform Settings & AI FAQs - Admin Portal";
+    ViewData["ActiveAdminTab"] = "settings";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Admin/Settings.cshtml -->
+<!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 428-458 & _AIFaqManagement.cshtml) -->
+<!-- Backlog Subtask: SCRUM-493 -->
+<!-- TODO(backend): Bind PlatformSettings.CommissionRate and AI Assistant FAQ entries; wire POST /Admin/Settings -->
+
+<div x-data="{
+    commissionRate: 15,
+    showAddForm: false,
+    newFaqQuestion: '',
+    newFaqCategory: 'Ordering & Pickup',
+    newFaqAnswer: ''
+}" class="w-full pb-24">
+
+    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- TAB 5: Platform Settings -->
+        <!-- TODO(backend): Bind PlatformSettings.CommissionRate and wire Save Rate form submission endpoint -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 max-w-xl shadow-xs space-y-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                Global Platform Parameters
+            </h3>
+
+            <form method="post" action="/Admin/Settings" class="space-y-2 text-xs">
+                @Html.AntiForgeryToken()
+                <label class="block font-semibold">Standard Platform Commission Rate (%)</label>
+                <div class="flex items-center gap-3">
+                    <input type="number"
+                           name="CommissionRate"
+                           min="5"
+                           max="35"
+                           x-model="commissionRate"
+                           class="w-24 p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold" />
+                    <button type="submit"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-full transition-colors cursor-pointer">
+                        Save Rate
+                    </button>
+                </div>
+                <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+                    Agreed baseline for verified home kitchen orders across Cairo &amp; Giza.
+                </p>
+            </form>
+        </div>
+
+        <!-- TAB 6: AI Assistant FAQs (SCRUM-493, from Views/Admin/Partials/_AIFaqManagement.cshtml) -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)] flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#bot"></use></svg>
+                        <span>AI Assistant Knowledge Base &amp; FAQs</span>
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                        Train the AI Assistant on verified policies, pickup logistics, and hygiene standards
+                    </p>
+                </div>
+
+                <button type="button"
+                        @@click="showAddForm = !showAddForm"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
+                    <span x-text="showAddForm ? 'Close Form' : 'Add FAQ Entry'">Add FAQ Entry</span>
+                </button>
+            </div>
+
+            <!-- Add Form (Collapsible) -->
+            <!-- TODO(backend): POST /Admin/Settings (action=AddFaq) -->
+            <div x-show="showAddForm"
+                 x-transition
+                 class="bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl p-5 space-y-4 text-xs">
+                <h4 class="font-bold uppercase tracking-wider text-[var(--color-text)]">New Knowledge Base Question</h4>
+                <form method="post" action="/Admin/Settings" class="space-y-3">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="actionType" value="AddFaq" />
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-2">
+                            <label class="block font-bold text-[var(--color-text-muted)] uppercase mb-1">Question Prompt</label>
+                            <input type="text"
+                                   name="Question"
+                                   x-model="newFaqQuestion"
+                                   required
+                                   placeholder="e.g. Can I pick up my food in the evening?"
+                                   class="w-full p-2.5 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-[var(--color-text)] font-medium" />
+                        </div>
+                        <div>
+                            <label class="block font-bold text-[var(--color-text-muted)] uppercase mb-1">Category</label>
+                            <select name="Category" x-model="newFaqCategory" class="w-full p-2.5 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-[var(--color-text)]">
+                                <option value="Ordering & Pickup">Ordering &amp; Pickup</option>
+                                <option value="Hygiene & Safety">Hygiene &amp; Safety</option>
+                                <option value="Payments & Refunds">Payments &amp; Refunds</option>
+                                <option value="Chef Onboarding">Chef Onboarding</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-[var(--color-text-muted)] uppercase mb-1">Verified Answer</label>
+                        <textarea rows="3"
+                                  name="Answer"
+                                  x-model="newFaqAnswer"
+                                  required
+                                  placeholder="Provide the accurate answer that the AI Assistant will synthesize..."
+                                  class="w-full p-2.5 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-[var(--color-text)]"></textarea>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button type="button" @@click="showAddForm = false" class="px-3.5 py-1.5 rounded-full border border-[var(--color-border)] font-bold cursor-pointer">Cancel</button>
+                        <button type="submit" class="px-4 py-1.5 rounded-full bg-[var(--color-primary)] text-white font-bold uppercase cursor-pointer">Save to AI Memory</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- FAQ Search Input (Plain GET form) -->
+            <form method="get" action="/Admin/Settings" class="relative max-w-sm">
+                <svg class="w-4 h-4 text-neutral-400 absolute start-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
+                <input type="text"
+                       name="faqSearch"
+                       placeholder="Filter questions by keyword or topic..."
+                       class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full ps-9 pe-4 py-2 text-xs text-[var(--color-text)] focus:outline-hidden font-medium" />
+            </form>
+
+            <!-- FAQ Cards Stream -->
+            <div class="space-y-3">
+                <!-- BEGIN SAMPLE: Unrolled 3 FAQ Entries from _AIFaqManagement.cshtml -->
+                <!-- FAQ 1 -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2 text-xs">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider mb-1">Ordering &amp; Pickup</span>
+                            <h4 class="font-bold text-sm text-[var(--color-text)]">How does domestic kitchen counter pickup work?</h4>
+                        </div>
+                        <form method="post" action="/Admin/Settings" class="inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="faqId" value="faq-1" />
+                            <input type="hidden" name="actionType" value="DeleteFaq" />
+                            <button type="submit"
+                                    class="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+                                    title="Delete FAQ entry">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                            </button>
+                        </form>
+                    </div>
+                    <p class="text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-surface-subtle)]/60 p-3 rounded-xl border border-[var(--color-border-light)]">
+                        Customers place an order online and receive the neighborhood pickup zone. Upon confirmation, the chef shares the exact villa/apartment address and pickup window for hot handover.
+                    </p>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2 text-xs">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider mb-1">Hygiene &amp; Safety</span>
+                            <h4 class="font-bold text-sm text-[var(--color-text)]">What hygiene standards do domestic kitchens follow?</h4>
+                        </div>
+                        <form method="post" action="/Admin/Settings" class="inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="faqId" value="faq-2" />
+                            <input type="hidden" name="actionType" value="DeleteFaq" />
+                            <button type="submit"
+                                    class="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+                                    title="Delete FAQ entry">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                            </button>
+                        </form>
+                    </div>
+                    <p class="text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-surface-subtle)]/60 p-3 rounded-xl border border-[var(--color-border-light)]">
+                        All registered domestic kitchens undergo in-person inspections, require medical food handler certificates, and must use 100% baladi butter without artificial trans-fats.
+                    </p>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2 text-xs">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider mb-1">Payments &amp; Refunds</span>
+                            <h4 class="font-bold text-sm text-[var(--color-text)]">Can I cancel an order and get a 100% refund?</h4>
+                        </div>
+                        <form method="post" action="/Admin/Settings" class="inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="faqId" value="faq-3" />
+                            <input type="hidden" name="actionType" value="DeleteFaq" />
+                            <button type="submit"
+                                    class="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+                                    title="Delete FAQ entry">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                            </button>
+                        </form>
+                    </div>
+                    <p class="text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-surface-subtle)]/60 p-3 rounded-xl border border-[var(--color-border-light)]">
+                        Yes! If you cancel while the order is still in Pending status (before the chef begins oven cooking), a 100% full reversal is credited to your wallet balance immediately.
+                    </p>
+                </div>
+                <!-- END SAMPLE -->
+            </div>
+        </div>
+    </div>
 </div>

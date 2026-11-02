@@ -1,6 +1,52 @@
 @{
-    ViewData["Title"] = "Chef Approval Queue";
+    ViewData["Title"] = "Chef Applications - Admin Portal";
+    ViewData["ActiveAdminTab"] = "applications";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Admin/Chefs.cshtml -->
+<!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 276-311) -->
+<!-- TODO(backend): Loop through pending ChefApplications; wire Approve and Reject actions calling AdminController -->
+
+<div class="w-full pb-24">
+    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- TAB 2: Chef Applications -->
+        <div class="space-y-4">
+            <!-- BEGIN SAMPLE: Unrolled Pending Chef Application from _AdminDashboard.cshtml -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="space-y-1 text-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-950 dark:text-amber-100 bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 px-2.5 py-0.5 rounded-full">
+                        Application Pending Review
+                    </span>
+                    <h3 class="text-base font-bold uppercase text-[var(--color-text)]">Kareem's Alexandria Seafood (Chef Kareem Nour)</h3>
+                    <p class="text-[var(--color-text-muted)]">Building 12, Abbas El-Akkad, Nasr City, Cairo · Area: Nasr City</p>
+                    <p class="text-[var(--color-primary)] font-semibold">ID: EGY-2930411-NAT · Cert: FS-CAIRO-2026-992</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <!-- TODO(backend): POST /Admin/Chefs (chefId=chef-4, decision=Reject) -->
+                    <form method="post" action="/Admin/Chefs" class="inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="chefId" value="chef-4" />
+                        <input type="hidden" name="decision" value="Reject" />
+                        <button type="submit"
+                                class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer">
+                            Reject Application
+                        </button>
+                    </form>
+                    <!-- TODO(backend): POST /Admin/Chefs (chefId=chef-4, decision=Approve) -->
+                    <form method="post" action="/Admin/Chefs" class="inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="chefId" value="chef-4" />
+                        <input type="hidden" name="decision" value="Approve" />
+                        <button type="submit"
+                                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer">
+                            Approve &amp; Grant Kitchen
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <!-- END SAMPLE -->
+        </div>
+    </div>
 </div>

@@ -1,6 +1,630 @@
 @{
-    ViewData["Title"] = "Track Order";
+    ViewData["Title"] = "Order Tracking & Lifecycle";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Orders/Track.cshtml -->
+<!-- Ported from Views/Orders/Partials/_OrderTracking.cshtml + _CancelOrderDialog.cshtml + _OrderReviewModal.cshtml + _RequestRefundModal.cshtml on main -->
+<!-- TODO(backend): Connect to live SignalR Hub / Orders Query endpoint for real-time order lifecycle updates -->
+
+<div x-data="{
+    selectedOrderIndex: 0,
+    simulatedStatus: 'Pending',
+    showCancelDialog: false,
+    showReviewModal: false,
+    showRefundModal: false,
+    cancelReason: 'changed_mind',
+    cancelNotes: '',
+    reviewRating: 5,
+    reviewComment: '',
+    reviewAnonymous: false,
+    refundReason: 'cancelled',
+    get currentStep() {
+        switch(this.simulatedStatus) {
+            case 'Pending': return 0;
+            case 'Accepted': return 1;
+            case 'Preparing': return 2;
+            case 'Ready': return 3;
+            case 'Completed': return 4;
+            default: return 0;
+        }
+    }
+}"
+     class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="/Customer/MyOrders" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">My Orders</a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">Track Order</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                Order Tracking &amp; Lifecycle
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                Follow live kitchen preparation stages and pickup updates
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- Order Selector Tabs -->
+        <!-- TODO(backend): Loop through Customer.Orders (e.g. Model.CustomerOrders); bind OrderNumber, Status, KitchenName, and DishTitle -->
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-border)] pb-2">
+            <div class="flex items-center gap-2 overflow-x-auto">
+                <!-- BEGIN SAMPLE: 3 Orders from main _OrderTracking.cshtml -->
+                <button type="button"
+                        @@click="selectedOrderIndex = 0; simulatedStatus = 'Pending'"
+                        :class="selectedOrderIndex === 0 ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                        class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer flex items-center gap-2">
+                    <span>#HC-2026-9150</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200">Pending</span>
+                </button>
+                <button type="button"
+                        @@click="selectedOrderIndex = 1; simulatedStatus = 'Preparing'"
+                        :class="selectedOrderIndex === 1 ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                        class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer flex items-center gap-2">
+                    <span>#HC-2026-9041</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-200">Preparing</span>
+                </button>
+                <button type="button"
+                        @@click="selectedOrderIndex = 2; simulatedStatus = 'Completed'"
+                        :class="selectedOrderIndex === 2 ? 'bg-[var(--color-primary)] text-white shadow-xs' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800'"
+                        class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer flex items-center gap-2">
+                    <span>#HC-2026-8890</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">Completed</span>
+                </button>
+                <!-- END SAMPLE -->
+            </div>
+
+            @* PROTOTYPE-ONLY: BEGIN — Order Lifecycle Status Simulator *@
+            <div class="flex items-center gap-1.5 text-[11px]">
+                <span class="text-[var(--color-text-muted)] font-bold uppercase tracking-wider">Simulate Status:</span>
+                <button type="button" @@click="simulatedStatus = 'Pending'" :class="simulatedStatus === 'Pending' ? 'bg-amber-500 text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)]'" class="px-2.5 py-1 rounded-full font-bold cursor-pointer">Pending</button>
+                <button type="button" @@click="simulatedStatus = 'Preparing'" :class="simulatedStatus === 'Preparing' ? 'bg-purple-600 text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)]'" class="px-2.5 py-1 rounded-full font-bold cursor-pointer">Preparing</button>
+                <button type="button" @@click="simulatedStatus = 'Ready'" :class="simulatedStatus === 'Ready' ? 'bg-teal-600 text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)]'" class="px-2.5 py-1 rounded-full font-bold cursor-pointer">Ready</button>
+                <button type="button" @@click="simulatedStatus = 'Completed'" :class="simulatedStatus === 'Completed' ? 'bg-emerald-600 text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)]'" class="px-2.5 py-1 rounded-full font-bold cursor-pointer">Completed</button>
+                <button type="button" @@click="simulatedStatus = 'Cancelled'" :class="simulatedStatus === 'Cancelled' ? 'bg-rose-600 text-white' : 'bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)]'" class="px-2.5 py-1 rounded-full font-bold cursor-pointer">Cancelled</button>
+            </div>
+            @* PROTOTYPE-ONLY: END *@
+        </div>
+
+        <!-- Active Order Card -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-8">
+            <!-- Header Info -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-border-light)] pb-6">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-xl sm:text-2xl font-bold uppercase tracking-tight text-[var(--color-text)]"
+                            x-text="selectedOrderIndex === 0 ? '#HC-2026-9150' : (selectedOrderIndex === 1 ? '#HC-2026-9041' : '#HC-2026-8890')">#HC-2026-9150</h2>
+                        <span class="text-xs px-2.5 py-1 rounded-full font-bold border"
+                              :class="{
+                                  'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-100': simulatedStatus === 'Pending',
+                                  'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-100': simulatedStatus === 'Preparing',
+                                  'bg-teal-100 text-teal-900 border-teal-300 dark:bg-teal-950 dark:text-teal-100': simulatedStatus === 'Ready',
+                                  'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-100': simulatedStatus === 'Completed',
+                                  'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-100': simulatedStatus === 'Cancelled'
+                              }"
+                              x-text="simulatedStatus">Pending</span>
+                    </div>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                        <span>Kitchen:</span>
+                        <span class="font-semibold text-[var(--color-primary)]" x-text="selectedOrderIndex === 2 ? 'Om Nabil Casseroles' : 'Amina\'s Heritage Kitchen'">Amina's Heritage Kitchen</span> ·
+                        <span x-text="selectedOrderIndex === 0 ? 'Just now (15:10)' : (selectedOrderIndex === 1 ? '14:30' : 'Yesterday')">Just now (15:10)</span>
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Cancel Order Button (SCRUM-463) -->
+                    <button type="button"
+                            x-show="simulatedStatus === 'Pending'"
+                            @@click="showCancelDialog = true"
+                            class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-2xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x-circle"></use></svg>
+                        <span>Cancel Order (100% Refund)</span>
+                    </button>
+
+                    <!-- Rate & Review Button (SCRUM-245, SCRUM-548) -->
+                    <button type="button"
+                            x-show="simulatedStatus === 'Completed'"
+                            x-cloak
+                            @@click="showReviewModal = true"
+                            class="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-2xs">
+                        <svg class="w-4 h-4 text-amber-500 fill-amber-500" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <span>Rate Chef &amp; Food</span>
+                    </button>
+
+                    <!-- Request Refund Button (SCRUM-527, SCRUM-539) -->
+                    <button type="button"
+                            x-show="simulatedStatus === 'Cancelled'"
+                            x-cloak
+                            @@click="showRefundModal = true"
+                            class="inline-flex items-center gap-1.5 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/60 dark:hover:bg-teal-900 border border-teal-300 dark:border-teal-700 text-teal-800 dark:text-teal-200 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-2xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                        <span>Request Refund</span>
+                    </button>
+
+                    <!-- Need Help / Support Button -->
+                    <a href="/Support"
+                       class="inline-flex items-center gap-1.5 bg-[var(--color-surface-subtle)] hover:bg-neutral-200 dark:hover:bg-neutral-800 border border-[var(--color-border)] text-[var(--color-text)] px-3.5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#help-circle"></use></svg>
+                        <span>Need Help?</span>
+                    </a>
+
+                    <!-- Chat with Chef -->
+                    <a href="/Chat"
+                       class="inline-flex items-center gap-1.5 bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#message-circle"></use></svg>
+                        <span>Chat with Chef</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cancelled Order Banner if Cancelled -->
+            <div x-show="simulatedStatus === 'Cancelled'" x-cloak class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl p-5 text-rose-900 dark:text-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x-circle"></use></svg>
+                    <div>
+                        <h4 class="font-bold text-sm">This order has been cancelled</h4>
+                        <p class="text-xs text-rose-700 dark:text-rose-300 mt-0.5">A 100% full refund was processed. You can review your wallet balance or request reversal.</p>
+                    </div>
+                </div>
+                <button type="button"
+                        @@click="showRefundModal = true"
+                        class="px-4 py-2 rounded-full bg-rose-600 text-white hover:bg-rose-700 text-xs font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer">
+                    <span>Refund Details</span>
+                </button>
+            </div>
+
+            <!-- 5-Step Visual Progress Bar (Hidden when cancelled) -->
+            <!-- TODO(backend): Subscribe to SignalR OrderHub 'OrderStatusChanged' event to update step progress bar in real-time -->
+            <div x-show="simulatedStatus !== 'Cancelled'" class="py-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-6">
+                    Live Preparation Timeline
+                </h3>
+
+                <div class="relative flex items-center justify-between max-w-3xl mx-auto">
+                    <!-- Connecting line -->
+                    <div class="absolute top-1/2 inset-x-0 -translate-y-1/2 h-1 bg-neutral-200 dark:bg-neutral-800 -z-0"></div>
+                    <div class="absolute top-1/2 start-0 -translate-y-1/2 h-1 bg-[var(--color-primary)] transition-all duration-500 -z-0"
+                         :style="'width: ' + ((currentStep / 4) * 100) + '%;'"></div>
+
+                    <!-- Step 1 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)] shadow-xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                        </div>
+                        <span class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center">Order Placed</span>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)] shadow-xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                        </div>
+                        <span class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center">Kitchen Accepted</span>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div :class="currentStep >= 2 ? 'bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)]' : 'bg-white dark:bg-neutral-900 border-2 border-neutral-300 dark:border-neutral-700 text-neutral-400'"
+                             class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-xs">
+                            <svg x-show="currentStep >= 2" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-show="currentStep < 2">3</span>
+                        </div>
+                        <span :class="currentStep === 2 ? 'text-[var(--color-primary)] font-bold' : (currentStep > 2 ? 'text-[var(--color-text)]' : 'text-neutral-400')"
+                              class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center">Cooking in Oven</span>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div :class="currentStep >= 3 ? 'bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)]' : 'bg-white dark:bg-neutral-900 border-2 border-neutral-300 dark:border-neutral-700 text-neutral-400'"
+                             class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-xs">
+                            <svg x-show="currentStep >= 3" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-show="currentStep < 3">4</span>
+                        </div>
+                        <span :class="currentStep === 3 ? 'text-[var(--color-primary)] font-bold' : (currentStep > 3 ? 'text-[var(--color-text)]' : 'text-neutral-400')"
+                              class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center">Ready at Counter</span>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div :class="currentStep >= 4 ? 'bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-light)]' : 'bg-white dark:bg-neutral-900 border-2 border-neutral-300 dark:border-neutral-700 text-neutral-400'"
+                             class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-xs">
+                            <svg x-show="currentStep >= 4" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span x-show="currentStep < 4">5</span>
+                        </div>
+                        <span :class="currentStep >= 4 ? 'text-[var(--color-primary)] font-bold' : 'text-neutral-400'"
+                              class="text-[10px] sm:text-xs font-semibold uppercase mt-2 text-center">Picked Up</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items, Options & Coordinates -->
+            <!-- TODO(backend): Bind active order items list, pickup gate coordinates, and receipt summary -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4 border-t border-[var(--color-border-light)]">
+                <!-- Items & Presets (SCRUM-230) -->
+                <div class="lg:col-span-7 space-y-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Order Items &amp; Options</h4>
+                    <!-- BEGIN SAMPLE -->
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-3">
+                        <div class="flex items-start gap-3">
+                            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80" alt="Stuffed Pigeon with Spiced Freekeh" class="w-16 h-16 rounded-xl object-cover border border-[var(--color-border)] shrink-0" />
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between gap-2">
+                                    <h5 class="font-bold text-sm text-[var(--color-text)]">Stuffed Pigeon with Spiced Freekeh</h5>
+                                    <span class="text-sm font-bold text-[var(--color-primary)]">285.00 EGP</span>
+                                </div>
+                                
+                                <!-- Presets list -->
+                                <div class="mt-2 flex flex-wrap gap-1.5">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-neutral-200 dark:bg-neutral-800 text-[11px] text-[var(--color-text)] font-medium">
+                                        <svg class="w-3 h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check"></use></svg>
+                                        <span>Freekeh Stuffing</span>
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-neutral-200 dark:bg-neutral-800 text-[11px] text-[var(--color-text)] font-medium">
+                                        <svg class="w-3 h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check"></use></svg>
+                                        <span>Extra Tahina (+15.00 EGP)</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END SAMPLE -->
+
+                    <!-- Payment Method & Receipt Summary (SCRUM-230) -->
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-2">
+                        <div class="flex items-center justify-between text-[var(--color-text-muted)]">
+                            <span class="font-bold uppercase tracking-wider text-[10px]">Payment Method</span>
+                            <span class="font-semibold text-[var(--color-text)]">Credit Card (Visa ···· 4242)</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[var(--color-text-muted)] pt-1 border-t border-[var(--color-border-light)]">
+                            <span>Dish Base Price</span>
+                            <span>270.00 EGP</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[var(--color-text-muted)]">
+                            <span>Custom Options</span>
+                            <span>15.00 EGP</span>
+                        </div>
+                        <div class="flex items-center justify-between font-bold text-[var(--color-text)] pt-1 border-t border-[var(--color-border-light)]">
+                            <span>Total Paid</span>
+                            <span class="text-sm text-[var(--color-primary)]">285.00 EGP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pickup Coordinates -->
+                <div class="lg:col-span-5 bg-[var(--color-surface-subtle)] p-5 rounded-2xl border border-[var(--color-border-light)] space-y-3 text-xs">
+                    <h4 class="font-bold uppercase text-[var(--color-text)] flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                        <span>Kitchen Pickup Counter</span>
+                    </h4>
+                    <p class="text-[var(--color-text)]">Villa 14, Road 9, Degla, Maadi, Cairo</p>
+                    <div class="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                        <span>Target Slot: 16:30 – 17:00</span>
+                    </div>
+
+                    <div class="pt-3 border-t border-[var(--color-border-light)] text-[11px] text-[var(--color-text-muted)]">
+                        <p>Please present your order code at the kitchen pickup counter for hot handover.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 1: Cancel Order Dialog (SCRUM-463 & SCRUM-427) -->
+    <div x-show="showCancelDialog"
+         x-cloak
+         x-transition.opacity.duration.200ms
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+         role="dialog"
+         aria-modal="true">
+
+        <div @@click.away="showCancelDialog = false"
+             x-show="showCancelDialog"
+             x-transition.scale.origin.center.duration.200ms
+             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[var(--color-text)]">
+                            Cancel Order &amp; Full Refund
+                        </h3>
+                        <p class="text-xs text-[var(--color-text-muted)]">Order #HC-2026-9150</p>
+                    </div>
+                </div>
+                <button type="button"
+                        @@click="showCancelDialog = false"
+                        class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <!-- Policy notice banner -->
+            <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 text-xs text-amber-900 dark:text-amber-300 space-y-1">
+                <div class="flex items-center gap-2 font-bold">
+                    <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                    <span>100% Full Refund Guarantee</span>
+                </div>
+                <p class="leading-relaxed">
+                    Because the chef has not started food preparation yet (Status: Pending), you are entitled to cancel for a 100% full refund with zero fees.
+                </p>
+            </div>
+
+            <!-- TODO(backend): POST /Orders/Cancel -->
+            <form method="post" action="/Orders/Cancel" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="1" />
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Reason for Cancellation
+                    </label>
+                    <select name="cancelReason"
+                            x-model="cancelReason"
+                            required
+                            class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                        <option value="changed_mind">Changed my mind / No longer needed</option>
+                        <option value="wrong_pickup">Selected wrong pickup slot or location</option>
+                        <option value="ordered_by_mistake">Placed order by mistake</option>
+                        <option value="other">Other reason</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Additional Notes (Optional)
+                    </label>
+                    <textarea name="cancelNotes"
+                              rows="2"
+                              x-model="cancelNotes"
+                              placeholder="..."
+                              class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                    <button type="button"
+                            @@click="showCancelDialog = false"
+                            class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]">
+                        Keep Order
+                    </button>
+                    <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+                        Confirm Cancellation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Order Review Modal (SCRUM-245 & SCRUM-548) -->
+    <div x-show="showReviewModal"
+         x-cloak
+         x-transition.opacity.duration.200ms
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+         role="dialog"
+         aria-modal="true">
+
+        <div @@click.away="showReviewModal = false"
+             x-show="showReviewModal"
+             x-transition.scale.origin.center.duration.200ms
+             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[var(--color-text)]">
+                            Rate Your Dish &amp; Experience
+                        </h3>
+                        <p class="text-xs text-[var(--color-text-muted)]">Stuffed Pigeon with Spiced Freekeh · #HC-2026-9150</p>
+                    </div>
+                </div>
+                <button type="button"
+                        @@click="showReviewModal = false"
+                        class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <!-- TODO(backend): POST /Reviews/Create -->
+            <form method="post" action="/Reviews/Create" class="space-y-5">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="1" />
+                <input type="hidden" name="rating" :value="reviewRating" />
+
+                <!-- Star selector (1 to 5) -->
+                <div class="text-center py-2 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] p-4">
+                    <span class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2.5">Select Star Rating</span>
+                    <div class="flex items-center justify-center gap-2">
+                        <button type="button" @@click="reviewRating = 1" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="1 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                        <button type="button" @@click="reviewRating = 2" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="2 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                        <button type="button" @@click="reviewRating = 3" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="3 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                        <button type="button" @@click="reviewRating = 4" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="4 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                        <button type="button" @@click="reviewRating = 5" class="p-1 text-2xl transition-transform hover:scale-125 focus:outline-hidden cursor-pointer" :class="5 <= reviewRating ? 'text-[var(--color-star)]' : 'text-neutral-300 dark:text-neutral-700'"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg></button>
+                    </div>
+                    <p class="text-xs font-semibold text-[var(--color-primary)] mt-2"
+                       x-text="reviewRating === 5 ? 'Exceptional & Exceeded Expectations! 🌟' :
+                               reviewRating === 4 ? 'Very Good & Delicious 👍' :
+                               reviewRating === 3 ? 'Average / Acceptable 👌' :
+                               reviewRating === 2 ? 'Needs Improvement 👎' : 'Disappointed ⚠️'"></p>
+                </div>
+
+                <!-- Review Feedback Textarea -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Your Detailed Feedback
+                    </label>
+                    <textarea name="comment"
+                              rows="3"
+                              x-model="reviewComment"
+                              required
+                              minlength="5"
+                              placeholder="Tell other foodies about the taste, seasoning, freshness, packaging, and pickup experience..."
+                              class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
+                    <p class="text-[10px] text-[var(--color-text-muted)] mt-1">Your honest review helps domestic chefs refine their craft and guides fellow food lovers.</p>
+                </div>
+
+                <!-- Quick compliments tags -->
+                <div>
+                    <span class="block text-[11px] font-bold text-[var(--color-text-muted)] mb-2">What stood out most?</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="px-2.5 py-1 rounded-full text-[11px] bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-primary)] cursor-pointer">
+                            🍗 Generous Portions
+                        </span>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-primary)] cursor-pointer">
+                            🔥 Hot &amp; Fresh Pickup
+                        </span>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-primary)] cursor-pointer">
+                            🌿 Authentic Baladi Spices
+                        </span>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-primary)] cursor-pointer">
+                            ✨ Clean Packaging
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Anonymous Review Checkbox -->
+                <label class="flex items-center gap-2 cursor-pointer text-xs text-[var(--color-text)]">
+                    <input type="checkbox" name="anonymous" value="true" x-model="reviewAnonymous" class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
+                    <span>Publish review anonymously (hide my full name)</span>
+                </label>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                    <button type="button"
+                            @@click="showReviewModal = false"
+                            class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+                        Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: Request Refund Modal (SCRUM-527 & SCRUM-539) -->
+    <div x-show="showRefundModal"
+         x-cloak
+         x-transition.opacity.duration.200ms
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+         role="dialog"
+         aria-modal="true">
+
+        <div @@click.away="showRefundModal = false"
+             x-show="showRefundModal"
+             x-transition.scale.origin.center.duration.200ms
+             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-teal-100 dark:bg-teal-950/60 text-teal-600 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[var(--color-text)]">
+                            Request Order Refund
+                        </h3>
+                        <p class="text-xs text-[var(--color-text-muted)]">Order #HC-2026-9150</p>
+                    </div>
+                </div>
+                <button type="button"
+                        @@click="showRefundModal = false"
+                        class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <!-- Amount summary -->
+            <div class="bg-[var(--color-surface-subtle)] p-4 rounded-2xl border border-[var(--color-border-light)] flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-[var(--color-text-muted)] block uppercase font-bold tracking-wider">Eligible Refund Amount</span>
+                    <span class="text-xl font-bold text-[var(--color-primary)]">285.00 EGP</span>
+                </div>
+                <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
+                    100% Full Reversal
+                </span>
+            </div>
+
+            <!-- TODO(backend): POST /Support/RequestRefund -->
+            <form method="post" action="/Support/RequestRefund" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="1" />
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Reason for Refund
+                    </label>
+                    <select name="refundReason"
+                            x-model="refundReason"
+                            required
+                            class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                        <option value="cancelled">Order was cancelled before preparation started</option>
+                        <option value="chef_rejected">Chef rejected the order due to capacity</option>
+                        <option value="delay">Excessive delay / counter closed</option>
+                        <option value="quality">Food quality, temperature or packaging issue</option>
+                        <option value="missing_item">Missing items from order package</option>
+                    </select>
+                </div>
+
+                <!-- Refund destination options -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2">
+                        Refund Destination
+                    </label>
+                    <div class="space-y-2">
+                        <label class="flex items-start gap-3 p-3 rounded-xl border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-colors">
+                            <input type="radio" name="refundMethod" value="wallet" checked class="mt-1 text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
+                            <div>
+                                <span class="block text-xs font-bold text-[var(--color-text)]">Platform Wallet Credit (Instant)</span>
+                                <span class="text-[11px] text-[var(--color-text-muted)]">Available instantly to spend on future meals from any home chef.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-xl border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-colors">
+                            <input type="radio" name="refundMethod" value="original" class="mt-1 text-[var(--color-primary)] focus:ring-[var(--color-primary)]">
+                            <div>
+                                <span class="block text-xs font-bold text-[var(--color-text)]">Reverse to Original Payment Card</span>
+                                <span class="text-[11px] text-[var(--color-text-muted)]">Takes 3 to 5 business days depending on your issuing bank.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Details &amp; Evidence Note
+                    </label>
+                    <textarea name="details"
+                              rows="2"
+                              placeholder="Provide details to assist customer support..."
+                              class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                    <button type="button"
+                            @@click="showRefundModal = false"
+                            class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+                        Submit Refund Claim
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

@@ -2,11 +2,15 @@ using depiR5gp.Models.Chefs;
 using Microsoft.AspNetCore.Mvc;
 using depiR5gp.Data;
 using System.Security.Claims;
+using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
 
 namespace depiR5gp.Controllers;
 
-public class ChefsController(IChefService chefService, ApplicationDbContext context) : Controller
+public class ChefsController(
+    IChefService chefService,
+    IUnitOfWork unitOfWork,
+    ApplicationDbContext context) : Controller
 {
     public IActionResult Index() => View();
 

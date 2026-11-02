@@ -1,6 +1,27 @@
 @{
     ViewData["Title"] = "Access Denied";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Account/AccessDenied.cshtml -->
+<!-- TODO(backend): Rendered when [Authorize(Roles = "...")] denies access to current user -->
+
+<div class="w-full py-12 sm:py-16 px-4 flex items-center justify-center">
+    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl text-center space-y-5">
+        <div class="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center mx-auto">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
+        </div>
+        <div class="space-y-1.5">
+            <h1 class="text-xl font-bold uppercase tracking-tight text-[var(--color-text)]">Access Restricted</h1>
+            <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+                Your current account role does not have permission to view this portal. Please sign in with an authorized account.
+            </p>
+        </div>
+        <div class="flex items-center justify-center gap-3 pt-2">
+            <a href="/" class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] transition-colors">
+                Return Home
+            </a>
+            <a href="/Account/Login" class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-xs">
+                Switch Account
+            </a>
+        </div>
+    </div>
 </div>

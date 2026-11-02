@@ -1,6 +1,550 @@
 @{
     ViewData["Title"] = "AI Culinary Concierge";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/AIAssistant/Index.cshtml -->
+<!-- Source: home_chef/src/pages/AIAssistantPage.tsx (Views/AIAssistant/Partials/_AIAssistant.cshtml lines 1-493) -->
+<!-- TODO(backend): Connect to live LLM endpoint / SignalR stream and catalog embeddings -->
+
+<div x-data="{
+    status: 'idle',
+    currentPrompt: '',
+    inputValue: '',
+    thinkEnabled: true,
+    steps: [],
+    answer: '',
+    elapsedSeconds: 0,
+    activePresetId: null,
+    timerId: null,
+    intervalId: null,
+    presets: [
+        {
+            id: 'family-feast',
+            icon: '🍲',
+            titleEn: 'Traditional Family Feast for 6',
+            promptEn: 'Plan a traditional Egyptian family dinner for 6 under 750 EGP with authentic baladi ghee',
+            stepsEn: [
+                'Scanning verified domestic kitchens in Maadi & Zamalek…',
+                'Filtering for 100% baladi ghee and slow-cooked roasts…',
+                'Balancing portions: duck, tagines, rice, and freshly baked bread…',
+                'Verifying live kitchen capacity and counter pickup readiness…',
+                'Finalizing tailored multi-course menu under 750 EGP…'
+            ],
+            answerEn: 'Here is a curated authentic home-cooked feast tailored for 6 people:\n\n1. Main Course: Molokhia with Roasted Baladi Duck (Chef Amina Mansour, Maadi) · Rich slow-simmered duck broth with fragrant garlic coriander ta\'shaa and vermicelli rice.\n2. Centerpiece Tagine: Braised Oxtail Clay Pot with Caramelized Baby Onions (Chef Hany El-Sayed, Zamalek) · Slow-braised in Egyptian earthenware until meltingly tender.\n3. Artisan Side: Rustic Baladi Feteer Meshaltet served warm with clover honey and aged old roomi cheese.\n\nTotal Estimate: ~710 EGP · High in traditional flavor, zero industrial oils, direct counter pickup.'
+        },
+        {
+            id: 'spicy-tagines',
+            icon: '🔥',
+            titleEn: 'Slow-Cooked Meat Tagines',
+            promptEn: 'Recommend rich clay pot tagines and tender meat dishes ready for pickup this evening',
+            stepsEn: [
+                'Querying active casseroles and wood-fired ovens…',
+                'Checking meat cuts: Egyptian veal shanks and braised oxtail…',
+                'Filtering kitchens with 4.8+ customer food safety ratings…',
+                'Synthesizing chef cooking secrets and spice notes…'
+            ],
+            answerEn: 'For lovers of slow-simmered, tender meats cooked in genuine clay pots:\n\n• Braised Oxtail Clay Pot (Chef Hany El-Sayed, Zamalek) · 275 EGP · Cooked with nutmeg, cardamom, and sweet caramelized shallots.\n• Molokhia with Roasted Baladi Duck (Chef Amina Mansour, Maadi) · 240 EGP · Fall-off-the-bone tender roasted bird with heritage stock.\n\nBoth dishes are freshly prepped in earthenware vessels that seal in the savory aromas.'
+        },
+        {
+            id: 'sweet-treats',
+            icon: '🍯',
+            titleEn: 'Desserts & Sweets',
+            promptEn: 'What is the best warm dessert with pure baladi cream for a weekend treat?',
+            stepsEn: [
+                'Scanning pastry chefs and domestic confectionery ovens…',
+                'Verifying real water-buffalo clotted cream (eshta baladi)…',
+                'Calculating baking times for piping hot service…'
+            ],
+            answerEn: 'The gold standard for a comforting Egyptian dessert:\n\n• Royal Egyptian Om Ali with Clotted Cream (Chef Amina Mansour) · 135 EGP · Flaky baked puff pastry drowned in sweetened rich buffalo milk, layered with toasted pistachios, almonds, raisins, and a scorched golden crust of pure eshta baladi.\n\nServed warm directly from the domestic oven!'
+        },
+        {
+            id: 'quick-pickup',
+            icon: '⚡',
+            titleEn: 'Quick Pickup (< 45 min)',
+            promptEn: 'Suggest freshly made home meals ready for pickup in under 45 minutes in Maadi or Zamalek',
+            stepsEn: [
+                'Querying kitchens with active immediate cook status…',
+                'Sorting dishes with prep time <= 45 minutes…',
+                'Verifying counter pickup parking and access…'
+            ],
+            answerEn: 'Top recommendations ready on short notice:\n\n1. Molokhia with Roasted Duck · 45 mins prep · Kitchen counter pickup in Degla, Maadi.\n2. Authentic Feteer Meshaltet · 40 mins prep · Warm layered pastry, ready for quick pickup in Maadi.\n\nSave delivery wait times and pick up steaming hot directly from the chef\'s counter!'
+        }
+    ],
+    clearAll() {
+        if (this.timerId) clearInterval(this.timerId);
+        if (this.intervalId) clearInterval(this.intervalId);
+    },
+    handlePresetClick(preset) {
+        this.activePresetId = preset.id;
+        this.inputValue = preset.promptEn;
+        this.executePrompt(preset.promptEn, this.thinkEnabled, preset);
+    },
+    executePrompt(userPrompt, useThinking, presetObj) {
+        this.clearAll();
+        this.currentPrompt = userPrompt;
+        this.answer = '';
+        this.elapsedSeconds = 0;
+
+        const preset = presetObj || this.presets.find(p => p.id === this.activePresetId) || this.presets[0];
+        const stepTexts = preset.stepsEn;
+        const targetAnswer = preset.answerEn;
+
+        if (useThinking) {
+            this.status = 'thinking';
+            this.steps = [];
+
+            this.timerId = setInterval(() => {
+                this.elapsedSeconds += 1;
+            }, 950);
+
+            stepTexts.forEach((text, idx) => {
+                setTimeout(() => {
+                    this.steps = this.steps.map(s => ({ ...s, status: 'complete' }));
+                    this.steps.push({ id: `step-${idx}`, text, status: 'active' });
+                }, (idx + 1) * 600);
+            });
+
+            setTimeout(() => {
+                if (this.timerId) clearInterval(this.timerId);
+                this.steps = this.steps.map(s => ({ ...s, status: 'complete' }));
+                this.status = 'answering';
+
+                let charIndex = 0;
+                this.intervalId = setInterval(() => {
+                    charIndex += 4;
+                    this.answer = targetAnswer.slice(0, charIndex);
+                    if (charIndex >= targetAnswer.length) {
+                        clearInterval(this.intervalId);
+                        this.status = 'done';
+                    }
+                }, 20);
+            }, (stepTexts.length + 1) * 600);
+        } else {
+            this.status = 'answering';
+            this.steps = [];
+
+            let charIndex = 0;
+            this.intervalId = setInterval(() => {
+                charIndex += 5;
+                this.answer = targetAnswer.slice(0, charIndex);
+                if (charIndex >= targetAnswer.length) {
+                    clearInterval(this.intervalId);
+                    this.status = 'done';
+                }
+            }, 18);
+        }
+    },
+    handleFormSubmit() {
+        if (!this.inputValue.trim()) return;
+        this.executePrompt(this.inputValue.trim(), this.thinkEnabled);
+    },
+    resetChat() {
+        this.clearAll();
+        this.status = 'idle';
+        this.answer = '';
+        this.activePresetId = null;
+        this.inputValue = '';
+    }
+}" class="w-full min-h-[calc(100vh-160px)] bg-[var(--color-bg)] py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
+
+    <div class="max-w-[1520px] w-full mx-auto space-y-6">
+        <!-- 1. Breadcrumb banner -->
+        <div class="flex items-center gap-2 text-xs text-[var(--color-text-muted)] font-medium">
+            <a href="/" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer">Home</a>
+            <span>/</span>
+            <span class="text-[var(--color-primary)] font-semibold flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
+                <span>AI Culinary Concierge</span>
+            </span>
+        </div>
+
+        <!-- 2. Main Interactive Workspace: 2-Column Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- Left / Center Column: Thinking Prompt Input Component -->
+            <div class="lg:col-span-8 space-y-6">
+
+                <!-- Thinking Prompt Card Container -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 sm:p-7 shadow-lg flex flex-col min-h-[560px]">
+                    <div class="mb-4 pb-3 border-b border-[var(--color-border)] flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                            </div>
+                            <div>
+                                <h2 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
+                                    Interactive Concierge Session
+                                </h2>
+                                <p class="text-[11px] text-[var(--color-text-muted)]"
+                                   x-text="status === 'thinking' ? 'Thinking through ingredients and kitchen availability…' : (status === 'answering' ? 'Streaming culinary recommendation…' : 'Ask anything about dishes, ingredients, or portions')">
+                                    Ask anything about dishes, ingredients, or portions
+                                </p>
+                            </div>
+                        </div>
+
+                        <template x-if="status !== 'idle'">
+                            <button type="button"
+                                    @@click="resetChat()"
+                                    class="flex items-center gap-1 text-[11px] font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#rotate-ccw"></use></svg>
+                                <span>New Query</span>
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- Conversation and Steps display -->
+                    <div class="flex-1 flex flex-col justify-end w-full space-y-4">
+                        @* PROTOTYPE-ONLY: BEGIN (Simulated AI thinking steps and streaming answer animation — replace with real SignalR/SSE stream) *@
+                        <!-- Thinking Steps (if active) -->
+                        <div x-show="status === 'thinking' || steps.length > 0" class="bg-[var(--color-surface-subtle)] p-4 rounded-2xl border border-[var(--color-border-light)] space-y-2">
+                            <div class="flex items-center justify-between text-xs font-bold text-[var(--color-primary)]">
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 animate-spin text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
+                                    <span>Culinary Reasoning:</span>
+                                </span>
+                                <span class="font-mono text-[10px]" x-text="`${elapsedSeconds}s`"></span>
+                            </div>
+
+                            <div class="space-y-1.5 text-xs">
+                                <template x-for="(s, idx) in steps" :key="idx">
+                                    <div class="flex items-center gap-2"
+                                         :class="s.status === 'active' ? 'text-[var(--color-primary)] font-semibold' : 'text-[var(--color-text-muted)] opacity-70'">
+                                        <template x-if="s.status === 'complete'">
+                                            <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                                        </template>
+                                        <template x-if="s.status === 'active'">
+                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0"></span>
+                                        </template>
+                                        <span x-text="s.text"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Streamed Answer -->
+                        <div x-show="answer" class="p-4 rounded-2xl bg-white dark:bg-neutral-800 border border-[var(--color-border-light)] text-xs text-[var(--color-text)] leading-relaxed whitespace-pre-line shadow-xs">
+                            <p x-text="answer"></p>
+                            <p class="text-[10px] text-[var(--color-text-muted)] mt-3 pt-2 border-t border-[var(--color-border-light)] italic">
+                                Recommendations grounded in verified Cairo &amp; Giza home kitchen menus and certified hygiene standards.
+                            </p>
+                        </div>
+                        @* PROTOTYPE-ONLY: END *@
+
+                        <!-- Prompt Input Form -->
+                        <!-- TODO(backend): Stream LLM reasoning tokens and recommendation response via SignalR AIAssistantHub or POST /AIAssistant -->
+                        <form method="post" action="/AIAssistant" @@submit.prevent="handleFormSubmit()" class="relative pt-2">
+                            @Html.AntiForgeryToken()
+                            <div class="flex items-center gap-2 mb-2">
+                                <label class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[var(--color-text-muted)] cursor-pointer">
+                                    <input type="checkbox" name="thinkEnabled" x-model="thinkEnabled" class="rounded text-[var(--color-primary)] focus:ring-0 cursor-pointer" />
+                                    <span>Enable step-by-step thinking</span>
+                                </label>
+                            </div>
+
+                            <div class="relative flex items-center">
+                                <input type="text"
+                                       name="prompt"
+                                       x-model="inputValue"
+                                       placeholder="Ask anything (e.g. Plan a family feast, recommend spicy clay pot tagine)..."
+                                       class="w-full text-xs sm:text-sm p-3.5 pe-12 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium shadow-inner" />
+                                <button type="submit"
+                                        class="absolute end-2 w-9 h-9 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white flex items-center justify-center transition-all cursor-pointer shadow-md">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-up"></use></svg>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Quick Inspiration Prompts -->
+                <!-- TODO(backend): Loop through curated system prompts / meal planning templates (e.g. Model.AIPresets) -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)] flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
+                        <span>Inspiration &amp; Quick Inquiries</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <template x-for="preset in presets" :key="preset.id">
+                            <button type="button"
+                                    @@click="handlePresetClick(preset)"
+                                    class="text-start p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start gap-3"
+                                    :class="activePresetId === preset.id ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5 shadow-xs' : 'border-[var(--color-border)] bg-[var(--color-card-bg)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-surface-subtle)]'">
+                                <span class="text-xl shrink-0 p-1 bg-white/60 dark:bg-neutral-800 rounded-lg" x-text="preset.icon"></span>
+                                <div class="min-w-0">
+                                    <h4 class="text-xs font-bold text-[var(--color-text)]" x-text="preset.titleEn"></h4>
+                                    <p class="text-[11px] text-[var(--color-text-muted)] line-clamp-2 mt-0.5" x-text="preset.promptEn"></p>
+                                </div>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Grounded Recommended Dishes Panel -->
+            <!-- TODO(backend): Bind catalog dishes grounded in LLM context vector embeddings (e.g. Model.GroundedDishes); bind DishId, Name, Price, KitchenName, ImageUrl, and AddToCart action -->
+            <div class="lg:col-span-4 space-y-6">
+
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-5 sm:p-6 shadow-sm">
+                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-[var(--color-border)]">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
+                                Recommended Fresh Dishes
+                            </h3>
+                        </div>
+                        <span class="text-[11px] font-bold text-[var(--color-primary)]">
+                            4 Dishes
+                        </span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- BEGIN SAMPLE: Unrolled 4 Recommended Dishes from _AIAssistant.cshtml -->
+                        <!-- Dish 1: Baladi Duck Molokhia with Vermicelli Rice -->
+                        <div class="group border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-3.5 bg-white dark:bg-neutral-800/80 transition-all shadow-xs flex flex-col gap-3">
+                            <div class="flex items-start gap-3">
+                                <img src="https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80"
+                                     alt="Baladi Duck Molokhia with Vermicelli Rice"
+                                     class="w-20 h-20 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-300" />
+                                <div class="flex-1 min-w-0 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-2 py-0.5 rounded-full uppercase">
+                                            Amina's Heritage Kitchen
+                                        </span>
+                                        <span class="text-[10px] font-bold text-white bg-[var(--color-sale)] px-1.5 py-0.2 rounded-xs">
+                                            SALE
+                                        </span>
+                                    </div>
+
+                                    <h4 class="font-bold text-xs text-[var(--color-text)] truncate hover:text-[var(--color-primary)] transition-colors">
+                                        <a href="/Dishes/Details">Baladi Duck Molokhia with Vermicelli Rice</a>
+                                    </h4>
+
+                                    <div class="flex items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                                        <span class="flex items-center gap-1 text-amber-500 font-semibold">
+                                            <svg class="w-3 h-3 fill-amber-400 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                            <span>4.9</span>
+                                        </span>
+                                        <span>•</span>
+                                        <span class="flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                                            <span>45 min</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="flex items-baseline gap-2 pt-0.5">
+                                        <span class="text-xs font-bold text-[var(--color-primary)]">240.00 EGP</span>
+                                        <span class="text-[10px] text-[var(--color-text-muted)] line-through">280.00 EGP</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-[var(--color-border-light)] flex items-center justify-between gap-2">
+                                <a href="/Dishes/Details"
+                                   class="text-[11px] font-semibold text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                                    <span>View Full Details</span>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+                                </a>
+
+                                <form method="post" action="/Cart" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="dishId" value="dish-1" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit"
+                                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                                        <span>Add to Cart</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Dish 2: Braised Oxtail Clay Pot with Caramelized Onions -->
+                        <div class="group border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-3.5 bg-white dark:bg-neutral-800/80 transition-all shadow-xs flex flex-col gap-3">
+                            <div class="flex items-start gap-3">
+                                <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80"
+                                     alt="Braised Oxtail Clay Pot with Caramelized Onions"
+                                     class="w-20 h-20 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-300" />
+                                <div class="flex-1 min-w-0 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-2 py-0.5 rounded-full uppercase">
+                                            Hany's Gourmet Grills
+                                        </span>
+                                        <span class="text-[10px] font-bold text-white bg-[var(--color-sale)] px-1.5 py-0.2 rounded-xs">
+                                            SALE
+                                        </span>
+                                    </div>
+
+                                    <h4 class="font-bold text-xs text-[var(--color-text)] truncate hover:text-[var(--color-primary)] transition-colors">
+                                        <a href="/Dishes/Details">Braised Oxtail Clay Pot with Caramelized Onions</a>
+                                    </h4>
+
+                                    <div class="flex items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                                        <span class="flex items-center gap-1 text-amber-500 font-semibold">
+                                            <svg class="w-3 h-3 fill-amber-400 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                            <span>5.0</span>
+                                        </span>
+                                        <span>•</span>
+                                        <span class="flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                                            <span>60 min</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="flex items-baseline gap-2 pt-0.5">
+                                        <span class="text-xs font-bold text-[var(--color-primary)]">275.00 EGP</span>
+                                        <span class="text-[10px] text-[var(--color-text-muted)] line-through">310.00 EGP</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-[var(--color-border-light)] flex items-center justify-between gap-2">
+                                <a href="/Dishes/Details"
+                                   class="text-[11px] font-semibold text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                                    <span>View Full Details</span>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+                                </a>
+
+                                <form method="post" action="/Cart" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="dishId" value="dish-2" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit"
+                                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                                        <span>Add to Cart</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Dish 4: Authentic Baladi Feteer Meshaltet (Plain & Sweet) -->
+                        <div class="group border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-3.5 bg-white dark:bg-neutral-800/80 transition-all shadow-xs flex flex-col gap-3">
+                            <div class="flex items-start gap-3">
+                                <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80"
+                                     alt="Authentic Baladi Feteer Meshaltet (Plain & Sweet)"
+                                     class="w-20 h-20 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-300" />
+                                <div class="flex-1 min-w-0 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-2 py-0.5 rounded-full uppercase">
+                                            Amina's Heritage Kitchen
+                                        </span>
+                                    </div>
+
+                                    <h4 class="font-bold text-xs text-[var(--color-text)] truncate hover:text-[var(--color-primary)] transition-colors">
+                                        <a href="/Dishes/Details">Authentic Baladi Feteer Meshaltet (Plain &amp; Sweet)</a>
+                                    </h4>
+
+                                    <div class="flex items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                                        <span class="flex items-center gap-1 text-amber-500 font-semibold">
+                                            <svg class="w-3 h-3 fill-amber-400 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                            <span>4.9</span>
+                                        </span>
+                                        <span>•</span>
+                                        <span class="flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                                            <span>40 min</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="flex items-baseline gap-2 pt-0.5">
+                                        <span class="text-xs font-bold text-[var(--color-primary)]">160.00 EGP</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-[var(--color-border-light)] flex items-center justify-between gap-2">
+                                <a href="/Dishes/Details"
+                                   class="text-[11px] font-semibold text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                                    <span>View Full Details</span>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+                                </a>
+
+                                <form method="post" action="/Cart" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="dishId" value="dish-4" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit"
+                                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                                        <span>Add to Cart</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Dish 6: Royal Egyptian Om Ali with Clotted Cream & Nuts -->
+                        <div class="group border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-3.5 bg-white dark:bg-neutral-800/80 transition-all shadow-xs flex flex-col gap-3">
+                            <div class="flex items-start gap-3">
+                                <img src="https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600&auto=format&fit=crop&q=80"
+                                     alt="Royal Egyptian Om Ali with Clotted Cream & Nuts"
+                                     class="w-20 h-20 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-300" />
+                                <div class="flex-1 min-w-0 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-2 py-0.5 rounded-full uppercase">
+                                            Amina's Heritage Kitchen
+                                        </span>
+                                    </div>
+
+                                    <h4 class="font-bold text-xs text-[var(--color-text)] truncate hover:text-[var(--color-primary)] transition-colors">
+                                        <a href="/Dishes/Details">Royal Egyptian Om Ali with Clotted Cream &amp; Nuts</a>
+                                    </h4>
+
+                                    <div class="flex items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                                        <span class="flex items-center gap-1 text-amber-500 font-semibold">
+                                            <svg class="w-3 h-3 fill-amber-400 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                            <span>4.9</span>
+                                        </span>
+                                        <span>•</span>
+                                        <span class="flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                                            <span>25 min</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="flex items-baseline gap-2 pt-0.5">
+                                        <span class="text-xs font-bold text-[var(--color-primary)]">135.00 EGP</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-[var(--color-border-light)] flex items-center justify-between gap-2">
+                                <a href="/Dishes/Details"
+                                   class="text-[11px] font-semibold text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                                    <span>View Full Details</span>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+                                </a>
+
+                                <form method="post" action="/Cart" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="dishId" value="dish-6" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit"
+                                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                                        <span>Add to Cart</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- END SAMPLE -->
+                    </div>
+                </div>
+
+                <!-- Chef Credentials Box -->
+                <div class="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 space-y-2 text-xs">
+                    <div class="flex items-center gap-2 font-bold text-[var(--color-text)]">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                        <span>HomeChef Kitchen Standard</span>
+                    </div>
+                    <p class="text-[11px] text-[var(--color-text-muted)] leading-relaxed">
+                        All dishes suggested by our culinary AI are prepared by vetted, food-safety inspected domestic home chefs using fresh natural ingredients and zero artificial preservatives.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 </div>

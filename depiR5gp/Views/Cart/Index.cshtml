@@ -1,6 +1,296 @@
 @{
     ViewData["Title"] = "Shopping Cart";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Cart/Index.cshtml -->
+<!-- Ported from Views/Cart/Partials/_CartPage.cshtml on main -->
+<!-- TODO(backend): Sync cart with server-side session or customer order draft -->
+
+<div x-data="{
+    showDemoUnavailable: false,
+    showUndoBanner: false,
+    qty1: 1,
+    qty2: 1,
+    get subtotal() {
+        return (this.qty1 * 240) + (this.qty2 * 270);
+    }
+}"
+     class="w-full pb-24">
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">Cart</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                Your Shopping Cart
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                Order from kitchen: Amina's Heritage Kitchen
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        <!-- Empty State (shown by backend when Model.Items.Count == 0) -->
+        <!-- TODO(backend): Show when !Model.Items.Any() -->
+        <div class="hidden bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto shadow-sm">
+            <div class="w-16 h-16 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center mx-auto">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+            </div>
+            <h2 class="text-xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                Your Shopping Cart Is Empty
+            </h2>
+            <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+                Explore freshly baked and slow-simmered meals cooked with real country butter in verified local kitchens.
+            </p>
+            <a href="/Dishes"
+               class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98]">
+                <span>Browse Fresh Dishes</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+            </a>
+        </div>
+
+        <!-- Populated Cart Content -->
+        <div class="space-y-6">
+            <!-- Undo Item Removal Toast/Banner (SCRUM-191) -->
+            <!-- TODO(backend): Show when TempData["LastRemovedItemId"] is present -->
+            <div x-show="showUndoBanner" x-cloak x-transition class="p-3.5 bg-neutral-900 text-white rounded-2xl flex items-center justify-between text-xs shadow-lg">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                    <span>Item removed from your cart.</span>
+                </div>
+                <form method="post" action="/Cart/UndoRemove">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            class="font-bold text-[var(--color-primary-light)] hover:underline uppercase tracking-wider text-xs cursor-pointer flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#rotate-ccw"></use></svg>
+                        <span>Undo</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Top Warning Alert Banner for Unavailable Cart Items (SCRUM-205) -->
+            <div x-show="showDemoUnavailable" x-cloak x-transition class="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-rose-900 dark:text-rose-200 text-xs shadow-xs">
+                <div class="flex items-start gap-2.5">
+                    <svg class="w-5 h-5 shrink-0 text-rose-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
+                    <div>
+                        <h4 class="font-bold text-sm">Attention: One or more dishes in your cart are currently unavailable</h4>
+                        <p class="mt-0.5">You cannot check out until unavailable items are removed from your cart.</p>
+                    </div>
+                </div>
+                <button type="button"
+                        @@click="showDemoUnavailable = false"
+                        class="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer text-center">
+                    Remove Unavailable
+                </button>
+            </div>
+
+            <!-- Single-Chef Notice & Simulation Control -->
+            <div class="p-4 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-2xl border border-[var(--color-primary)]/20 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-2.5">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                    <span>Currently ordering from: Amina's Heritage Kitchen · Direct kitchen counter pickup</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    @* PROTOTYPE-ONLY: BEGIN — Unavailable Dish Simulator (SCRUM-203) *@
+                    <button type="button"
+                            @@click="showDemoUnavailable = !showDemoUnavailable"
+                            class="text-[11px] underline text-neutral-600 dark:text-neutral-400 hover:text-[var(--color-primary)] cursor-pointer">
+                        <span x-text="showDemoUnavailable ? 'Reset Available State' : 'Simulate Unavailable Dish (SCRUM-203)'">Simulate Unavailable Dish (SCRUM-203)</span>
+                    </button>
+                    @* PROTOTYPE-ONLY: END *@
+                    <form method="post" action="/Cart/Clear" class="inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit"
+                                class="text-xs font-semibold underline hover:opacity-80 cursor-pointer shrink-0">
+                            Clear Cart
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cart Table -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+                <div class="hidden sm:grid grid-cols-12 gap-4 p-5 text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] border-b border-[var(--color-border)]">
+                    <div class="col-span-6">Product</div>
+                    <div class="col-span-3 text-center">Quantity</div>
+                    <div class="col-span-3 text-end">Total</div>
+                </div>
+
+                <!-- TODO(backend): Iterate through Cart.Items; bind DishId, Name, Price, SelectedOptions, InstructionsNote, Quantity, and LineTotal -->
+                <div class="divide-y divide-[var(--color-border-light)]">
+                    <!-- BEGIN SAMPLE: 2 Cart Items -->
+                    <!-- Item 1: Baladi Duck Molokhia with Vermicelli Rice -->
+                    <div class="p-5 flex flex-col sm:grid sm:grid-cols-12 gap-4 items-center transition-opacity"
+                         :class="showDemoUnavailable ? 'opacity-65 bg-neutral-100/60 dark:bg-neutral-900/60' : ''">
+                        <!-- Product Column -->
+                        <div class="sm:col-span-6 flex items-start gap-4 w-full">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80"
+                                     alt="Baladi Duck Molokhia with Vermicelli Rice"
+                                     class="w-20 h-20 rounded-xl object-cover shrink-0 border border-[var(--color-border)]" />
+                                <!-- Strikethrough / Unavailable overlay tag (SCRUM-203) -->
+                                <span x-show="showDemoUnavailable" x-cloak class="absolute inset-0 bg-neutral-950/60 rounded-xl flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-wider text-center p-1">
+                                    Unavailable
+                                </span>
+                            </div>
+                            <div class="space-y-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="text-sm font-bold uppercase tracking-tight text-[var(--color-text)]">
+                                        Baladi Duck Molokhia with Vermicelli Rice
+                                    </h3>
+                                    <!-- Unavailable Tag (SCRUM-203) -->
+                                    <span x-show="showDemoUnavailable" x-cloak class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                                        <svg class="w-3 h-3 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-circle"></use></svg>
+                                        <span>Unavailable</span>
+                                    </span>
+                                </div>
+                                <div class="flex items-baseline gap-2">
+                                    <p class="text-xs font-semibold text-[var(--color-primary)]">
+                                        240.00 EGP
+                                    </p>
+                                    <span class="text-[10px] text-[var(--color-text-muted)] line-through">280.00 EGP</span>
+                                </div>
+                                <div class="text-[11px] text-[var(--color-text-muted)] space-y-0.5 pt-0.5">
+                                    <p>
+                                        <span class="font-medium text-[var(--color-text)]">Duck Portion:</span> <span>Duck Thigh &amp; Drumstick</span>
+                                    </p>
+                                </div>
+                                <p class="text-[11px] text-[var(--color-text-muted)] italic pt-0.5">“Extra crispy duck skin, mild spice”</p>
+                            </div>
+                        </div>
+
+                        <!-- Quantity Stepper Column -->
+                        <div class="sm:col-span-3 flex items-center justify-center gap-2 w-full sm:w-auto">
+                            <form method="post" action="/Cart/UpdateQuantity" class="flex items-center border border-[var(--color-border)] rounded-full bg-white dark:bg-neutral-800 p-1">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="itemId" value="1" />
+                                <input type="hidden" name="quantity" :value="qty1" />
+                                <button type="button"
+                                        @@click="qty1 = Math.max(1, qty1 - 1)"
+                                        class="w-7 h-7 rounded-full flex items-center justify-center font-bold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer">−</button>
+                                <span class="w-8 text-center text-xs font-bold" x-text="qty1">1</span>
+                                <button type="button"
+                                        @@click="qty1 = qty1 + 1"
+                                        class="w-7 h-7 rounded-full flex items-center justify-center font-bold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer">+</button>
+                            </form>
+                            <form method="post" action="/Cart/Remove">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="itemId" value="1" />
+                                <button type="button"
+                                        @@click="showUndoBanner = true"
+                                        class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                        title="Remove item">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Line Total Column -->
+                        <div class="sm:col-span-3 sm:text-end w-full sm:w-auto text-end">
+                            <span class="text-base font-bold text-[var(--color-text)]"
+                                  x-text="(qty1 * 240).toFixed(2) + ' EGP'">
+                                240.00 EGP
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Item 2: Pigeon Stuffed with Spiced Freekeh -->
+                    <div class="p-5 flex flex-col sm:grid sm:grid-cols-12 gap-4 items-center transition-opacity">
+                        <div class="sm:col-span-6 flex items-start gap-4 w-full">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80"
+                                     alt="Pigeon Stuffed with Spiced Freekeh"
+                                     class="w-20 h-20 rounded-xl object-cover shrink-0 border border-[var(--color-border)]" />
+                            </div>
+                            <div class="space-y-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="text-sm font-bold uppercase tracking-tight text-[var(--color-text)]">
+                                        Pigeon Stuffed with Spiced Freekeh
+                                    </h3>
+                                </div>
+                                <div class="flex items-baseline gap-2">
+                                    <p class="text-xs font-semibold text-[var(--color-primary)]">
+                                        270.00 EGP
+                                    </p>
+                                </div>
+                                <div class="text-[11px] text-[var(--color-text-muted)] space-y-0.5 pt-0.5">
+                                    <p>
+                                        <span class="font-medium text-[var(--color-text)]">Stuffing:</span> <span>Spiced Freekeh</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3 flex items-center justify-center gap-2 w-full sm:w-auto">
+                            <form method="post" action="/Cart/UpdateQuantity" class="flex items-center border border-[var(--color-border)] rounded-full bg-white dark:bg-neutral-800 p-1">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="itemId" value="2" />
+                                <input type="hidden" name="quantity" :value="qty2" />
+                                <button type="button"
+                                        @@click="qty2 = Math.max(1, qty2 - 1)"
+                                        class="w-7 h-7 rounded-full flex items-center justify-center font-bold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer">−</button>
+                                <span class="w-8 text-center text-xs font-bold" x-text="qty2">1</span>
+                                <button type="button"
+                                        @@click="qty2 = qty2 + 1"
+                                        class="w-7 h-7 rounded-full flex items-center justify-center font-bold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer">+</button>
+                            </form>
+                            <form method="post" action="/Cart/Remove">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="itemId" value="2" />
+                                <button type="button"
+                                        @@click="showUndoBanner = true"
+                                        class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                        title="Remove item">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="sm:col-span-3 sm:text-end w-full sm:w-auto text-end">
+                            <span class="text-base font-bold text-[var(--color-text)]"
+                                  x-text="(qty2 * 270).toFixed(2) + ' EGP'">
+                                270.00 EGP
+                            </span>
+                        </div>
+                    </div>
+                    <!-- END SAMPLE -->
+                </div>
+            </div>
+
+            <!-- Bottom Summary Panel -->
+            <!-- TODO(backend): Bind Cart.Subtotal, DeliveryFee (0.00 EGP for pickup), EstimatedTaxes, and GrandTotal from Cart session/entity -->
+            <div class="flex flex-col sm:flex-row justify-end items-end gap-6 pt-4">
+                <div class="w-full sm:w-80 space-y-4 text-end">
+                    <div class="space-y-1">
+                        <div class="flex items-baseline justify-between text-sm">
+                            <span class="text-[var(--color-text-muted)] font-semibold uppercase">Subtotal:</span>
+                            <span class="text-2xl font-bold text-[var(--color-primary)]"
+                                  x-text="subtotal.toFixed(2) + ' EGP'">510.00 EGP</span>
+                        </div>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">
+                            Pickup directly at kitchen counter. Loyalty points discount applied at checkout.
+                        </p>
+                    </div>
+
+                    <!-- Checkout Button with disabled check (SCRUM-204) -->
+                    <div>
+                        <a href="/Checkout"
+                           :class="showDemoUnavailable ? 'opacity-50 cursor-not-allowed bg-neutral-400 dark:bg-neutral-700 pointer-events-none' : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] active:scale-[0.98]'"
+                           class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-sm md:text-base px-8 py-3.5 gap-2.5 shadow-md text-white">
+                            <span>Check Out</span>
+                        </a>
+                        <p x-show="showDemoUnavailable" x-cloak class="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1.5 text-center">
+                            Checkout is disabled because your cart contains unavailable dishes
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
