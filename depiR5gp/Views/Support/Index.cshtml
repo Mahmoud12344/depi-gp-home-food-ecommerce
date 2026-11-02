@@ -1,6 +1,320 @@
 @{
-    ViewData["Title"] = "Support & FAQs";
+    ViewData["Title"] = "My Support Cases";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Support/Index.cshtml -->
+<!-- Source: Views/Customer/Partials/_MySupportCases.cshtml (Subtasks SCRUM-409 & SCRUM-397) & Views/Support/Partials/_ContactSupportModal.cshtml (SCRUM-389) -->
+<!-- TODO(backend): GET /Support; bind Customer Support Tickets and active thread messages -->
+
+<div x-data="{
+    selectedCaseId: 'case-1',
+    contactSupportOpen: false
+}" class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="/Customer/Profile" class="hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">My Account</a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">My Support Cases</span>
+            </nav>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        My Support Cases
+                    </h1>
+                    <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                        Review status updates and chat directly with customer support agents
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <a href="/Support/AgentDesk"
+                       class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] transition-colors">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
+                        <span>Support Agent Desk</span>
+                    </a>
+                    <button type="button"
+                            @@click="contactSupportOpen = true"
+                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
+                        <span>Open New Ticket</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Cases List Column -->
+            <div class="lg:col-span-5 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-4 sm:p-5 shadow-xs space-y-3">
+                <div class="flex items-center justify-between px-2">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Submitted Inquiries</span>
+                    <a href="/Support/NewCase" class="text-[11px] font-bold text-[var(--color-primary)] hover:underline">+ New Case Page</a>
+                </div>
+
+                <div class="space-y-2">
+                    <!-- BEGIN SAMPLE: Unrolled 2 Support Cases from _MySupportCases.cshtml -->
+                    <!-- Case 1: CASE-7701 (In Progress) -->
+                    <div @@click="selectedCaseId = 'case-1'"
+                         class="p-4 rounded-2xl cursor-pointer transition-all border text-xs space-y-1.5"
+                         :class="selectedCaseId === 'case-1' ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-xs' : 'border-[var(--color-border-light)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold uppercase tracking-wide">CASE-7701</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-200">
+                                In Progress
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-xs truncate">Late pickup readiness notification</h4>
+                        <div class="flex items-center justify-between text-[10px] text-[var(--color-text-muted)] pt-1">
+                            <span>Order Pickup Delay</span>
+                            <span>Today, 12:40 PM</span>
+                        </div>
+                    </div>
+
+                    <!-- Case 2: CASE-7650 (Closed) -->
+                    <div @@click="selectedCaseId = 'case-2'"
+                         class="p-4 rounded-2xl cursor-pointer transition-all border text-xs space-y-1.5"
+                         :class="selectedCaseId === 'case-2' ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-xs' : 'border-[var(--color-border-light)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold uppercase tracking-wide">CASE-7650</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-300">
+                                Closed
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-xs truncate">Inquiry on baladi ghee sourcing</h4>
+                        <div class="flex items-center justify-between text-[10px] text-[var(--color-text-muted)] pt-1">
+                            <span>Food Quality</span>
+                            <span>Oct 15, 2026</span>
+                        </div>
+                    </div>
+                    <!-- END SAMPLE -->
+                </div>
+            </div>
+
+            <!-- Thread Conversation Details Column -->
+            <div class="lg:col-span-7 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+                <!-- Case 1 Thread (In Progress) -->
+                <div x-show="selectedCaseId === 'case-1'" class="space-y-6">
+                    <div class="border-b border-[var(--color-border-light)] pb-4 space-y-2">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-base text-[var(--color-text)]">CASE-7701: Late pickup readiness notification</span>
+                                </div>
+                                <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                                    <span>Category:</span>
+                                    <strong class="text-[var(--color-text)]">Order Pickup Delay</strong> ·
+                                    <span>Order Ref:</span>
+                                    <span class="font-medium text-[var(--color-primary)]">HC-2026-9041</span>
+                                </p>
+                            </div>
+                            <span class="text-xs px-3 py-1 rounded-full font-bold border bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-200">
+                                In Progress
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Messages Thread -->
+                    <div class="space-y-3.5 max-h-80 overflow-y-auto pe-1">
+                        <!-- Message 1: Customer -->
+                        <div class="p-3.5 rounded-2xl text-xs space-y-1.5 max-w-[85%] ms-auto bg-[var(--color-primary)] text-white shadow-2xs">
+                            <div class="flex items-center justify-between gap-4 text-[10px] font-semibold text-white/80">
+                                <span>You (Customer)</span>
+                                <span>12:40 PM</span>
+                            </div>
+                            <p class="leading-relaxed">I arrived at Degla villa at 2:00 PM as scheduled, but had to wait 15 extra minutes on the patio while the chef wrapped the duck.</p>
+                        </div>
+
+                        <!-- Message 2: Support -->
+                        <div class="p-3.5 rounded-2xl text-xs space-y-1.5 max-w-[85%] me-auto bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] text-[var(--color-text)]">
+                            <div class="flex items-center justify-between gap-4 text-[10px] font-semibold text-[var(--color-primary)]">
+                                <span>Layla Sherif (HomeChef Support)</span>
+                                <span>12:45 PM</span>
+                            </div>
+                            <p class="leading-relaxed">We reached out to Chef Amina. She extends her sincere apologies and added complimentary hot feteer with honey to your package.</p>
+                        </div>
+                    </div>
+
+                    <!-- Follow-up reply box -->
+                    <!-- TODO(backend): POST /Support/CaseDetails (caseId=case-1, replyText) -->
+                    <form method="post" action="/Support/CaseDetails" class="pt-2 border-t border-[var(--color-border-light)] flex gap-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="caseId" value="case-1" />
+                        <input type="text"
+                               name="replyText"
+                               required
+                               placeholder="Type your follow-up reply to support agent..."
+                               class="flex-1 text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                        <button type="submit"
+                                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#send"></use></svg>
+                            <span>Reply</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Case 2 Thread (Closed) -->
+                <div x-cloak x-show="selectedCaseId === 'case-2'" class="space-y-6">
+                    <div class="border-b border-[var(--color-border-light)] pb-4 space-y-2">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-base text-[var(--color-text)]">CASE-7650: Inquiry on baladi ghee sourcing</span>
+                                </div>
+                                <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                                    <span>Category:</span>
+                                    <strong class="text-[var(--color-text)]">Food Quality</strong> ·
+                                    <span>Order Ref:</span>
+                                    <span class="font-medium text-[var(--color-primary)]">None</span>
+                                </p>
+                            </div>
+                            <span class="text-xs px-3 py-1 rounded-full font-bold border bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-300">
+                                Closed
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3.5 max-h-80 overflow-y-auto pe-1">
+                        <div class="p-3.5 rounded-2xl text-xs space-y-1.5 max-w-[85%] ms-auto bg-[var(--color-primary)] text-white shadow-2xs">
+                            <div class="flex items-center justify-between gap-4 text-[10px] font-semibold text-white/80">
+                                <span>You (Customer)</span>
+                                <span>Oct 15, 10:00 AM</span>
+                            </div>
+                            <p class="leading-relaxed">Are all chefs required to use 100% natural butter without hydrogenated oils?</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl text-xs space-y-1.5 max-w-[85%] me-auto bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] text-[var(--color-text)]">
+                            <div class="flex items-center justify-between gap-4 text-[10px] font-semibold text-[var(--color-primary)]">
+                                <span>Karim (Quality Assurance Desk)</span>
+                                <span>Oct 15, 10:30 AM</span>
+                            </div>
+                            <p class="leading-relaxed">Yes! Every domestic kitchen on our platform undergoes surprise ingredient checks and is bound by our pure baladi butter charter.</p>
+                        </div>
+                    </div>
+
+                    <!-- Closed Case Banner (SCRUM-397) -->
+                    <div class="bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 text-xs text-neutral-700 dark:text-neutral-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span>This support ticket is resolved and closed. Replies are locked.</span>
+                        </div>
+                        <button type="button"
+                                @@click="contactSupportOpen = true"
+                                class="text-xs font-bold text-[var(--color-primary)] hover:underline shrink-0 cursor-pointer">
+                            Open New Ticket
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Support Ticket Modal (from Views/Support/Partials/_ContactSupportModal.cshtml) -->
+    <div x-show="contactSupportOpen"
+         x-transition.opacity.duration.200ms
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+         style="display: none;"
+         role="dialog"
+         aria-modal="true">
+
+        <div @@click.away="contactSupportOpen = false"
+             x-show="contactSupportOpen"
+             x-transition.scale.origin.center.duration.200ms
+             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#help-circle"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[var(--color-text)]">
+                            Open Support Ticket
+                        </h3>
+                        <p class="text-xs text-[var(--color-text-muted)]">
+                            Our support desk responds promptly to assist with orders and inquiries
+                        </p>
+                    </div>
+                </div>
+                <button type="button"
+                        @@click="contactSupportOpen = false"
+                        class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <!-- TODO(backend): POST /Support/NewCase with subject, category, orderId, and message -->
+            <form method="post" action="/Support/NewCase" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Subject / Issue Summary
+                    </label>
+                    <input type="text"
+                           name="Subject"
+                           required
+                           minlength="5"
+                           placeholder="e.g. Order pickup delay at Degla Villa"
+                           class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Category
+                    </label>
+                    <select name="Category" required
+                            class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                        <option value="order_issue">Order Pickup or Readiness Delay</option>
+                        <option value="food_quality">Food Quality &amp; Packaging Condition</option>
+                        <option value="refund_payment">Payments, Card Reversals &amp; Wallet Refund</option>
+                        <option value="account">Account &amp; Verification</option>
+                        <option value="other">General Platform Inquiry</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        <span>Related Order Reference (Optional)</span>
+                        <span class="text-neutral-400 font-normal lowercase">(optional)</span>
+                    </label>
+                    <select name="OrderId" class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                        <option value="">None / General Inquiry (No specific order)</option>
+                        <option value="ord-101" selected>Order #HC-2026-9041 - Amina's Heritage Kitchen (240.00 EGP)</option>
+                        <option value="ord-102">Order #HC-2026-8890 - Om Nabil Casseroles (310.00 EGP)</option>
+                        <option value="ord-100">Order #HC-2026-9150 - Amina's Heritage Kitchen (285.00 EGP)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                        Detailed Message
+                    </label>
+                    <textarea rows="4"
+                              name="Message"
+                              required
+                              minlength="10"
+                              placeholder="Provide details of your experience, counter location, or questions so our team can immediately help you..."
+                              class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                    <button type="button"
+                            @@click="contactSupportOpen = false"
+                            class="px-4 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-[var(--color-text)]">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+                        Submit Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

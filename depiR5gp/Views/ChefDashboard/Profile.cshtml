@@ -1,6 +1,114 @@
 @{
-    ViewData["Title"] = "Kitchen Profile";
+    ViewData["Title"] = "Kitchen Profile - Chef Portal";
+    ViewData["ActiveChefTab"] = "profile";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/ChefDashboard/Profile.cshtml -->
+<!-- Source: Views/Chefs/Partials/_EditChefProfileModal.cshtml (SCRUM-30) -->
+<!-- TODO(backend): Bind ChefProfileEditModel and persist updates via POST /ChefDashboard/Profile -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs">
+            <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] mb-6">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+                            Edit Chef &amp; Kitchen Profile
+                        </h3>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">
+                            Update kitchen bio, operating schedule, and pickup counter location
+                        </p>
+                    </div>
+                </div>
+                <a href="/Chefs/Details" class="text-xs font-bold text-[var(--color-primary)] hover:underline">View Public Kitchen Page →</a>
+            </div>
+
+            <!-- TODO(backend): POST /ChefDashboard/Profile with ChefProfileEditModel, validate authorized chef claim, save bio and schedule -->
+            <form method="post" action="/ChefDashboard/Profile" class="space-y-6 text-xs">
+                @Html.AntiForgeryToken()
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Kitchen Name (English)</label>
+                        <input type="text" name="KitchenName" required value="Amina's Heritage Kitchen"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Kitchen Name (Arabic)</label>
+                        <input type="text" name="KitchenNameAr" required value="مطبخ أمينة التراثي"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Chef Bio &amp; Culinary Heritage (English)</label>
+                        <textarea rows="3" name="Bio" required
+                                  class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed">Cooking traditional Egyptian baladi recipes inherited from my grandmother in Upper Egypt, using 100% pure baladi ghee and farm-fresh poultry.</textarea>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Chef Bio (Arabic)</label>
+                        <textarea rows="3" name="BioAr" required
+                                  class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed">أطبخ أشهى الأكلات والوصفات المصرية التراثية المتوارثة عن جدتي من صعيد مصر، بالسمن البلدي الفلاحي والطيور الطازجة يومياً.</textarea>
+                    </div>
+                </div>
+
+                <!-- Photo URL & Pickup Area -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Pickup Neighborhood Area (Public)</label>
+                        <select name="PickupArea"
+                                class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
+                            <option value="Maadi" selected>Maadi (المعادي)</option>
+                            <option value="Zamalek">Zamalek (الزمالك)</option>
+                            <option value="New Cairo">New Cairo (القاهرة الجديدة)</option>
+                            <option value="Nasr City">Nasr City (مدينة نصر)</option>
+                            <option value="Heliopolis">Heliopolis (مصر الجديدة)</option>
+                            <option value="Dokki">Dokki (الدقي)</option>
+                            <option value="Mohandessin">Mohandessin (المهندسين)</option>
+                            <option value="6th of October">6th of October (السادس من أكتوبر)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Profile Photo URL</label>
+                        <input type="url" name="AvatarUrl" required value="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=300&auto=format&fit=crop&q=80"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                </div>
+
+                <!-- Exact Pickup Street Address -->
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">
+                        Exact Pickup Counter Address (Disclosed to customer after order confirmation)
+                    </label>
+                    <input type="text" name="Address" required value="Bldg 14, Road 9, Degla, Maadi, Cairo (Ground Floor Gate)"
+                           class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+                        Home kitchen privacy guard: Only neighborhood area is public before ordering.
+                    </p>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+                    <a href="/ChefDashboard"
+                       class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider transition-colors cursor-pointer">
+                        <span>Cancel</span>
+                    </a>
+                    <button type="submit"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                        <span>Save Profile Changes</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

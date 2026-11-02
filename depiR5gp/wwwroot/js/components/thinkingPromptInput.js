@@ -26,7 +26,7 @@ window.initThinkingPrompt = function (container, options = {}) {
       stepItem.classList.add('opacity-100', 'text-[var(--color-primary)]');
       const icon = stepItem.querySelector('[data-step-icon]');
       if (icon) {
-        icon.innerHTML = '<svg class="w-3.5 h-3.5 text-emerald-500 shrink-0"><use href="/icons/sprite.svg#check"></use></svg>';
+        icon.innerHTML = '<svg class="w-3.5 h-3.5 text-emerald-500 shrink-0"><use href="#check"></use></svg>';
       }
     }
 

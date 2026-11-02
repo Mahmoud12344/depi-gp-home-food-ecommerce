@@ -1,6 +1,187 @@
 @{
-    ViewData["Title"] = "Messages";
+    ViewData["Title"] = "Live Messages & Inbox";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Chat/Index.cshtml -->
+<!-- Source: Views/Shared/Partials/_ChatInboxPage.cshtml (Subtasks SCRUM-308, SCRUM-294 & SCRUM-299) -->
+<!-- TODO(backend): Connect to SignalR ChatHub; GET /Chat; POST /Chat/Conversation -->
+
+<div x-data="{ activeConvId: 'conv-1' }" class="w-full pb-24">
+
+    <!-- Breadcrumb banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">Live Messages &amp; Inbox</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                Direct Kitchen &amp; Support Inbox
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                Communicate directly with domestic chefs for order customization, pickup directions, and live kitchen updates.
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
+
+            <!-- Left Panel: Conversations Sidebar (4 cols) -->
+            <div class="lg:col-span-4 border-e border-[var(--color-border)] flex flex-col bg-[var(--color-card-bg)]">
+                <!-- Search header (plain GET form) -->
+                <div class="p-4 border-b border-[var(--color-border-light)]">
+                    <form method="get" action="/Chat" class="relative">
+                        <svg class="w-4 h-4 text-neutral-400 absolute start-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
+                        <input type="text"
+                               name="q"
+                               placeholder="Search conversations..."
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full ps-9 pe-3 py-2 text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    </form>
+                </div>
+
+                <!-- Conversation list -->
+                <div class="flex-1 overflow-y-auto divide-y divide-[var(--color-border-light)]">
+                    <!-- BEGIN SAMPLE: Unrolled 3 Conversations from _ChatInboxPage.cshtml -->
+                    <!-- Conversation 1: Chef Amina Mansour -->
+                    <a href="/Chat/Conversation?id=conv-1"
+                       @@click.prevent="activeConvId = 'conv-1'"
+                       class="p-4 cursor-pointer transition-colors flex items-start gap-3 text-xs"
+                       :class="activeConvId === 'conv-1' ? 'bg-[var(--color-primary-light)]' : 'hover:bg-[var(--color-surface-subtle)]'">
+                        <div class="relative shrink-0">
+                            <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=200&auto=format&fit=crop&q=80" alt="Chef Amina Mansour" class="w-11 h-11 rounded-full object-cover border border-[var(--color-border)]" />
+                            <span class="absolute bottom-0 end-0 w-3 h-3 rounded-full border-2 border-white dark:border-neutral-900 bg-emerald-500"></span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-1 mb-0.5">
+                                <h4 class="font-bold text-[var(--color-text)] truncate">Chef Amina Mansour</h4>
+                                <span class="text-[10px] text-[var(--color-text-muted)] shrink-0">14:32</span>
+                            </div>
+                            <p class="text-[11px] text-[var(--color-primary)] font-medium truncate mb-1">Amina's Heritage Kitchen</p>
+                            <p class="text-[11px] text-[var(--color-text-muted)] line-clamp-1">Ta'sha is bubbling in the pot, your order will be ready at 15:45!</p>
+                        </div>
+                        <span class="w-5 h-5 rounded-full bg-[var(--color-primary)] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                            <span>2</span>
+                        </span>
+                    </a>
+
+                    <!-- Conversation 2: Om Nabil -->
+                    <a href="/Chat/Conversation?id=conv-2"
+                       @@click.prevent="activeConvId = 'conv-2'"
+                       class="p-4 cursor-pointer transition-colors flex items-start gap-3 text-xs"
+                       :class="activeConvId === 'conv-2' ? 'bg-[var(--color-primary-light)]' : 'hover:bg-[var(--color-surface-subtle)]'">
+                        <div class="relative shrink-0">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80" alt="Om Nabil" class="w-11 h-11 rounded-full object-cover border border-[var(--color-border)]" />
+                            <span class="absolute bottom-0 end-0 w-3 h-3 rounded-full border-2 border-white dark:border-neutral-900 bg-neutral-400"></span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-1 mb-0.5">
+                                <h4 class="font-bold text-[var(--color-text)] truncate">Om Nabil</h4>
+                                <span class="text-[10px] text-[var(--color-text-muted)] shrink-0">Yesterday</span>
+                            </div>
+                            <p class="text-[11px] text-[var(--color-primary)] font-medium truncate mb-1">Om Nabil Casseroles</p>
+                            <p class="text-[11px] text-[var(--color-text-muted)] line-clamp-1">Glad you enjoyed the caramelized oxtail! Blessings to your home.</p>
+                        </div>
+                    </a>
+
+                    <!-- Conversation 3: HomeChef Support Desk -->
+                    <a href="/Chat/Conversation?id=conv-3"
+                       @@click.prevent="activeConvId = 'conv-3'"
+                       class="p-4 cursor-pointer transition-colors flex items-start gap-3 text-xs"
+                       :class="activeConvId === 'conv-3' ? 'bg-[var(--color-primary-light)]' : 'hover:bg-[var(--color-surface-subtle)]'">
+                        <div class="relative shrink-0">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80" alt="HomeChef Support Desk" class="w-11 h-11 rounded-full object-cover border border-[var(--color-border)]" />
+                            <span class="absolute bottom-0 end-0 w-3 h-3 rounded-full border-2 border-white dark:border-neutral-900 bg-emerald-500"></span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-1 mb-0.5">
+                                <h4 class="font-bold text-[var(--color-text)] truncate">HomeChef Support Desk</h4>
+                                <span class="text-[10px] text-[var(--color-text-muted)] shrink-0">Oct 21</span>
+                            </div>
+                            <p class="text-[11px] text-[var(--color-primary)] font-medium truncate mb-1">Quality &amp; Delivery Assistance</p>
+                            <p class="text-[11px] text-[var(--color-text-muted)] line-clamp-1">Your refund claim has been verified and processed.</p>
+                        </div>
+                    </a>
+                    <!-- END SAMPLE -->
+                </div>
+            </div>
+
+            <!-- Right Panel: Conversation Thread & Message Input (8 cols) -->
+            <div class="lg:col-span-8 flex flex-col bg-[var(--color-surface-subtle)]/40">
+                <!-- Thread Header -->
+                <div class="p-4 sm:px-6 bg-[var(--color-card-bg)] border-b border-[var(--color-border)] flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=200&auto=format&fit=crop&q=80" alt="Chef Amina Mansour" class="w-10 h-10 rounded-full object-cover border border-[var(--color-border)]" />
+                            <span class="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-neutral-900 bg-emerald-500"></span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-sm text-[var(--color-text)]">Chef Amina Mansour</h3>
+                                <span class="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Online</span>
+                            </div>
+                            <p class="text-xs text-[var(--color-text-muted)]">Amina's Heritage Kitchen</p>
+                        </div>
+                    </div>
+
+                    <!-- Order link badge -->
+                    <a href="/Orders/Track"
+                       class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-surface-subtle)] hover:bg-neutral-200 dark:hover:bg-neutral-800 border border-[var(--color-border)] text-[11px] font-semibold text-[var(--color-primary)] transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#receipt"></use></svg>
+                        <span>Ref: #HC-2026-9041</span>
+                    </a>
+                </div>
+
+                <!-- Messages Stream -->
+                <div class="flex-1 p-4 sm:p-6 space-y-3.5 overflow-y-auto max-h-[420px]">
+                    <!-- BEGIN SAMPLE: Unrolled 3 Messages from _ChatInboxPage.cshtml -->
+                    <div class="flex flex-col text-xs items-start">
+                        <div class="p-3.5 rounded-2xl max-w-md shadow-2xs space-y-1 bg-[var(--color-card-bg)] text-[var(--color-text)] border border-[var(--color-border-light)] rounded-es-xs">
+                            <p class="leading-relaxed">Hello Tamer! Welcome to Amina's Heritage Kitchen. We started browning your Baladi duck.</p>
+                            <span class="text-[9px] block text-end text-[var(--color-text-muted)]">14:20</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col text-xs items-end">
+                        <div class="p-3.5 rounded-2xl max-w-md shadow-2xs space-y-1 bg-[var(--color-primary)] text-white rounded-ee-xs">
+                            <p class="leading-relaxed">Thank you Chef Amina! Please make sure the ta'sheya garlic is well browned.</p>
+                            <span class="text-[9px] block text-end text-white/70">14:25</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col text-xs items-start">
+                        <div class="p-3.5 rounded-2xl max-w-md shadow-2xs space-y-1 bg-[var(--color-card-bg)] text-[var(--color-text)] border border-[var(--color-border-light)] rounded-es-xs">
+                            <p class="leading-relaxed">Ta'sha is bubbling in the pot, your order will be ready at 15:45!</p>
+                            <span class="text-[9px] block text-end text-[var(--color-text-muted)]">14:32</span>
+                        </div>
+                    </div>
+                    <!-- END SAMPLE -->
+                </div>
+
+                <!-- Message Input Bar -->
+                <!-- TODO(backend): POST /Chat/Conversation or SignalR ChatHub.SendMessage -->
+                <form method="post" action="/Chat/Conversation" class="p-4 bg-[var(--color-card-bg)] border-t border-[var(--color-border)] flex items-center gap-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="conversationId" value="conv-1" />
+                    <button type="button"
+                            class="p-2.5 rounded-full text-neutral-400 hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#paperclip"></use></svg>
+                    </button>
+                    <input type="text"
+                           name="messageText"
+                           required
+                           placeholder="Type a message to the kitchen..."
+                           class="flex-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full px-4 py-2.5 text-xs text-[var(--color-text)] placeholder:text-neutral-500 focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5 shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#send"></use></svg>
+                        <span>Send</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,6 +1,161 @@
 @{
-    ViewData["Title"] = "Add New Dish";
+    ViewData["Title"] = "Add New Dish - Menu Management";
+    ViewData["ActiveChefTab"] = "menu";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/MenuManagement/Create.cshtml -->
+<!-- Source: Views/Chefs/Partials/_AddDishModal.cshtml (SCRUM-36, SCRUM-61) -->
+<!-- TODO(backend): POST /MenuManagement/Create with CreateDishDto, handle image upload, store preset options in DishOptionGroups -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false,
+    dishForm: {
+        name: '',
+        nameAr: '',
+        description: '',
+        descriptionAr: '',
+        category: 'Traditional Egyptian',
+        price: 180,
+        prepTime: 45,
+        image: 'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80',
+        isAvailable: true,
+        optionGroups: [
+            {
+                title: 'Rice Choice',
+                type: 'radio',
+                required: true,
+                options: [
+                    { name: 'Vermicelli Rice (أرز بالشعرية)', extraPrice: 0 },
+                    { name: 'Egyptian White Rice (أرز مصري مفلفل)', extraPrice: 0 }
+                ]
+            }
+        ]
+    },
+    addOptionGroup() {
+        this.dishForm.optionGroups.push({
+            title: '',
+            type: 'radio',
+            required: false,
+            options: [{ name: '', extraPrice: 0 }]
+        });
+    },
+    removeOptionGroup(idx) {
+        this.dishForm.optionGroups.splice(idx, 1);
+    },
+    addOptionItem(gIdx) {
+        this.dishForm.optionGroups[gIdx].options.push({ name: '', extraPrice: 0 });
+    },
+    removeOptionItem(gIdx, oIdx) {
+        this.dishForm.optionGroups[gIdx].options.splice(oIdx, 1);
+    }
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs">
+            <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] mb-6">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+                            Add New Dish to Kitchen Menu
+                        </h3>
+                        <p class="text-[11px] text-[var(--color-text-muted)]">
+                            Configure dish titles, pricing, baladi ingredients, and preset customization options
+                        </p>
+                    </div>
+                </div>
+                <a href="/MenuManagement" class="text-xs font-bold text-[var(--color-primary)] hover:underline">← Back to Menu</a>
+            </div>
+
+            <form method="post" action="/MenuManagement/Create" class="space-y-6 text-xs">
+                @Html.AntiForgeryToken()
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Title (English)</label>
+                        <input type="text" name="Name" required x-model="dishForm.name" placeholder="e.g. Stuffed Pigeon with Spiced Freekeh"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Title (Arabic)</label>
+                        <input type="text" name="NameAr" required x-model="dishForm.nameAr" placeholder="مثال: حمام محشي بالفريك البلدي المحمر"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Description &amp; Heritage Spices (English)</label>
+                        <textarea rows="2" name="Description" required x-model="dishForm.description" placeholder="Slow-roasted domestic pigeon seasoned with coriander..."
+                                  class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Description &amp; Heritage Spices (Arabic)</label>
+                        <textarea rows="2" name="DescriptionAr" required x-model="dishForm.descriptionAr" placeholder="حمام بلدي محشو بالفريك المفلفل مع سمن بلدي..."
+                                  class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Category</label>
+                        <select name="Category" x-model="dishForm.category"
+                                class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
+                            <option value="Traditional Egyptian">Traditional Egyptian (أكلات مصرية أصيلة)</option>
+                            <option value="Tagines & Casseroles">Tagines &amp; Casseroles (طواجن فرن بلدي)</option>
+                            <option value="Stuffed & Mahshi">Stuffed &amp; Mahshi (محاشي ومحمرات)</option>
+                            <option value="Grills & Poultry">Grills &amp; Poultry (مشويات وطيور)</option>
+                            <option value="Bakery & Desserts">Bakery &amp; Desserts (فطير ومخبوزات وحلويات)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Base Price (EGP)</label>
+                        <input type="number" name="Price" step="5" min="10" required x-model.number="dishForm.price"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Prep Time (Minutes)</label>
+                        <input type="number" name="PrepTimeMinutes" step="5" min="15" max="300" required x-model.number="dishForm.prepTime" placeholder="45"
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                    <div class="sm:col-span-8">
+                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Photo URL</label>
+                        <input type="url" name="ImageUrl" required x-model="dishForm.image" placeholder="https://images.unsplash.com/..."
+                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    </div>
+                    <div class="sm:col-span-4 flex items-center justify-between sm:justify-start gap-3 sm:pt-6">
+                        <input type="hidden" name="IsAvailable" :value="dishForm.isAvailable" />
+                        <button type="button"
+                                @@click="dishForm.isAvailable = !dishForm.isAvailable"
+                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer"
+                                :class="dishForm.isAvailable ? 'bg-emerald-500' : 'bg-neutral-300 dark:bg-neutral-700'">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-xs"
+                                  :class="dishForm.isAvailable ? 'translate-x-6' : 'translate-x-1'"></span>
+                        </button>
+                        <span class="font-bold text-xs"
+                              :class="dishForm.isAvailable ? 'text-emerald-600' : 'text-neutral-400'"
+                              x-text="dishForm.isAvailable ? 'Available Immediately' : 'Currently Unavailable'">
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+                    <a href="/MenuManagement"
+                       class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider transition-colors cursor-pointer">
+                        <span>Cancel</span>
+                    </a>
+                    <button type="submit"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                        <span>Save &amp; Publish Dish</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

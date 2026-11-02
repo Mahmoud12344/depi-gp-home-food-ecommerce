@@ -1,6 +1,138 @@
 @{
     ViewData["Title"] = "Chef Dashboard";
+    ViewData["ActiveChefTab"] = "overview";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/ChefDashboard/Index.cshtml -->
+<!-- Source: home_chef/src/pages/ChefDashboardPage.tsx (Views/Chefs/Partials/_ChefDashboard.cshtml) -->
+<!-- TODO(backend): Bind ChefDashboardOverviewViewModel (ActiveOrders, ListedDishes, RecentReviews, WalletBalance) -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false,
+    rejectOrderModalOpen: false,
+    rejectingOrderNumber: 'HC-2026-9042',
+    rejectingCustomerName: 'Nour El-Din',
+    rejectionReason: 'capacity',
+    rejectionNote: ''
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- Active Kitchen Orders Section -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-bold uppercase text-[var(--color-text)]">Active Kitchen Queue (2)</h3>
+                <a href="/ChefDashboard/Orders" class="text-xs font-bold text-[var(--color-primary)] hover:underline">Manage All Live Orders →</a>
+            </div>
+
+            <!-- BEGIN SAMPLE: Unrolled 2 Live Orders from _ChefDashboard.cshtml -->
+            <!-- Order 1: #HC-2026-9041 (Preparing) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-9041</span>
+                        <span class="bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-100 text-xs px-2.5 py-1 rounded-full font-bold border">Preparing</span>
+                    </div>
+                    <h4 class="font-bold text-base text-[var(--color-text)]">Baladi Duck Molokhia with Vermicelli Rice (x1)</h4>
+                    <div class="flex flex-wrap items-center gap-4 text-xs text-[var(--color-text-muted)]">
+                        <span><strong class="text-[var(--color-text)]">Customer:</strong> <span>Tamer Zaki</span></span>
+                        <span>·</span>
+                        <span><strong class="text-[var(--color-text)]">Pickup Slot:</strong> <span>15:45 - 16:15</span></span>
+                        <span>·</span>
+                        <span class="font-bold text-[var(--color-primary)]">240.00 EGP</span>
+                    </div>
+                    <p class="text-xs bg-[var(--color-surface-subtle)] p-2.5 rounded-xl border border-[var(--color-border-light)] text-[var(--color-text-muted)]">
+                        <strong>Instructions:</strong> <span>Extra crispy duck skin please</span>
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <!-- TODO(backend): POST /ChefDashboard/Orders/UpdateStatus (orderId=ord-101, status=Ready) -->
+                    <form method="post" action="/ChefDashboard/Orders" class="inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="orderId" value="ord-101" />
+                        <input type="hidden" name="nextStatus" value="Ready" />
+                        <button type="submit"
+                                class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                            <span>Mark Ready for Pickup</span>
+                        </button>
+                    </form>
+                    <a href="/Chat/Conversation" class="border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all">
+                        <span>Chat Customer</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order 2: #HC-2026-9042 (Pending) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-9042</span>
+                        <span class="bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-100 text-xs px-2.5 py-1 rounded-full font-bold border">Pending</span>
+                    </div>
+                    <h4 class="font-bold text-base text-[var(--color-text)]">Oxtail Tagine with Baby Caramelized Onions (x1)</h4>
+                    <div class="flex flex-wrap items-center gap-4 text-xs text-[var(--color-text-muted)]">
+                        <span><strong class="text-[var(--color-text)]">Customer:</strong> <span>Nour El-Din</span></span>
+                        <span>·</span>
+                        <span><strong class="text-[var(--color-text)]">Pickup Slot:</strong> <span>16:30 - 17:00</span></span>
+                        <span>·</span>
+                        <span class="font-bold text-[var(--color-primary)]">310.00 EGP</span>
+                    </div>
+                    <p class="text-xs bg-[var(--color-surface-subtle)] p-2.5 rounded-xl border border-[var(--color-border-light)] text-[var(--color-text-muted)]">
+                        <strong>Instructions:</strong> <span>Mild garlic, extra bread</span>
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <div class="flex items-center gap-2">
+                        <button type="button"
+                                @@click="rejectOrderModalOpen = true"
+                                class="px-4 py-2.5 border border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-bold uppercase rounded-full transition-colors cursor-pointer">
+                            <span>Reject Order</span>
+                        </button>
+                        <!-- TODO(backend): POST /ChefDashboard/Orders/UpdateStatus (orderId=ord-102, status=Preparing) -->
+                        <form method="post" action="/ChefDashboard/Orders" class="inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderId" value="ord-102" />
+                            <input type="hidden" name="nextStatus" value="Preparing" />
+                            <button type="submit"
+                                    class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                                <span>Accept &amp; Start Cooking</span>
+                            </button>
+                        </form>
+                    </div>
+                    <a href="/Chat/Conversation" class="border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all">
+                        <span>Chat Customer</span>
+                    </a>
+                </div>
+            </div>
+            <!-- END SAMPLE -->
+        </div>
+
+        <!-- Quick Menu & Operations Links -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="/MenuManagement" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-5 shadow-xs transition-all flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold text-sm text-[var(--color-text)] uppercase">Menu &amp; Dishes (3)</h4>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-1">Manage pricing, availability, and option groups</p>
+                </div>
+                <svg class="w-5 h-5 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+            </a>
+            <a href="/ChefDashboard/Wallet" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-5 shadow-xs transition-all flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold text-sm text-[var(--color-text)] uppercase">Wallet &amp; Payouts</h4>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-1">4,820.00 EGP available via InstaPay</p>
+                </div>
+                <svg class="w-5 h-5 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+            </a>
+            <a href="/ChefDashboard/Reviews" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-5 shadow-xs transition-all flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold text-sm text-[var(--color-text)] uppercase">Customer Reviews (3)</h4>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-1">4.9 / 5.0 average verified rating</p>
+                </div>
+                <svg class="w-5 h-5 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+            </a>
+        </div>
+    </div>
 </div>
