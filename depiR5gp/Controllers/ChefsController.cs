@@ -30,6 +30,12 @@ public class ChefsController(IChefService chefService, ApplicationDbContext cont
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Onboarding(ChefApplicationViewModel model)
     {
+        // [SCRUM-345]   التحقق من موافقة الشيف على اتفاقية العمولة
+        if (!model.HasAcceptedTerms)
+        {
+            ModelState.AddModelError("HasAcceptedTerms", "You must accept the Commission Agreement to submit your application.");
+        }
+
         if (!ModelState.IsValid)
         {
             return View(model);
