@@ -1,4 +1,5 @@
 using depiR5gp.Data;
+using depiR5gp.Services.Implementation;
 using depiR5gp.Services.Implementations;
 using depiR5gp.Services.Interfaces;
 using Microsoft.Data.SqlClient;
@@ -45,6 +46,9 @@ builder.Services.AddScoped<IFileService, LocalFileService>();
 builder.Services.AddControllersWithViews();
 //chef Services
 builder.Services.AddScoped<depiR5gp.Services.Interfaces.IChefService, depiR5gp.Services.Implementations.ChefService>();
+
+//Admin Service
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 var app = builder.Build();
 
