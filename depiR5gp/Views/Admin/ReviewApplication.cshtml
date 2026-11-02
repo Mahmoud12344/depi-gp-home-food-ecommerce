@@ -1,0 +1,134 @@
+﻿@model depiR5gp.Models.Chefs.ChefProfile
+
+@{
+    ViewData["Title"] = "Review Chef Application";
+}
+
+<div class="container mt-5 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Review Application: <span class="text-primary">@Model.KitchenName</span></h2>
+        <a asp-action="Chefs" class="btn btn-outline-secondary">Back to List</a>
+    </div>
+    <hr />
+
+    <div class="row">
+        <!-- قسم بيانات الشيف والمستندات -->
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white fw-bold">
+                    Kitchen Details
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4 text-muted">Address</dt>
+                        <dd class="col-sm-8 fw-semibold">@Model.Address</dd>
+
+                        <dt class="col-sm-4 text-muted">Current Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-warning text-dark fs-6">@Model.Status</span>
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">Terms Accepted</dt>
+                        <dd class="col-sm-8">
+                            @(Model.HasAcceptedTerms ? "✅ Yes (15% Commission)" : "❌ No")
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white fw-bold">
+                    Uploaded Documents
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @{
+                            // تم تحديث الأسماء لتطابق الخصائص الموجودة في ChefDocument.cs
+                            var idDoc = Model.Documents?.FirstOrDefault(d => d.DocType == "IdDocument" || d.DocType == "ID");
+                            var healthDoc = Model.Documents?.FirstOrDefault(d => d.DocType == "HealthCertificate");
+                            var licenseDoc = Model.Documents?.FirstOrDefault(d => d.DocType == "CulinaryLicense");
+                        }
+
+                        <!-- ملف الهوية -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <span class="fw-semibold">National ID</span>
+                            @if (idDoc != null && !string.IsNullOrEmpty(idDoc.FileUrl))
+                            {
+                                <a href="~/uploads/chef_documents/@idDoc.FileUrl" target="_blank" class="btn btn-sm btn-primary">View Document</a>
+                            }
+                            else
+                            {
+                                <span class="text-danger small">Not uploaded</span>
+                            }
+                        </li>
+
+                        <!-- الشهادة الصحية -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <span class="fw-semibold">Health Certificate</span>
+                            @if (healthDoc != null && !string.IsNullOrEmpty(healthDoc.FileUrl))
+                            {
+                                <a href="~/uploads/chef_documents/@healthDoc.FileUrl" target="_blank" class="btn btn-sm btn-primary">View Document</a>
+                            }
+                            else
+                            {
+                                <span class="text-danger small">Not uploaded</span>
+                            }
+                        </li>
+
+                        <!-- الرخصة (اختياري) -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <span class="fw-semibold">Culinary License</span>
+                            @if (licenseDoc != null && !string.IsNullOrEmpty(licenseDoc.FileUrl))
+                            {
+                                <a href="~/uploads/chef_documents/@licenseDoc.FileUrl" target="_blank" class="btn btn-sm btn-primary">View Document</a>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">Not provided (Optional)</span>
+                            }
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم اتخاذ القرار (موافقة / رفض) -->
+        <div class="col-md-5">
+
+            <!-- فورم الموافقة -->
+            <div class="card border-success shadow-sm mb-4">
+                <div class="card-header bg-success text-white fw-bold">
+                    Approve Application
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Admin" asp-action="ApproveApplication" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label for="approvalNotes" class="form-label text-success fw-semibold">Approval Notes (Optional)</label>
+                            <textarea name="approvalNotes" id="approvalNotes" class="form-control" rows="2" placeholder="e.g., All documents are valid and verified."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 fw-bold">✔ Approve Kitchen</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- فورم الرفض -->
+            <div class="card border-danger shadow-sm">
+                <div class="card-header bg-danger text-white fw-bold">
+                    Reject Application
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Admin" asp-action="RejectApplication" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label for="rejectionReason" class="form-label text-danger fw-semibold">Rejection Reason (Required)</label>
+                            <textarea name="rejectionReason" id="rejectionReason" class="form-control" rows="2" required placeholder="e.g., The health certificate is expired."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100 fw-bold">✖ Reject Kitchen</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

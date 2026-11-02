@@ -9,7 +9,7 @@
     step: 'form',
     kitchenName: '@(Model?.KitchenName ?? "")',
     address: '@(Model?.Address ?? "")'
-}" class="w-full pb-24">
+    }" class="w-full pb-24">
 
     <!-- Breadcrumb banner -->
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
@@ -31,61 +31,6 @@
         </div>
     </div>
 
-<<<<<<< HEAD
-                        <!-- Kitchen Name -->
-                        <div class="mb-3">
-                            <label asp-for="KitchenName" class="form-label fw-semibold text-secondary">Kitchen Name</label>
-                            <input asp-for="KitchenName" class="form-control form-control-lg fs-6" placeholder="e.g. Mama's Kitchen" />
-                            <span asp-validation-for="KitchenName" class="text-danger small"></span>
-                        </div>
-
-                        <!-- Kitchen Address -->
-                        <div class="mb-3">
-                            <label asp-for="Address" class="form-label fw-semibold text-secondary">Kitchen Address</label>
-                            <textarea asp-for="Address" class="form-control form-control-lg fs-6" rows="3" placeholder="Enter full detailed kitchen address..."></textarea>
-                            <span asp-validation-for="Address" class="text-danger small"></span>
-                        </div>
-
-                        <!-- ID Document -->
-                        <div class="mb-3">
-                            <label asp-for="IdDocument" class="form-label fw-semibold text-secondary">ID Document (PDF / JPG / PNG)</label>
-                            <input asp-for="IdDocument" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
-                            <span asp-validation-for="IdDocument" class="text-danger small"></span>
-                        </div>
-
-                        <!-- Health Certificate -->
-                        <div class="mb-3">
-                            <label asp-for="HealthCertificate" class="form-label fw-semibold text-secondary">Health Certificate (PDF / JPG / PNG)</label>
-                            <input asp-for="HealthCertificate" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
-                            <span asp-validation-for="HealthCertificate" class="text-danger small"></span>
-                        </div>
-
-                        <!-- Culinary License -->
-                        <div class="mb-4">
-                            <label asp-for="CulinaryLicense" class="form-label fw-semibold text-secondary">Culinary License / Permit (Optional)</label>
-                            <input asp-for="CulinaryLicense" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
-                            <span asp-validation-for="CulinaryLicense" class="text-danger small"></span>
-                        </div>
-
-                        <!-- [SCRUM-346]   كارت اتفاقية العمولة ومربع موافقة الشروط -->
-                        <div class="card bg-light border-0 p-3 mb-4 rounded-3">
-                            <h6 class="fw-bold text-dark mb-2">Commission Agreement</h6>
-                            <p class="text-muted small mb-3">Please review and accept the commission agreement and terms before submitting your application.</p>
-                            <div class="form-check">
-                                <input asp-for="HasAcceptedTerms" class="form-check-input" type="checkbox" id="acceptTerms" />
-                                <label class="form-check-label text-dark small fw-medium" for="acceptTerms">
-                                    I agree to the Commission Agreement & Terms of Service
-                                </label>
-                            </div>
-                            <span asp-validation-for="HasAcceptedTerms" class="text-danger small"></span>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-dark btn-lg fs-6 fw-bold py-3 rounded-3">Submit Application</button>
-                            <a asp-controller="Home" asp-action="Index" class="btn btn-link text-decoration-none text-muted">Cancel</a>
-                        </div>
-                    </form>
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <!-- Application Status Tracker -->
         <div x-show="step === 'status'" x-cloak class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-8 sm:p-12 shadow-sm text-center space-y-6">
@@ -120,7 +65,8 @@
         <!-- Application Form -->
         <form x-show="step === 'form'"
               method="post"
-              action="/Chefs/Onboarding"
+              asp-action="Onboarding"
+              asp-controller="Chefs"
               enctype="multipart/form-data"
               class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-8 sm:p-10 shadow-sm space-y-8">
             @Html.AntiForgeryToken()
@@ -201,11 +147,11 @@
                 </div>
             </div>
 
-            <!-- Agreement Checkbox -->
+            <!-- [SCRUM-346] Agreement Checkbox -->
             <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-2">
                 <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox"
-                           required
+                    <input asp-for="HasAcceptedTerms"
+                           type="checkbox"
                            class="mt-1 w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)] border-neutral-300" />
                     <span class="text-[var(--color-text)] leading-relaxed">
                         <strong class="block">Agree to 15% Platform Commission &amp; Domestic Hygiene Terms</strong>
@@ -214,6 +160,7 @@
                         </span>
                     </span>
                 </label>
+                <span asp-validation-for="HasAcceptedTerms" class="text-rose-500 text-xs mt-1 block"></span>
             </div>
 
             <button type="submit"
