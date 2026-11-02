@@ -1,0 +1,68 @@
+@{
+    var activeTab = ViewData["ActiveAdminTab"] as string ?? "kpis";
+}
+<!-- Views/Admin/Partials/_AdminNav.cshtml -->
+<!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 87-155) -->
+
+<!-- Breadcrumb Banner -->
+<div class="relative bg-gradient-to-r from-[var(--color-primary-light)] via-[var(--color-bg)] to-[var(--color-primary-light)] dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 border-b border-[var(--color-border)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto space-y-2">
+        <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 flex-wrap">
+            <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                <span>Home</span>
+            </a>
+            <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="#chevron-right"></use>
+            </svg>
+            <span class="text-[var(--color-primary)] font-semibold">Admin Portal</span>
+        </nav>
+        <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+            Platform Administration &amp; Oversight
+        </h1>
+        <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-2xl">
+            Monitor KPIs, verify chef applications, and manage platform parameters
+        </p>
+    </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <!-- Navigation Tabs -->
+    <div class="flex border-b border-[var(--color-border)] gap-2 sm:gap-6 overflow-x-auto pb-1">
+        <a href="/Admin"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "kpis" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Platform KPIs &amp; Balances
+        </a>
+
+        <a href="/Admin/Chefs"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "applications" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            <span>Chef Applications</span>
+            <span>(1)</span>
+        </a>
+
+        <a href="/Admin/Users"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "users" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            User Accounts
+        </a>
+
+        <a href="/Admin/Orders"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "orders" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Order Settlements
+        </a>
+
+        <a href="/Admin/Payouts"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "payouts" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Cash &amp; Payouts
+        </a>
+
+        <a href="/Admin/Reviews"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "reviews" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Review Moderation
+        </a>
+
+        <a href="/Admin/Settings"
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "settings" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+            Platform Settings &amp; AI FAQs
+        </a>
+    </div>
+</div>

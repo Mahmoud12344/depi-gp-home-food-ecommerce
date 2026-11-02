@@ -1,0 +1,118 @@
+@{
+    ViewData["Title"] = "Wallet & Payout Ledger - Chef Portal";
+    ViewData["ActiveChefTab"] = "wallet";
+}
+<!-- Views/ChefDashboard/Wallet.cshtml -->
+<!-- Source: home_chef/src/pages/ChefDashboardPage.tsx (Views/Chefs/Partials/_ChefDashboard.cshtml lines 515-585) -->
+<!-- Backlog Subtasks: SCRUM-106, SCRUM-511 -->
+<!-- TODO(backend): Add Wallet() action to ChefDashboardController and bind Model.AvailableBalance, Model.CommissionDeducted, Model.Iban, and Model.WalletLedger -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <!-- TAB 5: Wallet & Payout Ledger (SCRUM-106, SCRUM-511) -->
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block">Available Balance</span>
+                    <strong class="text-2xl text-[var(--color-primary)] block mt-1">4,820.00 EGP</strong>
+                    <span class="text-[11px] text-emerald-600 font-semibold mt-1 block">Ready for Instant InstaPay Payout</span>
+                </div>
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block">Commission Deducted (15%)</span>
+                    <strong class="text-2xl text-[var(--color-text)] block mt-1">850.50 EGP</strong>
+                    <span class="text-[11px] text-[var(--color-text-muted)] mt-1 block">Current month platform operations</span>
+                </div>
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase block">Registered IBAN / InstaPay</span>
+                    <strong class="text-sm text-[var(--color-text)] block mt-2 font-mono">EG890002000100000000012345678</strong>
+                    <span class="text-[11px] text-[var(--color-text-muted)] mt-1 block">Verified Domestic Account</span>
+                </div>
+            </div>
+
+            <!-- Instant Payout Trigger -->
+            <!-- TODO(backend): POST /ChefDashboard/RequestPayout to initiate InstaPay transfer -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h4 class="font-bold uppercase text-[var(--color-text)] text-sm">Request Balance Payout</h4>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Dispatches instant electronic transfer via InstaPay (0 fees).</p>
+                </div>
+                <form method="post" action="/ChefDashboard/Wallet">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                        <span>Transfer Balance Now</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Financial Transaction Ledger Table (SCRUM-511) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs space-y-4">
+                <h4 class="font-bold uppercase text-[var(--color-text)] text-sm">
+                    Financial Transaction Ledger
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-start">
+                        <thead>
+                            <tr class="border-b border-[var(--color-border)] text-[var(--color-text-muted)] font-bold uppercase text-[10px]">
+                                <th class="pb-3 text-start">Date &amp; Time</th>
+                                <th class="pb-3 text-start">Reference #</th>
+                                <th class="pb-3 text-start">Type</th>
+                                <th class="pb-3 text-end">Gross (EGP)</th>
+                                <th class="pb-3 text-end">Commission (15%)</th>
+                                <th class="pb-3 text-end">Net (EGP)</th>
+                                <th class="pb-3 text-end">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--color-border-light)] font-medium">
+                            <!-- BEGIN SAMPLE: Unrolled 4 Ledger Rows from _ChefDashboard.cshtml -->
+                            <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                                <td class="py-3 text-[var(--color-text-muted)]">2026-10-23 18:30</td>
+                                <td class="py-3 font-bold text-[var(--color-primary)]">HC-2026-8840</td>
+                                <td class="py-3 text-[var(--color-text)]">Order Credit (+85%)</td>
+                                <td class="py-3 text-end">190.00</td>
+                                <td class="py-3 text-end text-neutral-400">-28.50</td>
+                                <td class="py-3 text-end font-bold text-emerald-600">+161.50</td>
+                                <td class="py-3 text-end font-bold text-[var(--color-text)]">4820.00 EGP</td>
+                            </tr>
+                            <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                                <td class="py-3 text-[var(--color-text-muted)]">2026-10-22 14:15</td>
+                                <td class="py-3 font-bold text-[var(--color-primary)]">HC-2026-8812</td>
+                                <td class="py-3 text-[var(--color-text)]">Order Credit (+85%)</td>
+                                <td class="py-3 text-end">160.00</td>
+                                <td class="py-3 text-end text-neutral-400">-24.00</td>
+                                <td class="py-3 text-end font-bold text-emerald-600">+136.00</td>
+                                <td class="py-3 text-end font-bold text-[var(--color-text)]">4658.50 EGP</td>
+                            </tr>
+                            <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                                <td class="py-3 text-[var(--color-text-muted)]">2026-10-21 11:00</td>
+                                <td class="py-3 font-bold text-[var(--color-primary)]">PAYOUT-2026-90</td>
+                                <td class="py-3 text-[var(--color-text)]">InstaPay Payout (Disbursed)</td>
+                                <td class="py-3 text-end">—</td>
+                                <td class="py-3 text-end text-neutral-400">—</td>
+                                <td class="py-3 text-end font-bold text-rose-600">-3500.00</td>
+                                <td class="py-3 text-end font-bold text-[var(--color-text)]">4522.50 EGP</td>
+                            </tr>
+                            <tr class="hover:bg-[var(--color-surface-subtle)] transition-colors">
+                                <td class="py-3 text-[var(--color-text-muted)]">2026-10-20 20:00</td>
+                                <td class="py-3 font-bold text-[var(--color-primary)]">REF-2026-092</td>
+                                <td class="py-3 text-[var(--color-text)]">Refund Reversal</td>
+                                <td class="py-3 text-end">-240.00</td>
+                                <td class="py-3 text-end text-neutral-400">--36.00</td>
+                                <td class="py-3 text-end font-bold text-rose-600">-204.00</td>
+                                <td class="py-3 text-end font-bold text-[var(--color-text)]">8022.50 EGP</td>
+                            </tr>
+                            <!-- END SAMPLE -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

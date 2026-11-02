@@ -1,6 +1,189 @@
 @{
-    ViewData["Title"] = "User Management";
+    ViewData["Title"] = "User Accounts - Admin Portal";
+    ViewData["ActiveAdminTab"] = "users";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Admin/Users.cshtml -->
+<!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 313-368 & 460-502) -->
+<!-- Backlog Subtask: SCRUM-361 -->
+<!-- TODO(backend): Loop through registered ApplicationUsers; bind Name, Email, Role, Status, and wire Suspend/Reactivate toggle -->
+
+<div x-data="{
+    showSuspendModal: false,
+    userToSuspendName: 'Tamer Zaki',
+    userToSuspendId: 'u-1',
+    suspendReason: 'hygiene'
+}" class="w-full pb-24">
+
+    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- TAB 3: User Accounts (SCRUM-361) -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs space-y-4">
+            <div class="p-5 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                        Registered User Accounts
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Search, filter roles, and manage account statuses</p>
+                </div>
+
+                <!-- Plain GET Search and Role filter -->
+                <form method="get" action="/Admin/Users" class="flex flex-wrap items-center gap-2">
+                    <input type="text"
+                           name="q"
+                           placeholder="Search by name or email..."
+                           class="text-xs px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    <select name="role" onchange="this.form.submit()"
+                            class="text-xs font-semibold px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden cursor-pointer">
+                        <option value="all">All Roles</option>
+                        <option value="customer">Customers</option>
+                        <option value="chef">Chefs</option>
+                        <option value="support">Support Agents</option>
+                    </select>
+                </form>
+            </div>
+
+            <div class="divide-y divide-[var(--color-border-light)] text-xs">
+                <!-- BEGIN SAMPLE: Unrolled 5 Users from _AdminDashboard.cshtml -->
+                <!-- User 1: Tamer Zaki -->
+                <div class="p-4 flex items-center justify-between gap-4">
+                    <div>
+                        <span class="font-bold text-[var(--color-text)] block">Tamer Zaki</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">tamer.zaki@example.com · Role: Customer · Orders: 14</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                            Active
+                        </span>
+                        <button type="button"
+                                @@click="userToSuspendId = 'u-1'; userToSuspendName = 'Tamer Zaki'; showSuspendModal = true"
+                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
+                            Suspend...
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User 2: Chef Amina Mansour -->
+                <div class="p-4 flex items-center justify-between gap-4">
+                    <div>
+                        <span class="font-bold text-[var(--color-text)] block">Chef Amina Mansour</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">amina.chef@example.com · Role: Chef · Orders: 84</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                            Active
+                        </span>
+                        <button type="button"
+                                @@click="userToSuspendId = 'u-2'; userToSuspendName = 'Chef Amina Mansour'; showSuspendModal = true"
+                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
+                            Suspend...
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User 3: Chef Hany El-Sayed -->
+                <div class="p-4 flex items-center justify-between gap-4">
+                    <div>
+                        <span class="font-bold text-[var(--color-text)] block">Chef Hany El-Sayed</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">hany.chef@example.com · Role: Chef · Orders: 62</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                            Active
+                        </span>
+                        <button type="button"
+                                @@click="userToSuspendId = 'u-3'; userToSuspendName = 'Chef Hany El-Sayed'; showSuspendModal = true"
+                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
+                            Suspend...
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User 4: Ahmed Badawi -->
+                <div class="p-4 flex items-center justify-between gap-4">
+                    <div>
+                        <span class="font-bold text-[var(--color-text)] block">Ahmed Badawi</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">ahmed.b@example.com · Role: Customer · Orders: 2</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                            Active
+                        </span>
+                        <button type="button"
+                                @@click="userToSuspendId = 'u-4'; userToSuspendName = 'Ahmed Badawi'; showSuspendModal = true"
+                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
+                            Suspend...
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User 5: Layla Sherif -->
+                <div class="p-4 flex items-center justify-between gap-4">
+                    <div>
+                        <span class="font-bold text-[var(--color-text)] block">Layla Sherif</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">layla.support@example.com · Role: Support · Orders: 0</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                            Active
+                        </span>
+                        <button type="button"
+                                @@click="userToSuspendId = 'u-5'; userToSuspendName = 'Layla Sherif'; showSuspendModal = true"
+                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
+                            Suspend...
+                        </button>
+                    </div>
+                </div>
+                <!-- END SAMPLE -->
+            </div>
+        </div>
+    </div>
+
+    <!-- User Suspension Reason Dialog (SCRUM-361) -->
+    <div x-show="showSuspendModal"
+         x-transition.opacity
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+         style="display: none;"
+         role="dialog"
+         aria-modal="true">
+        <div @@click.away="showSuspendModal = false"
+             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-950 text-rose-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-[var(--color-text)]">Confirm Account Suspension</h3>
+                    <p class="text-xs text-[var(--color-text-muted)]" x-text="'User: ' + userToSuspendName"></p>
+                </div>
+            </div>
+
+            <!-- TODO(backend): POST /Admin/Users/Suspend with userId and suspendReason -->
+            <form method="post" action="/Admin/Users" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="userId" :value="userToSuspendId" />
+                <div class="space-y-3 text-xs">
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Official Justification</label>
+                    <select name="suspendReason" x-model="suspendReason" class="w-full p-2.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl text-[var(--color-text)]">
+                        <option value="hygiene">Food hygiene or food safety compliance breach</option>
+                        <option value="cancellations">Excessive unfulfilled or cancelled orders</option>
+                        <option value="dispute">Unresolved customer payment/counter charge dispute</option>
+                        <option value="abusive">Abusive customer communications or terms breach</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button"
+                            @@click="showSuspendModal = false"
+                            class="px-4 py-2 rounded-full border border-[var(--color-border)] text-xs font-bold uppercase tracking-wider cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider cursor-pointer">
+                        Confirm Suspension
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

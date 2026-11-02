@@ -1,6 +1,456 @@
 @{
-    ViewData["Title"] = "Platform Overview";
+    ViewData["Title"] = "Platform KPIs & Balances - Admin Portal";
+    ViewData["ActiveAdminTab"] = "kpis";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/Admin/Index.cshtml -->
+<!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 157-274, _CashReconciliationModal.cshtml, _AdminPayoutModal.cshtml, _OrderSettlementModal.cshtml) -->
+<!-- TODO(backend): Bind platform KPI totals (Gross GMV, Platform Commission, Held Funds, Active Kitchens) and financial ledger breakdown from reporting queries -->
+
+<div x-data="{
+    showCashModal: false,
+    showPayoutModal: false,
+    showSettlementModal: false
+}" class="w-full pb-24">
+
+    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- TAB 1: Platform KPIs & Balances -->
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Total Gross GMV (October)
+                    </span>
+                    <p class="text-2xl font-bold text-[var(--color-text)] mt-1">48,920.00 EGP</p>
+                    <p class="text-[11px] text-emerald-600 mt-1 font-semibold">+18.4% vs last month</p>
+                </div>
+
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Platform Commission (15%)
+                    </span>
+                    <p class="text-2xl font-bold text-[var(--color-primary)] mt-1">7,338.00 EGP</p>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Simulated ledger</p>
+                </div>
+
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Stripe Test Mode Held Funds
+                    </span>
+                    <p class="text-2xl font-bold text-amber-600 mt-1">3,240.00 EGP</p>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Active pending orders</p>
+                </div>
+
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Active Domestic Kitchens
+                    </span>
+                    <p class="text-2xl font-bold text-emerald-600 mt-1">4 Verified</p>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">1 application pending</p>
+                </div>
+            </div>
+
+            <!-- Financial Ledger Breakdown & Actions -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                        Platform Financial Position &amp; Actions
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button"
+                                @@click="showCashModal = true"
+                                class="px-3.5 py-1.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                            <span>Reconcile Cash</span>
+                        </button>
+                        <button type="button"
+                                @@click="showPayoutModal = true"
+                                class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#credit-card"></use></svg>
+                            <span>Disburse Payout</span>
+                        </button>
+                        <button type="button"
+                                @@click="showSettlementModal = true"
+                                class="px-3.5 py-1.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-[var(--color-text)] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#file-text"></use></svg>
+                            <span>Inspect Settlement</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <span class="font-bold text-[var(--color-text-muted)] block">Card Payments (Stripe Test):</span>
+                        <p class="text-lg font-bold text-[var(--color-text)] mt-1">36,400.00 EGP</p>
+                    </div>
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <span class="font-bold text-[var(--color-text-muted)] block">Cash on Pickup Collections:</span>
+                        <p class="text-lg font-bold text-[var(--color-text)] mt-1">12,520.00 EGP</p>
+                    </div>
+                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                        <span class="font-bold text-[var(--color-text-muted)] block">Total Chef Payout Liabilities:</span>
+                        <p class="text-lg font-bold text-emerald-600 mt-1">41,582.00 EGP</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG KPI Trend Charts (SCRUM-366) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">Weekly GMV Sales Velocity Trend</h3>
+                        <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Daily gross volume velocity across domestic kitchens over past 7 days</p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 rounded-full">+24.2% Growth</span>
+                </div>
+                <div class="h-36 w-full pt-4">
+                    <svg class="w-full h-full overflow-visible" viewBox="0 0 600 120" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="kpiGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.25"></stop>
+                                <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M 0,95 Q 100,75 150,80 T 300,50 T 450,30 T 600,10 L 600,120 L 0,120 Z" fill="url(#kpiGrad)" />
+                        <path d="M 0,95 Q 100,75 150,80 T 300,50 T 450,30 T 600,10" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-linecap="round" />
+                        <circle cx="0" cy="95" r="4" fill="var(--color-primary)" />
+                        <circle cx="150" cy="80" r="4" fill="var(--color-primary)" />
+                        <circle cx="300" cy="50" r="4" fill="var(--color-primary)" />
+                        <circle cx="450" cy="30" r="4" fill="var(--color-primary)" />
+                        <circle cx="600" cy="10" r="4" fill="var(--color-primary)" />
+                    </svg>
+                </div>
+                <div class="flex justify-between text-[11px] text-[var(--color-text-muted)] pt-2 border-t border-[var(--color-border-light)] overflow-x-auto gap-2">
+                    <span>Sat: 4.2k</span>
+                    <span>Sun: 5.1k</span>
+                    <span>Mon: 6.4k</span>
+                    <span>Tue: 7.2k</span>
+                    <span>Wed: 8.1k</span>
+                    <span>Thu: 8.9k</span>
+                    <span class="font-bold text-[var(--color-text)]">Fri: 9.0k EGP</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 1: Cash Collections Reconciliation Modal (from Views/Admin/Partials/_CashReconciliationModal.cshtml) -->
+    <div x-show="showCashModal"
+         x-transition.opacity.duration.200ms
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+         style="display: none;"
+         role="dialog"
+         aria-modal="true">
+
+        <div @@click.away="showCashModal = false"
+             x-show="showCashModal"
+             x-transition.scale.origin.center.duration.200ms
+             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6">
+
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[var(--color-text)]">
+                            Cash Collections &amp; Commission Reconciliation
+                        </h3>
+                        <p class="text-xs text-[var(--color-text-muted)]">
+                            Reconcile cash collected by chefs against the 15% platform commission owed
+                        </p>
+                    </div>
+                </div>
+                <button type="button"
+                        @@click="showCashModal = false"
+                        class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <!-- Summary Banner -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                    <span class="text-[10px] font-bold uppercase text-[var(--color-text-muted)] block">Total Cash Collected</span>
+                    <span class="text-base font-bold text-[var(--color-text)]">12,520.00 EGP</span>
+                </div>
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                    <span class="text-[10px] font-bold uppercase text-[var(--color-text-muted)] block">Platform Commission (15%)</span>
+                    <span class="text-base font-bold text-[var(--color-primary)]">1,878.00 EGP</span>
+                </div>
+                <div class="p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                    <span class="text-[10px] font-bold uppercase text-[var(--color-text-muted)] block">Pending Cash Offset</span>
+                    <span class="text-base font-bold text-amber-600">340.00 EGP</span>
+                </div>
+            </div>
+
+            <!-- Chef Collections Ledger Table -->
+            <div class="border border-[var(--color-border)] rounded-2xl overflow-hidden text-xs">
+                <table class="w-full text-start">
+                    <thead class="bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] font-bold text-[10px] uppercase text-[var(--color-text-muted)]">
+                        <tr>
+                            <th class="p-3 text-start">Kitchen / Chef</th>
+                            <th class="p-3 text-end">Cash Taken</th>
+                            <th class="p-3 text-end">Commission (15%)</th>
+                            <th class="p-3 text-center">Status</th>
+                            <th class="p-3 text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--color-border-light)]">
+                        <tr>
+                            <td class="p-3 font-semibold text-[var(--color-text)]">Amina's Heritage Kitchen</td>
+                            <td class="p-3 text-end font-medium">6,800.00 EGP</td>
+                            <td class="p-3 text-end text-[var(--color-primary)] font-bold">1,020.00 EGP</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Offset Settled</span>
+                            </td>
+                            <td class="p-3 text-end">
+                                <span class="text-xs text-[var(--color-text-muted)]">Audited</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-semibold text-[var(--color-text)]">Om Nabil Casseroles</td>
+                            <td class="p-3 text-end font-medium">3,450.00 EGP</td>
+                            <td class="p-3 text-end text-[var(--color-primary)] font-bold">517.50 EGP</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Offset Settled</span>
+                            </td>
+                            <td class="p-3 text-end">
+                                <span class="text-xs text-[var(--color-text-muted)]">Audited</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-semibold text-[var(--color-text)]">Hany's Gourmet Grills</td>
+                            <td class="p-3 text-end font-medium">2,270.00 EGP</td>
+                            <td class="p-3 text-end text-[var(--color-primary)] font-bold">340.50 EGP</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Awaiting Offset</span>
+                            </td>
+                            <td class="p-3 text-end">
+                                <form method="post" action="/Admin/Payouts" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="chefId" value="chef-3" />
+                                    <button type="submit"
+                                            class="px-3 py-1 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-bold text-[11px] cursor-pointer">
+                                        Reconcile
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-[var(--color-text-muted)] pt-3 border-t border-[var(--color-border-light)]">
+                <span>Platform policy: Cash order commissions are automatically deducted from digital card order payouts.</span>
+                <button type="button"
+                        @@click="showCashModal = false"
+                        class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Admin Payout Modal (from Views/Admin/Partials/_AdminPayoutModal.cshtml) -->
+    <div x-show="showPayoutModal"
+         x-transition.opacity.duration.200ms
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+         style="display: none;"
+         role="dialog"
+         aria-modal="true">
+
+        <div @@click.away="showPayoutModal = false"
+             x-show="showPayoutModal"
+             x-transition.scale.origin.center.duration.200ms
+             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#credit-card"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[var(--color-text)]">
+                            Disburse Chef Earnings &amp; Payouts
+                        </h3>
+                        <p class="text-xs text-[var(--color-text-muted)]">
+                            Authorize and execute net earnings transfers via InstaPay GPA or bank wire
+                        </p>
+                    </div>
+                </div>
+                <button type="button"
+                        @@click="showPayoutModal = false"
+                        class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <!-- Disbursement Form -->
+            <!-- TODO(backend): POST /Admin/Payouts with chefId, amount, paymentMethod, and referenceNote -->
+            <form method="post" action="/Admin/Payouts" class="space-y-4 text-xs">
+                @Html.AntiForgeryToken()
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                            Select Kitchen / Chef
+                        </label>
+                        <select name="chefId" required class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                            <option value="chef-1">Amina's Heritage Kitchen (Eligible: 8,420.00 EGP)</option>
+                            <option value="chef-2">Om Nabil Casseroles (Eligible: 4,120.00 EGP)</option>
+                            <option value="chef-3">Hany's Gourmet Grills (Eligible: 1,930.00 EGP)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                            Transfer Channel
+                        </label>
+                        <select name="paymentMethod" required class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
+                            <option value="instapay">InstaPay GPA Instant Transfer (Egypt)</option>
+                            <option value="bank">Domestic Bank Wire (IBAN)</option>
+                            <option value="vodafone_cash">Smart Mobile Wallet (Vodafone Cash)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                            Payout Amount (EGP)
+                        </label>
+                        <input type="number" name="amount" step="0.01" value="8420.00" required
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-bold text-sm" />
+                    </div>
+
+                    <div>
+                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
+                            Batch Code / Reference
+                        </label>
+                        <input type="text" name="referenceNote" value="BATCH-2026-W42-PAYOUT" required
+                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-mono text-xs" />
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+                        Authorize &amp; Disburse Payout
+                    </button>
+                </div>
+            </form>
+
+            <!-- Payout History Log Table -->
+            <div class="space-y-2 pt-2 border-t border-[var(--color-border-light)] text-xs">
+                <h4 class="font-bold uppercase text-[var(--color-text)] text-xs">
+                    Recent Payout Disbursement Log
+                </h4>
+                <div class="border border-[var(--color-border)] rounded-2xl overflow-hidden">
+                    <table class="w-full text-start">
+                        <thead class="bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] font-bold text-[10px] uppercase text-[var(--color-text-muted)]">
+                            <tr>
+                                <th class="p-2.5 text-start">Date</th>
+                                <th class="p-2.5 text-start">Kitchen</th>
+                                <th class="p-2.5 text-end">Amount</th>
+                                <th class="p-2.5 text-start">Channel</th>
+                                <th class="p-2.5 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--color-border-light)] text-[11px]">
+                            <tr>
+                                <td class="p-2.5 text-[var(--color-text-muted)]">Oct 20, 2026</td>
+                                <td class="p-2.5 font-semibold text-[var(--color-text)]">Amina's Heritage Kitchen</td>
+                                <td class="p-2.5 text-end font-bold text-emerald-600">6,500.00 EGP</td>
+                                <td class="p-2.5">InstaPay GPA</td>
+                                <td class="p-2.5 text-center">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Completed</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 text-[var(--color-text-muted)]">Oct 14, 2026</td>
+                                <td class="p-2.5 font-semibold text-[var(--color-text)]">Om Nabil Casseroles</td>
+                                <td class="p-2.5 text-end font-bold text-emerald-600">3,800.00 EGP</td>
+                                <td class="p-2.5">Bank Wire (CIB)</td>
+                                <td class="p-2.5 text-center">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Completed</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Order Settlement Modal (from Views/Admin/Partials/_OrderSettlementModal.cshtml) -->
+    <div x-show="showSettlementModal"
+         x-transition.opacity.duration.200ms
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
+         style="display: none;"
+         role="dialog"
+         aria-modal="true">
+
+        <div @@click.away="showSettlementModal = false"
+             x-show="showSettlementModal"
+             x-transition.scale.origin.center.duration.200ms
+             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#file-text"></use></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[var(--color-text)]">
+                            Order Financial Settlement Breakdown
+                        </h3>
+                        <p class="text-xs text-[var(--color-text-muted)]">Order #HC-2026-9041 · Amina's Heritage Kitchen</p>
+                    </div>
+                </div>
+                <button type="button"
+                        @@click="showSettlementModal = false"
+                        class="p-2 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <div class="space-y-3 bg-[var(--color-surface-subtle)] p-4 rounded-2xl border border-[var(--color-border-light)] text-xs">
+                <div class="flex justify-between items-center text-[var(--color-text-muted)]">
+                    <span>Customer Paid (Gross GMV):</span>
+                    <span class="font-bold text-[var(--color-text)] text-sm">240.00 EGP</span>
+                </div>
+                <div class="flex justify-between items-center text-rose-600 dark:text-rose-400">
+                    <span>Platform Commission (15%):</span>
+                    <span class="font-bold">-36.00 EGP</span>
+                </div>
+                <div class="flex justify-between items-center text-[var(--color-text-muted)]">
+                    <span>Payment Gateway Processing (0% promo):</span>
+                    <span class="font-semibold">0.00 EGP</span>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t border-[var(--color-border)] text-sm font-bold">
+                    <span class="text-[var(--color-text)]">Net Chef Earnings Payable:</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 text-base">204.00 EGP</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xl border border-[var(--color-border-light)]">
+                    <span class="text-[10px] uppercase font-bold text-[var(--color-text-muted)] block">Payment Channel</span>
+                    <span class="font-semibold text-[var(--color-text)]">Stripe Card (Visa ···· 4242)</span>
+                </div>
+                <div class="p-3 bg-[var(--color-surface-subtle)] rounded-xl border border-[var(--color-border-light)]">
+                    <span class="text-[10px] uppercase font-bold text-[var(--color-text-muted)] block">Settlement Status</span>
+                    <span class="font-bold text-emerald-600">Settled to Chef Wallet</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+                <button type="button"
+                        @@click="showSettlementModal = false"
+                        class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,6 +1,199 @@
 @{
-    ViewData["Title"] = "Kitchen Orders";
+    ViewData["Title"] = "Live Kitchen Orders - Chef Portal";
+    ViewData["ActiveChefTab"] = "orders";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+<!-- Views/ChefDashboard/Orders.cshtml -->
+<!-- Source: home_chef/src/pages/ChefDashboardPage.tsx (Views/Chefs/Partials/_ChefDashboard.cshtml lines 311-381 & _RejectOrderDialog.cshtml) -->
+<!-- Backlog Subtasks: SCRUM-71, SCRUM-76, SCRUM-81, SCRUM-86 -->
+<!-- TODO(backend): Bind Model.Orders (active kitchen orders) and handle order status transitions / order rejection -->
+
+<div x-data="{
+    isKitchenAvailable: true,
+    editProfileOpen: false,
+    rejectOrderModalOpen: false,
+    rejectingOrderNumber: 'HC-2026-9042',
+    rejectingCustomerName: 'Nour El-Din',
+    rejectionReason: 'capacity',
+    rejectionNote: ''
+}" class="w-full pb-24">
+
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <!-- TAB 1: Live Kitchen Orders (SCRUM-71, SCRUM-76, SCRUM-81, SCRUM-86) -->
+        <div class="space-y-4">
+            <!-- BEGIN SAMPLE: Unrolled 2 Live Orders from _ChefDashboard.cshtml -->
+            <!-- Order 1: ord-101 (#HC-2026-9041) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-9041</span>
+                        <span class="bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-100 text-xs px-2.5 py-1 rounded-full font-bold border">Preparing</span>
+                    </div>
+                    <h4 class="font-bold text-base text-[var(--color-text)]">Baladi Duck Molokhia with Vermicelli Rice (x1)</h4>
+                    <div class="flex flex-wrap items-center gap-4 text-xs text-[var(--color-text-muted)]">
+                        <span><strong class="text-[var(--color-text)]">Customer:</strong> <span>Tamer Zaki</span></span>
+                        <span>·</span>
+                        <span><strong class="text-[var(--color-text)]">Pickup Slot:</strong> <span>15:45 - 16:15</span></span>
+                        <span>·</span>
+                        <span class="font-bold text-[var(--color-primary)]">240.00 EGP</span>
+                    </div>
+                    <p class="text-xs bg-[var(--color-surface-subtle)] p-2.5 rounded-xl border border-[var(--color-border-light)] text-[var(--color-text-muted)]">
+                        <strong>Instructions:</strong> <span>Extra crispy duck skin please</span>
+                    </p>
+                </div>
+
+                <!-- Action Transition Buttons (SCRUM-76, SCRUM-81, SCRUM-86) -->
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <!-- TODO(backend): POST /ChefDashboard/Orders/UpdateStatus (orderId=ord-101, nextStatus=Ready) -->
+                    <form method="post" action="/ChefDashboard/Orders" class="inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="orderId" value="ord-101" />
+                        <input type="hidden" name="nextStatus" value="Ready" />
+                        <button type="submit"
+                                class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                            <span>Mark Ready for Pickup</span>
+                        </button>
+                    </form>
+                    <a href="/Chat/Conversation" class="border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all">
+                        <span>Chat Customer</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order 2: ord-102 (#HC-2026-9042) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-sm text-[var(--color-primary)]">#HC-2026-9042</span>
+                        <span class="bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-100 text-xs px-2.5 py-1 rounded-full font-bold border">Pending</span>
+                    </div>
+                    <h4 class="font-bold text-base text-[var(--color-text)]">Oxtail Tagine with Baby Caramelized Onions (x1)</h4>
+                    <div class="flex flex-wrap items-center gap-4 text-xs text-[var(--color-text-muted)]">
+                        <span><strong class="text-[var(--color-text)]">Customer:</strong> <span>Nour El-Din</span></span>
+                        <span>·</span>
+                        <span><strong class="text-[var(--color-text)]">Pickup Slot:</strong> <span>16:30 - 17:00</span></span>
+                        <span>·</span>
+                        <span class="font-bold text-[var(--color-primary)]">310.00 EGP</span>
+                    </div>
+                    <p class="text-xs bg-[var(--color-surface-subtle)] p-2.5 rounded-xl border border-[var(--color-border-light)] text-[var(--color-text-muted)]">
+                        <strong>Instructions:</strong> <span>Mild garlic, extra bread</span>
+                    </p>
+                </div>
+
+                <!-- Action Transition Buttons (SCRUM-76, SCRUM-81, SCRUM-86) -->
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <div class="flex items-center gap-2">
+                        <button type="button"
+                                @@click="rejectingOrderNumber = 'HC-2026-9042'; rejectingCustomerName = 'Nour El-Din'; rejectOrderModalOpen = true"
+                                class="px-4 py-2.5 border border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-bold uppercase rounded-full transition-colors cursor-pointer">
+                            <span>Reject Order</span>
+                        </button>
+                        <!-- TODO(backend): POST /ChefDashboard/Orders/UpdateStatus (orderId=ord-102, nextStatus=Preparing) -->
+                        <form method="post" action="/ChefDashboard/Orders" class="inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderId" value="ord-102" />
+                            <input type="hidden" name="nextStatus" value="Preparing" />
+                            <button type="submit"
+                                    class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
+                                <span>Accept &amp; Start Cooking</span>
+                            </button>
+                        </form>
+                    </div>
+                    <a href="/Chat/Conversation" class="border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase px-4 py-2.5 rounded-full transition-all">
+                        <span>Chat Customer</span>
+                    </a>
+                </div>
+            </div>
+            <!-- END SAMPLE -->
+        </div>
+    </div>
+
+    <!-- Reject Order Modal Dialog (from Views/Chefs/Partials/_RejectOrderDialog.cshtml) -->
+    <div x-cloak
+         x-show="rejectOrderModalOpen"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+
+        <div @@click.away="rejectOrderModalOpen = false"
+             class="relative w-full max-w-lg bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5">
+
+            <div class="flex items-center gap-3 pb-3 border-b border-[var(--color-border-light)]">
+                <div class="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x-circle"></use></svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold uppercase tracking-tight text-[var(--color-text)]">
+                        Reject Order Request
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-muted)]"
+                       x-text="`Order #${rejectingOrderNumber} · ${rejectingCustomerName}`">Order #HC-2026-9042 · Nour El-Din</p>
+                </div>
+            </div>
+
+            <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+                Select a verified reason to notify the customer immediately and trigger card authorization release:
+            </p>
+
+            <!-- Reject Form -->
+            <!-- TODO(backend): POST /ChefDashboard/Orders/Reject with RejectionReasonDto, update order status to 'Rejected', reverse Stripe card pre-auth -->
+            <form method="post" action="/ChefDashboard/Orders" class="space-y-4 text-xs">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="ord-102" />
+                <input type="hidden" name="actionType" value="reject" />
+                <div class="space-y-2.5">
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                        <input type="radio" name="rejectReason" value="capacity" x-model="rejectionReason" class="accent-[var(--color-primary)]" checked />
+                        <span class="text-[var(--color-text)] font-medium">
+                            Kitchen at maximum capacity for this time slot
+                        </span>
+                    </label>
+
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                        <input type="radio" name="rejectReason" value="ingredients" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
+                        <span class="text-[var(--color-text)] font-medium">
+                            Fresh baladi ingredients out of stock for today
+                        </span>
+                    </label>
+
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                        <input type="radio" name="rejectReason" value="early_close" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
+                        <span class="text-[var(--color-text)] font-medium">
+                            Kitchen counter closed early today
+                        </span>
+                    </label>
+
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                        <input type="radio" name="rejectReason" value="instructions" x-model="rejectionReason" class="accent-[var(--color-primary)]" />
+                        <span class="text-[var(--color-text)] font-medium">
+                            Special customer instructions cannot be accommodated
+                        </span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">Optional Customer Courtesy Note</label>
+                    <textarea rows="2" name="rejectionNote" x-model="rejectionNote" placeholder="e.g. Apologies, our freshly slaughtered duck order was fully reserved for tonight..."
+                              class="w-full p-2.5 bg-white dark:bg-neutral-900 border border-[var(--color-border)] rounded-xl text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border)]">
+                    <button type="button" @@click="rejectOrderModalOpen = false"
+                            class="px-5 py-2 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer">
+                        <span>Cancel</span>
+                    </button>
+                    <button type="submit"
+                            class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider px-6 py-2 rounded-full transition-all shadow-xs cursor-pointer">
+                        <span>Confirm Rejection</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

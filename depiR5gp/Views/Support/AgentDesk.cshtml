@@ -1,0 +1,271 @@
+@{
+    ViewData["Title"] = "Customer Support & Refunds Desk";
+}
+<!-- Views/Support/AgentDesk.cshtml -->
+<!-- Source: home_chef/src/pages/SupportPortalPage.tsx (Views/Support/Partials/_SupportPortal.cshtml lines 1-352) -->
+<!-- TODO(backend): Add AgentDesk() action to SupportController; bind support tickets queue, live customer threads, and refund requests -->
+
+<div x-data="{
+    activeTab: 'cases',
+    selectedCaseId: 'case-1',
+    caseStatus: 'Open',
+    rejectRefundModal: false,
+    rejectReason: 'Order pickup delay was verified as resolved with customer.'
+}" class="w-full pb-24">
+
+    <!-- Breadcrumb Banner -->
+    <div class="relative bg-gradient-to-r from-[var(--color-primary-light)] via-[var(--color-bg)] to-[var(--color-primary-light)] dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 border-b border-[var(--color-border)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto space-y-2">
+            <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 flex-wrap">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="#chevron-right"></use>
+                </svg>
+                <span class="text-[var(--color-primary)] font-semibold">Support Desk</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
+                Customer Support &amp; Refunds Desk
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-2xl">
+                Handle open support tickets, customer inquiries, and refund approvals
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-[var(--color-border)] gap-6">
+            <button type="button"
+                    @@click="activeTab = 'cases'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer"
+                    :class="activeTab === 'cases' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'">
+                <span>Support Cases Queue</span>
+                <span>(2)</span>
+            </button>
+
+            <button type="button"
+                    @@click="activeTab = 'refunds'"
+                    class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer"
+                    :class="activeTab === 'refunds' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'">
+                <span>Refund Approval Queue</span>
+                <span>(2)</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: Support Cases -->
+        <div x-show="activeTab === 'cases'" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Cases Sidebar -->
+            <!-- TODO(backend): Loop through open SupportTickets; bind TicketId, CaseNumber, RequesterName, Subject, and AwaitingSupport flag -->
+            <div class="lg:col-span-5 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-4 shadow-xs space-y-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] px-2">
+                    Active Cases
+                </span>
+                <!-- BEGIN SAMPLE: Unrolled 2 Support Queue Cases from _SupportPortal.cshtml -->
+                <!-- Case 1: CASE-7701 -->
+                <div @@click="selectedCaseId = 'case-1'"
+                     class="p-3.5 rounded-2xl cursor-pointer transition-colors border text-xs space-y-1"
+                     :class="selectedCaseId === 'case-1' ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]' : 'border-transparent hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold">CASE-7701</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white animate-pulse">
+                            Awaiting Support
+                        </span>
+                    </div>
+                    <p class="font-semibold text-xs truncate">Late pickup readiness notification</p>
+                    <p class="text-[10px] text-[var(--color-text-muted)]">Requester: Tamer Zaki (Customer) · HC-2026-9041</p>
+                </div>
+
+                <!-- Case 2: CASE-7702 -->
+                <div @@click="selectedCaseId = 'case-2'"
+                     class="p-3.5 rounded-2xl cursor-pointer transition-colors border text-xs space-y-1"
+                     :class="selectedCaseId === 'case-2' ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]' : 'border-transparent hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold">CASE-7702</span>
+                    </div>
+                    <p class="font-semibold text-xs truncate">Missing side tahini and baladi bread</p>
+                    <p class="text-[10px] text-[var(--color-text-muted)]">Requester: Dina Magdy (Customer) · HC-2026-8812</p>
+                </div>
+                <!-- END SAMPLE -->
+            </div>
+
+            <!-- Case Details Thread & Reply -->
+            <div class="lg:col-span-7 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-[var(--color-border-light)] pb-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-base text-[var(--color-text)]">CASE-7701: Late pickup readiness notification</span>
+                        </div>
+                        <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                            Order Ref: <strong>HC-2026-9041</strong> · Requester: <span>Tamer Zaki</span>
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <!-- Case Status Transition Dropdown (SCRUM-406) -->
+                        <div class="flex items-center gap-1.5 bg-[var(--color-surface-subtle)] px-2.5 py-1 rounded-full border border-[var(--color-border)]">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Status:</span>
+                            <select x-model="caseStatus"
+                                    class="text-xs font-bold bg-transparent text-[var(--color-text)] focus:outline-hidden cursor-pointer">
+                                <option value="Open">Open</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Resolved">Resolved</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
+
+                        <form method="post" action="/Support/AgentDesk" class="inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="caseId" value="case-1" />
+                            <input type="hidden" name="actionType" value="CreateRefund" />
+                            <button type="submit"
+                                    class="px-3.5 py-1.5 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer">
+                                Create Refund Request
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Thread Messages -->
+                <!-- TODO(backend): Loop through Ticket.Messages; bind AuthorName, Timestamp, MessageText, and submit reply via POST /Support/AgentDesk -->
+                <div class="space-y-3 max-h-72 overflow-y-auto pe-1">
+                    <!-- BEGIN SAMPLE: Unrolled Thread Messages from _SupportPortal.cshtml -->
+                    <div class="p-3 rounded-2xl text-xs space-y-1 max-w-[85%] me-auto bg-[var(--color-surface-subtle)] text-[var(--color-text)]">
+                        <div class="flex items-center justify-between gap-4 text-[10px] opacity-80 font-semibold">
+                            <span>Tamer Zaki</span>
+                            <span>12:40 PM</span>
+                        </div>
+                        <p class="leading-relaxed">I arrived at Degla villa at 2:00 PM as scheduled, but had to wait 15 extra minutes on the patio.</p>
+                    </div>
+
+                    <div class="p-3 rounded-2xl text-xs space-y-1 max-w-[85%] ms-auto bg-[var(--color-primary)] text-white">
+                        <div class="flex items-center justify-between gap-4 text-[10px] opacity-80 font-semibold">
+                            <span>Layla Sherif (Support Agent)</span>
+                            <span>12:45 PM</span>
+                        </div>
+                        <p class="leading-relaxed">We reached out to Chef Amina. She added complimentary hot feteer portions as a courtesy apology.</p>
+                    </div>
+                    <!-- END SAMPLE -->
+                </div>
+
+                <!-- Closed Case Banner & Read-Only State (SCRUM-397) -->
+                <div x-cloak x-show="caseStatus === 'Closed'" class="p-3.5 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-2xl text-xs text-neutral-600 dark:text-neutral-400 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                    <span>This support ticket has been closed. Change status dropdown to re-open and send additional replies.</span>
+                </div>
+
+                <!-- Reply Form (Hidden when Closed) -->
+                <form x-show="caseStatus !== 'Closed'" method="post" action="/Support/AgentDesk" class="pt-2 border-t border-[var(--color-border-light)] flex gap-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="caseId" value="case-1" />
+                    <input type="text"
+                           name="replyText"
+                           required
+                           placeholder="Type official reply to customer..."
+                           class="flex-1 text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-full focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                    <button type="submit"
+                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#send"></use></svg>
+                        <span>Reply</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB 2: Refund Approval Queue -->
+        <!-- TODO(backend): Loop through pending RefundRequests; wire Approve (trigger Stripe payment reversal API) and Reject (persist reason notes) -->
+        <div x-cloak x-show="activeTab === 'refunds'" class="space-y-4">
+            <!-- BEGIN SAMPLE: Unrolled 2 Refund Requests from _SupportPortal.cshtml -->
+            <!-- Refund 1: REF-2026-104 (Pending) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="space-y-1 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold uppercase text-[var(--color-text)]">REF-2026-104 (Order #HC-2026-9041)</span>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-amber-100 dark:bg-amber-950 text-amber-950 dark:text-amber-100 border border-amber-300 dark:border-amber-700">
+                            Pending
+                        </span>
+                    </div>
+                    <p class="text-[var(--color-text)] font-semibold">Customer: Tamer Zaki · Kitchen: Amina's Heritage Kitchen</p>
+                    <p class="text-[var(--color-text-muted)] italic">Reason: “Pickup delay exceeded 20 minutes without prior WhatsApp notice.”</p>
+                    <p class="text-[var(--color-primary)] font-bold text-sm pt-0.5">Amount: 240.00 EGP (Full Refund)</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button"
+                            @@click="rejectRefundModal = true"
+                            class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer">
+                        Reject With Reason
+                    </button>
+                    <form method="post" action="/Support/AgentDesk" class="inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="refundId" value="ref-1" />
+                        <input type="hidden" name="decision" value="Approve" />
+                        <button type="submit"
+                                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer">
+                            Approve &amp; Reverse Card
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Refund 2: REF-2026-098 (Approved) -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="space-y-1 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold uppercase text-[var(--color-text)]">REF-2026-098 (Order #HC-2026-7740)</span>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
+                            Approved
+                        </span>
+                    </div>
+                    <p class="text-[var(--color-text)] font-semibold">Customer: Ahmed Badawi · Kitchen: Hany's Gourmet Grills</p>
+                    <p class="text-[var(--color-text-muted)] italic">Reason: “Order cancelled before kitchen preparation started.”</p>
+                    <p class="text-[var(--color-primary)] font-bold text-sm pt-0.5">Amount: 275.00 EGP (Full Refund)</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-[var(--color-text-muted)] font-medium">
+                        Decision Finalized
+                    </span>
+                </div>
+            </div>
+            <!-- END SAMPLE -->
+        </div>
+    </div>
+
+    <!-- Reject Refund Modal -->
+    <div x-cloak x-show="rejectRefundModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+        <div @@click.away="rejectRefundModal = false" class="relative w-full max-w-md bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-2xl">
+            <h3 class="text-lg font-bold uppercase tracking-tight text-[var(--color-text)] mb-2">
+                Reject Refund Request
+            </h3>
+            <p class="text-xs text-[var(--color-text-muted)] mb-4">
+                Enter documented justification for why this refund does not meet customer-first eligibility:
+            </p>
+
+            <form method="post" action="/Support/AgentDesk" class="space-y-4 text-xs">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="refundId" value="ref-1" />
+                <input type="hidden" name="decision" value="Reject" />
+                <textarea required
+                          name="rejectReason"
+                          rows="3"
+                          x-model="rejectReason"
+                          class="w-full p-3 border border-[var(--color-border)] rounded-xl bg-transparent text-[var(--color-text)]"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button type="button"
+                            @@click="rejectRefundModal = false"
+                            class="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer">
+                        Confirm Rejection
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
