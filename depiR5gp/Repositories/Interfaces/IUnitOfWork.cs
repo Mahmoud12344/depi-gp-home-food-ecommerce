@@ -12,5 +12,6 @@ public interface IUnitOfWork : IDisposable
     ISupportRepository SupportCases { get; }
 
     Task<int> CompleteAsync();
+    Task SaveChangesAsync();
 }
 

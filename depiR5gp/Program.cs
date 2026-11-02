@@ -1,4 +1,6 @@
 using depiR5gp.Data;
+using depiR5gp.Services.Implementations;
+using depiR5gp.Services.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,8 +40,11 @@ builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IOrderRepository, de
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IReviewRepository, depiR5gp.Repositories.Implementations.ReviewRepository>();
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IConversationRepository, depiR5gp.Repositories.Implementations.ConversationRepository>();
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.ISupportRepository, depiR5gp.Repositories.Implementations.SupportRepository>();
-
+//file services
+builder.Services.AddScoped<IFileService, LocalFileService>();
 builder.Services.AddControllersWithViews();
+//chef Services
+builder.Services.AddScoped<depiR5gp.Services.Interfaces.IChefService, depiR5gp.Services.Implementations.ChefService>();
 
 var app = builder.Build();
 

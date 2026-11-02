@@ -3,7 +3,7 @@ using depiR5gp.Repositories.Interfaces;
 
 namespace depiR5gp.Repositories.Implementations;
 
-//Coordinates transactions across repositories
+// Coordinates transactions across repositories
 public class UnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext _context;
@@ -28,14 +28,25 @@ public class UnitOfWork : IUnitOfWork
         SupportCases = new SupportRepository(_context);
     }
 
-    public async Task<int> CompleteAsync()
+    // الدالة المطلوبة للواجهة IUnitOfWork
+    public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();
+    }
+
+    public async Task<int> CompleteAsync()
+    {
+        return await SaveChangesAsync();
     }
 
     public void Dispose()
     {
         _context.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    Task IUnitOfWork.SaveChangesAsync()
+    {
+        return SaveChangesAsync();
     }
 }
