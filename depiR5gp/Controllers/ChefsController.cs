@@ -1,16 +1,12 @@
 using depiR5gp.Models.Chefs;
-using depiR5gp.Repositories.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using depiR5gp.Data;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using depiR5gp.Services.Interfaces;
 
 namespace depiR5gp.Controllers;
 
-//[Authorize] comment for test
-public class ChefsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment, ApplicationDbContext context,IFileService fileService) : Controller
+public class ChefsController(IChefService chefService, ApplicationDbContext context) : Controller
 {
     public IActionResult Index() => View();
 
@@ -21,10 +17,9 @@ public class ChefsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHost
     {
         int userId = GetCurrentUserId();
 
-        // AC2: منع فتح الصفحة إذا كان لدى المستخدم طلب قيد الانتظار أو مقبول
-        if (await unitOfWork.Chefs.HasPendingOrApprovedApplicationAsync(userId))
+        if (await chefService.HasPendingOrApprovedApplicationAsync(userId))
         {
-            TempData["ErrorMessage"] = "You already have a pending application or your chef account is already activated."; 
+            TempData["ErrorMessage"] = "You already have a pending application or your chef account is already activated.";
             return RedirectToAction("Index", "Home");
         }
 
@@ -33,72 +28,42 @@ public class ChefsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHost
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Onboarding(ChefApplicationViewModel model) {
-        const string  ChefFolder = "chef_documents";
-        var documents = new (IFormFile? File, string DocType)[]
-        {
-            (model.IdDocument,        "Identity"),
-            (model.HealthCertificate, "HealthCertificate"),
-            (model.CulinaryLicense,   "CulinaryLicense"),
-        };
-
-        int userId = GetCurrentUserId();
-
-        // فحص تكرار الطلب عند الإرسال
-        if (await unitOfWork.Chefs.HasPendingOrApprovedApplicationAsync(userId))
-        {
-            ModelState.AddModelError(string.Empty, "لديك بالفعل طلب قيد المراجعة أو تم تفعيل حسابك مسبقاً.");
-            return View(model);
-        }
-
+    public async Task<IActionResult> Onboarding(ChefApplicationViewModel model)
+    {
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        // إنشاء كائن ChefProfile
-        var chefProfile = new ChefProfile
-        {
-            UserId = userId,
-            KitchenName = model.KitchenName,
-            Address = model.Address,
-            Status = "Pending",
-            HasAcceptedTerms = true
-        };
+        int userId = GetCurrentUserId();
 
-        // رفع وحفظ الملفات في مجلد wwwroot/uploads/chef_documents
-        foreach (var (file, docType) in documents)
-        {
-            if (file is null) continue;
+        // إرسال البيانات للـ Service لمعالجتها
+        var result = await chefService.SubmitApplicationAsync(userId, model);
 
-            var url = await fileService.SaveAsync(file, ChefFolder, docType);
-            chefProfile.Documents.Add(new ChefDocument { DocType = docType, FileUrl = url });
+        if (!result.IsSuccess)
+        {
+            ModelState.AddModelError(string.Empty, result.Message);
+            return View(model);
         }
-        // إضافة البيانات وحفظها عبر UnitOfWork
-        await unitOfWork.Chefs.AddAsync(chefProfile);
-        await unitOfWork.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "تم تقديم طلبك بنجاح وسيتم مراجعته من قبل الأدمن.";
+        TempData["SuccessMessage"] = result.Message;
         return RedirectToAction("Index", "Home");
     }
 
     private int GetCurrentUserId()
     {
-        // 1. محاولة جلب ID المستخدم إذا كان مسجلاً الدخول
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (int.TryParse(userIdClaim, out int userId) && userId > 0)
         {
             return userId;
         }
 
-        // 2. جلب ID أول مستخدم مسجل فعلياً في قاعدة البيانات
         var existingUser = context.Users.FirstOrDefault();
         if (existingUser != null)
         {
             return existingUser.Id;
         }
 
-        // 3. في حال كانت قاعدة البيانات فارغة، إنشاء مستخدم تجريبي تلقائياً
         var dummyUser = new depiR5gp.Models.Users.AppUser
         {
             UserName = "testchef@example.com",
@@ -109,23 +74,4 @@ public class ChefsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHost
 
         return dummyUser.Id;
     }
-
-    // private async Task<string> SaveFileAsync(IFormFile file, string docType)
-    // {
-    //     string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "uploads", "chef_documents");
-    //     if (!Directory.Exists(uploadsFolder))
-    //     {
-    //         Directory.CreateDirectory(uploadsFolder);
-    //     }
-    //  
-    //     string uniqueFileName = $"{Guid.NewGuid()}_{docType}{Path.GetExtension(file.FileName)}";
-    //     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-    //
-    //     using (var fileStream = new FileStream(filePath, FileMode.Create))
-    //     {
-    //         await file.CopyToAsync(fileStream);
-    //     }
-    //
-    //     return $"/uploads/chef_documents/{uniqueFileName}";
-    // }
 }

@@ -43,6 +43,8 @@ builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.ISupportRepository, 
 //file services
 builder.Services.AddScoped<IFileService, LocalFileService>();
 builder.Services.AddControllersWithViews();
+//chef Services
+builder.Services.AddScoped<depiR5gp.Services.Interfaces.IChefService, depiR5gp.Services.Implementations.ChefService>();
 
 var app = builder.Build();
 
