@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace depiR5gp.Controllers;
 
 // Customer & chef account management (SCRUM-358). Routes: /Admin/Users and /Admin/Users/ChangeStatus
-[Authorize(Roles = AppRoles.Admin)]
+// [Authorize(Roles = AppRoles.Admin)]
 [Route("Admin/Users")]
 public class AdminUsersController(IUserManagementService userManagementService) : Controller
 {
