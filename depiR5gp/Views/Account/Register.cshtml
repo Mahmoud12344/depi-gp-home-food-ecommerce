@@ -1,11 +1,12 @@
+@model depiR5gp.ViewModels.RegisterVM
 @{
     ViewData["Title"] = "Create Account";
+    var initialRole = string.Equals(Model?.Role, "Chef", StringComparison.OrdinalIgnoreCase) ? "chef" : "customer";
 }
 <!-- Views/Account/Register.cshtml -->
 <!-- Source: home_chef/src/components/common/LoginModal.tsx (Views/Shared/Partials/_LoginModal.cshtml lines 215-293) -->
-<!-- TODO(backend): POST /Account/Register (Name, Email, Phone, Role, Password) creating ApplicationUser, generating email confirmation, and redirecting chef role to /Chefs/Onboarding -->
 
-<div x-data="{ registerRole: 'customer' }" class="w-full py-12 sm:py-16 px-4 flex items-center justify-center">
+<div x-data="{ registerRole: '@initialRole' }" class="w-full py-12 sm:py-16 px-4 flex items-center justify-center">
     <div class="relative w-full max-w-md bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl shadow-2xl p-6 sm:p-8">
 
         <!-- Tabs -->
@@ -20,10 +21,23 @@
             </a>
         </div>
 
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="mb-4 p-3.5 rounded-2xl bg-[var(--color-error-light)] border border-[var(--color-error)]/30 text-xs text-[var(--color-error)] space-y-1">
+                @foreach (var modelError in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div class="flex items-start gap-2 font-medium">
+                        <svg width="14" height="14" class="shrink-0 mt-0.5"><use href="#alert-circle"></use></svg>
+                        <span>@modelError.ErrorMessage</span>
+                    </div>
+                }
+            </div>
+        }
+
         <!-- Register Form -->
         <form method="post" action="/Account/Register" class="space-y-3.5">
             @Html.AntiForgeryToken()
-            <input type="hidden" name="Role" :value="registerRole" />
+            <input type="hidden" name="Role" :value="registerRole === 'chef' ? 'Chef' : 'Customer'" />
             <div>
                 <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Account Type
@@ -44,13 +58,39 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                        First Name
+                    </label>
+                    <input type="text"
+                           name="FirstName"
+                           value="@Model?.FirstName"
+                           placeholder="e.g. Sara"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                        Last Name
+                    </label>
+                    <input type="text"
+                           name="LastName"
+                           value="@Model?.LastName"
+                           placeholder="e.g. Ahmed"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                </div>
+            </div>
+
             <div>
                 <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
-                    Full Name
+                    Username
                 </label>
                 <input type="text"
-                       name="FullName"
-                       placeholder="e.g. Sara Ahmed"
+                       name="UserName"
+                       value="@Model?.UserName"
+                       placeholder="e.g. sara_ahmed"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
             </div>
@@ -61,6 +101,7 @@
                 </label>
                 <input type="email"
                        name="Email"
+                       value="@Model?.Email"
                        placeholder="sara@example.com"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
@@ -72,9 +113,21 @@
                 </label>
                 <input type="tel"
                        name="PhoneNumber"
+                       value="@Model?.PhoneNumber"
                        placeholder="+20 100 000 0000"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                    Address / Neighborhood (Optional)
+                </label>
+                <input type="text"
+                       name="Address"
+                       value="@Model?.Address"
+                       placeholder="e.g. Maadi, Cairo"
+                       class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
             </div>
 
             <div>

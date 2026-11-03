@@ -14,7 +14,6 @@ public class AppUser : IdentityUser<int>
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public string Role { get; set; } = string.Empty;
     public string? Address { get; set; }
     public bool IsSuspended { get; set; } = false;
     public bool IsDeleted { get; set; } = false;

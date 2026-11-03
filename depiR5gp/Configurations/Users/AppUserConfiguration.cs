@@ -15,7 +15,6 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         builder.Property(u => u.PhoneNumber).HasColumnName("phone").HasMaxLength(30);
         builder.Property(u => u.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
         builder.Property(u => u.LastName).HasColumnName("last_name").HasMaxLength(100).IsRequired();
-        builder.Property(u => u.Role).HasColumnName("role").HasMaxLength(20).IsRequired();
         builder.Property(u => u.Address).HasColumnName("address").HasMaxLength(500);
         builder.Property(u => u.IsSuspended).HasColumnName("is_suspended").HasDefaultValue(false);
         builder.Property(u => u.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false);

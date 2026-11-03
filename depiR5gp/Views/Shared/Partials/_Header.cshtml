@@ -191,7 +191,6 @@
                     </button>
 
                     <!-- User Dropdown for logged in roles -->
-                    <!-- TODO(backend): Bind authenticated user Name, Role, and Email from User claims / ProfileViewModel -->
                     <div x-show="userDropdownOpen"
                          @@click.outside="userDropdownOpen = false"
                          x-transition:enter="transition ease-out duration-200"
@@ -199,47 +198,81 @@
                          x-transition:enter-end="opacity-100 scale-100"
                          style="display: none;"
                          class="absolute end-0 mt-2 w-52 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl shadow-xl p-2 z-50 text-xs">
-                        <div class="p-2 border-b border-[var(--color-border-light)] mb-1">
-                            <p class="font-bold text-[var(--color-text)] truncate">Sara Ahmed</p>
-                            <p class="text-[10px] text-[var(--color-primary)] font-semibold uppercase">customer</p>
-                            <p class="text-[10px] text-[var(--color-text-muted)] truncate">sara.ahmed@example.com</p>
-                        </div>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            var activeRole = User.IsInRole("Admin") ? "Admin"
+                                           : User.IsInRole("Chef") ? "Chef"
+                                           : User.IsInRole("Support") ? "Support"
+                                           : "Customer";
+                            <div class="p-2 border-b border-[var(--color-border-light)] mb-1">
+                                <p class="font-bold text-[var(--color-text)] truncate">@User.Identity.Name</p>
+                                <p class="text-[10px] text-[var(--color-primary)] font-semibold uppercase">@activeRole</p>
+                            </div>
 
-                        <a href="/Customer/Profile" @@click="userDropdownOpen = false"
-                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                            <span>My Profile</span>
-                        </a>
-                        <a href="/Customer/MyOrders" @@click="userDropdownOpen = false"
-                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                            <span>Order History</span>
-                        </a>
-                        <a href="/Chat" @@click="userDropdownOpen = false"
-                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs flex items-center justify-between">
-                            <span>Chat Inbox</span>
-                            <span class="px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-bold text-[10px]">2</span>
-                        </a>
-                        <a href="/Support" @@click="userDropdownOpen = false"
-                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                            <span>My Support Cases</span>
-                        </a>
-                        <a href="/Customer/Points" @@click="userDropdownOpen = false"
-                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                            <span>Loyalty Points</span>
-                        </a>
-                        <a href="/Account/Login" @@click="userDropdownOpen = false"
-                           class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs border-t border-[var(--color-border-light)] mt-1">
-                            <span>Sign In / Register</span>
-                        </a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a href="/Admin" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs font-semibold text-[var(--color-primary)]">
+                                    <span>Admin Dashboard</span>
+                                </a>
+                            }
+                            @if (User.IsInRole("Chef"))
+                            {
+                                <a href="/ChefDashboard" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs font-semibold text-[var(--color-primary)]">
+                                    <span>Chef Dashboard</span>
+                                </a>
+                            }
+                            @if (User.IsInRole("Support"))
+                            {
+                                <a href="/Support/AgentDesk" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs font-semibold text-[var(--color-primary)]">
+                                    <span>Support Agent Desk</span>
+                                </a>
+                            }
 
-                        <!-- TODO(backend): POST to AccountController.Logout -->
-                        <form method="post" action="/Account/Logout">
-                            @Html.AntiForgeryToken()
-                            <button type="submit"
-                                    class="w-full text-start px-2 py-1.5 text-rose-600 hover:bg-rose-50 rounded-xs flex items-center gap-1.5 mt-1 border-t border-[var(--color-border-light)] cursor-pointer">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>
-                                <span>Sign Out</span>
-                            </button>
-                        </form>
+                            <a href="/Customer/Profile" @@click="userDropdownOpen = false"
+                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                <span>My Profile</span>
+                            </a>
+                            <a href="/Customer/MyOrders" @@click="userDropdownOpen = false"
+                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                <span>Order History</span>
+                            </a>
+                            <a href="/Chat" @@click="userDropdownOpen = false"
+                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs flex items-center justify-between">
+                                <span>Chat Inbox</span>
+                                <span class="px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-bold text-[10px]">2</span>
+                            </a>
+                            <a href="/Support" @@click="userDropdownOpen = false"
+                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                <span>My Support Cases</span>
+                            </a>
+                            <a href="/Customer/Points" @@click="userDropdownOpen = false"
+                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                <span>Loyalty Points</span>
+                            </a>
+
+                            <form method="post" action="/Account/Logout">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="w-full text-start px-2 py-1.5 text-rose-600 hover:bg-rose-50 rounded-xs flex items-center gap-1.5 mt-1 border-t border-[var(--color-border-light)] cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>
+                                    <span>Sign Out</span>
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a href="/Account/Login" @@click="userDropdownOpen = false"
+                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs font-semibold text-[var(--color-primary)]">
+                                <span>Sign In</span>
+                            </a>
+                            <a href="/Account/Register" @@click="userDropdownOpen = false"
+                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                <span>Create Account</span>
+                            </a>
+                        }
                     </div>
                 </div>
 

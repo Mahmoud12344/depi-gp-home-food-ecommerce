@@ -1590,12 +1590,6 @@ namespace depiR5gp.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("points_balance");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("role");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 

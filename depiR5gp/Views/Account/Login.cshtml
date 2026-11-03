@@ -1,11 +1,11 @@
+@model depiR5gp.ViewModels.LoginVM
 @{
     ViewData["Title"] = "Sign In";
 }
 <!-- Views/Account/Login.cshtml -->
 <!-- Source: home_chef/src/components/common/LoginModal.tsx (Views/Shared/Partials/_LoginModal.cshtml lines 142-214) -->
-<!-- TODO(backend): Integrate with ASP.NET Core Identity / Cookie Authentication via SignInManager<ApplicationUser> -->
 
-<div x-data="{ email: '', password: '' }" class="w-full py-12 sm:py-16 px-4 flex items-center justify-center">
+<div x-data="{ email: '@(Model?.Email ?? "")', password: '' }" class="w-full py-12 sm:py-16 px-4 flex items-center justify-center">
     <div class="relative w-full max-w-md bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl shadow-2xl p-6 sm:p-8">
 
         <!-- Tabs -->
@@ -20,18 +20,32 @@
             </a>
         </div>
 
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="mb-4 p-3.5 rounded-2xl bg-[var(--color-error-light)] border border-[var(--color-error)]/30 text-xs text-[var(--color-error)] space-y-1">
+                @foreach (var modelError in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div class="flex items-start gap-2 font-medium">
+                        <svg width="14" height="14" class="shrink-0 mt-0.5"><use href="#alert-circle"></use></svg>
+                        <span>@modelError.ErrorMessage</span>
+                    </div>
+                }
+            </div>
+        }
+
         <!-- Login Form -->
-        <!-- TODO(backend): POST /Account/Login (Email, Password, RememberMe) validating credentials via SignInManager<ApplicationUser> -->
         <form method="post" action="/Account/Login" class="space-y-4">
             @Html.AntiForgeryToken()
+            <input type="hidden" name="ReturnUrl" value="@Model?.ReturnUrl" />
+
             <div>
                 <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
-                    Email address
+                    Email or Username
                 </label>
-                <input type="email"
+                <input type="text"
                        name="Email"
                        x-model="email"
-                       placeholder="tamer.zaki@example.com"
+                       placeholder="tamer.zaki@example.com or username"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
                 @* PROTOTYPE-ONLY: BEGIN (Demo credential quick-fill pills — remove in production) *@
@@ -64,6 +78,18 @@
                        placeholder="••••••••"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox"
+                       id="RememberMe"
+                       name="RememberMe"
+                       value="true"
+                       @(Model?.RememberMe == true ? "checked" : "")
+                       class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] cursor-pointer" />
+                <label for="RememberMe" class="text-xs text-[var(--color-text-muted)] cursor-pointer select-none">
+                    Remember me
+                </label>
             </div>
 
             <button type="submit"
