@@ -41,7 +41,7 @@ public class AccountController(
         {
             var claims = new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, "admin"),
+                new(ClaimTypes.NameIdentifier, "1"),
                 new(ClaimTypes.Name, "Admin"),
                 new(ClaimTypes.Email, adminEmail),
                 new(ClaimTypes.Role, AppRoles.Admin)
@@ -63,7 +63,7 @@ public class AccountController(
         {
             var claims = new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, "support"),
+                new(ClaimTypes.NameIdentifier, "2"),
                 new(ClaimTypes.Name, "Support Agent"),
                 new(ClaimTypes.Email, supportEmail),
                 new(ClaimTypes.Role, AppRoles.Support)
