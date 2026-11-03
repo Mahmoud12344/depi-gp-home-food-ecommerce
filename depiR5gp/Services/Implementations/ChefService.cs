@@ -1,4 +1,5 @@
 ﻿using depiR5gp.Models.Chefs;
+using depiR5gp.Models.Chefs;
 using depiR5gp.Repositories.Implementations;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
@@ -52,10 +53,52 @@ public class ChefService(IUnitOfWork unitOfWork, IFileService fileService) : ICh
         await unitOfWork.SaveChangesAsync();
 
         return (true, "Your application has been submitted successfully and will be reviewed by the admin.");
-
     }
+
     public async Task<ChefProfile?> GetChefApplicationStatusAsync(int userId)
     {
         return await unitOfWork.Chefs.GetByUserIdAsync(userId);
+    }
+
+    // ==========================================
+    //  التعديلات الجديدة الخاصة بـ Edit Profile
+    // ==========================================
+
+    public async Task<EditChefProfileViewModel?> GetChefProfileForEditAsync(int userId)
+    {
+        var chef = await unitOfWork.Chefs.GetByUserIdAsync(userId);
+        if (chef == null) return null;
+
+        return new EditChefProfileViewModel
+        {
+            Name = chef.KitchenName,
+            Bio = chef.Bio,
+            Address = chef.Address,
+            ExistingPhotoUrl = chef.PhotoUrl,
+            IsAcceptingOrders = chef.IsAcceptingOrders
+        };
+    }
+
+    public async Task<bool> UpdateChefProfileAsync(int userId, EditChefProfileViewModel model)
+    {
+        var chef = await unitOfWork.Chefs.GetByUserIdAsync(userId);
+        if (chef == null) return false;
+
+        // تحديث البيانات الأساسية
+        chef.Bio = model.Bio;
+        chef.Address = model.Address;
+        chef.IsAcceptingOrders = model.IsAcceptingOrders;
+
+        // رفع الصورة الشخصية في حال تم إرفاق ملف جديد باستخدام IFileService
+        if (model.PhotoFile != null && model.PhotoFile.Length > 0)
+        {
+            var photoUrl = await fileService.SaveAsync(model.PhotoFile, "chef_profiles", "profile");
+            chef.PhotoUrl = photoUrl;
+        }
+
+        unitOfWork.Chefs.Update(chef);
+        await unitOfWork.SaveChangesAsync();
+
+        return true;
     }
 }

@@ -1,9 +1,10 @@
 using depiR5gp.Models.Chefs;
-using Microsoft.AspNetCore.Mvc;
 using depiR5gp.Data;
-using System.Security.Claims;
+using depiR5gp.Models.Chefs;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace depiR5gp.Controllers;
 
@@ -58,6 +59,52 @@ public class ChefsController(
 
         TempData["SuccessMessage"] = result.Message;
         return RedirectToAction("Index", "Home");
+    }
+
+    // ==========================================
+    //  تعديل الملف الشخصي للشيف (Edit Profile)
+    // ==========================================
+
+    [HttpGet]
+    public async Task<IActionResult> EditProfile()
+    {
+        int userId = GetCurrentUserId();
+
+        // استدعاء الدالة اللي عملناها في الـ Service
+        var model = await chefService.GetChefProfileForEditAsync(userId);
+
+        if (model == null)
+        {
+            return NotFound("لم يتم العثور على بروفايل الشيف أو لم يتم قبوله بعد.");
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditProfile(EditChefProfileViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        int userId = GetCurrentUserId();
+
+        // استدعاء دالة الحفظ من الـ Service
+        bool isUpdated = await chefService.UpdateChefProfileAsync(userId, model);
+
+        if (!isUpdated)
+        {
+            ModelState.AddModelError(string.Empty, "حدث خطأ أثناء حفظ التعديلات.");
+            return View(model);
+        }
+
+        TempData["SuccessMessage"] = "تم تحديث بياناتك بنجاح!";
+
+        // إعادة توجيه الشيف لصفحة التعديل لرؤية التغييرات (أو يمكنك توجيهه لصفحة البروفايل)
+        return RedirectToAction(nameof(EditProfile));
     }
 
     private int GetCurrentUserId()
