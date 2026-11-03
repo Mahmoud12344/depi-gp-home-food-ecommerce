@@ -1,4 +1,5 @@
 ﻿using depiR5gp.Models.Chefs;
+using depiR5gp.Repositories.Implementations;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
 
@@ -51,5 +52,10 @@ public class ChefService(IUnitOfWork unitOfWork, IFileService fileService) : ICh
         await unitOfWork.SaveChangesAsync();
 
         return (true, "Your application has been submitted successfully and will be reviewed by the admin.");
+
+    }
+    public async Task<ChefProfile?> GetChefApplicationStatusAsync(int userId)
+    {
+        return await unitOfWork.Chefs.GetByUserIdAsync(userId);
     }
 }

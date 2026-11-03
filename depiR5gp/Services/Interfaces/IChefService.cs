@@ -6,5 +6,8 @@ namespace depiR5gp.Services.Interfaces
     {
         Task<bool> HasPendingOrApprovedApplicationAsync(int userId);
         Task<(bool IsSuccess, string Message)> SubmitApplicationAsync(int userId, ChefApplicationViewModel model);
+
+        // دالة لجلب بيانات الحالة للملف الشخصي للشيف بناءً على الـ UserId
+        Task<ChefProfile> GetChefApplicationStatusAsync(int userId);
     }
 }
