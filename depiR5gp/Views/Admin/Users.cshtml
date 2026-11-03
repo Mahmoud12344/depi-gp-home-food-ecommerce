@@ -41,7 +41,7 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
         <!-- TAB 3: User Accounts (SCRUM-361) -->
         <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs space-y-4">
-            <div class="p-5 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="p-5 border-b border-[var(--color-border)] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                     <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
                         Registered User Accounts
@@ -49,26 +49,52 @@
                     <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Search, filter roles, and manage account statuses</p>
                 </div>
 
-                <!-- Plain GET Search, Role and Status filters -->
+                <!-- Plain GET Search, Role and Status filters with Apply & Reset button group -->
                 <form method="get" action="/Admin/Users" class="flex flex-wrap items-center gap-2">
-                    <input type="text"
-                           name="q"
-                           value="@filter.Query"
-                           placeholder="Search by name or email..."
-                           class="text-xs px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
-                    <select name="role" onchange="this.form.submit()"
+                    <div class="relative flex items-center">
+                        <span class="absolute left-2.5 text-[var(--color-text-muted)] pointer-events-none">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </span>
+                        <input type="text"
+                               name="q"
+                               value="@filter.Query"
+                               placeholder="Search by name, email, kitchen..."
+                               class="text-xs pl-8 pr-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium w-44 sm:w-52" />
+                    </div>
+
+                    <select name="role"
                             class="text-xs font-semibold px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden cursor-pointer">
-                        <option value="all" selected="@(filter.Role == "all")">All Roles</option>
-                        <option value="customer" selected="@(filter.Role == "customer")">Customers</option>
-                        <option value="chef" selected="@(filter.Role == "chef")">Chefs</option>
+                        <option value="all" selected="@(filter.Role.Equals("all", StringComparison.OrdinalIgnoreCase))">All Roles</option>
+                        <option value="customer" selected="@(filter.Role.Equals("customer", StringComparison.OrdinalIgnoreCase))">Customers</option>
+                        <option value="chef" selected="@(filter.Role.Equals("chef", StringComparison.OrdinalIgnoreCase))">Chefs</option>
                     </select>
-                    <select name="status" onchange="this.form.submit()"
+
+                    <select name="status"
                             class="text-xs font-semibold px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden cursor-pointer">
-                        <option value="all" selected="@(filter.Status == "all")">All Statuses</option>
-                        <option value="active" selected="@(filter.Status == "active")">Active</option>
-                        <option value="suspended" selected="@(filter.Status == "suspended")">Suspended</option>
-                        <option value="deactivated" selected="@(filter.Status == "deactivated")">Deactivated</option>
+                        <option value="all" selected="@(filter.Status.Equals("all", StringComparison.OrdinalIgnoreCase))">All Statuses</option>
+                        <option value="active" selected="@(filter.Status.Equals("active", StringComparison.OrdinalIgnoreCase))">Active</option>
+                        <option value="suspended" selected="@(filter.Status.Equals("suspended", StringComparison.OrdinalIgnoreCase))">Suspended</option>
+                        <option value="deactivated" selected="@(filter.Status.Equals("deactivated", StringComparison.OrdinalIgnoreCase))">Deactivated</option>
                     </select>
+
+                    <!-- Group Apply and Reset together so they never split across lines -->
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button type="submit"
+                                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full transition-colors cursor-pointer shadow-xs">
+                            Apply
+                        </button>
+
+                        @if (!string.IsNullOrWhiteSpace(filter.Query) || !filter.Role.Equals("all", StringComparison.OrdinalIgnoreCase) || !filter.Status.Equals("all", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <a href="/Admin/Users" 
+                               class="px-3 py-1.5 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                               title="Reset all filters">
+                                Reset
+                            </a>
+                        }
+                    </div>
                 </form>
             </div>
 

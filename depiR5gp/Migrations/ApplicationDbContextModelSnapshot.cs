@@ -1589,14 +1589,6 @@ namespace depiR5gp.Migrations
                         .HasDefaultValue("Active")
                         .HasColumnName("status");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Active")
-                        .HasColumnName("status");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -1620,6 +1612,52 @@ namespace depiR5gp.Migrations
                     b.ToTable("AppUsers", null, t =>
                         {
                             t.HasCheckConstraint("CK_AppUsers_status", "status IN ('Active', 'Suspended', 'Deleted')");
+                        });
+                });
+
+            modelBuilder.Entity("depiR5gp.Models.Users.UserStatusHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("changed_at");
+
+                    b.Property<int?>("ChangedByUserId")
+                        .HasColumnType("int")
+                        .HasColumnName("changed_by_user_id");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("UserId", "ChangedAt")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("IX_UserStatusHistories_user_changed");
+
+                    b.ToTable("UserStatusHistories", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_UserStatusHistories_status", "status IN ('Active', 'Suspended', 'Deleted')");
                         });
                 });
 

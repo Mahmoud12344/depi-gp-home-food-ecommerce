@@ -10,14 +10,14 @@ public class UserRepository(ApplicationDbContext context) : GenericRepository<Ap
 {
     public async Task<(IReadOnlyList<UserListItemVM> Items, int Total)> GetPagedAsync(UserListFilterVM filter, int pageSize)
     {
-        string[] roleNames = filter.Role switch
+        string[] roleNames = filter.Role?.ToLowerInvariant() switch
         {
             "customer" => [AppRoles.Customer],
             "chef" => [AppRoles.Chef],
             _ => [AppRoles.Customer, AppRoles.Chef]
         };
 
-        UserStatus? status = filter.Status switch
+        UserStatus? status = filter.Status?.ToLowerInvariant() switch
         {
             "active" => UserStatus.Active,
             "suspended" => UserStatus.Suspended,
@@ -44,7 +44,8 @@ public class UserRepository(ApplicationDbContext context) : GenericRepository<Ap
                 u.LastName.Contains(term) ||
                 (u.FirstName + " " + u.LastName).Contains(term) ||
                 (u.Email != null && u.Email.Contains(term)) ||
-                (u.UserName != null && u.UserName.Contains(term)));
+                (u.UserName != null && u.UserName.Contains(term)) ||
+                (u.ChefProfile != null && u.ChefProfile.KitchenName.Contains(term)));
         }
 
         int total = await query.CountAsync();
