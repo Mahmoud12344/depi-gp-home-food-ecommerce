@@ -11,11 +11,11 @@
 
         <!-- Tabs -->
         <div class="flex border-b border-[var(--color-border)] mb-6">
-            <a href="/Account/Login"
+            <a asp-controller="Account" asp-action="Login"
                class="flex-1 pb-3 text-sm font-bold uppercase tracking-wider text-center border-b-2 transition-colors cursor-pointer border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]">
                 Login
             </a>
-            <a href="/Account/Register"
+            <a asp-controller="Account" asp-action="Register"
                class="flex-1 pb-3 text-sm font-bold uppercase tracking-wider text-center border-b-2 transition-colors cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)]">
                 Register
             </a>
@@ -23,21 +23,12 @@
 
         @if (!ViewData.ModelState.IsValid)
         {
-            <div class="mb-4 p-3.5 rounded-2xl bg-[var(--color-error-light)] border border-[var(--color-error)]/30 text-xs text-[var(--color-error)] space-y-1">
-                @foreach (var modelError in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    <div class="flex items-start gap-2 font-medium">
-                        <svg width="14" height="14" class="shrink-0 mt-0.5"><use href="#alert-circle"></use></svg>
-                        <span>@modelError.ErrorMessage</span>
-                    </div>
-                }
-            </div>
+            <div asp-validation-summary="ModelOnly" class="mb-4 p-3.5 rounded-2xl bg-[var(--color-error-light)] border border-[var(--color-error)]/30 text-xs text-[var(--color-error)] font-medium"></div>
         }
 
         <!-- Register Form -->
-        <form method="post" action="/Account/Register" class="space-y-3.5">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="Role" :value="registerRole === 'chef' ? 'Chef' : 'Customer'" />
+        <form asp-controller="Account" asp-action="Register" method="post" class="space-y-3.5">
+            <input type="hidden" asp-for="Role" :value="registerRole === 'chef' ? 'Chef' : 'Customer'" />
             <div>
                 <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Account Type
@@ -60,85 +51,86 @@
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                    <label asp-for="FirstName" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                         First Name
                     </label>
-                    <input type="text"
-                           name="FirstName"
-                           value="@Model?.FirstName"
+                    <input asp-for="FirstName"
+                           type="text"
                            placeholder="e.g. Sara"
                            class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                            required />
+                    <span asp-validation-for="FirstName" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                    <label asp-for="LastName" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                         Last Name
                     </label>
-                    <input type="text"
-                           name="LastName"
-                           value="@Model?.LastName"
+                    <input asp-for="LastName"
+                           type="text"
                            placeholder="e.g. Ahmed"
                            class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                            required />
+                    <span asp-validation-for="LastName" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
                 </div>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                <label asp-for="UserName" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Username
                 </label>
-                <input type="text"
-                       name="UserName"
-                       value="@Model?.UserName"
+                <input asp-for="UserName"
+                       type="text"
                        placeholder="e.g. sara_ahmed"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
+                <span asp-validation-for="UserName" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                <label asp-for="Email" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Email Address
                 </label>
-                <input type="email"
-                       name="Email"
-                       value="@Model?.Email"
+                <input asp-for="Email"
+                       type="email"
                        placeholder="sara@example.com"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
+                <span asp-validation-for="Email" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                <label asp-for="PhoneNumber" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Phone Number (for pickup calls)
                 </label>
-                <input type="tel"
-                       name="PhoneNumber"
-                       value="@Model?.PhoneNumber"
+                <input asp-for="PhoneNumber"
+                       type="tel"
                        placeholder="+20 100 000 0000"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
+                <span asp-validation-for="PhoneNumber" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                <label asp-for="Address" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Address / Neighborhood (Optional)
                 </label>
-                <input type="text"
-                       name="Address"
-                       value="@Model?.Address"
+                <input asp-for="Address"
+                       type="text"
                        placeholder="e.g. Maadi, Cairo"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                <span asp-validation-for="Address" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                <label asp-for="Password" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Password
                 </label>
-                <input type="password"
-                       name="Password"
+                <input asp-for="Password"
+                       type="password"
                        placeholder="••••••••"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
+                <span asp-validation-for="Password" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
             </div>
 
             <button type="submit"

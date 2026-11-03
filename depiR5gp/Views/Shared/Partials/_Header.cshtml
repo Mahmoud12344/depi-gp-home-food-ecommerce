@@ -253,8 +253,7 @@
                                 <span>Loyalty Points</span>
                             </a>
 
-                            <form method="post" action="/Account/Logout">
-                                @Html.AntiForgeryToken()
+                            <form asp-controller="Account" asp-action="Logout" method="post">
                                 <button type="submit"
                                         class="w-full text-start px-2 py-1.5 text-rose-600 hover:bg-rose-50 rounded-xs flex items-center gap-1.5 mt-1 border-t border-[var(--color-border-light)] cursor-pointer">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>
@@ -264,11 +263,11 @@
                         }
                         else
                         {
-                            <a href="/Account/Login" @@click="userDropdownOpen = false"
+                            <a asp-controller="Account" asp-action="Login" @@click="userDropdownOpen = false"
                                class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs font-semibold text-[var(--color-primary)]">
                                 <span>Sign In</span>
                             </a>
-                            <a href="/Account/Register" @@click="userDropdownOpen = false"
+                            <a asp-controller="Account" asp-action="Register" @@click="userDropdownOpen = false"
                                class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
                                 <span>Create Account</span>
                             </a>

@@ -16,8 +16,9 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         builder.Property(u => u.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
         builder.Property(u => u.LastName).HasColumnName("last_name").HasMaxLength(100).IsRequired();
         builder.Property(u => u.Address).HasColumnName("address").HasMaxLength(500);
-        builder.Property(u => u.IsSuspended).HasColumnName("is_suspended").HasDefaultValue(false);
+         builder.Property(u => u.IsSuspended).HasColumnName("is_suspended").HasDefaultValue(false);
         builder.Property(u => u.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false);
+        
         builder.Property(u => u.PointsBalance).HasColumnName("points_balance").HasDefaultValue(0);
 
         builder.HasIndex(u => u.Email).IsUnique();

@@ -16,8 +16,7 @@ public class AppUser : IdentityUser<int>
     public string LastName { get; set; } = string.Empty;
     public string? Address { get; set; }
     public bool IsSuspended { get; set; } = false;
-    public bool IsDeleted { get; set; } = false;
-    public int PointsBalance { get; set; } = 0;
+    public bool IsDeleted { get; set; } = false;    public int PointsBalance { get; set; } = 0;
 
     // Navigation Properties
     public virtual ChefProfile? ChefProfile { get; set; }

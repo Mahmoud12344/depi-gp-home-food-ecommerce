@@ -190,7 +190,83 @@ public class AccountController(
         return RedirectToAction("Login", "Account");
     }
 
-    public IActionResult ForgotPassword() => View();
-    public IActionResult ResetPassword() => View();
+    [HttpGet]
+    public IActionResult ForgotPassword()
+    {
+        return View(new ForgotPasswordVM());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordVM model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("ForgotPassword", model);
+        }
+
+        string normalizedEmail = model.Email.Trim();
+        var user = await userManager.FindByEmailAsync(normalizedEmail);
+        if (user is null || user.IsDeleted)
+        {
+            // Do not reveal whether the email exists (prevents user enumeration)
+            TempData["InfoMessage"] = "If an account with that email exists, recovery instructions have been sent.";
+            return RedirectToAction("Login");
+        }
+
+        string token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+        // TODO(email): In production, send the reset link via an IEmailSender service.
+        // For local development/testing without an SMTP server, redirect to ResetPassword with the generated token.
+        return RedirectToAction("ResetPassword", new { email = user.Email, token });
+    }
+
+    [HttpGet]
+    public IActionResult ResetPassword(string? email = null, string? token = null)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+        {
+            TempData["ErrorMessage"] = "Invalid or missing password reset token.";
+            return RedirectToAction("ForgotPassword");
+        }
+
+        return View(new ResetPasswordVM
+        {
+            Email = email,
+            Token = token
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordVM model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("ResetPassword", model);
+        }
+
+        var user = await userManager.FindByEmailAsync(model.Email.Trim());
+        if (user is null || user.IsDeleted)
+        {
+            TempData["SuccessMessage"] = "Your password has been reset successfully. Please sign in.";
+            return RedirectToAction("Login");
+        }
+
+        IdentityResult result = await userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+        if (result.Succeeded)
+        {
+            TempData["SuccessMessage"] = "Your password has been reset successfully. Please sign in.";
+            return RedirectToAction("Login");
+        }
+
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        return View("ResetPassword", model);
+    }
+
     public IActionResult AccessDenied() => View();
 }

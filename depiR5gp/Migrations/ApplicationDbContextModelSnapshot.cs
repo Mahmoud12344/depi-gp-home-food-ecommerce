@@ -1541,18 +1541,6 @@ namespace depiR5gp.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("first_name");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_deleted");
-
-                    b.Property<bool>("IsSuspended")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_suspended");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1592,6 +1580,14 @@ namespace depiR5gp.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Active")
+                        .HasColumnName("status");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
