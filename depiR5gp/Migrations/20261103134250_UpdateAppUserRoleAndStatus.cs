@@ -10,13 +10,33 @@ namespace depiR5gp.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "is_deleted",
-                table: "AppUsers");
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH('AppUsers', 'is_deleted') IS NOT NULL
+                BEGIN
+                    DECLARE @var_del sysname;
+                    SELECT @var_del = [d].[name]
+                    FROM [sys].[default_constraints] [d]
+                    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+                    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[AppUsers]') AND [c].[name] = N'is_deleted');
+                    IF @var_del IS NOT NULL EXEC(N'ALTER TABLE [AppUsers] DROP CONSTRAINT [' + @var_del + '];');
+                    ALTER TABLE [AppUsers] DROP COLUMN [is_deleted];
+                END
+                """);
 
-            migrationBuilder.DropColumn(
-                name: "is_suspended",
-                table: "AppUsers");
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH('AppUsers', 'is_suspended') IS NOT NULL
+                BEGIN
+                    DECLARE @var_susp sysname;
+                    SELECT @var_susp = [d].[name]
+                    FROM [sys].[default_constraints] [d]
+                    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+                    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[AppUsers]') AND [c].[name] = N'is_suspended');
+                    IF @var_susp IS NOT NULL EXEC(N'ALTER TABLE [AppUsers] DROP CONSTRAINT [' + @var_susp + '];');
+                    ALTER TABLE [AppUsers] DROP COLUMN [is_suspended];
+                END
+                """);
 
             migrationBuilder.Sql(
                 """
