@@ -16,8 +16,7 @@ public class AppUser : IdentityUser<int>
     public string LastName { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public string? Address { get; set; }
-    public bool IsSuspended { get; set; } = false;
-    public bool IsDeleted { get; set; } = false;
+    public UserStatus Status { get; set; } = UserStatus.Active;
     public int PointsBalance { get; set; } = 0;
 
     // Navigation Properties
@@ -36,5 +35,6 @@ public class AppUser : IdentityUser<int>
     public virtual ICollection<OrderStatusHistory> OrderStatusHistories { get; set; } = new List<OrderStatusHistory>();
     public virtual ICollection<AssistantConversation> AssistantConversations { get; set; } = new List<AssistantConversation>();
     public virtual ICollection<AssistantUsage> AssistantUsages { get; set; } = new List<AssistantUsage>();
+    public virtual ICollection<UserStatusHistory> StatusHistory { get; set; } = new List<UserStatusHistory>();
 }
 

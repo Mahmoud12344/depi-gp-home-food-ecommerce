@@ -19,6 +19,9 @@ namespace depiR5gp.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<AppUser, IdentityRole<int>, int>(options)
 {
+    // Users Module
+    public DbSet<UserStatusHistory> UserStatusHistories => Set<UserStatusHistory>();
+
     // Chefs Module
     public DbSet<ChefProfile> ChefProfiles => Set<ChefProfile>();
     public DbSet<ChefDocument> ChefDocuments => Set<ChefDocument>();

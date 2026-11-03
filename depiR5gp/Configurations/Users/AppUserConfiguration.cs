@@ -8,7 +8,10 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
 {
     public void Configure(EntityTypeBuilder<AppUser> builder)
     {
-        builder.ToTable("AppUsers");
+        builder.ToTable("AppUsers", t =>
+            t.HasCheckConstraint(
+                "CK_AppUsers_status",
+                "status IN ('Active', 'Suspended', 'Deleted')"));
 
         builder.Property(u => u.Id).HasColumnName("id");
         builder.Property(u => u.Email).HasColumnName("email").HasMaxLength(256).IsRequired();
@@ -17,11 +20,15 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         builder.Property(u => u.LastName).HasColumnName("last_name").HasMaxLength(100).IsRequired();
         builder.Property(u => u.Role).HasColumnName("role").HasMaxLength(20).IsRequired();
         builder.Property(u => u.Address).HasColumnName("address").HasMaxLength(500);
-        builder.Property(u => u.IsSuspended).HasColumnName("is_suspended").HasDefaultValue(false);
-        builder.Property(u => u.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false);
         builder.Property(u => u.PointsBalance).HasColumnName("points_balance").HasDefaultValue(0);
-
         builder.HasIndex(u => u.Email).IsUnique();
+        builder.Property(u => u.Status)
+            .HasColumnName("status")
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .IsRequired()
+            .HasDefaultValue(UserStatus.Active);
+
 
         // 1:1 with ChefProfile
         builder.HasOne(u => u.ChefProfile)
