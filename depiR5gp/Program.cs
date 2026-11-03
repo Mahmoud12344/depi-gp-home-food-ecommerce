@@ -1,4 +1,5 @@
 using depiR5gp.Data;
+using depiR5gp.Data.Seeding;
 using depiR5gp.Models.Users;
 using Microsoft.AspNetCore.Identity;
 using depiR5gp.Services.Implementations;
@@ -67,29 +68,101 @@ builder.Services.AddControllersWithViews();
 //chef Services
 builder.Services.AddScoped<depiR5gp.Services.Interfaces.IChefService, depiR5gp.Services.Implementations.ChefService>();
 
+// Database Seeding Infrastructure (Development only)
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSeeders(builder.Configuration);
+}
+
 var app = builder.Build();
 
-// 2. Auto-apply EF Core Migrations & seed default roles on startup (Works locally & on Azure!)
-using (var scope = app.Services.CreateScope())
+// 2. Auto-apply EF Core Migrations & seed database on startup (Works locally & on Azure!)
+try
 {
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    // Reconcile schema drift from previous migrations if database already has AppUsers
     try
     {
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        db.Database.Migrate();
+        db.Database.ExecuteSqlRaw(@"
+            IF COL_LENGTH('AppUsers', 'role') IS NOT NULL
+            BEGIN
+                DECLARE @defName sysname;
+                SELECT @defName = [d].[name]
+                FROM [sys].[default_constraints] [d]
+                INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+                WHERE ([d].[parent_object_id] = OBJECT_ID(N'[AppUsers]') AND [c].[name] = N'role');
+                IF @defName IS NOT NULL EXEC(N'ALTER TABLE [AppUsers] DROP CONSTRAINT [' + @defName + '];');
+                ALTER TABLE [AppUsers] DROP COLUMN [role];
+            END;
 
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-        foreach (var role in AppRoles.All)
-        {
-            if (!await roleManager.RoleExistsAsync(role))
-            {
-                await roleManager.CreateAsync(new IdentityRole<int>(role));
-            }
-        }
+            IF COL_LENGTH('AppUsers', 'is_suspended') IS NOT NULL
+            BEGIN
+                ALTER TABLE [AppUsers] DROP COLUMN [is_suspended];
+            END;
+
+            IF OBJECT_ID(N'[AppUsers]', N'U') IS NOT NULL AND COL_LENGTH('AppUsers', 'status') IS NULL
+            BEGIN
+                ALTER TABLE [AppUsers] ADD [status] nvarchar(20) NOT NULL DEFAULT 'Active';
+            END;
+
+            IF OBJECT_ID(N'[AppUsers]', N'U') IS NOT NULL AND COL_LENGTH('AppUsers', 'points_balance') IS NULL
+            BEGIN
+                ALTER TABLE [AppUsers] ADD [points_balance] int NOT NULL DEFAULT 0;
+            END;
+
+            IF OBJECT_ID(N'UserStatusHistories', N'U') IS NULL AND OBJECT_ID(N'[AppUsers]', N'U') IS NOT NULL
+            BEGIN
+                CREATE TABLE [UserStatusHistories] (
+                    [id] int NOT NULL IDENTITY,
+                    [user_id] int NOT NULL,
+                    [changed_by_user_id] int NULL,
+                    [status] nvarchar(20) NOT NULL,
+                    [changed_at] datetime2 NOT NULL,
+                    [reason] nvarchar(200) NULL,
+                    CONSTRAINT [PK_UserStatusHistories] PRIMARY KEY ([id]),
+                    CONSTRAINT [CK_UserStatusHistories_status] CHECK (status IN ('Active', 'Suspended', 'Deleted')),
+                    CONSTRAINT [FK_UserStatusHistories_AppUsers_changed_by_user_id] FOREIGN KEY ([changed_by_user_id]) REFERENCES [AppUsers] ([id]) ON DELETE NO ACTION,
+                    CONSTRAINT [FK_UserStatusHistories_AppUsers_user_id] FOREIGN KEY ([user_id]) REFERENCES [AppUsers] ([id]) ON DELETE NO ACTION
+                );
+            END;
+        ");
     }
     catch (Exception ex)
     {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogWarning("⚠️ Could not connect to SQL Server to auto-apply migrations on startup ({Message}). The application will continue running in offline/mock mode.", ex.Message);
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogDebug("Schema reconciliation check: {Message}", ex.Message);
+    }
+
+    db.Database.Migrate();
+
+    // Ensure essential Identity roles exist in all environments (Production, Staging, Development)
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+    foreach (var role in AppRoles.All)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole<int>(role));
+        }
+    }
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning("⚠️ Could not auto-apply migrations on startup ({Message}). Continuing...", ex.Message);
+}
+
+if (app.Environment.IsDevelopment())
+{
+    try
+    {
+        await app.SeedDatabaseAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning("⚠️ Could not seed database on startup ({Message}). The application will continue running in offline/mock mode.", ex.Message);
     }
 }
 

@@ -1,13 +1,11 @@
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using depiR5gp.Data;
 using depiR5gp.Models.Chefs;
 using depiR5gp.Models.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using depiR5gp.Models.Users;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 
 namespace depiR5gp.Controllers;
 
