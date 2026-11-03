@@ -44,6 +44,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
+
+// Validate the auth cookie's security stamp on every request so that suspending/deactivating
+// an account (which rotates the stamp) revokes the user's active sessions immediately.
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+    options.ValidationInterval = TimeSpan.Zero);
+
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 // Register Repositories & Unit of Work
 builder.Services.AddScoped(typeof(depiR5gp.Repositories.Interfaces.IGenericRepository<>), typeof(depiR5gp.Repositories.Implementations.GenericRepository<>));
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IUnitOfWork, depiR5gp.Repositories.Implementations.UnitOfWork>();
