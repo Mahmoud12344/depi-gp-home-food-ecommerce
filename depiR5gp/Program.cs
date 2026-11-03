@@ -1,4 +1,6 @@
 using depiR5gp.Data;
+using depiR5gp.Models.Users;
+using Microsoft.AspNetCore.Identity;
 using depiR5gp.Services.Implementations;
 using depiR5gp.Services.Interfaces;
 using Microsoft.Data.SqlClient;
@@ -30,6 +32,18 @@ if (!string.IsNullOrEmpty(dbServer))
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionBuilder.ConnectionString));
 
+builder.Services.AddIdentity<AppUser, IdentityRole<int>>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
 // Register Repositories & Unit of Work
 builder.Services.AddScoped(typeof(depiR5gp.Repositories.Interfaces.IGenericRepository<>), typeof(depiR5gp.Repositories.Implementations.GenericRepository<>));
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IUnitOfWork, depiR5gp.Repositories.Implementations.UnitOfWork>();
@@ -48,13 +62,22 @@ builder.Services.AddScoped<depiR5gp.Services.Interfaces.IChefService, depiR5gp.S
 
 var app = builder.Build();
 
-// 2. Auto-apply EF Core Migrations on startup (Works locally & on Azure!)
+// 2. Auto-apply EF Core Migrations & seed default roles on startup (Works locally & on Azure!)
 using (var scope = app.Services.CreateScope())
 {
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         db.Database.Migrate();
+
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+        foreach (var role in AppRoles.All)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole<int>(role));
+            }
+        }
     }
     catch (Exception ex)
     {
@@ -72,6 +95,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

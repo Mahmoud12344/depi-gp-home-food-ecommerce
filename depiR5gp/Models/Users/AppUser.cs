@@ -14,7 +14,6 @@ public class AppUser : IdentityUser<int>
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public string Role { get; set; } = string.Empty;
     public string? Address { get; set; }
     public UserStatus Status { get; set; } = UserStatus.Active;
     public int PointsBalance { get; set; } = 0;
