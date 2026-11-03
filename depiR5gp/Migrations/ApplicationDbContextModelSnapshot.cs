@@ -1609,7 +1609,10 @@ namespace depiR5gp.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("AppUsers", (string)null);
+                    b.ToTable("AppUsers", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_AppUsers_status", "status IN ('Active', 'Suspended', 'Deleted')");
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

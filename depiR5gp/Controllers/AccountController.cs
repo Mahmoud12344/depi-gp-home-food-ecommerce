@@ -31,13 +31,13 @@ public class AccountController(
         AppUser? user = await userManager.FindByEmailAsync(identifier)
                         ?? await userManager.FindByNameAsync(identifier);
 
-        if (user is null || user.IsDeleted)
+        if (user is null || user.Status == UserStatus.Deleted)
         {
             ModelState.AddModelError(string.Empty, "Invalid email/username or password.");
             return View("Login", loginVm);
         }
 
-        if (user.IsSuspended)
+            if (user.Status == UserStatus.Suspended)
         {
             ModelState.AddModelError(string.Empty, "Your account has been suspended. Please contact support.");
             return View("Login", loginVm);
@@ -207,9 +207,8 @@ public class AccountController(
 
         string normalizedEmail = model.Email.Trim();
         var user = await userManager.FindByEmailAsync(normalizedEmail);
-        if (user is null || user.IsDeleted)
+        if (user is null || user.Status == UserStatus.Deleted)
         {
-            // Do not reveal whether the email exists (prevents user enumeration)
             TempData["InfoMessage"] = "If an account with that email exists, recovery instructions have been sent.";
             return RedirectToAction("Login");
         }
@@ -247,7 +246,7 @@ public class AccountController(
         }
 
         var user = await userManager.FindByEmailAsync(model.Email.Trim());
-        if (user is null || user.IsDeleted)
+        if (user is null || user.Status == UserStatus.Deleted)
         {
             TempData["SuccessMessage"] = "Your password has been reset successfully. Please sign in.";
             return RedirectToAction("Login");

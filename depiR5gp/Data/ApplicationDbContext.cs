@@ -23,7 +23,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ChefProfile> ChefProfiles => Set<ChefProfile>();
     public DbSet<ChefDocument> ChefDocuments => Set<ChefDocument>();
     public DbSet<ChefWorkingHours> ChefWorkingHours => Set<ChefWorkingHours>();
-
     // Menu Module
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Cuisine> Cuisines => Set<Cuisine>();
