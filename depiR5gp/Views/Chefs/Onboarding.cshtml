@@ -9,7 +9,7 @@
     step: 'form',
     kitchenName: '@(Model?.KitchenName ?? "")',
     address: '@(Model?.Address ?? "")'
-}" class="w-full pb-24">
+    }" class="w-full pb-24">
 
     <!-- Breadcrumb banner -->
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
@@ -65,7 +65,8 @@
         <!-- Application Form -->
         <form x-show="step === 'form'"
               method="post"
-              action="/Chefs/Onboarding"
+              asp-action="Onboarding"
+              asp-controller="Chefs"
               enctype="multipart/form-data"
               class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-8 sm:p-10 shadow-sm space-y-8">
             @Html.AntiForgeryToken()
@@ -146,11 +147,11 @@
                 </div>
             </div>
 
-            <!-- Agreement Checkbox -->
+            <!-- [SCRUM-346] Agreement Checkbox -->
             <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-2">
                 <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox"
-                           required
+                    <input asp-for="HasAcceptedTerms"
+                           type="checkbox"
                            class="mt-1 w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)] border-neutral-300" />
                     <span class="text-[var(--color-text)] leading-relaxed">
                         <strong class="block">Agree to 15% Platform Commission &amp; Domestic Hygiene Terms</strong>
@@ -159,6 +160,7 @@
                         </span>
                     </span>
                 </label>
+                <span asp-validation-for="HasAcceptedTerms" class="text-rose-500 text-xs mt-1 block"></span>
             </div>
 
             <button type="submit"
