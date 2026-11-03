@@ -21,6 +21,7 @@ public class ChefProfile
     public string? RejectionReason { get; set; }
     public bool HasAcceptedTerms { get; set; } = false;
     public decimal? CommissionRate { get; set; }
+    public bool IsAcceptingOrders { get; set; } = true;
 
     // Navigation Properties
     public virtual AppUser User { get; set; } = null!;

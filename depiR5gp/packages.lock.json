@@ -47,6 +47,12 @@
           "Microsoft.EntityFrameworkCore.Design": "10.0.12"
         }
       },
+      "System.Security.Cryptography.Pkcs": {
+        "type": "Direct",
+        "requested": "[10.0.14, )",
+        "resolved": "10.0.14",
+        "contentHash": "Wz+IgL2xpg8KJ4i2VWj6uz1PmZNu4Q0Ljlwd73P9Vze5NcOBtctLii3itV0PB2MpOqwqDEGfB6RCdv94A4E5yQ=="
+      },
       "Azure.Core": {
         "type": "Transitive",
         "resolved": "1.50.0",
@@ -370,11 +376,6 @@
         "type": "Transitive",
         "resolved": "8.0.1",
         "contentHash": "BVYuec3jV23EMRDeR7Dr1/qhx7369dZzJ9IWy2xylvb4YfXsrUxspWc4UWYid/tj4zZK58uGZqn2WQiaDMhmAg=="
-      },
-      "System.Security.Cryptography.Pkcs": {
-        "type": "Transitive",
-        "resolved": "9.0.11",
-        "contentHash": "YS2YqtN6fFjlTDIQI+ucjbbrEvwMn796r+VLTQRr/5Oy6g+i+m7nIou83KnJCnAcKna2I+5eVJRks6SoHSpetQ=="
       },
       "System.Security.Cryptography.ProtectedData": {
         "type": "Transitive",

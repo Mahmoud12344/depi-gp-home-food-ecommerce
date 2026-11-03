@@ -12,5 +12,12 @@ public class ChefRepository(ApplicationDbContext context) : GenericRepository<Ch
         return await context.ChefProfiles
             .AnyAsync(c => c.UserId == userId && (c.Status == "Pending" || c.Status == "Approved"));
     }
+    public async Task<ChefProfile?> GetByUserIdAsync(int userId)
+    {
+        return await context.ChefProfiles
+            .Include(c => c.User)
+            .Include(c => c.WorkingHours)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+    }
 }
 

@@ -4,6 +4,7 @@ namespace depiR5gp.Repositories.Interfaces;
 
 public interface IChefRepository : IGenericRepository<ChefProfile>
 {
+    Task<ChefProfile?> GetByUserIdAsync(int userId);
     // فحص ما إذا كان لدى المستخدم طلب قيد الانتظار أو مقبول مسبقاً
     Task<bool> HasPendingOrApprovedApplicationAsync(int userId);
 }
