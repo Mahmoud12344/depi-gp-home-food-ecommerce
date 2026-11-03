@@ -12,8 +12,8 @@ using depiR5gp.Data;
 namespace depiR5gp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261103174240_fix")]
-    partial class fix
+    [Migration("20261103131320_addlogingforuserstatus")]
+    partial class addlogingforuserstatus
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1580,6 +1580,12 @@ namespace depiR5gp.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("points_balance");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("role");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

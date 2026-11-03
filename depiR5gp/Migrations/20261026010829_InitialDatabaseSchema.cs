@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace depiR5gp.Migrations
 {
     /// <inheritdoc />
-    public partial class fix : Migration
+    public partial class InitialDatabaseSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,8 +19,10 @@ namespace depiR5gp.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     first_name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     last_name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    role = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Active"),
+                    is_suspended = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    is_deleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     points_balance = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -40,7 +42,6 @@ namespace depiR5gp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AppUsers", x => x.id);
-                    table.CheckConstraint("CK_AppUsers_status", "status IN ('Active', 'Suspended', 'Deleted')");
                 });
 
             migrationBuilder.CreateTable(
@@ -280,36 +281,6 @@ namespace depiR5gp.Migrations
                         principalTable: "AppUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserStatusHistories",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    user_id = table.Column<int>(type: "int", nullable: false),
-                    changed_by_user_id = table.Column<int>(type: "int", nullable: true),
-                    status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    changed_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    reason = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserStatusHistories", x => x.id);
-                    table.CheckConstraint("CK_UserStatusHistories_status", "status IN ('Active', 'Suspended', 'Deleted')");
-                    table.ForeignKey(
-                        name: "FK_UserStatusHistories_AppUsers_changed_by_user_id",
-                        column: x => x.changed_by_user_id,
-                        principalTable: "AppUsers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_UserStatusHistories_AppUsers_user_id",
-                        column: x => x.user_id,
-                        principalTable: "AppUsers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1324,17 +1295,6 @@ namespace depiR5gp.Migrations
                 name: "IX_SupportCases_user_id",
                 table: "SupportCases",
                 column: "user_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserStatusHistories_changed_by_user_id",
-                table: "UserStatusHistories",
-                column: "changed_by_user_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserStatusHistories_user_changed",
-                table: "UserStatusHistories",
-                columns: new[] { "user_id", "changed_at" },
-                descending: new[] { false, true });
         }
 
         /// <inheritdoc />
@@ -1405,9 +1365,6 @@ namespace depiR5gp.Migrations
 
             migrationBuilder.DropTable(
                 name: "Reviews");
-
-            migrationBuilder.DropTable(
-                name: "UserStatusHistories");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

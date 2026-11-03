@@ -127,14 +127,6 @@ try
                     CONSTRAINT [FK_UserStatusHistories_AppUsers_user_id] FOREIGN KEY ([user_id]) REFERENCES [AppUsers] ([id]) ON DELETE NO ACTION
                 );
             END;
-
-            IF OBJECT_ID(N'[__EFMigrationsHistory]', N'U') IS NOT NULL 
-               AND OBJECT_ID(N'[AppUsers]', N'U') IS NOT NULL
-               AND NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20261103174240_fix')
-            BEGIN
-                INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-                VALUES ('20261103174240_fix', '10.0.12');
-            END;
         ");
     }
     catch (Exception ex)
@@ -144,6 +136,16 @@ try
     }
 
     db.Database.Migrate();
+
+    // Ensure essential Identity roles exist in all environments (Production, Staging, Development)
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+    foreach (var role in AppRoles.All)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole<int>(role));
+        }
+    }
 }
 catch (Exception ex)
 {
