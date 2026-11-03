@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +11,8 @@ namespace depiR5gp.Controllers;
 public class AccountController(
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
-    RoleManager<IdentityRole<int>> roleManager) : Controller
+    RoleManager<IdentityRole<int>> roleManager,
+    IConfiguration configuration) : Controller
 {
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
@@ -27,6 +30,52 @@ public class AccountController(
         }
 
         string identifier = loginVm.Email.Trim();
+
+        //Check Admin credentials from Secrets / Configuration 
+
+        var adminEmail = configuration["Admin:Email"] ?? "admin@homechef.eg";
+        var adminPassword = configuration["Admin:Password"] ?? "Admin@123";
+        if ((string.Equals(identifier, adminEmail, StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(identifier, "admin", StringComparison.OrdinalIgnoreCase)) &&
+            loginVm.Password == adminPassword)
+        {
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, "admin"),
+                new(ClaimTypes.Name, "Admin"),
+                new(ClaimTypes.Email, adminEmail),
+                new(ClaimTypes.Role, AppRoles.Admin)
+            };
+            var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
+            await HttpContext.SignInAsync(
+                IdentityConstants.ApplicationScheme,
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties { IsPersistent = loginVm.RememberMe });
+            TempData["SuccessMessage"] = "Welcome back, Admin!";
+            return RedirectToAction("Index", "Admin");
+        }
+        // 2. Check Support credentials from Secrets / Configuration 
+        var supportEmail = configuration["Support:Email"] ?? "support@homechef.eg";
+        var supportPassword = configuration["Support:Password"] ?? "Support@123";
+        if ((string.Equals(identifier, supportEmail, StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(identifier, "support", StringComparison.OrdinalIgnoreCase)) &&
+            loginVm.Password == supportPassword)
+        {
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, "support"),
+                new(ClaimTypes.Name, "Support Agent"),
+                new(ClaimTypes.Email, supportEmail),
+                new(ClaimTypes.Role, AppRoles.Support)
+            };
+            var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
+            await HttpContext.SignInAsync(
+                IdentityConstants.ApplicationScheme,
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties { IsPersistent = loginVm.RememberMe });
+            TempData["SuccessMessage"] = "Welcome back, Support Agent!";
+            return RedirectToAction("AgentDesk", "Support");
+        }
 
         AppUser? user = await userManager.FindByEmailAsync(identifier)
                         ?? await userManager.FindByNameAsync(identifier);
@@ -79,6 +128,9 @@ public class AccountController(
         ModelState.AddModelError(string.Empty, "Invalid email/username or password.");
         return View("Login", loginVm);
     }
+
+
+
 
     [HttpGet]
     public IActionResult Register()
