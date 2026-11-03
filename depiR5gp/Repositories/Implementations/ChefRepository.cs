@@ -14,7 +14,10 @@ public class ChefRepository(ApplicationDbContext context) : GenericRepository<Ch
     }
     public async Task<ChefProfile?> GetByUserIdAsync(int userId)
     {
-        return await context.ChefProfiles.FirstOrDefaultAsync(c => c.UserId == userId);
+        return await context.ChefProfiles
+            .Include(c => c.User)
+            .Include(c => c.WorkingHours)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
     }
 }
 

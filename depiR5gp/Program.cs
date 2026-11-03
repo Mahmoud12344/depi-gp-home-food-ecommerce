@@ -1,4 +1,5 @@
 using depiR5gp.Data;
+using depiR5gp.Services;
 using depiR5gp.Services.Implementation;
 using depiR5gp.Services.Implementations;
 using depiR5gp.Services.Interfaces;
@@ -49,6 +50,9 @@ builder.Services.AddScoped<depiR5gp.Services.Interfaces.IChefService, depiR5gp.S
 
 //Admin Service
 builder.Services.AddScoped<IAdminService, AdminService>();
+
+//ChefProfile Service 
+builder.Services.AddScoped<IChefProfileService, ChefProfileService>();
 
 var app = builder.Build();
 

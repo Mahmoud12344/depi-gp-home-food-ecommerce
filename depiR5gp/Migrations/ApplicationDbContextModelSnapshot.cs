@@ -414,6 +414,9 @@ namespace depiR5gp.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("has_accepted_terms");
 
+                    b.Property<bool>("IsAcceptingOrders")
+                        .HasColumnType("bit");
+
                     b.Property<string>("KitchenName")
                         .IsRequired()
                         .HasMaxLength(150)
