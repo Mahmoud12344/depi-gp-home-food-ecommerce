@@ -52,18 +52,17 @@ namespace depiR5gp.Migrations
                 END
                 """);
 
-            migrationBuilder.AddColumn<string>(
-                name: "status",
-                table: "AppUsers",
-                type: "nvarchar(20)",
-                maxLength: 20,
-                nullable: false,
-                defaultValue: "Active");
-
-            migrationBuilder.AddCheckConstraint(
-                name: "CK_AppUsers_status",
-                table: "AppUsers",
-                sql: "status IN ('Active', 'Suspended', 'Deleted')");
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH('AppUsers', 'status') IS NULL
+                BEGIN
+                    ALTER TABLE [AppUsers] ADD [status] nvarchar(20) NOT NULL DEFAULT 'Active';
+                END
+                IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = 'CK_AppUsers_status')
+                BEGIN
+                    ALTER TABLE [AppUsers] ADD CONSTRAINT [CK_AppUsers_status] CHECK (status IN ('Active', 'Suspended', 'Deleted'));
+                END
+                """);
         }
 
         /// <inheritdoc />
