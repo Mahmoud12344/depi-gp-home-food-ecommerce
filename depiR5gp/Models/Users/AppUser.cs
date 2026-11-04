@@ -34,5 +34,6 @@ public class AppUser : IdentityUser<int>
     public virtual ICollection<OrderStatusHistory> OrderStatusHistories { get; set; } = new List<OrderStatusHistory>();
     public virtual ICollection<AssistantConversation> AssistantConversations { get; set; } = new List<AssistantConversation>();
     public virtual ICollection<AssistantUsage> AssistantUsages { get; set; } = new List<AssistantUsage>();
+    public virtual ICollection<UserStatusHistory> StatusHistory { get; set; } = new List<UserStatusHistory>();
 }
 

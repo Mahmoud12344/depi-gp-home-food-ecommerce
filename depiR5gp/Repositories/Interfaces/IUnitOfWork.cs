@@ -10,7 +10,9 @@ public interface IUnitOfWork : IDisposable
     IReviewRepository Reviews { get; }
     IConversationRepository Conversations { get; }
     ISupportRepository SupportCases { get; }
+    IUserRepository Users { get; }
 
     Task<int> CompleteAsync();
+    Task SaveChangesAsync();
 }
 

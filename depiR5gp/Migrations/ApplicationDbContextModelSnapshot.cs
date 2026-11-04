@@ -1615,6 +1615,52 @@ namespace depiR5gp.Migrations
                         });
                 });
 
+            modelBuilder.Entity("depiR5gp.Models.Users.UserStatusHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("changed_at");
+
+                    b.Property<int?>("ChangedByUserId")
+                        .HasColumnType("int")
+                        .HasColumnName("changed_by_user_id");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("UserId", "ChangedAt")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("IX_UserStatusHistories_user_changed");
+
+                    b.ToTable("UserStatusHistories", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_UserStatusHistories_status", "status IN ('Active', 'Suspended', 'Deleted')");
+                        });
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -2136,6 +2182,24 @@ namespace depiR5gp.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("depiR5gp.Models.Users.UserStatusHistory", b =>
+                {
+                    b.HasOne("depiR5gp.Models.Users.AppUser", "ChangedByUser")
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("depiR5gp.Models.Users.AppUser", "User")
+                        .WithMany("StatusHistory")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ChangedByUser");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("depiR5gp.Models.AIAssistant.AssistantConversation", b =>
                 {
                     b.Navigation("Messages");
@@ -2271,6 +2335,8 @@ namespace depiR5gp.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("SentMessages");
+
+                    b.Navigation("StatusHistory");
 
                     b.Navigation("SupportCases");
                 });

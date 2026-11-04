@@ -27,8 +27,14 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
             .HasDefaultValue(UserStatus.Active);
         
         builder.Property(u => u.PointsBalance).HasColumnName("points_balance").HasDefaultValue(0);
-
         builder.HasIndex(u => u.Email).IsUnique();
+        builder.Property(u => u.Status)
+            .HasColumnName("status")
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .IsRequired()
+            .HasDefaultValue(UserStatus.Active);
+
 
         // 1:1 with ChefProfile
         builder.HasOne(u => u.ChefProfile)
