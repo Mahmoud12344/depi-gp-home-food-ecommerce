@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" dir="ltr" class="scroll-smooth">
+@{
+    var noScroll = ViewData["NoScroll"] as bool? == true || ViewData["HideFooter"] as bool? == true;
+}
+<html lang="en" data-theme="light" dir="ltr" class="scroll-smooth @(noScroll ? "h-full overflow-hidden" : "")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -31,7 +34,7 @@
     <!-- Pure Tailwind CSS v4 -->
     <link rel="stylesheet" href="/css/site.css" />
 </head>
-<body class="bg-[var(--color-bg)] text-[var(--color-text)] antialiased transition-colors duration-200 min-h-screen flex flex-col font-sans"
+<body class="bg-[var(--color-bg)] text-[var(--color-text)] antialiased transition-colors duration-200 min-h-screen flex flex-col font-sans @(noScroll ? "h-screen overflow-hidden" : "")"
       x-data>
     
     <!-- Inline SVG Lucide Sprite (100% Reliable, Zero-Latency, Zero-CORS) -->
@@ -41,7 +44,7 @@
     @await Html.PartialAsync("~/Views/Shared/Partials/_Header.cshtml")
 
     <!-- Main Content Area -->
-    <main role="main" class="flex-1">
+    <main role="main" class="flex-1 @(noScroll ? "min-h-0 overflow-hidden flex flex-col" : "")">
 
         <!-- TempData Notification Banners (تنبيهات ثابتة لا تختفي إلا بضغط زر الإغلاق) -->
         <div class="container mx-auto px-4 pt-4">
@@ -65,12 +68,14 @@
                 </div>
             }
         </div>
-
         @RenderBody()
     </main>
 
     <!-- Footer -->
-    @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
+    @if (ViewData["HideFooter"] as bool? != true)
+    {
+        @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
+    }
 
     <!-- Global Modals, Drawers & Overlays -->
     @await Html.PartialAsync("~/Views/Shared/Partials/_FilterDrawer.cshtml")
@@ -79,8 +84,10 @@
     @await Html.PartialAsync("~/Views/Shared/Partials/_QuickViewModal.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Partials/_ToastContainer.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Partials/_ChatModal.cshtml")
-    @await Html.PartialAsync("~/Views/Shared/Partials/_AIAssistantWidget.cshtml")
-    @await Html.PartialAsync("~/Views/Shared/Partials/_PrototypeBar.cshtml")
+    @if (ViewData["HideAIAssistant"] as bool? != true)
+    {
+        @await Html.PartialAsync("~/Views/Shared/Partials/_AIAssistantWidget.cshtml")
+    }
 
     <!-- Local Vanilla JS Interactive Modules -->
     <script src="/js/components/circular3DGallery.js"></script>

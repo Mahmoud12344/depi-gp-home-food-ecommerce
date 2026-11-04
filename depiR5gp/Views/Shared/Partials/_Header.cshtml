@@ -107,6 +107,16 @@
                     <span class="text-[var(--color-text)]">EGP</span>
                 </div>
 
+                <!-- Global Theme Toggle (Main Application) -->
+                <button type="button"
+                        @@click="window.toggleTheme()"
+                        title="Toggle Dark / Light Theme"
+                        aria-label="Toggle Dark / Light Theme"
+                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer shrink-0">
+                    <svg class="w-4 h-4 text-neutral-600 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#moon"></use></svg>
+                    <svg class="w-4 h-4 text-amber-400 hidden dark:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sun"></use></svg>
+                </button>
+
                 <!-- Search Icon Button -->
                 <button type="button"
                         @@click="searchOpen = !searchOpen"
@@ -345,5 +355,18 @@
             <svg class="w-3.5 h-3.5 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sparkles"></use></svg>
             <span>AI ASSISTANT</span>
         </a>
+
+        <!-- Mobile Theme Toggle -->
+        <div class="pt-3 border-t border-[var(--color-border)] flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Theme</span>
+            <button type="button"
+                    @@click="window.toggleTheme()"
+                    class="px-3.5 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] hover:border-[var(--color-primary)] text-[var(--color-text)] flex items-center gap-2 text-xs font-semibold transition-colors cursor-pointer">
+                <svg class="w-4 h-4 text-neutral-600 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#moon"></use></svg>
+                <svg class="w-4 h-4 text-amber-400 hidden dark:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sun"></use></svg>
+                <span class="dark:hidden">Dark Mode</span>
+                <span class="hidden dark:inline">Light Mode</span>
+            </button>
+        </div>
     </div>
 </header>
