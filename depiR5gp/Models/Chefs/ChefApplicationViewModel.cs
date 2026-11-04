@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace depiR5gp.Models.Chefs
 {
@@ -27,5 +27,6 @@ namespace depiR5gp.Models.Chefs
 
         [Display(Name = "اتفاقية العمولة والشروط")]
         public bool HasAcceptedTerms { get; set; }
+
     }
 }

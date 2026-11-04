@@ -16,6 +16,7 @@ public class UnitOfWork : IUnitOfWork
     public IConversationRepository Conversations { get; }
     public ISupportRepository SupportCases { get; }
     public IUserRepository Users { get; }
+    public IPlatformSettingRepository PlatformSettingRepository{ get;}
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -28,6 +29,7 @@ public class UnitOfWork : IUnitOfWork
         Conversations = new ConversationRepository(_context);
         SupportCases = new SupportRepository(_context);
         Users = new UserRepository(_context);
+        PlatformSettingRepository = new PlatformSettingRepository(_context);
     }
 
     // الدالة المطلوبة للواجهة IUnitOfWork

@@ -6,7 +6,7 @@ public class PlatformSettings
 {
     public int Id { get; set; }
     public int? UpdatedByUserId { get; set; }
-    public decimal CommissionRate { get; set; } = 0.1500m;
+    public decimal CommissionRate{ get; set; } = 0.1500m;
     public int RefundWindowHours { get; set; } = 24;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
