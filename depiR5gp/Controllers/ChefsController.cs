@@ -20,7 +20,7 @@ public class ChefsController(
     
 
     [HttpGet]
-    [Authorize(Roles = AppRoles.Chef)]
+    // [Authorize(Roles = AppRoles.Chef)]
     public async Task<IActionResult> Onboarding()
     {
         int userId = GetCurrentUserId();
@@ -38,6 +38,11 @@ public class ChefsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Onboarding(ChefApplicationViewModel model)
     {
+        if (!model.HasAcceptedTerms)
+        {
+            ModelState.AddModelError(nameof(model.HasAcceptedTerms), "You must accept the Commission Agreement to submit your application.");
+        }
+
         if (!ModelState.IsValid)
         {
             return View(model);

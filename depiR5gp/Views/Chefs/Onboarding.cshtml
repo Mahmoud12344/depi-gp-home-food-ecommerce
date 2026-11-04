@@ -149,7 +149,8 @@
             <!-- Agreement Checkbox -->
             <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-2">
                 <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox"
+                    <input asp-for="HasAcceptedTerms"
+                           type="checkbox"
                            required
                            class="mt-1 w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)] border-neutral-300" />
                     <span class="text-[var(--color-text)] leading-relaxed">
@@ -159,6 +160,7 @@
                         </span>
                     </span>
                 </label>
+                <span asp-validation-for="HasAcceptedTerms" class="text-rose-500 text-xs mt-1 block"></span>
             </div>
 
             <button type="submit"
