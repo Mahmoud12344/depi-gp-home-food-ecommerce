@@ -47,7 +47,7 @@
             }
 
             <form asp-controller="Account" asp-action="Register" method="post" @@submit="loading = true" class="space-y-3">
-                <input type="hidden" asp-for="Role" :value="registerRole === 'chef' ? 'HomeChef' : 'Customer'" />
+                <input type="hidden" asp-for="Role" :value="registerRole === 'chef' ? 'Chef' : 'Customer'" />
 
                 <!-- Account Type Segmented Toggle -->
                 <div class="space-y-1">
