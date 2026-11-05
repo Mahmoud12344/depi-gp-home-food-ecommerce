@@ -68,3 +68,7 @@ yarn-error.log*
 .vscode/
 *.suo
 *.user
+
+# Visual Studio
+.vs/
+**/.vs/
