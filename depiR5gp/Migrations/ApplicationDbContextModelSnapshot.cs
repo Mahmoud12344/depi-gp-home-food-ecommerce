@@ -1522,9 +1522,19 @@ namespace depiR5gp.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("address");
 
+                    b.Property<string>("Allergies")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("allergies");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DietaryPreferences")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("dietary_preferences");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1577,6 +1587,16 @@ namespace depiR5gp.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("points_balance");
+
+                    b.Property<string>("PrimaryArea")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("primary_area");
+
+                    b.Property<string>("ProfileImagePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("profile_image_path");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

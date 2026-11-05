@@ -1,131 +1,182 @@
+@model depiR5gp.ViewModels.CustomerProfileVM
+@using depiR5gp.ViewModels
 @{
     ViewData["Title"] = "Customer Profile";
     ViewData["CustomerActivePage"] = "Profile";
+    var avatarPath = string.IsNullOrWhiteSpace(Model.ProfileImagePath) ? "/icons/chibi-chef.png" : Model.ProfileImagePath;
 }
-<!-- Views/Customer/Profile.cshtml -->
-<!-- Ported from Views/Customer/Partials/_CustomerProfile.cshtml & _EditCustomerProfileModal.cshtml on main -->
-<!-- TODO(backend): Load customer profile, saved addresses, and dietary preferences from backend session -->
 
 <div class="w-full pb-24">
-    <!-- Breadcrumb banner -->
-    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
-                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
-                    <span>Home</span>
-                </a>
-                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 mb-2">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-[var(--color-primary)] font-medium">Home</a>
+                <span aria-hidden="true">/</span>
                 <span class="text-[var(--color-text)] font-semibold">Profile</span>
             </nav>
-            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
-                My Account &amp; Activity
-            </h1>
-            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
-                Track orders, loyalty balance, and favorite kitchens
-            </p>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">My Account &amp; Activity</h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5">Track orders, loyalty balance, and favorite kitchens</p>
         </div>
     </div>
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
-        <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" />
+        <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" model="Model" />
 
-        <!-- Profile & Saved Address Details Form (SCRUM-325) -->
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div class="flex items-center gap-3 border-b border-[var(--color-border-light)] pb-4">
+        <div id="profile-form" class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs">
+            <div class="flex items-center gap-3 border-b border-[var(--color-border-light)] pb-4 mb-6">
                 <div class="w-11 h-11 rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-[var(--color-text)]">
-                        Personal Details &amp; Saved Pickup Neighborhood
-                    </h3>
-                    <p class="text-xs text-[var(--color-text-muted)]">Update your contact details, default address, and dietary notes</p>
+                    <h2 class="text-lg font-bold text-[var(--color-text)]">Personal Details &amp; Saved Address</h2>
+                    <p class="text-xs text-[var(--color-text-muted)]">Keep your contact details and food preferences up to date</p>
                 </div>
             </div>
 
-            <!-- TODO(backend): POST /Customer/UpdateProfile -->
-            <form method="post" action="/Customer/UpdateProfile" class="space-y-4 text-xs">
+            <form asp-controller="Customer" asp-action="UpdateProfile" method="post" enctype="multipart/form-data" class="space-y-5 text-sm" id="customer-profile-form">
                 @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-red-700 bg-red-50 border border-red-200 rounded-xl p-3" role="alert"></div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-5 items-center">
+                    <img id="profile-image-preview" src="@avatarPath" alt="Current profile picture" class="w-24 h-24 rounded-full object-cover border-2 border-[var(--color-primary)]" />
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
-                            Full Name
-                        </label>
-                        <input type="text"
-                               name="name"
-                               value="Tamer Zaki"
-                               required
-                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                        <label asp-for="ProfileImage" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Profile picture</label>
+                        <input asp-for="ProfileImage" disabled="@(!Model.IsEditMode)" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="profile-editable block w-full text-sm text-[var(--color-text)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary)] file:px-4 file:py-2 file:text-white file:font-semibold" />
+                        <p class="text-xs text-[var(--color-text-muted)] mt-1">JPG, PNG, or WEBP up to 2 MB.</p>
+                        <span asp-validation-for="ProfileImage" class="text-xs text-red-600"></span>
                     </div>
+                </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
-                            Phone Number
-                        </label>
-                        <input type="tel"
-                               name="phone"
-                               value="+20 100 234 5678"
-                               required
-                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                        <label asp-for="FullName" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"></label>
+                        <input asp-for="FullName" disabled="@(!Model.IsEditMode)" class="profile-editable w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)]" autocomplete="name" />
+                        <span asp-validation-for="FullName" class="text-xs text-red-600"></span>
+                    </div>
+                    <div>
+                        <label asp-for="PhoneNumber" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"></label>
+                        <input asp-for="PhoneNumber" disabled="@(!Model.IsEditMode)" type="tel" class="profile-editable w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)]" autocomplete="tel" />
+                        <span asp-validation-for="PhoneNumber" class="text-xs text-red-600"></span>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
-                        Email Address
-                    </label>
-                    <input type="email"
-                           value="tamer.zaki@example.com"
-                           disabled
-                           class="w-full bg-neutral-100 dark:bg-neutral-800 border border-[var(--color-border-light)] rounded-xl px-3.5 py-2.5 text-[var(--color-text-muted)] cursor-not-allowed opacity-80" />
-                    <span class="text-[10px] text-[var(--color-text-muted)] mt-1 block">To modify your login email, contact customer support.</span>
+                    <label asp-for="Email" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"></label>
+                    <input asp-for="Email" readonly class="w-full bg-neutral-100 dark:bg-neutral-800 border border-[var(--color-border-light)] rounded-xl px-3.5 py-2.5 text-[var(--color-text-muted)]" autocomplete="email" />
+                    <p class="text-xs text-[var(--color-text-muted)] mt-1">To change your login email, contact customer support.</p>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="sm:col-span-1">
-                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
-                            Primary Area
-                        </label>
-                        <select name="area" class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-2.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">
-                            <option value="Maadi, Cairo" selected>Maadi</option>
-                            <option value="Zamalek, Cairo">Zamalek</option>
-                            <option value="Nasr City, Cairo">Nasr City</option>
-                            <option value="Heliopolis, Cairo">Heliopolis</option>
-                            <option value="Dokki & Mohandessin">Dokki</option>
-                            <option value="New Cairo / 5th Settlement">New Cairo</option>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label asp-for="PrimaryArea" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"></label>
+                        <select asp-for="PrimaryArea" disabled="@(!Model.IsEditMode)" asp-items="@(new SelectList(CustomerProfileVM.Areas))" class="profile-editable w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-2.5 py-2.5 text-[var(--color-text)]">
+                            <option value="">Select an area</option>
                         </select>
+                        <span asp-validation-for="PrimaryArea" class="text-xs text-red-600"></span>
                     </div>
-
-                    <div class="sm:col-span-2">
-                        <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
-                            Street &amp; Building Details
-                        </label>
-                        <input type="text"
-                               name="address"
-                               value="Villa 14, Road 9, Degla, Maadi, Cairo"
-                               required
-                               class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
+                    <div class="md:col-span-2">
+                        <label asp-for="Address" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"></label>
+                        <input asp-for="Address" disabled="@(!Model.IsEditMode)" class="profile-editable w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-[var(--color-text)]" autocomplete="street-address" />
+                        <span asp-validation-for="Address" class="text-xs text-red-600"></span>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">
-                        Dietary Preferences &amp; Allergies
-                    </label>
-                    <textarea name="dietaryNotes"
-                              rows="2"
-                              class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)]">No artificial preservatives, prefer baladi ghee and mild spices</textarea>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="DietaryPreferences" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"></label>
+                        <textarea asp-for="DietaryPreferences" disabled="@(!Model.IsEditMode)" rows="3" class="profile-editable w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-[var(--color-text)]"></textarea>
+                        <span asp-validation-for="DietaryPreferences" class="text-xs text-red-600"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Allergies" class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5"></label>
+                        <textarea asp-for="Allergies" disabled="@(!Model.IsEditMode)" rows="3" class="profile-editable w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl p-3 text-[var(--color-text)]"></textarea>
+                        <span asp-validation-for="Allergies" class="text-xs text-red-600"></span>
+                    </div>
                 </div>
 
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
-                    <button type="submit"
-                            class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
-                        Save Changes
-                    </button>
+                <div class="flex justify-end gap-3 pt-4 border-t border-[var(--color-border-light)]">
+                    <button type="button" id="edit-profile-button" class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] hover:text-white focus:bg-[var(--color-primary-dark)] focus:text-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 active:bg-[var(--color-primary-dark)] active:text-white text-xs font-bold uppercase tracking-wider shadow-sm" @(Model.IsEditMode ? "hidden" : null)>Edit Profile</button>
+                    <button type="button" id="cancel-profile-button" class="px-5 py-2.5 rounded-full border border-[var(--color-border)] text-[var(--color-text)] text-xs font-bold uppercase tracking-wider" @(Model.IsEditMode ? null : "hidden")>Cancel</button>
+                    <button type="submit" id="save-profile-button" class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider shadow-sm" @(Model.IsEditMode ? null : "hidden")>Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const form = document.getElementById('customer-profile-form');
+            const preview = document.getElementById('profile-image-preview');
+            const imageInput = document.getElementById('ProfileImage');
+            const editButton = document.getElementById('edit-profile-button');
+            const cancelButton = document.getElementById('cancel-profile-button');
+            const saveButton = document.getElementById('save-profile-button');
+            const originalImage = preview?.src;
+            const originalValues = new Map(
+                [...(form?.querySelectorAll('.profile-editable') ?? [])]
+                    .map(element => [element.name, element.value]));
+            let previewUrl = null;
+
+            const setEditMode = (editing) => {
+                form?.querySelectorAll('.profile-editable').forEach(element => element.disabled = !editing);
+                if (editButton) editButton.hidden = editing;
+                if (cancelButton) cancelButton.hidden = !editing;
+                if (saveButton) saveButton.hidden = !editing;
+            };
+
+            editButton?.addEventListener('click', () => setEditMode(true));
+            document.querySelectorAll('[data-profile-edit-trigger]').forEach(trigger => {
+                trigger.addEventListener('click', event => {
+                    if (form) {
+                        event.preventDefault();
+                        setEditMode(true);
+                        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+            cancelButton?.addEventListener('click', () => {
+                form?.querySelectorAll('.profile-editable').forEach(element => {
+                    if (originalValues.has(element.name)) element.value = originalValues.get(element.name);
+                });
+                if (preview) preview.src = originalImage;
+                if (imageInput) imageInput.value = '';
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                    previewUrl = null;
+                }
+                setEditMode(false);
+            });
+            imageInput?.addEventListener('change', event => {
+                const file = event.target.files?.[0];
+                if (previewUrl) URL.revokeObjectURL(previewUrl);
+                previewUrl = file ? URL.createObjectURL(file) : null;
+                if (preview && previewUrl) preview.src = previewUrl;
+            });
+            form?.addEventListener('submit', event => {
+                const jqueryForm = typeof window.jQuery === 'function' ? window.jQuery(form) : null;
+                const isValid = jqueryForm && typeof jqueryForm.valid === 'function'
+                    ? jqueryForm.valid()
+                    : form.checkValidity();
+
+                if (event.defaultPrevented || !isValid) {
+                    if (saveButton) {
+                        saveButton.disabled = false;
+                        saveButton.textContent = 'Save Changes';
+                    }
+                    if (!isValid && (!jqueryForm || typeof jqueryForm.valid !== 'function')) form.reportValidity();
+                    return;
+                }
+
+                if (saveButton) {
+                    saveButton.disabled = true;
+                    saveButton.textContent = 'Saving...';
+                }
+            });
+
+            setEditMode(@(Model.IsEditMode.ToString().ToLowerInvariant()));
+        })();
+    </script>
+}

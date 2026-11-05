@@ -26,10 +26,14 @@ public class LocalFileService(IWebHostEnvironment env) : IFileService
             return Task.CompletedTask;
 
         string relativePath = fileUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-        string fullPath = Path.GetFullPath(Path.Combine(env.WebRootPath, relativePath));
+        string webRootPath = Path.GetFullPath(env.WebRootPath);
+        string fullPath = Path.GetFullPath(Path.Combine(webRootPath, relativePath));
+        string relativeToWebRoot = Path.GetRelativePath(webRootPath, fullPath);
 
-        // Safety: never delete anything outside wwwroot
-        if (fullPath.StartsWith(Path.GetFullPath(env.WebRootPath)) && File.Exists(fullPath))
+        // Safety: never delete anything outside wwwroot.
+        if (!relativeToWebRoot.StartsWith("..", StringComparison.Ordinal)
+            && !Path.IsPathRooted(relativeToWebRoot)
+            && File.Exists(fullPath))
             File.Delete(fullPath);
 
         return Task.CompletedTask;

@@ -19,6 +19,10 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         builder.Property(u => u.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
         builder.Property(u => u.LastName).HasColumnName("last_name").HasMaxLength(100).IsRequired();
         builder.Property(u => u.Address).HasColumnName("address").HasMaxLength(500);
+        builder.Property(u => u.PrimaryArea).HasColumnName("primary_area").HasMaxLength(100);
+        builder.Property(u => u.DietaryPreferences).HasColumnName("dietary_preferences").HasMaxLength(1000);
+        builder.Property(u => u.Allergies).HasColumnName("allergies").HasMaxLength(1000);
+        builder.Property(u => u.ProfileImagePath).HasColumnName("profile_image_path").HasMaxLength(500);
         builder.Property(u => u.Status)
             .HasColumnName("status")
             .HasConversion<string>()
