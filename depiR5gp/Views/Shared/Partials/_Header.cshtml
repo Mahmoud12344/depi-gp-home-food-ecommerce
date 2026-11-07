@@ -316,6 +316,17 @@
              style="display: none;"
              class="py-3 border-t border-[var(--color-border)]">
             <form method="get" action="/Dishes" class="flex items-center gap-2 max-w-xl mx-auto">
+                @if (Context.Request.Path.StartsWithSegments("/Dishes"))
+                {
+                    foreach (var key in new[] { "category", "area", "minPrice", "maxPrice", "sort" })
+                    {
+                        var v = Context.Request.Query[key].ToString();
+                        if (!string.IsNullOrEmpty(v))
+                        {
+                            <input type="hidden" name="@key" value="@v" />
+                        }
+                    }
+                }
                 <div class="relative flex-1">
                     <input type="text"
                            name="search"

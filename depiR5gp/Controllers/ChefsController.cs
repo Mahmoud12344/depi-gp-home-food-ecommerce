@@ -4,6 +4,8 @@ using depiR5gp.Models.Chefs;
 using depiR5gp.Models.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using depiR5gp.Data;
+using System.Security.Claims;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
 
@@ -14,7 +16,8 @@ public class ChefsController(
     IUnitOfWork unitOfWork,
     ApplicationDbContext context) : Controller
 {
-    public IActionResult Index() => View();
+    public async Task<IActionResult> Index(ChefFilterViewModel filter)
+    => View(await chefService.GetCatalogAsync(filter));
 
     public IActionResult Details(int id) => View();
     
