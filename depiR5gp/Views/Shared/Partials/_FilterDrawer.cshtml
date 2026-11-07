@@ -1,3 +1,9 @@
+@model depiR5gp.Models.Menu.DishCatalogViewModel
+@{
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    var cuisineTotal = Model.Cuisines.Sum(c => c.Count);
+    var areaTotal = Model.Areas.Sum(a => a.Count);
+}
 <!-- Views/Shared/Partials/_FilterDrawer.cshtml -->
 <!-- Source: home_chef/src/components/common/FilterDrawer.tsx -->
 <!-- TODO(backend): Filter dishes/chefs server-side via GET query parameters -->
@@ -5,10 +11,10 @@
 <div x-cloak
      x-data="{
          open: false,
-         selectedCuisine: 'all',
-         selectedArea: 'all',
-         minPrice: '',
-         maxPrice: '',
+         selectedCuisine: '@(Model.Filter.CuisineId?.ToString() ?? "all")',
+         selectedArea: '@(Model.Filter.Area ?? "all")',
+         minPrice: '@(Model.Filter.MinPrice?.ToString(inv) ?? "")',
+         maxPrice: '@(Model.Filter.MaxPrice?.ToString(inv) ?? "")',
          get priceError() {
              if (this.minPrice && this.maxPrice && Number(this.minPrice) > Number(this.maxPrice)) {
                  return 'Minimum price cannot exceed maximum price.';
@@ -29,8 +35,10 @@
     <form method="get" action="/Dishes"
           class="me-auto relative z-10 w-full max-w-xs sm:max-w-sm bg-[var(--color-card-bg)] border-e border-[var(--color-border)] shadow-2xl flex flex-col h-full transform transition-transform duration-300 ease-in-out">
 
-        <input type="hidden" name="category" :value="selectedCuisine" />
+        <input type="hidden" name="category" :value="selectedCuisine === 'all' ? '' : selectedCuisine" />
         <input type="hidden" name="area" :value="selectedArea" />
+        @if (Model.Filter.Search != null) { <input type="hidden" name="search" value="@Model.Filter.Search" /> }
+        @if (Model.Filter.Sort != "featured") { <input type="hidden" name="sort" value="@Model.Filter.Sort" /> }
 
         <!-- Drawer Header -->
         <div class="flex items-center justify-between p-4 sm:p-5 border-b border-[var(--color-border)]">
@@ -65,7 +73,6 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <!-- BEGIN SAMPLE -->
                     <button type="button"
                             @@click="selectedCuisine = 'all'"
                             :class="selectedCuisine === 'all' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
@@ -79,105 +86,27 @@
                             </div>
                             <span>All Cuisines</span>
                         </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">(12)</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">(@cuisineTotal)</span>
                     </button>
 
-                    <button type="button"
-                            @@click="selectedCuisine = 'egyptian'"
-                            :class="selectedCuisine === 'egyptian' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedCuisine === 'egyptian' ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-xs border flex items-center justify-center">
-                                <svg x-show="selectedCuisine === 'egyptian'" class="w-2.5 h-2.5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="#check"></use>
-                                </svg>
+                    @foreach (var c in Model.Cuisines)
+                    {
+                        <button type="button"
+                                @@click="selectedCuisine = '@c.Value'"
+                                :class="selectedCuisine === '@c.Value' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
+                                class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
+                            <div class="flex items-center gap-2">
+                                <div :class="selectedCuisine === '@c.Value' ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
+                                     class="w-3.5 h-3.5 rounded-xs border flex items-center justify-center">
+                                    <svg x-show="selectedCuisine === '@c.Value'" class="w-2.5 h-2.5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <use href="#check"></use>
+                                    </svg>
+                                </div>
+                                <span>@c.Name</span>
                             </div>
-                            <span>Traditional Egyptian</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">(4)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedCuisine = 'tagines'"
-                            :class="selectedCuisine === 'tagines' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedCuisine === 'tagines' ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-xs border flex items-center justify-center">
-                                <svg x-show="selectedCuisine === 'tagines'" class="w-2.5 h-2.5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="#check"></use>
-                                </svg>
-                            </div>
-                            <span>Clay Tagines &amp; Casseroles</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">(3)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedCuisine = 'bakery'"
-                            :class="selectedCuisine === 'bakery' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedCuisine === 'bakery' ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-xs border flex items-center justify-center">
-                                <svg x-show="selectedCuisine === 'bakery'" class="w-2.5 h-2.5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="#check"></use>
-                                </svg>
-                            </div>
-                            <span>Home Artisan Bakery</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">(2)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedCuisine = 'alexandrian'"
-                            :class="selectedCuisine === 'alexandrian' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedCuisine === 'alexandrian' ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-xs border flex items-center justify-center">
-                                <svg x-show="selectedCuisine === 'alexandrian'" class="w-2.5 h-2.5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="#check"></use>
-                                </svg>
-                            </div>
-                            <span>Alexandrian Seafood</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">(1)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedCuisine = 'desserts'"
-                            :class="selectedCuisine === 'desserts' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedCuisine === 'desserts' ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-xs border flex items-center justify-center">
-                                <svg x-show="selectedCuisine === 'desserts'" class="w-2.5 h-2.5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="#check"></use>
-                                </svg>
-                            </div>
-                            <span>Oriental Desserts</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">(2)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedCuisine = 'levant'"
-                            :class="selectedCuisine === 'levant' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedCuisine === 'levant' ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-xs border flex items-center justify-center">
-                                <svg x-show="selectedCuisine === 'levant'" class="w-2.5 h-2.5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="#check"></use>
-                                </svg>
-                            </div>
-                            <span>Levant &amp; Mezze</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">(1)</span>
-                    </button>
-                    <!-- END SAMPLE -->
+                            <span class="text-[11px] text-[var(--color-text-muted)]">(@c.Count)</span>
+                        </button>
+                    }
                 </div>
             </div>
 
@@ -197,7 +126,6 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <!-- BEGIN SAMPLE -->
                     <button type="button"
                             @@click="selectedArea = 'all'"
                             :class="selectedArea === 'all' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
@@ -209,107 +137,25 @@
                             </div>
                             <span class="truncate">All Areas</span>
                         </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(12)</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(@areaTotal)</span>
                     </button>
 
-                    <button type="button"
-                            @@click="selectedArea = 'maadi'"
-                            :class="selectedArea === 'maadi' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedArea === 'maadi' ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-full border flex items-center justify-center">
-                                <div x-show="selectedArea === 'maadi'" class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></div>
+                    @foreach (var a in Model.Areas)
+                    {
+                        <button type="button"
+                                @@click="selectedArea = '@a.Value'"
+                                :class="selectedArea === '@a.Value' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
+                                class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
+                            <div class="flex items-center gap-2">
+                                <div :class="selectedArea === '@a.Value' ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
+                                     class="w-3.5 h-3.5 rounded-full border flex items-center justify-center">
+                                    <div x-show="selectedArea === '@a.Value'" class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></div>
+                                </div>
+                                <span class="truncate">@a.Name</span>
                             </div>
-                            <span class="truncate">Maadi, Cairo</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(3)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedArea = 'zamalek'"
-                            :class="selectedArea === 'zamalek' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedArea === 'zamalek' ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-full border flex items-center justify-center">
-                                <div x-show="selectedArea === 'zamalek'" class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></div>
-                            </div>
-                            <span class="truncate">Zamalek, Cairo</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(2)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedArea = 'new_cairo'"
-                            :class="selectedArea === 'new_cairo' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedArea === 'new_cairo' ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-full border flex items-center justify-center">
-                                <div x-show="selectedArea === 'new_cairo'" class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></div>
-                            </div>
-                            <span class="truncate">New Cairo (5th Settlement)</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(4)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedArea = 'heliopolis'"
-                            :class="selectedArea === 'heliopolis' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedArea === 'heliopolis' ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-full border flex items-center justify-center">
-                                <div x-show="selectedArea === 'heliopolis'" class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></div>
-                            </div>
-                            <span class="truncate">Heliopolis, Cairo</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(2)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedArea = 'nasr_city'"
-                            :class="selectedArea === 'nasr_city' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedArea === 'nasr_city' ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-full border flex items-center justify-center">
-                                <div x-show="selectedArea === 'nasr_city'" class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></div>
-                            </div>
-                            <span class="truncate">Nasr City, Cairo</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(2)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedArea = 'dokki'"
-                            :class="selectedArea === 'dokki' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedArea === 'dokki' ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-full border flex items-center justify-center">
-                                <div x-show="selectedArea === 'dokki'" class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></div>
-                            </div>
-                            <span class="truncate">Dokki &amp; Mohandessin, Giza</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(2)</span>
-                    </button>
-
-                    <button type="button"
-                            @@click="selectedArea = 'zayed'"
-                            :class="selectedArea === 'zayed' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold' : 'hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                            class="w-full flex items-center justify-between py-1.5 px-2 rounded-xs text-xs text-start transition-colors cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <div :class="selectedArea === 'zayed' ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white dark:bg-neutral-800'"
-                                 class="w-3.5 h-3.5 rounded-full border flex items-center justify-center">
-                                <div x-show="selectedArea === 'zayed'" class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></div>
-                            </div>
-                            <span class="truncate">Sheikh Zayed, Giza</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(1)</span>
-                    </button>
-                    <!-- END SAMPLE -->
+                            <span class="text-[11px] text-[var(--color-text-muted)] shrink-0">(@a.Count)</span>
+                        </button>
+                    }
                 </div>
             </div>
 
@@ -328,7 +174,7 @@
                 </div>
 
                 <p class="text-[11px] text-[var(--color-text-muted)] mb-3">
-                    The highest dish price is 360.00 EGP
+                    The highest dish price is @Model.MaxDishPrice.ToString("0.00", inv) EGP
                 </p>
 
                 <div class="grid grid-cols-2 gap-2">
@@ -350,7 +196,7 @@
                         <input type="number"
                                name="maxPrice"
                                min="0"
-                               placeholder="360"
+                               placeholder="@Model.MaxDishPrice.ToString("0", inv)"
                                x-model="maxPrice"
                                class="w-full text-xs p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
                     </div>
@@ -373,4 +219,3 @@
         </div>
     </form>
 </div>
-

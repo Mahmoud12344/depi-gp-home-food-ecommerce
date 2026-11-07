@@ -25,6 +25,7 @@ public class ChefService(IUnitOfWork unitOfWork, IFileService fileService) : ICh
             UserId = userId,
             KitchenName = model.KitchenName,
             Address = model.Address,
+            Area = model.Area,
             Status = "Pending",
             HasAcceptedTerms = true
         };
@@ -51,5 +52,17 @@ public class ChefService(IUnitOfWork unitOfWork, IFileService fileService) : ICh
         await unitOfWork.SaveChangesAsync();
 
         return (true, "Your application has been submitted successfully and will be reviewed by the admin.");
+    }
+    public async Task<ChefCatalogViewModel> GetCatalogAsync(ChefFilterViewModel filter)
+    {
+        filter.Normalize();
+        var areas = await unitOfWork.Chefs.GetAreaOptionsAsync();
+        foreach (var a in areas) a.Name = PickupAreas.NameOf(a.Value);
+        return new ChefCatalogViewModel
+        {
+            Filter = filter,
+            Chefs = await unitOfWork.Chefs.SearchAsync(filter),
+            Areas = areas
+        };
     }
 }

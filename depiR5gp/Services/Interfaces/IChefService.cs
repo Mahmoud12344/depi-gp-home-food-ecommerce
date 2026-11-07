@@ -6,5 +6,6 @@ namespace depiR5gp.Services.Interfaces
     {
         Task<bool> HasPendingOrApprovedApplicationAsync(int userId);
         Task<(bool IsSuccess, string Message)> SubmitApplicationAsync(int userId, ChefApplicationViewModel model);
+        Task<ChefCatalogViewModel> GetCatalogAsync(ChefFilterViewModel filter);
     }
 }

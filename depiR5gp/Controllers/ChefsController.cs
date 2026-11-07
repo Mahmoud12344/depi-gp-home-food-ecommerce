@@ -12,7 +12,8 @@ public class ChefsController(
     IUnitOfWork unitOfWork,
     ApplicationDbContext context) : Controller
 {
-    public IActionResult Index() => View();
+    public async Task<IActionResult> Index(ChefFilterViewModel filter)
+    => View(await chefService.GetCatalogAsync(filter));
 
     public IActionResult Details(int id) => View();
 
@@ -34,6 +35,8 @@ public class ChefsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Onboarding(ChefApplicationViewModel model)
     {
+        if (!PickupAreas.IsValid(model.Area))
+            ModelState.AddModelError(nameof(model.Area), "اختر منطقة صحيحة من القائمة.");
         if (!ModelState.IsValid)
         {
             return View(model);
