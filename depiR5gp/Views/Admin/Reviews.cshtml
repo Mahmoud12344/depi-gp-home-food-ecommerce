@@ -1,11 +1,25 @@
+@model IEnumerable<depiR5gp.Models.ReviewsLoyalty.Review>
 @{
     ViewData["Title"] = "Review Moderation - Admin Portal";
     ViewData["ActiveAdminTab"] = "reviews";
+
+    var currentStatus = ViewBag.CurrentStatus as string ?? "all";
+
+    string TabClass(string tab) =>
+        string.Equals(currentStatus, tab, StringComparison.OrdinalIgnoreCase)
+            ? "bg-[var(--color-primary)] text-white"
+            : "bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800";
+
+    string BadgeClass(string status) => status switch
+    {
+        "Approved" => "bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200",
+        "Rejected" => "bg-rose-100 text-rose-900 border border-rose-300 dark:bg-rose-950 dark:text-rose-200",
+        _ => "bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-200"
+    };
 }
 <!-- Views/Admin/Reviews.cshtml -->
 <!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 370-426) -->
 <!-- Backlog Subtask: SCRUM-552 -->
-<!-- TODO(backend): Add Reviews() action to AdminController; loop through CustomerReviews; bind Reviewer, Chef, Stars, Comment, and wire Approve/Reject/Delete moderation workflow -->
 
 <div class="w-full pb-24">
     <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
@@ -16,161 +30,106 @@
             <!-- Review status filter sub-tabs (plain GET links) -->
             <div class="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
                 <a href="/Admin/Reviews?status=all"
-                   class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer bg-[var(--color-primary)] text-white">
+                   class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer @TabClass("all")">
                     All Reviews
                 </a>
                 <a href="/Admin/Reviews?status=Pending"
-                   class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800">
+                   class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer @TabClass("Pending")">
                     Pending
                 </a>
                 <a href="/Admin/Reviews?status=Approved"
-                   class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800">
+                   class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer @TabClass("Approved")">
                     Approved
                 </a>
                 <a href="/Admin/Reviews?status=Rejected"
-                   class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800">
+                   class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer @TabClass("Rejected")">
                     Rejected
                 </a>
             </div>
 
             <div class="space-y-3">
-                <!-- BEGIN SAMPLE: Unrolled 4 Reviews from _AdminDashboard.cshtml -->
-                <!-- Review 4 (Pending): Nouran Samir -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
-                    <div class="space-y-1.5">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-[var(--color-text)]">Nouran Samir</span>
-                            <span class="text-[var(--color-primary)] font-semibold">→ Om Nabil Casseroles</span>
-                            <span class="text-[10px] text-amber-600 font-bold">(5 Stars)</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-200">
-                                Pending
-                            </span>
+                @if (!Model.Any())
+                {
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-8 text-center text-xs text-[var(--color-text-muted)]">
+                        No reviews found for this filter.
+                    </div>
+                }
+                else
+                {
+                    foreach (var review in Model)
+                    {
+                        var customerName = review.User is not null
+                            ? $"{review.User.FirstName} {review.User.LastName}".Trim()
+                            : $"User #{review.UserId}";
+                        var chefName = review.ChefProfile?.KitchenName ?? $"Chef #{review.ChefProfileId}";
+
+                        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+                            <div class="space-y-1.5">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-bold text-[var(--color-text)]">@customerName</span>
+                                    <span class="text-[var(--color-primary)] font-semibold">→ @chefName</span>
+                                    <div class="inline-flex items-center gap-0.5" aria-label="@review.Rating out of 5 stars" title="@review.Rating / 5 Stars">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <svg class="w-3.5 h-3.5 fill-current @(i <= review.Rating ? "text-[var(--color-star)]" : "text-neutral-300 dark:text-neutral-700")" viewBox="0 0 24 24">
+                                                <use href="#star"></use>
+                                            </svg>
+                                        }
+                                    </div>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase @BadgeClass(review.ModerationStatus)">
+                                        @review.ModerationStatus
+                                    </span>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(review.Comment))
+                                {
+                                    <p class="text-[var(--color-text-muted)] italic">“@review.Comment”</p>
+                                }
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                @if (review.ModerationStatus == "Pending")
+                                {
+                                    <div class="flex items-center gap-2">
+                                        <form method="post" action="/Admin/Reviews" class="inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="reviewId" value="@review.Id" />
+                                            <input type="hidden" name="moderationAction" value="Reject" />
+                                            <input type="hidden" name="status" value="@currentStatus" />
+                                            <button type="submit"
+                                                    class="px-3 py-1.5 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                                                Reject
+                                            </button>
+                                        </form>
+                                        <form method="post" action="/Admin/Reviews" class="inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="reviewId" value="@review.Id" />
+                                            <input type="hidden" name="moderationAction" value="Approve" />
+                                            <input type="hidden" name="status" value="@currentStatus" />
+                                            <button type="submit"
+                                                    class="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                                                Approve
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                <form method="post" action="/Admin/Reviews" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="reviewId" value="@review.Id" />
+                                    <input type="hidden" name="moderationAction" value="Delete" />
+                                    <input type="hidden" name="status" value="@currentStatus" />
+                                    <button type="submit"
+                                            class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                            title="Delete review">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <p class="text-[var(--color-text-muted)] italic">“Superb okra with lamb meat tagine! Packaged perfectly hot and sealed.”</p>
-                    </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
-                        <div class="flex items-center gap-2">
-                            <!-- TODO(backend): POST /Admin/Reviews (reviewId=rev-4, action=Reject) -->
-                            <form method="post" action="/Admin/Reviews" class="inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="reviewId" value="rev-4" />
-                                <input type="hidden" name="moderationAction" value="Reject" />
-                                <button type="submit"
-                                        class="px-3 py-1.5 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
-                                    Reject
-                                </button>
-                            </form>
-                            <!-- TODO(backend): POST /Admin/Reviews (reviewId=rev-4, action=Approve) -->
-                            <form method="post" action="/Admin/Reviews" class="inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="reviewId" value="rev-4" />
-                                <input type="hidden" name="moderationAction" value="Approve" />
-                                <button type="submit"
-                                        class="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
-                                    Approve
-                                </button>
-                            </form>
-                        </div>
-                        <form method="post" action="/Admin/Reviews" class="inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="reviewId" value="rev-4" />
-                            <input type="hidden" name="moderationAction" value="Delete" />
-                            <button type="submit"
-                                    class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
-                                    title="Delete review">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Review 1 (Approved): Youssef Nabil -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
-                    <div class="space-y-1.5">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-[var(--color-text)]">Youssef Nabil</span>
-                            <span class="text-[var(--color-primary)] font-semibold">→ Amina's Heritage Kitchen</span>
-                            <span class="text-[10px] text-amber-600 font-bold">(5 Stars)</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200">
-                                Approved
-                            </span>
-                        </div>
-                        <p class="text-[var(--color-text-muted)] italic">“The duck was browned to perfection and the molokhia was piping hot. Best homemade dinner in Maadi!”</p>
-                    </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
-                        <form method="post" action="/Admin/Reviews" class="inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="reviewId" value="rev-1" />
-                            <input type="hidden" name="moderationAction" value="Delete" />
-                            <button type="submit"
-                                    class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
-                                    title="Delete review">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Review 2 (Approved): Salma Fathy -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
-                    <div class="space-y-1.5">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-[var(--color-text)]">Salma Fathy</span>
-                            <span class="text-[var(--color-primary)] font-semibold">→ Hany's Gourmet Grills</span>
-                            <span class="text-[10px] text-amber-600 font-bold">(5 Stars)</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200">
-                                Approved
-                            </span>
-                        </div>
-                        <p class="text-[var(--color-text-muted)] italic">“Braised oxtail was incredibly tender and the caramelized shallots gave it deep sweetness.”</p>
-                    </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
-                        <form method="post" action="/Admin/Reviews" class="inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="reviewId" value="rev-2" />
-                            <input type="hidden" name="moderationAction" value="Delete" />
-                            <button type="submit"
-                                    class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
-                                    title="Delete review">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Review 3 (Approved): Karim Gad -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
-                    <div class="space-y-1.5">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-[var(--color-text)]">Karim Gad</span>
-                            <span class="text-[var(--color-primary)] font-semibold">→ Amina's Heritage Kitchen</span>
-                            <span class="text-[10px] text-amber-600 font-bold">(4 Stars)</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200">
-                                Approved
-                            </span>
-                        </div>
-                        <p class="text-[var(--color-text-muted)] italic">“Authentic baladi ghee flavor in the feteer. Portion was generous for 4 people.”</p>
-                    </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
-                        <form method="post" action="/Admin/Reviews" class="inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="reviewId" value="rev-3" />
-                            <input type="hidden" name="moderationAction" value="Delete" />
-                            <button type="submit"
-                                    class="p-2 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer"
-                                    title="Delete review">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <!-- END SAMPLE -->
+                    }
+                }
             </div>
         </div>
     </div>
 </div>
+
 
