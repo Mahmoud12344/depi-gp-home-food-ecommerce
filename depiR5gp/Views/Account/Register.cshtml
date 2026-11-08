@@ -1,29 +1,260 @@
+@model depiR5gp.ViewModels.RegisterVM
 @{
     ViewData["Title"] = "Create Account";
+    ViewData["HideFooter"] = true;
+    ViewData["HideAIAssistant"] = true;
+    ViewData["NoScroll"] = true;
+    var initialRole = string.Equals(Model?.Role, "Chef", StringComparison.OrdinalIgnoreCase) ? "chef" : "customer";
 }
-<!-- Views/Account/Register.cshtml -->
-<!-- Source: home_chef/src/components/common/LoginModal.tsx (Views/Shared/Partials/_LoginModal.cshtml lines 215-293) -->
-<!-- TODO(backend): POST /Account/Register (Name, Email, Phone, Role, Password) creating ApplicationUser, generating email confirmation, and redirecting chef role to /Chefs/Onboarding -->
 
-<div x-data="{ registerRole: 'customer' }" class="w-full py-12 sm:py-16 px-4 flex items-center justify-center">
+<!-- Split-Screen Auth Layout: Matching Login Page Design Exactly -->
+<div x-data="{ 
+        registerRole: '@initialRole',
+        showPassword: false, 
+        loading: false 
+    }" 
+    class="flex flex-col md:flex-row w-full h-full flex-1 min-h-0 overflow-hidden bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-200">
+
+    <!-- Left Panel: Register Form -->
+    <div class="flex-1 flex flex-col items-center justify-center p-6 sm:p-8 lg:p-10 bg-[var(--color-bg)] overflow-y-auto min-h-0">
+        <div class="w-full max-w-md flex flex-col gap-4 sm:gap-5 animate-in fade-in slide-in-from-bottom-4 duration-700 my-auto">
+            
+            <!-- Brand Badge -->
+            <div class="mb-0.5">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-primary-light)] border border-[var(--color-primary)]/20 text-[var(--color-primary)] text-xs font-bold tracking-wider shadow-2xs">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
+                        <path d="M7 2v20"></path>
+                        <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+                    </svg>
+                    <span>HOMECHEF</span>
+                </div>
+            </div>
+
+            <!-- Header -->
+            <div class="text-left space-y-1">
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-text)]">
+                    Create an account
+                </h1>
+                <p class="text-sm text-[var(--color-text-muted)]">
+                    Join our community as a customer or home chef
+                </p>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-xs text-red-600 dark:text-red-400 font-medium"></div>
+            }
+
+            <form asp-controller="Account" asp-action="Register" method="post" @@submit="loading = true" class="space-y-3">
+                <input type="hidden" asp-for="Role" :value="registerRole === 'chef' ? 'Chef' : 'Customer'" />
+
+                <!-- Account Type Segmented Toggle -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-[var(--color-text)]">
+                        Account Type
+                    </label>
+                    <div class="grid grid-cols-2 p-1 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl text-xs font-semibold">
+                        <button type="button"
+                                @@click="registerRole = 'customer'"
+                                :class="registerRole === 'customer' ? 'bg-[var(--color-primary)] text-white shadow-xs font-bold' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                                class="py-1.5 px-3 rounded-lg transition-all cursor-pointer text-center">
+                            Customer
+                        </button>
+                        <button type="button"
+                                @@click="registerRole = 'chef'"
+                                :class="registerRole === 'chef' ? 'bg-[var(--color-primary)] text-white shadow-xs font-bold' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                                class="py-1.5 px-3 rounded-lg transition-all cursor-pointer text-center">
+                            Home Chef
+                        </button>
+                    </div>
+                </div>
+
+                <!-- First & Last Name -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label asp-for="FirstName" class="block text-xs font-semibold text-[var(--color-text)]">
+                            First Name
+                        </label>
+                        <input asp-for="FirstName"
+                               type="text"
+                               placeholder="e.g. Sara"
+                               autocomplete="given-name"
+                               :disabled="loading"
+                               class="flex h-10 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] px-3.5 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50 transition-colors shadow-2xs font-medium"
+                               required />
+                        <span asp-validation-for="FirstName" class="text-xs font-medium text-red-500 mt-0.5 block"></span>
+                    </div>
+                    <div class="space-y-1">
+                        <label asp-for="LastName" class="block text-xs font-semibold text-[var(--color-text)]">
+                            Last Name
+                        </label>
+                        <input asp-for="LastName"
+                               type="text"
+                               placeholder="e.g. Ahmed"
+                               autocomplete="family-name"
+                               :disabled="loading"
+                               class="flex h-10 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] px-3.5 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50 transition-colors shadow-2xs font-medium"
+                               required />
+                        <span asp-validation-for="LastName" class="text-xs font-medium text-red-500 mt-0.5 block"></span>
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="space-y-1">
+                    <label asp-for="UserName" class="block text-xs font-semibold text-[var(--color-text)]">
+                        Username
+                    </label>
+                    <input asp-for="UserName"
+                           type="text"
+                           placeholder="sara_ahmed"
+                           autocomplete="username"
+                           :disabled="loading"
+                           class="flex h-10 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] px-3.5 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50 transition-colors shadow-2xs font-medium"
+                           required />
+                    <span asp-validation-for="UserName" class="text-xs font-medium text-red-500 mt-0.5 block"></span>
+                </div>
+
+                <!-- Email Address -->
+                <div class="space-y-1">
+                    <label asp-for="Email" class="block text-xs font-semibold text-[var(--color-text)]">
+                        Email Address
+                    </label>
+                    <input asp-for="Email"
+                           type="email"
+                           placeholder="sara@example.com"
+                           autocomplete="email"
+                           :disabled="loading"
+                           class="flex h-10 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] px-3.5 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50 transition-colors shadow-2xs font-medium"
+                           required />
+                    <span asp-validation-for="Email" class="text-xs font-medium text-red-500 mt-0.5 block"></span>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="space-y-1">
+                    <label asp-for="PhoneNumber" class="block text-xs font-semibold text-[var(--color-text)]">
+                        Phone Number
+                    </label>
+                    <input asp-for="PhoneNumber"
+                           type="tel"
+                           placeholder="+20 100 000 0000"
+                           autocomplete="tel"
+                           :disabled="loading"
+                           class="flex h-10 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] px-3.5 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50 transition-colors shadow-2xs font-medium"
+                           required />
+                    <span asp-validation-for="PhoneNumber" class="text-xs font-medium text-red-500 mt-0.5 block"></span>
+                </div>
+
+                <!-- Address (Optional) -->
+                <div class="space-y-1">
+                    <label asp-for="Address" class="block text-xs font-semibold text-[var(--color-text)]">
+                        Address / Neighborhood <span class="text-[var(--color-text-muted)] font-normal">(Optional)</span>
+                    </label>
+                    <input asp-for="Address"
+                           type="text"
+                           placeholder="e.g. Maadi, Cairo"
+                           autocomplete="street-address"
+                           :disabled="loading"
+                           class="flex h-10 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] px-3.5 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50 transition-colors shadow-2xs font-medium" />
+                    <span asp-validation-for="Address" class="text-xs font-medium text-red-500 mt-0.5 block"></span>
+                </div>
+
+                <!-- Password with Toggle -->
+                <div class="space-y-1">
+                    <label asp-for="Password" class="block text-xs font-semibold text-[var(--color-text)]">
+                        Password
+                    </label>
+                    <div class="relative flex items-center">
+                        <input asp-for="Password"
+                               :type="showPassword ? 'text' : 'password'"
+                               placeholder="••••••••••••"
+                               autocomplete="new-password"
+                               :disabled="loading"
+                           class="flex h-10 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] px-3.5 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50 transition-colors shadow-2xs font-medium"
+                               required />
+                        
+                        <!-- Toggle Password Visibility -->
+                        <button type="button" 
+                                @@click="showPassword = !showPassword" 
+                                :aria-pressed="showPassword"
+                                aria-label="Toggle password visibility"
+                                class="absolute inset-y-0 end-0 flex items-center justify-center w-11 text-[var(--color-text-muted)] hover:text-[var(--color-primary)] focus:outline-none transition-colors cursor-pointer rounded-e-xl">
+                            <svg x-show="!showPassword" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg x-show="showPassword" style="display:none;" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                                <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                                <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                                <line x1="2" x2="22" y1="2" y2="22"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-xs font-medium text-red-500 mt-0.5 block"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-2">
+                    <button type="submit"
+                            :disabled="loading"
+                            class="w-full h-11 inline-flex items-center justify-center rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] active:scale-[0.99] text-white text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-md shadow-[var(--color-primary)]/25 hover:shadow-lg hover:shadow-[var(--color-primary)]/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 cursor-pointer gap-2">
+                        <svg x-show="loading" style="display: none;" class="mr-2 h-4 w-4 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+                        </svg>
+                        <span x-text="loading ? 'Creating Account...' : 'Create Account'">Create Account</span>
+                    </button>
+                </div>
+            </form>
+
+            <p class="text-center text-sm text-[var(--color-text-muted)] pt-1">
+                Already have an account? 
+                <a asp-controller="Account" asp-action="Login" class="font-semibold text-[var(--color-primary)] hover:underline ms-1">
+                    Sign In
+                </a>.
+            </p>
+        </div>
+    </div>
+
+       <!-- Right Panel: Image (Always Visible & Stretched) -->
+    <div class="flex-1 relative overflow-hidden bg-[var(--color-surface-subtle)] select-none min-h-[300px] md:min-h-full">
+        <img src="/icons/premium_photo-1700746098391-84d82ad82294.png"
+             asp-append-version="true"
+             alt="Culinary spread of authentic homemade food"
+             class="absolute inset-0 h-full w-full object-cover object-center" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/5 pointer-events-none"></div>
+
+    </div>
+
+
+</div>
+
+@* ==============================================================================
+   PREVIOUS REGISTER VIEW (PRESERVED & COMMENTED OUT AS REQUESTED)
+   ==============================================================================
+<div x-data="{ registerRole: '@initialRole' }" class="w-full py-12 sm:py-16 px-4 flex items-center justify-center">
     <div class="relative w-full max-w-md bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl shadow-2xl p-6 sm:p-8">
 
         <!-- Tabs -->
         <div class="flex border-b border-[var(--color-border)] mb-6">
-            <a href="/Account/Login"
+            <a asp-controller="Account" asp-action="Login"
                class="flex-1 pb-3 text-sm font-bold uppercase tracking-wider text-center border-b-2 transition-colors cursor-pointer border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]">
                 Login
             </a>
-            <a href="/Account/Register"
+            <a asp-controller="Account" asp-action="Register"
                class="flex-1 pb-3 text-sm font-bold uppercase tracking-wider text-center border-b-2 transition-colors cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)]">
                 Register
             </a>
         </div>
 
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly" class="mb-4 p-3.5 rounded-2xl bg-[var(--color-error-light)] border border-[var(--color-error)]/30 text-xs text-[var(--color-error)] font-medium"></div>
+        }
+
         <!-- Register Form -->
-        <form method="post" action="/Account/Register" class="space-y-3.5">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="Role" :value="registerRole" />
+        <form asp-controller="Account" asp-action="Register" method="post" class="space-y-3.5">
+            <input type="hidden" asp-for="Role" :value="registerRole === 'chef' ? 'Chef' : 'Customer'" />
             <div>
                 <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Account Type
@@ -44,48 +275,88 @@
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
-                    Full Name
-                </label>
-                <input type="text"
-                       name="FullName"
-                       placeholder="e.g. Sara Ahmed"
-                       class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
-                       required />
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label asp-for="FirstName" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                        First Name
+                    </label>
+                    <input asp-for="FirstName"
+                           type="text"
+                           placeholder="e.g. Sara"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                    <span asp-validation-for="FirstName" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
+                </div>
+                <div>
+                    <label asp-for="LastName" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                        Last Name
+                    </label>
+                    <input asp-for="LastName"
+                           type="text"
+                           placeholder="e.g. Ahmed"
+                           class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                           required />
+                    <span asp-validation-for="LastName" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
+                </div>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                <label asp-for="UserName" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                    Username
+                </label>
+                <input asp-for="UserName"
+                       type="text"
+                       placeholder="e.g. sara_ahmed"
+                       class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
+                       required />
+                <span asp-validation-for="UserName" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="Email" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Email Address
                 </label>
-                <input type="email"
-                       name="Email"
+                <input asp-for="Email"
+                       type="email"
                        placeholder="sara@example.com"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
+                <span asp-validation-for="Email" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                <label asp-for="PhoneNumber" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Phone Number (for pickup calls)
                 </label>
-                <input type="tel"
-                       name="PhoneNumber"
+                <input asp-for="PhoneNumber"
+                       type="tel"
                        placeholder="+20 100 000 0000"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
+                <span asp-validation-for="PhoneNumber" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                <label asp-for="Address" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                    Address / Neighborhood (Optional)
+                </label>
+                <input asp-for="Address"
+                       type="text"
+                       placeholder="e.g. Maadi, Cairo"
+                       class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                <span asp-validation-for="Address" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="Password" class="block text-xs font-semibold text-[var(--color-text)] mb-1">
                     Password
                 </label>
-                <input type="password"
-                       name="Password"
+                <input asp-for="Password"
+                       type="password"
                        placeholder="••••••••"
                        class="w-full text-xs p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 dark:placeholder:text-neutral-400 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"
                        required />
+                <span asp-validation-for="Password" class="text-[11px] text-[var(--color-error)] mt-1 block"></span>
             </div>
 
             <button type="submit"
@@ -95,3 +366,4 @@
         </form>
     </div>
 </div>
+============================================================================== *@

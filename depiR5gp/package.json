@@ -4,7 +4,7 @@
   "scripts": {
     "css:build": "npx @tailwindcss/cli -i ./wwwroot/css/input.css -o ./wwwroot/css/site.css --minify",
     "css:watch": "npx @tailwindcss/cli -i ./wwwroot/css/input.css -o ./wwwroot/css/site.css --watch",
-    "dev": "concurrently -n \"dotnet,tailwind\" -c \"blue,magenta\" \"env DOTNET_CLI_HOME=/tmp/dotnet DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 dotnet watch run\" \"npm run css:watch\""
+    "dev": "concurrently -k -n \"dotnet,tailwind\" -c \"blue,magenta\" \"env DOTNET_CLI_HOME=/tmp/dotnet DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 DOTNET_USE_POLLING_FILE_WATCHER=1 dotnet watch run\" \"npm run css:watch\""
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.0",

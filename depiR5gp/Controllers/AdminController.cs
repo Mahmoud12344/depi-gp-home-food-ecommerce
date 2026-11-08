@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using depiR5gp.Models.Users;
 using depiR5gp.Services.Interfaces;
 using System.Threading.Tasks;
 
 namespace depiR5gp.Controllers;
 
+[Authorize(Roles = AppRoles.Admin)]
 public class AdminController : Controller
 {
     private readonly IAdminService _adminService;
@@ -15,7 +18,6 @@ public class AdminController : Controller
 
     public IActionResult Index() => View();
     public IActionResult Chefs() => View();
-    public IActionResult Users() => View();
     public IActionResult Orders() => View();
     public IActionResult Payouts() => View();
     public IActionResult Settings() => View();

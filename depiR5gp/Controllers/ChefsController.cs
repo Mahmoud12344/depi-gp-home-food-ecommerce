@@ -1,7 +1,9 @@
-using depiR5gp.Models.Chefs;
-using Microsoft.AspNetCore.Mvc;
-using depiR5gp.Data;
 using System.Security.Claims;
+using depiR5gp.Data;
+using depiR5gp.Models.Chefs;
+using depiR5gp.Models.Users;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
 
@@ -15,8 +17,10 @@ public class ChefsController(
     public IActionResult Index() => View();
 
     public IActionResult Details(int id) => View();
+    
 
     [HttpGet]
+    // [Authorize(Roles = AppRoles.Chef)]
     public async Task<IActionResult> Onboarding()
     {
         int userId = GetCurrentUserId();

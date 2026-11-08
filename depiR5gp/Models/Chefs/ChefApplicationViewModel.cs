@@ -25,6 +25,7 @@ namespace depiR5gp.Models.Chefs
         [Display(Name = "ترخيص المطبخ / ممارسة المهنة (إن وجد)")]
         public IFormFile? CulinaryLicense { get; set; }
 
+        [Display(Name = "اتفاقية العمولة والشروط")]
         public bool HasAcceptedTerms { get; set; }
     }
 }

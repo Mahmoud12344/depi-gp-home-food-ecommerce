@@ -1,17 +1,39 @@
+@model depiR5gp.ViewModels.AdminUsers.UserListVM
+@using depiR5gp.Models.Users
 @{
     ViewData["Title"] = "User Accounts - Admin Portal";
     ViewData["ActiveAdminTab"] = "users";
+
+    var filter = Model.Filter;
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+
+    string PageUrl(int page) =>
+        $"/Admin/Users?page={page}&q={Uri.EscapeDataString(filter.Query ?? "")}&role={filter.Role}&status={filter.Status}";
+
+    string BadgeClass(UserStatus status) => status switch
+    {
+        UserStatus.Active => "bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border-emerald-300 dark:border-emerald-700",
+        UserStatus.Suspended => "bg-amber-100 dark:bg-amber-950 text-amber-950 dark:text-amber-100 border-amber-300 dark:border-amber-700",
+        _ => "bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border-neutral-300 dark:border-neutral-600"
+    };
+
+    string StatusLabel(UserStatus status) => status switch
+    {
+        UserStatus.Active => "Active",
+        UserStatus.Suspended => "Suspended",
+        _ => "Deactivated"
+    };
 }
 <!-- Views/Admin/Users.cshtml -->
 <!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 313-368 & 460-502) -->
-<!-- Backlog Subtask: SCRUM-361 -->
-<!-- TODO(backend): Loop through registered ApplicationUsers; bind Name, Email, Role, Status, and wire Suspend/Reactivate toggle -->
+<!-- Backlog Subtask: SCRUM-361 (bound to AdminUsersController / IUserManagementService) -->
 
 <div x-data="{
     showSuspendModal: false,
-    userToSuspendName: 'Tamer Zaki',
-    userToSuspendId: 'u-1',
-    suspendReason: 'hygiene'
+    userToSuspendName: '',
+    userToSuspendId: 0,
+    newStatus: 'Suspended',
+    suspendReason: 'Food hygiene or food safety compliance breach'
 }" class="w-full pb-24">
 
     <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
@@ -19,7 +41,7 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
         <!-- TAB 3: User Accounts (SCRUM-361) -->
         <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs space-y-4">
-            <div class="p-5 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="p-5 border-b border-[var(--color-border)] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                     <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
                         Registered User Accounts
@@ -27,114 +49,133 @@
                     <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Search, filter roles, and manage account statuses</p>
                 </div>
 
-                <!-- Plain GET Search and Role filter -->
+                <!-- Plain GET Search, Role and Status filters with Apply & Reset button group -->
                 <form method="get" action="/Admin/Users" class="flex flex-wrap items-center gap-2">
-                    <input type="text"
-                           name="q"
-                           placeholder="Search by name or email..."
-                           class="text-xs px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium" />
-                    <select name="role" onchange="this.form.submit()"
+                    <div class="relative flex items-center">
+                        <span class="absolute left-2.5 text-[var(--color-text-muted)] pointer-events-none">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </span>
+                        <input type="text"
+                               name="q"
+                               value="@filter.Query"
+                               placeholder="Search by name, email, kitchen..."
+                               class="text-xs pl-8 pr-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] font-medium w-44 sm:w-52" />
+                    </div>
+
+                    <select name="role"
                             class="text-xs font-semibold px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden cursor-pointer">
-                        <option value="all">All Roles</option>
-                        <option value="customer">Customers</option>
-                        <option value="chef">Chefs</option>
-                        <option value="support">Support Agents</option>
+                        <option value="all" selected="@(filter.Role.Equals("all", StringComparison.OrdinalIgnoreCase))">All Roles</option>
+                        <option value="customer" selected="@(filter.Role.Equals("customer", StringComparison.OrdinalIgnoreCase))">Customers</option>
+                        <option value="chef" selected="@(filter.Role.Equals("chef", StringComparison.OrdinalIgnoreCase))">Chefs</option>
                     </select>
+
+                    <select name="status"
+                            class="text-xs font-semibold px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text)] focus:outline-hidden cursor-pointer">
+                        <option value="all" selected="@(filter.Status.Equals("all", StringComparison.OrdinalIgnoreCase))">All Statuses</option>
+                        <option value="active" selected="@(filter.Status.Equals("active", StringComparison.OrdinalIgnoreCase))">Active</option>
+                        <option value="suspended" selected="@(filter.Status.Equals("suspended", StringComparison.OrdinalIgnoreCase))">Suspended</option>
+                        <option value="deactivated" selected="@(filter.Status.Equals("deactivated", StringComparison.OrdinalIgnoreCase))">Deactivated</option>
+                    </select>
+
+                    <!-- Group Apply and Reset together so they never split across lines -->
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button type="submit"
+                                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full transition-colors cursor-pointer shadow-xs">
+                            Apply
+                        </button>
+
+                        @if (!string.IsNullOrWhiteSpace(filter.Query) || !filter.Role.Equals("all", StringComparison.OrdinalIgnoreCase) || !filter.Status.Equals("all", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <a href="/Admin/Users" 
+                               class="px-3 py-1.5 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                               title="Reset all filters">
+                                Reset
+                            </a>
+                        }
+                    </div>
                 </form>
             </div>
 
             <div class="divide-y divide-[var(--color-border-light)] text-xs">
-                <!-- BEGIN SAMPLE: Unrolled 5 Users from _AdminDashboard.cshtml -->
-                <!-- User 1: Tamer Zaki -->
-                <div class="p-4 flex items-center justify-between gap-4">
-                    <div>
-                        <span class="font-bold text-[var(--color-text)] block">Tamer Zaki</span>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">tamer.zaki@example.com · Role: Customer · Orders: 14</span>
+                @if (!Model.Items.Any())
+                {
+                    <div class="p-8 text-center text-[var(--color-text-muted)]">
+                        No accounts match your filters.
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
-                            Active
-                        </span>
-                        <button type="button"
-                                @@click="userToSuspendId = 'u-1'; userToSuspendName = 'Tamer Zaki'; showSuspendModal = true"
-                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
-                            Suspend...
-                        </button>
-                    </div>
-                </div>
+                }
 
-                <!-- User 2: Chef Amina Mansour -->
-                <div class="p-4 flex items-center justify-between gap-4">
-                    <div>
-                        <span class="font-bold text-[var(--color-text)] block">Chef Amina Mansour</span>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">amina.chef@example.com · Role: Chef · Orders: 84</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
-                            Active
-                        </span>
-                        <button type="button"
-                                @@click="userToSuspendId = 'u-2'; userToSuspendName = 'Chef Amina Mansour'; showSuspendModal = true"
-                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
-                            Suspend...
-                        </button>
-                    </div>
-                </div>
+                @foreach (var u in Model.Items)
+                {
+                    <div class="p-4 flex items-center justify-between gap-4">
+                        <div>
+                            <span class="font-bold text-[var(--color-text)] block">@u.FullName</span>
+                            <span class="text-[11px] text-[var(--color-text-muted)]">@u.Email · Role: @u.Role · Orders: @u.OrdersCount</span>
+                            @if (u.Status != UserStatus.Active && !string.IsNullOrWhiteSpace(u.LastReason))
+                            {
+                                <span class="text-[11px] text-[var(--color-text-muted)] block mt-0.5">
+                                    Reason: @u.LastReason@(u.LastChangedAt.HasValue ? $" · {u.LastChangedAt.Value:yyyy-MM-dd HH:mm} UTC" : "")
+                                </span>
+                            }
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border @BadgeClass(u.Status)">
+                                @StatusLabel(u.Status)
+                            </span>
 
-                <!-- User 3: Chef Hany El-Sayed -->
-                <div class="p-4 flex items-center justify-between gap-4">
-                    <div>
-                        <span class="font-bold text-[var(--color-text)] block">Chef Hany El-Sayed</span>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">hany.chef@example.com · Role: Chef · Orders: 62</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
-                            Active
-                        </span>
-                        <button type="button"
-                                @@click="userToSuspendId = 'u-3'; userToSuspendName = 'Chef Hany El-Sayed'; showSuspendModal = true"
-                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
-                            Suspend...
-                        </button>
-                    </div>
-                </div>
+                            @if (u.Status != UserStatus.Active)
+                            {
+                                <form method="post" action="/Admin/Users/ChangeStatus" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@u.Id" />
+                                    <input type="hidden" name="newStatus" value="Active" />
+                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                    <button type="submit"
+                                            class="text-xs font-semibold hover:underline cursor-pointer text-emerald-600">
+                                        Reactivate
+                                    </button>
+                                </form>
+                            }
 
-                <!-- User 4: Ahmed Badawi -->
-                <div class="p-4 flex items-center justify-between gap-4">
-                    <div>
-                        <span class="font-bold text-[var(--color-text)] block">Ahmed Badawi</span>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">ahmed.b@example.com · Role: Customer · Orders: 2</span>
+                            @if (u.Status != UserStatus.Deleted)
+                            {
+                                <button type="button"
+                                        @@click='userToSuspendId = @u.Id; userToSuspendName = @Json.Serialize(u.FullName); newStatus = "@(u.Status == UserStatus.Active ? "Suspended" : "Deleted")"; showSuspendModal = true'
+                                        class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
+                                    @(u.Status == UserStatus.Active ? "Suspend..." : "Deactivate...")
+                                </button>
+                            }
+                        </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
-                            Active
-                        </span>
-                        <button type="button"
-                                @@click="userToSuspendId = 'u-4'; userToSuspendName = 'Ahmed Badawi'; showSuspendModal = true"
-                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
-                            Suspend...
-                        </button>
-                    </div>
-                </div>
+                }
+            </div>
 
-                <!-- User 5: Layla Sherif -->
-                <div class="p-4 flex items-center justify-between gap-4">
-                    <div>
-                        <span class="font-bold text-[var(--color-text)] block">Layla Sherif</span>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">layla.support@example.com · Role: Support · Orders: 0</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-700">
-                            Active
-                        </span>
-                        <button type="button"
-                                @@click="userToSuspendId = 'u-5'; userToSuspendName = 'Layla Sherif'; showSuspendModal = true"
-                                class="text-xs font-semibold hover:underline cursor-pointer text-rose-600">
-                            Suspend...
-                        </button>
-                    </div>
-                </div>
-                <!-- END SAMPLE -->
+            <!-- Pagination -->
+            <div class="p-4 border-t border-[var(--color-border)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <span class="text-[var(--color-text-muted)]">
+                    Showing @Model.FirstItemNumber–@Model.LastItemNumber of @Model.TotalCount accounts
+                </span>
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Pagination" class="flex items-center gap-1">
+                        @if (Model.Page > 1)
+                        {
+                            <a href="@PageUrl(Model.Page - 1)"
+                               class="px-3 py-1.5 rounded-full border border-[var(--color-border)] font-semibold hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] cursor-pointer">Prev</a>
+                        }
+                        @for (int p = 1; p <= Model.TotalPages; p++)
+                        {
+                            <a href="@PageUrl(p)"
+                               class="px-3 py-1.5 rounded-full border font-semibold cursor-pointer @(p == Model.Page ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]" : "border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]")">@p</a>
+                        }
+                        @if (Model.Page < Model.TotalPages)
+                        {
+                            <a href="@PageUrl(Model.Page + 1)"
+                               class="px-3 py-1.5 rounded-full border border-[var(--color-border)] font-semibold hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] cursor-pointer">Next</a>
+                        }
+                    </nav>
+                }
             </div>
         </div>
     </div>
@@ -153,23 +194,33 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-triangle"></use></svg>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-[var(--color-text)]">Confirm Account Suspension</h3>
+                    <h3 class="text-base font-bold text-[var(--color-text)]" x-text="newStatus === 'Deleted' ? 'Confirm Account Deactivation' : 'Confirm Account Suspension'">Confirm Account Suspension</h3>
                     <p class="text-xs text-[var(--color-text-muted)]" x-text="'User: ' + userToSuspendName"></p>
                 </div>
             </div>
 
-            <!-- TODO(backend): POST /Admin/Users/Suspend with userId and suspendReason -->
-            <form method="post" action="/Admin/Users" class="space-y-4">
+            <form method="post" action="/Admin/Users/ChangeStatus" class="space-y-4">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="userId" :value="userToSuspendId" />
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
                 <div class="space-y-3 text-xs">
-                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Official Justification</label>
-                    <select name="suspendReason" x-model="suspendReason" class="w-full p-2.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl text-[var(--color-text)]">
-                        <option value="hygiene">Food hygiene or food safety compliance breach</option>
-                        <option value="cancellations">Excessive unfulfilled or cancelled orders</option>
-                        <option value="dispute">Unresolved customer payment/counter charge dispute</option>
-                        <option value="abusive">Abusive customer communications or terms breach</option>
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Action</label>
+                    <select name="newStatus" x-model="newStatus" class="w-full p-2.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl text-[var(--color-text)]">
+                        <option value="Suspended">Suspend (temporary, can be reactivated)</option>
+                        <option value="Deleted">Deactivate (account can no longer sign in)</option>
                     </select>
+
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Official Justification</label>
+                    <select name="reason" x-model="suspendReason" class="w-full p-2.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl text-[var(--color-text)]">
+                        <option value="Food hygiene or food safety compliance breach">Food hygiene or food safety compliance breach</option>
+                        <option value="Excessive unfulfilled or cancelled orders">Excessive unfulfilled or cancelled orders</option>
+                        <option value="Unresolved customer payment/counter charge dispute">Unresolved customer payment/counter charge dispute</option>
+                        <option value="Abusive customer communications or terms breach">Abusive customer communications or terms breach</option>
+                    </select>
+
+                    <label class="block font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Additional Note (optional)</label>
+                    <textarea name="note" rows="2" maxlength="90"
+                              class="w-full p-2.5 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-xl text-[var(--color-text)]"></textarea>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
@@ -179,7 +230,8 @@
                         Cancel
                     </button>
                     <button type="submit"
-                            class="px-4 py-2 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider cursor-pointer">
+                            class="px-4 py-2 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider cursor-pointer"
+                            x-text="newStatus === 'Deleted' ? 'Confirm Deactivation' : 'Confirm Suspension'">
                         Confirm Suspension
                     </button>
                 </div>
