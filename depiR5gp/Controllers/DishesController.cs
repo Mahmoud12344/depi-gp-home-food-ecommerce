@@ -6,27 +6,16 @@ using depiR5gp.Data;
 using depiR5gp.Models.Menu;
 using depiR5gp.Models.ReviewsLoyalty;
 using depiR5gp.Models.Users;
+using depiR5gp.Services.Interfaces;
 using depiR5gp.ViewModels;
 
 namespace depiR5gp.Controllers;
 
-public class DishesController(ApplicationDbContext context, UserManager<AppUser> userManager, ILogger<DishesController> logger) : Controller
+public class DishesController(ApplicationDbContext context, UserManager<AppUser> userManager, ILogger<DishesController> logger, IDishService dishService) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index()
-    {
-        List<Dish> dishes = await context.Dishes
-            .AsNoTracking()
-            .Include(dish => dish.DishOptions)
-            .Include(dish => dish.Category)
-            .Include(dish => dish.ChefProfile)
-            .Where(dish => !dish.IsArchived)
-            .OrderBy(dish => dish.Id)
-            .ToListAsync();
-
-        ViewData["DishCatalog"] = dishes;
-        return View();
-    }
+    public async Task<IActionResult> Index(DishFilterViewModel filter)
+        => View(await dishService.GetCatalogAsync(filter));
 
     [HttpGet("Dishes/Details/{id:int}")]
     public async Task<IActionResult> Details(int id)

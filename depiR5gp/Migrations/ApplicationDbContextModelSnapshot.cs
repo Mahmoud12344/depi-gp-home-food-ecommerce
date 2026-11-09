@@ -17,7 +17,7 @@ namespace depiR5gp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -403,6 +403,11 @@ namespace depiR5gp.Migrations
                         .HasColumnType("nvarchar(1000)")
                         .HasColumnName("approval_notes");
 
+                    b.Property<string>("Area")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("area");
+
                     b.Property<string>("Bio")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)")
@@ -448,6 +453,8 @@ namespace depiR5gp.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Area");
 
                     b.HasIndex("UserId")
                         .IsUnique();
