@@ -51,10 +51,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
     options.ValidationInterval = TimeSpan.Zero);
 
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 // Register Repositories & Unit of Work
 builder.Services.AddScoped(typeof(depiR5gp.Repositories.Interfaces.IGenericRepository<>), typeof(depiR5gp.Repositories.Implementations.GenericRepository<>));
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IUnitOfWork, depiR5gp.Repositories.Implementations.UnitOfWork>();
+builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IUserRepository, depiR5gp.Repositories.Implementations.UserRepository>();
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IChefRepository, depiR5gp.Repositories.Implementations.ChefRepository>();
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IDishRepository, depiR5gp.Repositories.Implementations.DishRepository>();
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.ICartRepository, depiR5gp.Repositories.Implementations.CartRepository>();
