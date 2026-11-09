@@ -21,6 +21,7 @@ public class CustomerController(
     private const long MaxProfileImageSize = 2 * 1024 * 1024;
     private static readonly string[] AllowedImageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
     private static readonly string[] AllowedImageContentTypes = ["image/jpeg", "image/png", "image/webp"];
+    //private IReadOnlyList<CustomerDishFavoriteVM> dishFavorites;
 
     [HttpGet]
     public async Task<IActionResult> Profile()
@@ -236,6 +237,21 @@ public class CustomerController(
             })
             .ToListAsync();
 
+        //var dishFavorites = await context.Favorites
+        //    .AsNoTracking()
+        //    .Where(favorite => favorite.UserId == user.Id && favorite.DishId != null)
+        //    .OrderBy(favorite => favorite.Dish == null ? string.Empty : favorite.Dish.Name)
+        //    .Select(favorite => new CustomerDishFavoriteVM
+        //    {
+        //        DishId = favorite.DishId!.Value,
+        //        Name = favorite.Dish!.Name,
+        //        Description = favorite.Dish.Description,
+        //        Price = favorite.Dish.Price,
+        //        ImageUrl = favorite.Dish.ImageUrl,
+        //        KitchenName = favorite.Dish.ChefProfile == null ? "Chef unavailable" : favorite.Dish.ChefProfile.KitchenName
+        //    })
+        //    .ToListAsync();
+
         return View(new CustomerOrdersVM
         {
             Profile = BuildViewModel(user),
@@ -247,29 +263,46 @@ public class CustomerController(
     public async Task<IActionResult> Favorites()
     {
         var user = await GetCurrentUserAsync();
+
         if (user is null)
-        {
             return Challenge();
-        }
 
         var favorites = await context.Favorites
             .AsNoTracking()
-            .Where(favorite => favorite.UserId == user.Id)
-            .OrderBy(favorite => favorite.ChefProfile == null ? string.Empty : favorite.ChefProfile.KitchenName)
-            .Select(favorite => new CustomerFavoriteVM
+            .Where(f => f.UserId == user.Id && f.ChefProfileId != null)
+            .OrderBy(f => f.ChefProfile == null ? string.Empty : f.ChefProfile.KitchenName)
+            .Select(f => new CustomerFavoriteVM
             {
-                ChefProfileId = favorite.ChefProfileId,
-                KitchenName = favorite.ChefProfile == null ? "Chef unavailable" : favorite.ChefProfile.KitchenName,
-                Bio = favorite.ChefProfile == null ? null : favorite.ChefProfile.Bio,
-                PhotoUrl = favorite.ChefProfile == null ? null : favorite.ChefProfile.PhotoUrl,
-                Address = favorite.ChefProfile == null ? null : favorite.ChefProfile.Address
+                ChefProfileId = f.ChefProfileId,
+                KitchenName = f.ChefProfile == null ? "Chef unavailable" : f.ChefProfile.KitchenName,
+                Bio = f.ChefProfile == null ? null : f.ChefProfile.Bio,
+                PhotoUrl = f.ChefProfile == null ? null : f.ChefProfile.PhotoUrl,
+                Address = f.ChefProfile == null ? null : f.ChefProfile.Address
+            })
+            .ToListAsync();
+
+        var dishFavorites = await context.Favorites
+            .AsNoTracking()
+            .Where(f => f.UserId == user.Id && f.DishId != null)
+            .OrderBy(f => f.Dish == null ? string.Empty : f.Dish.Name)
+            .Select(f => new CustomerDishFavoriteVM
+            {
+                DishId = f.DishId!.Value,
+                Name = f.Dish!.Name,
+                Description = f.Dish.Description,
+                Price = f.Dish.Price,
+                ImageUrl = f.Dish.ImageUrl,
+                KitchenName = f.Dish.ChefProfile == null
+                    ? "Chef unavailable"
+                    : f.Dish.ChefProfile.KitchenName
             })
             .ToListAsync();
 
         return View(new CustomerFavoritesVM
         {
             Profile = BuildViewModel(user),
-            Favorites = favorites
+            Favorites = favorites,
+            DishFavorites = dishFavorites
         });
     }
 

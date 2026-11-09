@@ -125,7 +125,7 @@
 
                 <div class="space-y-3 pt-3 border-t border-[var(--color-border-light)]">
                     <!-- TODO(backend): POST to CartController.Add -->
-                    <form method="post" action="/Cart/Add" class="flex items-center gap-3">
+                    <form method="post" action="/Cart/Add" class="flex items-center gap-3" :data-dish-name="dish.name">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="dishId" :value="dish.id" />
                         <input type="hidden" name="quantity" :value="quantity" />

@@ -8,6 +8,7 @@ public class CartItem
     public int CartId { get; set; }
     public int DishId { get; set; }
     public int Quantity { get; set; } = 1;
+    public string? PresetKey { get; set; }
     public string? Note { get; set; }
 
     // Navigation Properties

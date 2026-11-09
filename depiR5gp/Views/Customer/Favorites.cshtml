@@ -44,6 +44,29 @@
                     }
                 </div>
             }
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">Favorite Dishes (@Model.DishFavorites.Count)</h2>
+            @if (Model.DishFavorites.Count == 0)
+            {
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-8 text-center text-sm text-[var(--color-text-muted)]">You have not saved any favorite dishes yet.</div>
+            }
+            else
+            {
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach (var favorite in Model.DishFavorites)
+                    {
+                        var photo = string.IsNullOrWhiteSpace(favorite.ImageUrl) ? "/icons/chibi-chef.png" : favorite.ImageUrl;
+                        <a asp-controller="Dishes" asp-action="Details" asp-route-id="@favorite.DishId" class="group bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 hover:-translate-y-1 hover:shadow-xl transition-all">
+                            <img src="@photo" alt="@favorite.Name" class="w-full aspect-[4/3] object-cover rounded-xl mb-4" />
+                            <h3 class="font-bold text-[var(--color-text)]">@favorite.Name</h3>
+                            <p class="text-xs text-[var(--color-text-muted)] mt-1">@favorite.KitchenName · @favorite.Price.ToString("N2") EGP</p>
+                            @if (!string.IsNullOrWhiteSpace(favorite.Description))
+                            {
+                                <p class="text-xs text-[var(--color-text-muted)] mt-3 line-clamp-2">@favorite.Description</p>
+                            }
+                        </a>
+                    }
+                </div>
+            }
         </div>
     </div>
 </div>

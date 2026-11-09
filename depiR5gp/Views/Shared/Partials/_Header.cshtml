@@ -291,8 +291,10 @@
                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer relative">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#heart"></use></svg>
                     <!-- TODO(backend): Bind favorites count -->
-                    <span class="absolute -top-1 -end-1 w-4 h-4 bg-[var(--color-secondary-btn)] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                        2
+                    <span id="favorites-count"
+                          class="absolute -top-1 -end-1 w-4 h-4 bg-[var(--color-secondary-btn)] text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                          hidden>
+                        0
                     </span>
                 </a>
 
@@ -302,8 +304,8 @@
                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors cursor-pointer relative">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
                     <!-- TODO(backend): Bind cart item count -->
-                    <span class="absolute -top-1 -end-1 w-4 h-4 bg-[var(--color-primary)] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                        1
+                     <span data-cart-count="0" class="absolute -top-1 -end-1 w-4 h-4 bg-[var(--color-primary)] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                         0
                     </span>
                 </a>
             </div>

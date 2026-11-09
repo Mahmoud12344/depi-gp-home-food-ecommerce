@@ -15,6 +15,7 @@ public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
         builder.Property(i => i.CartId).HasColumnName("cart_id").IsRequired();
         builder.Property(i => i.DishId).HasColumnName("dish_id").IsRequired();
         builder.Property(i => i.Quantity).HasColumnName("quantity").HasDefaultValue(1);
+        builder.Property(i => i.PresetKey).HasColumnName("preset_key").HasMaxLength(1000);
         builder.Property(i => i.Note).HasColumnName("note").HasMaxLength(500);
 
         builder.HasOne(i => i.Cart)
