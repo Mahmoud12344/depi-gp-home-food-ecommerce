@@ -81,6 +81,10 @@ try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    app.Logger.LogInformation(
+        "Application database: {Database}; server: {Server}",
+        db.Database.GetDbConnection().Database,
+        db.Database.GetDbConnection().DataSource);
 
     // Reconcile schema drift from previous migrations if database already has AppUsers
     try

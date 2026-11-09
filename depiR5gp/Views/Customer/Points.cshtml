@@ -1,55 +1,45 @@
+@model depiR5gp.ViewModels.CustomerPointsVM
 @{
     ViewData["Title"] = "Loyalty Ledger";
     ViewData["CustomerActivePage"] = "Points";
 }
-<!-- Views/Customer/Points.cshtml -->
-<!-- Ported from Views/Customer/Partials/_CustomerProfile.cshtml (Tab 2: Loyalty) on main -->
-<!-- TODO(backend): Loop through Customer.LoyaltyLedger transactions; bind Description, PointsEarnedOrRedeemed, and Timestamp -->
 
 <div class="w-full pb-24">
-    <!-- Breadcrumb banner -->
-    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 flex-wrap mb-2">
-                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1.5 cursor-pointer font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
-                    <span>Home</span>
-                </a>
-                <svg class="w-4 h-4 text-neutral-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 mb-2">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-[var(--color-primary)] font-medium">Home</a>
+                <span aria-hidden="true">/</span>
                 <span class="text-[var(--color-text)] font-semibold">Loyalty Ledger</span>
             </nav>
-            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">
-                My Account &amp; Activity
-            </h1>
-            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
-                Track orders, loyalty balance, and favorite kitchens
-            </p>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">My Account &amp; Activity</h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5">Track orders, loyalty balance, and favorite kitchens</p>
         </div>
     </div>
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
-        <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" />
-
-        <!-- Tab 2: Loyalty -->
-        <div class="space-y-4">
-            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs space-y-4 max-w-xl">
+        <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" model="Model.Profile" />
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xs space-y-4 max-w-xl">
+            <div class="flex items-center justify-between gap-4">
                 <h3 class="text-sm font-bold uppercase text-[var(--color-text)]">Loyalty Transaction Ledger</h3>
-                <div class="space-y-2 text-xs">
-                    <!-- BEGIN SAMPLE -->
-                    <div class="flex justify-between p-2.5 bg-[var(--color-surface-subtle)] rounded-xl">
-                        <span>Completed Order #HC-2026-9041</span>
-                        <strong class="text-emerald-600">+45 pts</strong>
-                    </div>
-                    <div class="flex justify-between p-2.5 bg-[var(--color-surface-subtle)] rounded-xl">
-                        <span>Checkout Discount Applied</span>
-                        <strong class="text-rose-600">-60 pts</strong>
-                    </div>
-                    <div class="flex justify-between p-2.5 bg-[var(--color-surface-subtle)] rounded-xl">
-                        <span>Completed Order #HC-2026-8890</span>
-                        <strong class="text-emerald-600">+50 pts</strong>
-                    </div>
-                    <!-- END SAMPLE -->
-                </div>
+                <span class="text-sm font-black text-amber-900 dark:text-amber-200">@Model.Profile.PointsBalance pts</span>
+            </div>
+            <p class="text-xs text-[var(--color-text-muted)]">Every 5 points equals 1 EGP in available discount.</p>
+            <div class="space-y-2 text-xs">
+                @if (Model.Transactions.Count == 0)
+                {
+                    <p class="p-2.5 bg-[var(--color-surface-subtle)] rounded-xl text-[var(--color-text-muted)]">No loyalty transactions yet.</p>
+                }
+                else
+                {
+                    foreach (var transaction in Model.Transactions)
+                    {
+                        <div class="flex justify-between gap-4 p-2.5 bg-[var(--color-surface-subtle)] rounded-xl">
+                            <span>@transaction.Type@(transaction.OrderReference is null ? "" : $" · Order #{transaction.OrderReference}") · @transaction.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</span>
+                            <strong class="@(transaction.Points >= 0 ? "text-emerald-600" : "text-rose-600")">@(transaction.Points >= 0 ? "+" : "")@transaction.Points pts</strong>
+                        </div>
+                    }
+                }
             </div>
         </div>
     </div>

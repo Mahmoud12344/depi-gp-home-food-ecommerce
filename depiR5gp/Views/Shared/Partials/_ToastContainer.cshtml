@@ -2,9 +2,8 @@
   Toast Container Component Partial
   Source: home_chef/src/components/common/ToastContainer.tsx
 *@
-<!-- TODO(backend): Render server TempData["SuccessMessage"] / TempData["ErrorMessage"] flash notifications here -->
-<div x-data="{ open: @(TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null ? "true" : "false"), message: '@(TempData["SuccessMessage"] ?? TempData["ErrorMessage"] ?? "")', type: '@(TempData["ErrorMessage"] != null ? "error" : "success")' }"
-     @@show-toast.window="message = $event.detail?.message || 'Action completed!'; type = $event.detail?.type || 'success'; open = true; setTimeout(() => open = false, 3500)"
+<div x-data="{ open: false, message: '', type: 'success' }"
+     @@show-toast.window="message = $event.detail?.message || 'Action completed!'; type = $event.detail?.type || 'success'; open = true; if (type === 'success') setTimeout(() => open = false, 5000)"
      x-show="open"
      style="display: none;"
      class="fixed bottom-20 end-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">

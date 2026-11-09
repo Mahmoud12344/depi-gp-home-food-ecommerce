@@ -28,6 +28,7 @@
      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
 
     <form method="post" action="/Cart/Add"
+          :data-dish-name="dish.name"
           class="relative w-full max-w-lg bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-sm shadow-xl my-8 overflow-hidden"
           @@click.away="open = false">
         @Html.AntiForgeryToken()

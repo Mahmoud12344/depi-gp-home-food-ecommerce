@@ -1,5 +1,6 @@
+@model depiR5gp.ViewModels.DishDetailsVM
 @{
-    ViewData["Title"] = "Baladi Duck Molokhia with Vermicelli Rice";
+    ViewData["Title"] = Model.Dish.Name;
 }
 <!-- Views/Dishes/Details.cshtml -->
 <!-- Ported from Views/Dishes/Partials/_DishDetail.cshtml on main -->
@@ -18,10 +19,11 @@
         this.isZoomed = false;
     },
     quantity: 1,
+    dishAvailable: @Model.Dish.IsAvailable.ToString().ToLowerInvariant(),
     selectedPortion: 'thigh',
     portionExtra: 0,
     note: '',
-    favorited: false,
+    favorited: @Model.IsFavorite.ToString().ToLowerInvariant(),
     activeAccordion: 'description',
     images: [
         'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=1000&auto=format&fit=crop&q=80',
@@ -49,7 +51,7 @@
                     <use href="#chevron-right"></use>
                 </svg>
                 <span class="text-[var(--color-text)] font-semibold truncate max-w-[260px] sm:max-w-md">
-                    Baladi Duck Molokhia with Vermicelli Rice
+                     @Model.Dish.Name
                 </span>
             </nav>
         </div>
@@ -124,8 +126,8 @@
                             <div class="dish-photo-card-420-520 relative overflow-hidden rounded-[24px] bg-[var(--color-card-bg)] border border-[var(--color-border)] shadow-xl"
                                  style="width: 420px; height: 520px; max-width: 100%; max-height: 100%;">
                                 <div class="absolute inset-0 z-10 rounded-[24px] bg-gradient-to-b from-white/10 via-transparent to-black/25 pointer-events-none"></div>
-                                <img src="https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=1000&auto=format&fit=crop&q=80"
-                                     alt="Baladi Duck Molokhia with Vermicelli Rice Photo 1"
+                                <img src="@(string.IsNullOrWhiteSpace(Model.Dish.ImageUrl) ? "/icons/chibi-chef.png" : Model.Dish.ImageUrl)"
+                                     alt="@Model.Dish.Name Photo 1"
                                      class="object-cover w-full h-full pointer-events-none select-none" />
                             </div>
                         </div>
@@ -271,7 +273,7 @@
                     <!-- Price display -->
                     <div class="flex items-baseline gap-3 my-4">
                         <span class="text-2xl sm:text-3xl font-bold text-[var(--color-primary)]"
-                              x-text="(240 + portionExtra).toFixed(2) + ' EGP'">240.00 EGP</span>
+                              x-text="(@Model.Dish.Price + portionExtra).toFixed(2) + ' EGP'">@Model.Dish.Price.ToString("0.00") EGP</span>
                         <span class="text-[14px] text-[var(--color-text-muted)] line-through">280.00 EGP</span>
                     </div>
 
@@ -293,7 +295,7 @@
                 <!-- TODO(backend): POST /Cart/Add(dishId, quantity, selectedOptionIds, notes) -->
                 <form method="post" action="/Cart/Add" class="space-y-6 pt-1">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" name="dishId" value="1" />
+                    <input type="hidden" name="dishId" value="@Model.Dish.Id" />
                     <input type="hidden" name="selectedPortion" :value="selectedPortion" />
                     <input type="hidden" name="quantity" :value="quantity" />
 
@@ -361,13 +363,14 @@
                             </div>
 
                             <button type="submit"
+                                    :disabled="!dishAvailable"
                                     class="flex-1 inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 select-none cursor-pointer rounded-full text-[13px] px-6 py-2.5 gap-2 shadow-xs bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white focus-visible:outline-[var(--color-primary)]">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
-                                <span><span>Add to Cart</span> · <span x-text="((240 + portionExtra) * quantity).toFixed(2) + ' EGP'">240.00 EGP</span></span>
+                                <span><span x-text="dishAvailable ? 'Add to Cart' : 'Unavailable'">Add to Cart</span> · <span x-text="((@Model.Dish.Price + portionExtra) * quantity).toFixed(2) + ' EGP'">@Model.Dish.Price.ToString("0.00") EGP</span></span>
                             </button>
 
-                            <button type="button"
-                                    @@click="favorited = !favorited"
+                             <button type="button" data-favorite-dish-id="@Model.Dish.Id"
+                                     @@click.stop
                                     class="p-3 border border-[var(--color-border)] hover:border-rose-400 rounded-full transition-colors cursor-pointer text-[var(--color-text)] hover:text-rose-500">
                                 <svg class="w-5 h-5" :class="favorited ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#heart"></use></svg>
                             </button>

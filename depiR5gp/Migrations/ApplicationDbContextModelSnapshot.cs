@@ -302,6 +302,11 @@ namespace depiR5gp.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("note");
 
+                    b.Property<string>("PresetKey")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("preset_key");
+
                     b.Property<int>("Quantity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -1245,9 +1250,13 @@ namespace depiR5gp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ChefProfileId")
+                    b.Property<int?>("ChefProfileId")
                         .HasColumnType("int")
                         .HasColumnName("chef_profile_id");
+
+                    b.Property<int?>("DishId")
+                        .HasColumnType("int")
+                        .HasColumnName("dish_id");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int")
@@ -1257,8 +1266,15 @@ namespace depiR5gp.Migrations
 
                     b.HasIndex("ChefProfileId");
 
+                    b.HasIndex("DishId");
+
                     b.HasIndex("UserId", "ChefProfileId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[chef_profile_id] IS NOT NULL");
+
+                    b.HasIndex("UserId", "DishId")
+                        .IsUnique()
+                        .HasFilter("[dish_id] IS NOT NULL");
 
                     b.ToTable("Favorites", (string)null);
                 });
@@ -1522,9 +1538,19 @@ namespace depiR5gp.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("address");
 
+                    b.Property<string>("Allergies")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("allergies");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DietaryPreferences")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("dietary_preferences");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1577,6 +1603,16 @@ namespace depiR5gp.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("points_balance");
+
+                    b.Property<string>("PrimaryArea")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("primary_area");
+
+                    b.Property<string>("ProfileImagePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("profile_image_path");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -2076,8 +2112,12 @@ namespace depiR5gp.Migrations
                     b.HasOne("depiR5gp.Models.Chefs.ChefProfile", "ChefProfile")
                         .WithMany("Favorites")
                         .HasForeignKey("ChefProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("depiR5gp.Models.Menu.Dish", "Dish")
+                        .WithMany()
+                        .HasForeignKey("DishId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("depiR5gp.Models.Users.AppUser", "User")
                         .WithMany("Favorites")
@@ -2086,6 +2126,8 @@ namespace depiR5gp.Migrations
                         .IsRequired();
 
                     b.Navigation("ChefProfile");
+
+                    b.Navigation("Dish");
 
                     b.Navigation("User");
                 });
