@@ -52,4 +52,12 @@ public class ChefService(IUnitOfWork unitOfWork, IFileService fileService) : ICh
 
         return (true, "Your application has been submitted successfully and will be reviewed by the admin.");
     }
+
+    public async  Task<decimal>  GetCommissionRate() {
+        var x
+          =  await unitOfWork.PlatformSettingRepository.GetAllAsync();
+        return  x.FirstOrDefault()?.CommissionRate ?? 15.0m;
+    }
+
+  
 }

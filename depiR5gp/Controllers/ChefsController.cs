@@ -31,6 +31,9 @@ public class ChefsController(
             return RedirectToAction("Index", "Home");
         }
 
+       decimal CommissionRate=  chefService.GetCommissionRate().Result;
+       ViewBag.CommissionRate = CommissionRate;
+
         return View();
     }
 

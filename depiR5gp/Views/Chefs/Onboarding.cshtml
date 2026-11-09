@@ -154,7 +154,9 @@
                            required
                            class="mt-1 w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)] border-neutral-300" />
                     <span class="text-[var(--color-text)] leading-relaxed">
-                        <strong class="block">Agree to 15% Platform Commission &amp; Domestic Hygiene Terms</strong>
+                  
+                        <!--TODO fetch this from the platform setting    -->
+                        <strong class="block">Agree to @((ViewBag.CommissionRate * 100).ToString("F2"))% Platform Commission &amp; Domestic Hygiene Terms</strong>
                         <span class="text-[var(--color-text-muted)] text-[11px]">
                             I certify that meals are prepared using pure butter and fresh ingredients in a sanitized kitchen, with timely customer handover.
                         </span>
