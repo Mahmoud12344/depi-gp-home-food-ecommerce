@@ -14,6 +14,10 @@ namespace depiR5gp.Models.Chefs
         [StringLength(200, ErrorMessage = "العنوان يجب ألا يتجاوز 200 حرف.")]
         public string Address { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "منطقة الاستلام مطلوبة.")]
+        [Display(Name = "منطقة الاستلام")]
+        public string Area { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "يرجى رفع صورة أو ملف بطاقة الهوية.")]
         [Display(Name = "إثبات الهوية (PDF/JPG/PNG)")]
         public IFormFile IdDocument { get; set; } = null!;
