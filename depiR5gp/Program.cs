@@ -2,6 +2,7 @@ using depiR5gp.Data;
 using depiR5gp.Data.Seeding;
 using depiR5gp.Models.Users;
 using Microsoft.AspNetCore.Identity;
+using depiR5gp.Services;
 using depiR5gp.Services.Implementation;
 using depiR5gp.Services.Implementations;
 using depiR5gp.Services.Interfaces;
@@ -78,6 +79,9 @@ if (builder.Environment.IsDevelopment())
 
 //Admin Service
 builder.Services.AddScoped<IAdminService, AdminService>();
+
+//ChefProfile Service 
+builder.Services.AddScoped<IChefProfileService, ChefProfileService>();
 
 var app = builder.Build();
 

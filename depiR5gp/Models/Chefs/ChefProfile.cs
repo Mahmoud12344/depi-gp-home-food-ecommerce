@@ -22,6 +22,7 @@ public class ChefProfile
     public bool HasAcceptedTerms { get; set; } = false;
     public decimal? CommissionRate { get; set; }
     public string? Area { get; set; }
+    public bool IsAcceptingOrders { get; set; } = true;
 
     // Navigation Properties
     public virtual AppUser User { get; set; } = null!;

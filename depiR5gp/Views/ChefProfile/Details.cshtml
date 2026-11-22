@@ -1,0 +1,63 @@
+﻿@model depiR5gp.Models.Chefs.ChefProfileViewModel
+
+@{
+    ViewData["Title"] = Model.Name + " - Profile";
+}
+
+<div class="container mt-5">
+    <div class="row text-center mb-4">
+        <div class="col-12">
+            @if (!string.IsNullOrEmpty(Model.PhotoUrl))
+            {
+                <img src="@Model.PhotoUrl" alt="@Model.Name Profile Photo" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
+            }
+            else
+            {
+                <img src="https://ui-avatars.com/api/?name=@Model.Name&background=random" alt="Default Photo" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
+            }
+            <h1 class="mt-3">@Model.Name</h1>
+        </div>
+    </div>
+
+    <!-- رسالة تحذير إذا كان الطباخ لا يستقبل طلبات (Scenario 2) -->
+    @if (!Model.IsAcceptingOrders)
+    {
+        <div class="alert alert-warning text-center" role="alert">
+            This chef is currently unavailable for new orders.
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.Bio))
+                    {
+                        <h4 class="card-title">About</h4>
+                        <p class="card-text">@Model.Bio</p>
+                        <hr />
+                    }
+
+                    <h4 class="card-title">Pickup Location</h4>
+                    <p class="card-text">@(Model.Address ?? "Location not specified.")</p>
+                    <hr />
+
+                    <h4 class="card-title">Working Hours</h4>
+                    @if (Model.WorkingHours != null && Model.WorkingHours.Any())
+                    {
+                        <ul class="list-unstyled">
+                            @foreach (var hours in Model.WorkingHours)
+                            {
+                                <li><i class="bi bi-clock"></i> @hours</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="card-text text-muted">Working hours not specified.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
