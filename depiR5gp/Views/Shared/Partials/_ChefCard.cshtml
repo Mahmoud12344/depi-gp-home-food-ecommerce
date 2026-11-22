@@ -25,7 +25,9 @@
 
             <!-- Favorite heart -->
             <button type="button"
-                    @@click.stop="isFav = !isFav"
+                    data-favorite-chef-id="1"
+                    data-favorite-active="false"
+                    @@click.stop="window.toggleChefFavorite($el)"
                     aria-label="Save chef to favorites"
                     class="absolute top-3.5 end-3.5 w-8 h-8 rounded-full bg-neutral-950/90 border border-white/20 backdrop-blur-xs flex items-center justify-center text-white hover:text-rose-400 transition-all shadow-md hover:scale-110 cursor-pointer">
                 <svg class="w-4 h-4" :class="isFav ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">

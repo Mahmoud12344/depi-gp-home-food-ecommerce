@@ -84,8 +84,11 @@
 
                         <!-- Favorite Heart Button -->
                         <button type="button"
-                                @@click.stop="favorited = !favorited"
+                                data-favorite-chef-id="@c.Id"
+                                data-favorite-active="false"
+                                @@click.stop="window.toggleChefFavorite($el)"
                                 class="chef-list-fav"
+                                aria-label="Save chef to favorites"
                                 title="Favorite this chef">
                             <svg class="w-4 h-4" :class="favorited ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <use href="#heart"></use>

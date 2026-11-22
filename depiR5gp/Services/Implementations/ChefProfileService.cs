@@ -1,4 +1,4 @@
-﻿using depiR5gp.Models.Chefs;
+using depiR5gp.Models.Chefs;
 using depiR5gp.Repositories.Interfaces;
 
 namespace depiR5gp.Services;
@@ -26,6 +26,7 @@ public class ChefProfileService : IChefProfileService
 
         return new ChefProfileViewModel
         {
+            Id = profile.Id,
             Name = !string.IsNullOrEmpty(profile.KitchenName) ? profile.KitchenName : (profile.User?.FirstName + " " + profile.User?.LastName ?? "Unknown"),
             Bio = profile.Bio,
             PhotoUrl = profile.PhotoUrl,

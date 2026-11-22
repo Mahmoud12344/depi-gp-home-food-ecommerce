@@ -24,6 +24,7 @@
          }
      }"
      @@open-quick-view.window="if ($event.detail) dish = $event.detail; quantity = 1; open = true"
+     @@cart-added.window="open = false"
      x-show="open"
      style="display: none;"
      x-transition:enter="transition ease-out duration-200"
@@ -153,9 +154,18 @@
                             </svg>
                             <span x-text="dish.isAvailable !== false ? 'Add to Cart' : 'Unavailable'">Add to Cart</span>
                         </button>
+
+                        <button type="button"
+                                :data-favorite-dish-id="dish.id"
+                                data-favorite-active="false"
+                                @@click.stop="window.toggleDishFavorite($el)"
+                                aria-label="Add to favorites"
+                                class="p-2.5 border border-[var(--color-border)] hover:border-rose-400 rounded-full transition-colors cursor-pointer text-[var(--color-text)] hover:text-rose-500">
+                            <svg class="w-4 h-4 stroke-current" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#heart"></use></svg>
+                        </button>
                     </form>
 
-                    <a href="/Dishes/Details/1"
+                    <a :href="'/Dishes/Details/' + dish.id"
                        class="w-full text-center text-xs font-semibold text-[var(--color-primary)] hover:underline pt-1 block cursor-pointer">
                         <span>View Full Dish Page &amp; Ingredients</span> →
                     </a>

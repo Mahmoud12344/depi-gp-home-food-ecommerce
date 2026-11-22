@@ -475,9 +475,12 @@
         <div class="pt-4 mt-3 flex flex-wrap items-center justify-center gap-3 border-t border-[var(--color-border-light)]">
             <!-- Favorite Heart Button -->
             <button type="button"
-                    @@click="isFav = !isFav"
+                    :data-favorite-dish-id="[2, 4, 6, 1, 5, 3][selected] || 1"
+                    data-favorite-active="false"
+                    @@click.stop="window.toggleDishFavorite($el)"
                     class="p-3 rounded-full border border-[var(--color-border)] hover:border-rose-400 text-[var(--color-text)] hover:text-rose-500 transition-colors cursor-pointer shadow-xs"
-                    title="Favorite this dish">
+                    title="Favorite this dish"
+                    aria-label="Add to favorites">
                 <svg class="w-4 h-4" :class="isFav ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="#heart"></use>
                 </svg>
@@ -486,7 +489,7 @@
             <!-- Add to Cart CTA -->
             <form method="post" action="/Cart/Add" class="inline">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="dishId" value="1" />
+                <input type="hidden" name="dishId" :value="[2, 4, 6, 1, 5, 3][selected] || 1" />
                 <input type="hidden" name="quantity" value="1" />
                 <button type="submit"
                         class="chef-menu-btn inline-flex items-center gap-2 px-6 sm:px-8 py-3 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer">
@@ -498,7 +501,8 @@
             </form>
 
             <!-- View Dish Page -->
-            <a href="/Dishes/Details/1"
+            <a :href="'/Dishes/Details/' + ([2, 4, 6, 1, 5, 3][selected] || 1)"
+               href="/Dishes/Details/1"
                class="inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white font-bold uppercase tracking-wider text-xs sm:text-sm transition-all cursor-pointer">
                 <span>Dish Details</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
