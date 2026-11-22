@@ -72,4 +72,4 @@ yarn-error.log*
 
 # Visual Studio
 .vs/
-**/.vs/
+**/.vs/.agents/

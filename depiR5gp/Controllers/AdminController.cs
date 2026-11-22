@@ -13,14 +13,26 @@ public class AdminController : Controller
     private static readonly string[] ValidReviewStatuses = ["Pending", "Approved", "Rejected"];
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAdminService _adminService;
+    private readonly IAdminDashboardService _dashboardService;
 
-    public AdminController(IUnitOfWork unitOfWork, IAdminService adminService)
+    public AdminController(
+        IUnitOfWork unitOfWork,
+        IAdminService adminService,
+        IAdminDashboardService dashboardService)
     {
         _unitOfWork = unitOfWork;
         _adminService = adminService;
+        _dashboardService = dashboardService;
     }
 
-    public IActionResult Index() => View();
+    [HttpGet]
+    public async Task<IActionResult> Index(string? range = "month", CancellationToken cancellationToken = default)
+    {
+        var model = await _dashboardService.GetDashboardAsync(range, cancellationToken);
+        ViewData["PendingChefApplicationsCount"] = model.PendingApplicationsCount;
+        return View(model);
+    }
+
     public IActionResult Chefs() => View();
     public IActionResult Orders() => View();
     public IActionResult Payouts() => View();

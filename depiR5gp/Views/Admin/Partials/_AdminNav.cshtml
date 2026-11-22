@@ -37,7 +37,10 @@
         <a href="/Admin/Chefs"
            class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "applications" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
             <span>Chef Applications</span>
-            <span>(1)</span>
+            @if (ViewData["PendingChefApplicationsCount"] is int pendingCount)
+            {
+                <span>(@pendingCount)</span>
+            }
         </a>
 
         <a href="/Admin/Users"

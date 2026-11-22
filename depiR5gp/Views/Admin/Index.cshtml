@@ -1,10 +1,18 @@
+@model depiR5gp.ViewModels.AdminDashboard.AdminDashboardVM
+@using System.Globalization
 @{
     ViewData["Title"] = "Platform KPIs & Balances - Admin Portal";
     ViewData["ActiveAdminTab"] = "kpis";
+
+    var inv = CultureInfo.InvariantCulture;
+
+    string RangePillClass(string key) =>
+        string.Equals(Model.DateRangeKey, key, StringComparison.OrdinalIgnoreCase)
+            ? "bg-[var(--color-primary)] text-white shadow-xs"
+            : "bg-[var(--color-surface-subtle)] text-[var(--color-text)] hover:bg-neutral-200 dark:hover:bg-neutral-800";
+
+    string FormatMoney(decimal amount) => $"{amount.ToString("N2", inv)} EGP";
 }
-<!-- Views/Admin/Index.cshtml -->
-<!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 157-274, _CashReconciliationModal.cshtml, _AdminPayoutModal.cshtml, _OrderSettlementModal.cshtml) -->
-<!-- TODO(backend): Bind platform KPI totals (Gross GMV, Platform Commission, Held Funds, Active Kitchens) and financial ledger breakdown from reporting queries -->
 
 <div x-data="{
     showCashModal: false,
@@ -15,126 +23,186 @@
     <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
-        <!-- TAB 1: Platform KPIs & Balances -->
-        <div class="space-y-6">
+        
+        <!-- ROW 1: Date Range Filter Bar & Primary Revenue / Order Summary Cards -->
+        <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] pb-4">
+                <div>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                        Performance Overview · @Model.DateRangeLabel
+                    </h2>
+                    <p class="text-xs text-[var(--color-text-muted)]">
+                        Real-time platform metrics and revenue velocity for the selected period
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap" role="group" aria-label="Date range filter">
+                    <a href="/Admin?range=7d" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer @RangePillClass("7d")">Last 7 Days</a>
+                    <a href="/Admin?range=month" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer @RangePillClass("month")">This Month</a>
+                    <a href="/Admin?range=ytd" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer @RangePillClass("ytd")">Year-to-Date</a>
+                    <a href="/Admin?range=all" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer @RangePillClass("all")">All Time</a>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
-                        Total Gross GMV (October)
-                    </span>
-                    <p class="text-2xl font-bold text-[var(--color-text)] mt-1">48,920.00 EGP</p>
-                    <p class="text-[11px] text-emerald-600 mt-1 font-semibold">+18.4% vs last month</p>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Gross Revenue (@Model.DateRangeLabel)</span>
+                    <p class="text-2xl font-bold text-[var(--color-text)] mt-1">@FormatMoney(Model.GrossRevenue)</p>
+                    <p class="text-[11px] text-[var(--color-primary)] font-semibold mt-1">Commission: @FormatMoney(Model.PlatformCommission)</p>
                 </div>
-
                 <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
-                        Platform Commission (15%)
-                    </span>
-                    <p class="text-2xl font-bold text-[var(--color-primary)] mt-1">7,338.00 EGP</p>
-                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Simulated ledger</p>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Total Orders (@Model.DateRangeLabel)</span>
+                    <p class="text-2xl font-bold text-[var(--color-primary)] mt-1">@Model.TotalOrders</p>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">@Model.DeliveredOrdersCount delivered · @Model.PendingOrdersCount pending</p>
                 </div>
-
                 <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
-                        Stripe Test Mode Held Funds
-                    </span>
-                    <p class="text-2xl font-bold text-amber-600 mt-1">3,240.00 EGP</p>
-                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Active pending orders</p>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">All-Time Platform GMV</span>
+                    <p class="text-2xl font-bold text-[var(--color-text)] mt-1">@FormatMoney(Model.AllTimeRevenue)</p>
+                    <p class="text-[11px] text-emerald-600 font-semibold mt-1">Cumulative volume</p>
                 </div>
-
                 <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
-                        Active Domestic Kitchens
-                    </span>
-                    <p class="text-2xl font-bold text-emerald-600 mt-1">4 Verified</p>
-                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">1 application pending</p>
-                </div>
-            </div>
-
-            <!-- Financial Ledger Breakdown & Actions -->
-            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
-                        Platform Financial Position &amp; Actions
-                    </h3>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <button type="button"
-                                @@click="showCashModal = true"
-                                class="px-3.5 py-1.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
-                            <span>Reconcile Cash</span>
-                        </button>
-                        <button type="button"
-                                @@click="showPayoutModal = true"
-                                class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#credit-card"></use></svg>
-                            <span>Disburse Payout</span>
-                        </button>
-                        <button type="button"
-                                @@click="showSettlementModal = true"
-                                class="px-3.5 py-1.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-[var(--color-text)] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#file-text"></use></svg>
-                            <span>Inspect Settlement</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
-                        <span class="font-bold text-[var(--color-text-muted)] block">Card Payments (Stripe Test):</span>
-                        <p class="text-lg font-bold text-[var(--color-text)] mt-1">36,400.00 EGP</p>
-                    </div>
-                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
-                        <span class="font-bold text-[var(--color-text-muted)] block">Cash on Pickup Collections:</span>
-                        <p class="text-lg font-bold text-[var(--color-text)] mt-1">12,520.00 EGP</p>
-                    </div>
-                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
-                        <span class="font-bold text-[var(--color-text-muted)] block">Total Chef Payout Liabilities:</span>
-                        <p class="text-lg font-bold text-emerald-600 mt-1">41,582.00 EGP</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SVG KPI Trend Charts (SCRUM-366) -->
-            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">Weekly GMV Sales Velocity Trend</h3>
-                        <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Daily gross volume velocity across domestic kitchens over past 7 days</p>
-                    </div>
-                    <span class="text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 rounded-full">+24.2% Growth</span>
-                </div>
-                <div class="h-36 w-full pt-4">
-                    <svg class="w-full h-full overflow-visible" viewBox="0 0 600 120" preserveAspectRatio="none">
-                        <defs>
-                            <linearGradient id="kpiGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.25"></stop>
-                                <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0"></stop>
-                            </linearGradient>
-                        </defs>
-                        <path d="M 0,95 Q 100,75 150,80 T 300,50 T 450,30 T 600,10 L 600,120 L 0,120 Z" fill="url(#kpiGrad)" />
-                        <path d="M 0,95 Q 100,75 150,80 T 300,50 T 450,30 T 600,10" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-linecap="round" />
-                        <circle cx="0" cy="95" r="4" fill="var(--color-primary)" />
-                        <circle cx="150" cy="80" r="4" fill="var(--color-primary)" />
-                        <circle cx="300" cy="50" r="4" fill="var(--color-primary)" />
-                        <circle cx="450" cy="30" r="4" fill="var(--color-primary)" />
-                        <circle cx="600" cy="10" r="4" fill="var(--color-primary)" />
-                    </svg>
-                </div>
-                <div class="flex justify-between text-[11px] text-[var(--color-text-muted)] pt-2 border-t border-[var(--color-border-light)] overflow-x-auto gap-2">
-                    <span>Sat: 4.2k</span>
-                    <span>Sun: 5.1k</span>
-                    <span>Mon: 6.4k</span>
-                    <span>Tue: 7.2k</span>
-                    <span>Wed: 8.1k</span>
-                    <span>Thu: 8.9k</span>
-                    <span class="font-bold text-[var(--color-text)]">Fri: 9.0k EGP</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">All-Time Cumulative Orders</span>
+                    <p class="text-2xl font-bold text-[var(--color-text)] mt-1">@Model.AllTimeOrdersCount</p>
+                    <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Platform-wide orders</p>
                 </div>
             </div>
         </div>
+
+        <!-- ROW 2: Platform Health KPI Badges with Accent Borders and Icons -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] border-l-4 border-l-amber-500 rounded-2xl p-4 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Pending Orders</span>
+                    <p class="text-2xl font-bold text-amber-600 mt-0.5">@Model.PendingOrdersCount</p>
+                    <span class="text-[10px] text-[var(--color-text-muted)]">Awaiting fulfillment</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                </div>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] border-l-4 border-l-blue-500 rounded-2xl p-4 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Total Users</span>
+                    <p class="text-2xl font-bold text-blue-600 mt-0.5">@Model.TotalUsers</p>
+                    <span class="text-[10px] text-[var(--color-text-muted)]">Registered accounts</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#users"></use></svg>
+                </div>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] border-l-4 border-l-emerald-500 rounded-2xl p-4 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Active Kitchens</span>
+                    <p class="text-2xl font-bold text-emerald-600 mt-0.5">@Model.ActiveKitchensCount</p>
+                    <span class="text-[10px] text-[var(--color-text-muted)]">@Model.PendingApplicationsCount pending apps</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                </div>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] border-l-4 border-l-[var(--color-primary)] rounded-2xl p-4 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Total Menu Dishes</span>
+                    <p class="text-2xl font-bold text-[var(--color-primary)] mt-0.5">@Model.TotalDishesCount</p>
+                    <span class="text-[10px] text-[var(--color-text-muted)]">Active listings</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROW 3: Chart.js Analytics (Top Performing Kitchens & Order Fulfillment Ratio) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">Top Performing Kitchens</h3>
+                        <p class="text-xs text-[var(--color-text-muted)]">Ranked by gross revenue for @Model.DateRangeLabel</p>
+                    </div>
+                </div>
+                <div class="h-64 w-full relative">
+                    <canvas id="topKitchensChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">Order Fulfillment Ratio</h3>
+                        <p class="text-xs text-[var(--color-text-muted)]">Delivered vs Pending orders for @Model.DateRangeLabel</p>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--color-text-muted)]">@Model.TotalOrders total</span>
+                </div>
+                <div class="h-64 w-full relative">
+                    <canvas id="fulfillmentDoughnutChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROW 4: Revenue Velocity Trend (Smooth Area Line Chart) -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">Revenue Velocity Trend</h3>
+                    <p class="text-xs text-[var(--color-text-muted)]">Progression of gross platform volume across @Model.DateRangeLabel</p>
+                </div>
+                <span class="text-xs font-bold text-[var(--color-primary)] bg-[var(--color-primary-light)] px-3 py-1 rounded-full">
+                    @FormatMoney(Model.GrossRevenue) Total
+                </span>
+            </div>
+            <div class="h-72 w-full relative pt-2">
+                <canvas id="revenueTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ROW 5: Preserved Financial Position Summary & Modals -->
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Platform Financial Position &amp; Actions (@Model.DateRangeLabel)
+                </h3>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" @@click="showCashModal = true"
+                            class="px-3.5 py-1.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                        <span>Reconcile Cash</span>
+                    </button>
+                    <button type="button" @@click="showPayoutModal = true"
+                            class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#credit-card"></use></svg>
+                        <span>Disburse Payout</span>
+                    </button>
+                    <button type="button" @@click="showSettlementModal = true"
+                            class="px-3.5 py-1.5 rounded-full border border-[var(--color-border)] hover:bg-neutral-100 dark:hover:bg-neutral-800 text-[var(--color-text)] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#file-text"></use></svg>
+                        <span>Inspect Settlement</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                    <span class="font-bold text-[var(--color-text-muted)] block">Card Payments (Stripe Test):</span>
+                    <p class="text-lg font-bold text-[var(--color-text)] mt-1">@FormatMoney(Model.CardPaymentsTotal)</p>
+                </div>
+                <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                    <span class="font-bold text-[var(--color-text-muted)] block">Cash on Pickup Collections:</span>
+                    <p class="text-lg font-bold text-[var(--color-text)] mt-1">@FormatMoney(Model.CashCollectionsTotal)</p>
+                </div>
+                <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
+                    <span class="font-bold text-[var(--color-text-muted)] block">Total Chef Payout Liabilities:</span>
+                    <p class="text-lg font-bold text-emerald-600 mt-1">@FormatMoney(Model.ChefPayoutLiabilities)</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Modal 1: Cash Collections Reconciliation Modal (from Views/Admin/Partials/_CashReconciliationModal.cshtml) -->
+    <!-- Modal 1: Cash Collections Reconciliation Modal -->
     <div x-show="showCashModal"
          x-transition.opacity.duration.200ms
          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
@@ -172,15 +240,15 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div class="p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
                     <span class="text-[10px] font-bold uppercase text-[var(--color-text-muted)] block">Total Cash Collected</span>
-                    <span class="text-base font-bold text-[var(--color-text)]">12,520.00 EGP</span>
+                    <span class="text-base font-bold text-[var(--color-text)]">@FormatMoney(Model.CashCollectionsTotal)</span>
                 </div>
                 <div class="p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
                     <span class="text-[10px] font-bold uppercase text-[var(--color-text-muted)] block">Platform Commission (15%)</span>
-                    <span class="text-base font-bold text-[var(--color-primary)]">1,878.00 EGP</span>
+                    <span class="text-base font-bold text-[var(--color-primary)]">@FormatMoney(Model.CashCollectionsTotal * 0.15m)</span>
                 </div>
                 <div class="p-3.5 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)]">
                     <span class="text-[10px] font-bold uppercase text-[var(--color-text-muted)] block">Pending Cash Offset</span>
-                    <span class="text-base font-bold text-amber-600">340.00 EGP</span>
+                    <span class="text-base font-bold text-amber-600">@FormatMoney(Model.CashCollectionsTotal * 0.15m)</span>
                 </div>
             </div>
 
@@ -252,7 +320,7 @@
         </div>
     </div>
 
-    <!-- Modal 2: Admin Payout Modal (from Views/Admin/Partials/_AdminPayoutModal.cshtml) -->
+    <!-- Modal 2: Admin Payout Modal -->
     <div x-show="showPayoutModal"
          x-transition.opacity.duration.200ms
          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
@@ -287,7 +355,6 @@
             </div>
 
             <!-- Disbursement Form -->
-            <!-- TODO(backend): POST /Admin/Payouts with chefId, amount, paymentMethod, and referenceNote -->
             <form method="post" action="/Admin/Payouts" class="space-y-4 text-xs">
                 @Html.AntiForgeryToken()
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -382,7 +449,7 @@
         </div>
     </div>
 
-    <!-- Modal 3: Order Settlement Modal (from Views/Admin/Partials/_OrderSettlementModal.cshtml) -->
+    <!-- Modal 3: Order Settlement Modal -->
     <div x-show="showSettlementModal"
          x-transition.opacity.duration.200ms
          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/60 backdrop-blur-xs"
@@ -454,3 +521,173 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js failed to load or is unavailable.');
+                return;
+            }
+
+            try {
+                const revenueLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueLabels));
+                const revenueValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueValues));
+                const topKitchenNames = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopKitchenNames));
+                const topKitchenRevenues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopKitchenRevenues));
+                const deliveredCount = @Model.DeliveredOrdersCount;
+                const pendingCount = @Model.PendingOrdersCount;
+
+                // 1. Top Kitchens (Horizontal Bar Chart)
+                const kitchenCanvas = document.getElementById('topKitchensChart');
+                if (kitchenCanvas) {
+                    new Chart(kitchenCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: topKitchenNames.length ? topKitchenNames : ['No Kitchens'],
+                            datasets: [{
+                                label: 'Revenue (EGP)',
+                                data: topKitchenRevenues.length ? topKitchenRevenues : [0],
+                                backgroundColor: 'rgba(235, 94, 40, 0.85)',
+                                borderColor: 'rgba(235, 94, 40, 1)',
+                                borderWidth: 1,
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (ctx) => ' ' + Number(ctx.raw).toLocaleString('en-US') + ' EGP'
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { color: 'rgba(156, 163, 175, 0.15)' },
+                                    ticks: {
+                                        callback: (val) => Number(val).toLocaleString() + ' EGP',
+                                        font: { size: 10 }
+                                    }
+                                },
+                                y: {
+                                    grid: { display: false },
+                                    ticks: { font: { size: 11, weight: 'bold' } }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 2. Order Fulfillment Ratio (Doughnut Chart)
+                const fulfillmentCanvas = document.getElementById('fulfillmentDoughnutChart');
+                if (fulfillmentCanvas) {
+                    const totalFulfillment = deliveredCount + pendingCount;
+                    new Chart(fulfillmentCanvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: totalFulfillment > 0 ? ['Delivered Orders', 'Pending / In Progress'] : ['No Orders Recorded'],
+                            datasets: [{
+                                data: totalFulfillment > 0 ? [deliveredCount, pendingCount] : [1],
+                                backgroundColor: totalFulfillment > 0 ? ['#10b981', '#f59e0b'] : ['#e5e7eb'],
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '68%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12,
+                                        padding: 16,
+                                        font: { size: 11, weight: 'bold' }
+                                    }
+                                },
+                                tooltip: {
+                                    enabled: totalFulfillment > 0,
+                                    callbacks: {
+                                        label: (ctx) => {
+                                            const val = ctx.raw;
+                                            const pct = totalFulfillment > 0 ? Math.round((val / totalFulfillment) * 100) : 0;
+                                            return ` ${ctx.label}: ${val} (${pct}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 3. Revenue Velocity Trend (Area Line Chart)
+                const trendCanvas = document.getElementById('revenueTrendChart');
+                if (trendCanvas) {
+                    const ctx2d = trendCanvas.getContext('2d');
+                    let fillGradient = 'rgba(235, 94, 40, 0.15)';
+                    if (ctx2d) {
+                        const grad = ctx2d.createLinearGradient(0, 0, 0, 260);
+                        grad.addColorStop(0, 'rgba(235, 94, 40, 0.35)');
+                        grad.addColorStop(1, 'rgba(235, 94, 40, 0.0)');
+                        fillGradient = grad;
+                    }
+
+                    new Chart(trendCanvas, {
+                        type: 'line',
+                        data: {
+                            labels: revenueLabels.length ? revenueLabels : ['No Data'],
+                            datasets: [{
+                                label: 'Gross Revenue',
+                                data: revenueValues.length ? revenueValues : [0],
+                                borderColor: '#eb5e28',
+                                backgroundColor: fillGradient,
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBackgroundColor: '#eb5e28',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (ctx) => ' Revenue: ' + Number(ctx.raw).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP'
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { font: { size: 11 } }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: 'rgba(156, 163, 175, 0.15)' },
+                                    ticks: {
+                                        font: { size: 10 },
+                                        callback: (val) => Number(val).toLocaleString() + ' EGP'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Error initializing Admin Dashboard Chart.js charts:', err);
+            }
+        });
+    </script>
+}
