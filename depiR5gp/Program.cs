@@ -2,6 +2,7 @@ using depiR5gp.Data;
 using depiR5gp.Data.Seeding;
 using depiR5gp.Models.Users;
 using Microsoft.AspNetCore.Identity;
+using depiR5gp.Services.Implementation;
 using depiR5gp.Services.Implementations;
 using depiR5gp.Services.Interfaces;
 using Microsoft.Data.SqlClient;
@@ -74,6 +75,9 @@ if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddSeeders(builder.Configuration);
 }
+
+//Admin Service
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 var app = builder.Build();
 

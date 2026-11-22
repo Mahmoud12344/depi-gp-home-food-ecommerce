@@ -1,0 +1,29 @@
+﻿@model depiR5gp.Models.Chefs.ChefApplicationStatusVM
+
+<div class="container mt-5">
+    <h2>Application Status Tracker</h2>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Current Status</h5>
+
+            @if (Model.Status == "Pending")
+            {
+                <span class="badge bg-warning text-dark">Pending</span>
+                <p class="mt-2 text-muted">Your application is currently under review by our admin team.</p>
+            }
+            else if (Model.Status == "Approved")
+            {
+                <span class="badge bg-success">Approved</span>
+                <p class="mt-2">Congratulations! You can now start managing your menu.</p>
+            }
+            else if (Model.Status == "Rejected")
+            {
+                <span class="badge bg-danger">Rejected</span>
+                <div class="alert alert-danger mt-3" role="alert">
+                    <strong>Rejection Reason:</strong> @Model.RejectionNotes
+                </div>
+            }
+        </div>
+    </div>
+</div>

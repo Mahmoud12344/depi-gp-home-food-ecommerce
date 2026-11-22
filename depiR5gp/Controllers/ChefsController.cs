@@ -42,11 +42,12 @@ public class ChefsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Onboarding(ChefApplicationViewModel model)
     {
+        // [SCRUM-345]   التحقق من موافقة الشيف على اتفاقية العمولة
         if (!model.HasAcceptedTerms)
         {
             ModelState.AddModelError(
                 nameof(model.HasAcceptedTerms),
-                "You must accept the commission agreement terms."
+                "You must accept the Commission Agreement to submit your application."
             );
         }
 

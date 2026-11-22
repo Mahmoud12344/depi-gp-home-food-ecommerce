@@ -6,5 +6,8 @@ namespace depiR5gp.Services.Interfaces {
         Task<(bool IsSuccess, string Message)> SubmitApplicationAsync(int userId, ChefApplicationViewModel model);
         Task<decimal> GetCommissionRate();
         Task<ChefCatalogViewModel> GetCatalogAsync(ChefFilterViewModel filter);
+
+        // دالة لجلب بيانات الحالة للملف الشخصي للشيف بناءً على الـ UserId
+        Task<ChefProfile?> GetChefApplicationStatusAsync(int userId);
     }
 }
