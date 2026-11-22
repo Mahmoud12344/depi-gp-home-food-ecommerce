@@ -22,6 +22,9 @@ public class ChefProfileConfiguration : IEntityTypeConfiguration<ChefProfile>
         builder.Property(c => c.RejectionReason).HasColumnName("rejection_reason").HasMaxLength(1000);
         builder.Property(c => c.HasAcceptedTerms).HasColumnName("has_accepted_terms").HasDefaultValue(false);
         builder.Property(c => c.CommissionRate).HasColumnName("commission_rate").HasPrecision(5, 4);
+        builder.Property(c => c.Area).HasColumnName("area").HasMaxLength(100);
+
+        builder.HasIndex(c => c.Area);
 
         builder.HasIndex(c => c.UserId).IsUnique();
 

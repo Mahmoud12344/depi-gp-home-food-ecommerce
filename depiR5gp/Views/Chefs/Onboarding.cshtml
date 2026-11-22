@@ -1,4 +1,5 @@
 @model depiR5gp.Models.Chefs.ChefApplicationViewModel
+@using depiR5gp.Models.Chefs
 
 @{
     ViewData["Title"] = "Chef Onboarding";
@@ -98,6 +99,18 @@
                            placeholder="e.g. Building 24, Road 200, Ground Floor, Degla, Maadi"
                            class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
                     <span asp-validation-for="Address" class="text-rose-500 text-xs mt-1 block"></span>
+                </div>
+                <!-- Pickup Area -->
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">Pickup Area *</label>
+                    <select name="Area" class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" ">
+                        <option value="">Select your area</option>
+                        @foreach (var a in PickupAreas.All)
+                        {
+                            <option value="@a.Key" selected="@(Model?.Area == a.Key)">@a.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Area" class="text-rose-500 text-xs mt-1 block"></span>
                 </div>
             </div>
 

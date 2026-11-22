@@ -14,7 +14,8 @@ public class ChefsController(
     IUnitOfWork unitOfWork,
     ApplicationDbContext context) : Controller
 {
-    public IActionResult Index() => View();
+    public async Task<IActionResult> Index(ChefFilterViewModel filter)
+    => View(await chefService.GetCatalogAsync(filter));
 
     public IActionResult Details(int id) => View();
     
@@ -43,7 +44,18 @@ public class ChefsController(
     {
         if (!model.HasAcceptedTerms)
         {
-            ModelState.AddModelError(nameof(model.HasAcceptedTerms), "You must accept the Commission Agreement to submit your application.");
+            ModelState.AddModelError(
+                nameof(model.HasAcceptedTerms),
+                "You must accept the commission agreement terms."
+            );
+        }
+
+        if (!PickupAreas.IsValid(model.Area))
+        {
+            ModelState.AddModelError(
+                nameof(model.Area),
+                "المنطقة غير صحيحة أو غير موجودة في القائمة."
+            );
         }
 
         if (!ModelState.IsValid)
