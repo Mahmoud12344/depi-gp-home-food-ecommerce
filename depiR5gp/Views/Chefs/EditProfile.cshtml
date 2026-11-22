@@ -1,87 +1,92 @@
 ﻿@model depiR5gp.Models.Chefs.EditChefProfileViewModel
-
 @{
-    ViewData["Title"] = "Edit Profile";
+    ViewData["Title"] = "Edit Kitchen Profile - Chef Portal";
+    ViewData["ActiveChefTab"] = "profile";
 }
 
-<div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Edit Chef Profile</h4>
-                </div>
-                <div class="card-body">
+<div x-data="{ isKitchenAvailable: @Model.IsAcceptingOrders.ToString().ToLowerInvariant(), editProfileOpen: false }" class="w-full pb-24">
+    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
 
-                    @if (TempData["SuccessMessage"] != null)
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div class="border-b border-[var(--color-border-light)] pb-4">
+                <h2 class="text-lg font-bold uppercase tracking-tight text-[var(--color-text)]">Edit Chef Profile</h2>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                    Update your kitchen name, bio, pickup address, profile photo, and order availability.
+                </p>
+            </div>
+
+            <form asp-controller="Chefs" asp-action="EditProfile" method="post" enctype="multipart/form-data" class="space-y-6 text-xs">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 font-medium"></div>
+
+                <!-- Profile Photo -->
+                <div class="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)]">
+                    @if (!string.IsNullOrEmpty(Model.ExistingPhotoUrl))
                     {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            @TempData["SuccessMessage"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <img src="@Model.ExistingPhotoUrl" alt="Profile Photo"
+                             class="w-24 h-24 rounded-full object-cover border-2 border-[var(--color-primary)] shadow-xs shrink-0" />
+                    }
+                    else
+                    {
+                        <div class="w-24 h-24 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
                         </div>
                     }
 
-                    <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                        <!-- قسم الصورة الشخصية -->
-                        <div class="text-center mb-4">
-                            @if (!string.IsNullOrEmpty(Model.ExistingPhotoUrl))
-                            {
-                                <img src="@Model.ExistingPhotoUrl" alt="Profile Photo" class="img-thumbnail rounded-circle mb-2" style="width: 150px; height: 150px; object-fit: cover;" />
-                            }
-                            else
-                            {
-                                <!-- صورة افتراضية في حال لم يرفع الشيف صورة من قبل -->
-                                <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 150px; height: 150px; font-size: 3rem;">
-                                    <i class="bi bi-person"></i>
-                                </div>
-                            }
-
-                            <div class="mt-2">
-                                <label asp-for="PhotoFile" class="form-label fw-bold">Upload New Photo</label>
-                                <input asp-for="PhotoFile" type="file" class="form-control form-control-sm w-50 mx-auto" accept="image/*" />
-                                <span asp-validation-for="PhotoFile" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <!-- اسم المطبخ / الشيف -->
-                        <div class="mb-3">
-                            <label asp-for="Name" class="form-label fw-bold">Kitchen / Chef Name</label>
-                            <input asp-for="Name" class="form-control" placeholder="Enter your kitchen name" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
-
-                        <!-- النبذة (Bio) -->
-                        <div class="mb-3">
-                            <label asp-for="Bio" class="form-label fw-bold">Bio</label>
-                            <textarea asp-for="Bio" class="form-control" rows="4" placeholder="Tell customers about your experience and cooking style..."></textarea>
-                            <span asp-validation-for="Bio" class="text-danger"></span>
-                        </div>
-
-                        <!-- العنوان (Address) -->
-                        <div class="mb-3">
-                            <label asp-for="Address" class="form-label fw-bold">Pickup Address</label>
-                            <input asp-for="Address" class="form-control" placeholder="Detailed address for order pickups" />
-                            <span asp-validation-for="Address" class="text-danger"></span>
-                        </div>
-
-                        <!-- حالة استقبال الطلبات -->
-                        <div class="mb-4 form-check form-switch">
-                            <input asp-for="IsAcceptingOrders" class="form-check-input" type="checkbox" role="switch" id="acceptingOrdersSwitch">
-                            <label class="form-check-label fw-bold" for="acceptingOrdersSwitch">Accepting New Orders</label>
-                            <small class="d-block text-muted">Turn this off if you are temporarily unavailable.</small>
-                        </div>
-
-                        <hr />
-
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
-                        </div>
-                    </form>
-
+                    <div class="flex-1 w-full space-y-1.5">
+                        <label asp-for="PhotoFile" class="block font-bold text-[var(--color-text)]">Upload New Kitchen Photo</label>
+                        <input asp-for="PhotoFile" type="file" accept="image/*"
+                               class="w-full p-2 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[var(--color-primary-light)] file:text-[var(--color-primary)] cursor-pointer" />
+                        <span asp-validation-for="PhotoFile" class="text-rose-500 text-xs block"></span>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Kitchen Name -->
+                <div class="space-y-1.5">
+                    <label asp-for="Name" class="block font-bold text-[var(--color-text)]">Kitchen / Chef Name</label>
+                    <input asp-for="Name" placeholder="Enter your kitchen name"
+                           class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                    <span asp-validation-for="Name" class="text-rose-500 text-xs block"></span>
+                </div>
+
+                <!-- Bio -->
+                <div class="space-y-1.5">
+                    <label asp-for="Bio" class="block font-bold text-[var(--color-text)]">Bio</label>
+                    <textarea asp-for="Bio" rows="4" placeholder="Tell customers about your experience and cooking style..."
+                              class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"></textarea>
+                    <span asp-validation-for="Bio" class="text-rose-500 text-xs block"></span>
+                </div>
+
+                <!-- Address -->
+                <div class="space-y-1.5">
+                    <label asp-for="Address" class="block font-bold text-[var(--color-text)]">Pickup Address</label>
+                    <input asp-for="Address" placeholder="Detailed address for order pickups"
+                           class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                    <span asp-validation-for="Address" class="text-rose-500 text-xs block"></span>
+                </div>
+
+                <!-- Accepting Orders Switch -->
+                <div class="flex items-start gap-3 p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)]">
+                    <input asp-for="IsAcceptingOrders" type="checkbox" id="acceptingOrdersSwitch"
+                           class="mt-0.5 w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)] border-neutral-300 cursor-pointer" />
+                    <label for="acceptingOrdersSwitch" class="cursor-pointer">
+                        <span class="block font-bold text-[var(--color-text)]">Accepting New Orders</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">Uncheck this if your kitchen is temporarily unavailable.</span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border-light)]">
+                    <a href="/ChefDashboard"
+                       class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] font-bold uppercase tracking-wider transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                            class="px-6 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

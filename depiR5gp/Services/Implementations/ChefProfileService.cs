@@ -12,10 +12,11 @@ public class ChefProfileService : IChefProfileService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<ChefProfileViewModel?> GetChefProfileAsync(int userId)
+    public async Task<ChefProfileViewModel?> GetChefProfileAsync(int id)
     {
-        // استخدام Chefs هنا بناءً على افتراض أن هذا هو اسمها داخل IUnitOfWork
-        var profile = await _unitOfWork.Chefs.GetByUserIdAsync(userId);
+        // Support lookup by either ChefProfile.Id (from /Chefs cards) or UserId
+        var profile = await _unitOfWork.Chefs.GetByIdWithDetailsAsync(id)
+                      ?? await _unitOfWork.Chefs.GetByUserIdAsync(id);
 
         // إذا لم نجد الطباخ أو حسابه غير مقبول، نرجع null
         if (profile == null || profile.Status != "Approved")

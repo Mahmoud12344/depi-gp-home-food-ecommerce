@@ -1,5 +1,4 @@
 ﻿using depiR5gp.Models.Chefs;
-using depiR5gp.Models.Chefs;
 using depiR5gp.Repositories.Implementations;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
@@ -64,7 +63,7 @@ public class ChefService(IUnitOfWork unitOfWork, IFileService fileService) : ICh
     public async Task<decimal> GetCommissionRate()
     {
         var settings = await unitOfWork.PlatformSettingRepository.GetAllAsync();
-        return settings.FirstOrDefault()?.CommissionRate ?? 15.0m;
+        return settings.FirstOrDefault()?.CommissionRate ?? 0.15m;
     }
 
     public async Task<ChefCatalogViewModel> GetCatalogAsync(ChefFilterViewModel filter)
@@ -105,6 +104,10 @@ public class ChefService(IUnitOfWork unitOfWork, IFileService fileService) : ICh
         if (chef == null) return false;
 
         // تحديث البيانات الأساسية
+        if (!string.IsNullOrWhiteSpace(model.Name))
+        {
+            chef.KitchenName = model.Name.Trim();
+        }
         chef.Bio = model.Bio;
         chef.Address = model.Address;
         chef.IsAcceptingOrders = model.IsAcceptingOrders;

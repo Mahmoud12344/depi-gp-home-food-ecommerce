@@ -191,6 +191,7 @@ public class DemoUsersSeeder : ISeeder
                         KitchenName = data.KitchenName ?? $"{data.FirstName}'s Kitchen",
                         Bio = data.KitchenBio ?? "Home-cooked food made with love.",
                         Address = data.Address,
+                        Area = ResolveAreaFromAddress(data.Address),
                         Status = resolvedKitchenStatus,
                         HasAcceptedTerms = true,
                         CommissionRate = 0.15m
@@ -237,6 +238,33 @@ public class DemoUsersSeeder : ISeeder
         }
 
         await context.DbContext.SaveChangesAsync();
+
+        // Backfill missing Area for existing chefs so area filters work out of the box
+        var chefsWithoutArea = await context.DbContext.ChefProfiles
+            .Where(c => c.Area == null && c.Address != null)
+            .ToListAsync(context.CancellationToken);
+
+        if (chefsWithoutArea.Count > 0)
+        {
+            foreach (var chef in chefsWithoutArea)
+            {
+                chef.Area = ResolveAreaFromAddress(chef.Address);
+            }
+            await context.DbContext.SaveChangesAsync(context.CancellationToken);
+        }
+    }
+
+    private static string ResolveAreaFromAddress(string? address)
+    {
+        if (string.IsNullOrWhiteSpace(address)) return "maadi";
+        var a = address.ToLowerInvariant();
+        if (a.Contains("dokki") || a.Contains("mohandessin")) return "dokki";
+        if (a.Contains("heliopolis")) return "heliopolis";
+        if (a.Contains("zamalek")) return "zamalek";
+        if (a.Contains("nasr city")) return "nasr_city";
+        if (a.Contains("new cairo") || a.Contains("settlement")) return "new_cairo";
+        if (a.Contains("zayed") || a.Contains("october")) return "zayed";
+        return "maadi";
     }
 }
 

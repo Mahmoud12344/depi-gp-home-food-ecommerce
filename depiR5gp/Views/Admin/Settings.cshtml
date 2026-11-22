@@ -1,14 +1,15 @@
+@model depiR5gp.Models.Platform.PlatformSettings
 @{
     ViewData["Title"] = "Platform Settings & AI FAQs - Admin Portal";
     ViewData["ActiveAdminTab"] = "settings";
+    var currentCommissionPercent = ((Model?.CommissionRate ?? 0.15m) * 100m).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
 <!-- Views/Admin/Settings.cshtml -->
 <!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 428-458 & _AIFaqManagement.cshtml) -->
 <!-- Backlog Subtask: SCRUM-493 -->
-<!-- TODO(backend): Bind PlatformSettings.CommissionRate and AI Assistant FAQ entries; wire POST /Admin/Settings -->
 
 <div x-data="{
-    commissionRate: 15,
+    commissionRate: @currentCommissionPercent,
     showAddForm: false,
     newFaqQuestion: '',
     newFaqCategory: 'Ordering & Pickup',

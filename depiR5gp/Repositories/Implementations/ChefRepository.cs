@@ -10,16 +10,45 @@ public class ChefRepository(ApplicationDbContext context) : GenericRepository<Ch
 {
     public async Task<bool> HasPendingOrApprovedApplicationAsync(int userId)
     {
-        return await context.ChefProfiles
+        return await _context.ChefProfiles
             .AnyAsync(c => c.UserId == userId && (c.Status == "Pending" || c.Status == "Approved"));
     }
 
     public async Task<ChefProfile?> GetByUserIdAsync(int userId)
     {
-        return await context.ChefProfiles
+        return await _context.ChefProfiles
             .Include(c => c.User)
+            .Include(c => c.Documents)
             .Include(c => c.WorkingHours)
             .FirstOrDefaultAsync(c => c.UserId == userId);
+    }
+
+    public async Task<ChefProfile?> GetByIdWithDetailsAsync(int id)
+    {
+        return await _context.ChefProfiles
+            .Include(c => c.User)
+            .Include(c => c.Documents)
+            .Include(c => c.WorkingHours)
+            .FirstOrDefaultAsync(c => c.Id == id);
+    }
+
+    public async Task<List<ChefProfile>> GetApplicationsAsync(string? status = null)
+    {
+        var query = _context.ChefProfiles
+            .AsNoTracking()
+            .Include(c => c.User)
+            .Include(c => c.Documents)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(status) && !status.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            query = query.Where(c => c.Status == status);
+        }
+
+        return await query
+            .OrderByDescending(c => c.Status == "Pending")
+            .ThenByDescending(c => c.Id)
+            .ToListAsync();
     }
 
     public async Task<List<ChefCardViewModel>> SearchAsync(ChefFilterViewModel f)

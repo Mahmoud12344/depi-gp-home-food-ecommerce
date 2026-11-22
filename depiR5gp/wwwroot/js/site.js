@@ -117,6 +117,9 @@ async function toggleFavorite(button) {
                     if (alpineData && 'favorited' in alpineData) {
                         alpineData.favorited = active;
                     }
+                    if (alpineData && 'isFav' in alpineData) {
+                        alpineData.isFav = active;
+                    }
                 } catch (error) {
                     console.warn(
                         'Could not update Alpine state:',

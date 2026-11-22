@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using depiR5gp.Services.Interfaces;
 using depiR5gp.Models.Chefs;
+using depiR5gp.Models.Users;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
 namespace depiR5gp.Controllers
 {
+    [Authorize(Roles = AppRoles.Chef)]
     public class DashboardController : Controller
     {
         private readonly IChefService _chefService;
@@ -21,17 +23,19 @@ namespace depiR5gp.Controllers
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized();
+                return Challenge();
             }
 
             var chefProfile = await _chefService.GetChefApplicationStatusAsync(userId);
 
             if (chefProfile == null)
-                return NotFound();
+            {
+                return RedirectToAction("Onboarding", "Chefs");
+            }
 
             var viewModel = new ChefApplicationStatusVM
             {
-                Status = chefProfile.Status.ToString(), // بافتراض أن الـ Status نوعه Enum
+                Status = chefProfile.Status,
                 RejectionNotes = chefProfile.RejectionReason
             };
 

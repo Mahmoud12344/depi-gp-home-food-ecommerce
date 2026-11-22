@@ -37,6 +37,11 @@
 <body class="bg-[var(--color-bg)] text-[var(--color-text)] antialiased transition-colors duration-200 min-h-screen flex flex-col font-sans @(noScroll ? "h-screen overflow-hidden" : "")"
       x-data>
     
+    <!-- Global Anti-Forgery Token for AJAX requests -->
+    <form id="__AjaxGlobalAntiForgeryForm" class="hidden" style="display: none;">
+        @Html.AntiForgeryToken()
+    </form>
+
     <!-- Inline SVG Lucide Sprite (100% Reliable, Zero-Latency, Zero-CORS) -->
     @await Html.PartialAsync("~/Views/Shared/Icons/_Sprite.cshtml")
     

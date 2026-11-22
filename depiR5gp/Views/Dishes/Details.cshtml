@@ -369,8 +369,12 @@
                                 <span><span x-text="dishAvailable ? 'Add to Cart' : 'Unavailable'">Add to Cart</span> · <span x-text="((@Model.Dish.Price + portionExtra) * quantity).toFixed(2) + ' EGP'">@Model.Dish.Price.ToString("0.00") EGP</span></span>
                             </button>
 
-                             <button type="button" data-favorite-dish-id="@Model.Dish.Id"
-                                     @@click.stop
+                            <button type="button"
+                                    data-favorite-dish-id="@Model.Dish.Id"
+                                    data-favorite-active="@Model.IsFavorite.ToString().ToLowerInvariant()"
+                                    @@click.stop="window.toggleDishFavorite($el)"
+                                    aria-label="@(Model.IsFavorite ? "Remove from favorites" : "Add to favorites")"
+                                    aria-pressed="@Model.IsFavorite.ToString().ToLowerInvariant()"
                                     class="p-3 border border-[var(--color-border)] hover:border-rose-400 rounded-full transition-colors cursor-pointer text-[var(--color-text)] hover:text-rose-500">
                                 <svg class="w-5 h-5" :class="favorited ? 'fill-rose-500 text-rose-500' : 'stroke-current'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#heart"></use></svg>
                             </button>

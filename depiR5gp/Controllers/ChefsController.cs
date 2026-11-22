@@ -17,11 +17,10 @@ public class ChefsController(
     public async Task<IActionResult> Index(ChefFilterViewModel filter)
     => View(await chefService.GetCatalogAsync(filter));
 
-    public IActionResult Details(int id) => View();
-    
+    public IActionResult Details(int id) => RedirectToAction("Details", "ChefProfile", new { id });
 
     [HttpGet]
-    // [Authorize(Roles = AppRoles.Chef)]
+    [Authorize(Roles = AppRoles.Chef)]
     public async Task<IActionResult> Onboarding()
     {
         int userId = GetCurrentUserId();
@@ -29,16 +28,15 @@ public class ChefsController(
         if (await chefService.HasPendingOrApprovedApplicationAsync(userId))
         {
             TempData["ErrorMessage"] = "You already have a pending application or your chef account is already activated.";
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Dashboard");
         }
 
-       decimal CommissionRate=  chefService.GetCommissionRate().Result;
-       ViewBag.CommissionRate = CommissionRate;
-
+        ViewBag.CommissionRate = await chefService.GetCommissionRate();
         return View();
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.Chef)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Onboarding(ChefApplicationViewModel model)
     {
@@ -55,12 +53,13 @@ public class ChefsController(
         {
             ModelState.AddModelError(
                 nameof(model.Area),
-                "المنطقة غير صحيحة أو غير موجودة في القائمة."
+                "Please select a valid pickup area from the list."
             );
         }
 
         if (!ModelState.IsValid)
         {
+            ViewBag.CommissionRate = await chefService.GetCommissionRate();
             return View(model);
         }
 
@@ -72,11 +71,12 @@ public class ChefsController(
         if (!result.IsSuccess)
         {
             ModelState.AddModelError(string.Empty, result.Message);
+            ViewBag.CommissionRate = await chefService.GetCommissionRate();
             return View(model);
         }
 
         TempData["SuccessMessage"] = result.Message;
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "Dashboard");
     }
 
     // ==========================================
@@ -84,6 +84,7 @@ public class ChefsController(
     // ==========================================
 
     [HttpGet]
+    [Authorize(Roles = AppRoles.Chef)]
     public async Task<IActionResult> EditProfile()
     {
         int userId = GetCurrentUserId();
@@ -93,13 +94,15 @@ public class ChefsController(
 
         if (model == null)
         {
-            return NotFound("لم يتم العثور على بروفايل الشيف أو لم يتم قبوله بعد.");
+            TempData["ErrorMessage"] = "Please submit your chef onboarding application first.";
+            return RedirectToAction(nameof(Onboarding));
         }
 
         return View(model);
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.Chef)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditProfile(EditChefProfileViewModel model)
     {

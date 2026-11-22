@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using depiR5gp.Models.Platform;
 using depiR5gp.Models.Users;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
@@ -11,6 +12,7 @@ namespace depiR5gp.Controllers;
 public class AdminController : Controller
 {
     private static readonly string[] ValidReviewStatuses = ["Pending", "Approved", "Rejected"];
+    private static readonly string[] ValidApplicationStatuses = ["Pending", "Approved", "Rejected"];
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAdminService _adminService;
     private readonly IAdminDashboardService _dashboardService;
@@ -33,10 +35,68 @@ public class AdminController : Controller
         return View(model);
     }
 
-    public IActionResult Chefs() => View();
+    [HttpGet]
+    public async Task<IActionResult> Chefs(string? status = "Pending")
+    {
+        string normalizedStatus = ValidApplicationStatuses.FirstOrDefault(
+            s => s.Equals(status, StringComparison.OrdinalIgnoreCase)) ?? "all";
+
+        var allApplications = await _adminService.GetChefApplicationsAsync("all");
+        ViewData["PendingChefApplicationsCount"] = allApplications.Count(c => c.Status == "Pending");
+        ViewBag.CurrentStatus = normalizedStatus;
+
+        var filtered = normalizedStatus == "all"
+            ? allApplications
+            : allApplications.Where(c => c.Status == normalizedStatus).ToList();
+
+        return View(filtered);
+    }
+
     public IActionResult Orders() => View();
     public IActionResult Payouts() => View();
-    public IActionResult Settings() => View();
+
+    [HttpGet]
+    public async Task<IActionResult> Settings()
+    {
+        var settingsList = await _unitOfWork.PlatformSettingRepository.GetAllAsync();
+        var settings = settingsList.FirstOrDefault() ?? new PlatformSettings();
+        return View(settings);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Settings(decimal commissionRate)
+    {
+        if (commissionRate < 5 || commissionRate > 35)
+        {
+            TempData["ErrorMessage"] = "Commission rate must be between 5% and 35%.";
+            return RedirectToAction(nameof(Settings));
+        }
+
+        decimal decimalRate = Math.Round(commissionRate / 100m, 4);
+        var settingsList = await _unitOfWork.PlatformSettingRepository.GetAllAsync();
+        var settings = settingsList.FirstOrDefault();
+
+        if (settings is null)
+        {
+            settings = new PlatformSettings
+            {
+                CommissionRate = decimalRate,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _unitOfWork.PlatformSettingRepository.AddAsync(settings);
+        }
+        else
+        {
+            settings.CommissionRate = decimalRate;
+            settings.UpdatedAt = DateTime.UtcNow;
+            _unitOfWork.PlatformSettingRepository.Update(settings);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Platform commission rate updated to {commissionRate:0.##}% successfully.";
+        return RedirectToAction(nameof(Settings));
+    }
 
     [HttpGet]
     public async Task<IActionResult> Reviews(string? status = "all")
@@ -90,10 +150,14 @@ public class AdminController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ApproveApplication(int id, string approvalNotes)
+    public async Task<IActionResult> ApproveApplication(int id, string? approvalNotes)
     {
         var success = await _adminService.ApproveApplicationAsync(id, approvalNotes);
-        if (!success) return NotFound();
+        if (!success)
+        {
+            TempData["ErrorMessage"] = "This application was not found or has already been processed.";
+            return RedirectToAction(nameof(Chefs));
+        }
 
         TempData["SuccessMessage"] = "Chef application has been approved successfully.";
         return RedirectToAction(nameof(Chefs));
@@ -103,8 +167,18 @@ public class AdminController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RejectApplication(int id, string rejectionReason)
     {
+        if (string.IsNullOrWhiteSpace(rejectionReason))
+        {
+            TempData["ErrorMessage"] = "A rejection reason is required.";
+            return RedirectToAction(nameof(ReviewApplication), new { id });
+        }
+
         var success = await _adminService.RejectApplicationAsync(id, rejectionReason);
-        if (!success) return NotFound();
+        if (!success)
+        {
+            TempData["ErrorMessage"] = "This application was not found or has already been processed.";
+            return RedirectToAction(nameof(Chefs));
+        }
 
         TempData["SuccessMessage"] = "Chef application has been rejected.";
         return RedirectToAction(nameof(Chefs));

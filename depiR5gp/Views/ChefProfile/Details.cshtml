@@ -1,62 +1,100 @@
 ﻿@model depiR5gp.Models.Chefs.ChefProfileViewModel
-
 @{
-    ViewData["Title"] = Model.Name + " - Profile";
+    ViewData["Title"] = Model.Name + " - Kitchen Profile";
+    var avatarUrl = !string.IsNullOrEmpty(Model.PhotoUrl)
+        ? Model.PhotoUrl
+        : $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(Model.Name)}&background=7d4630&color=fff&size=256";
 }
 
-<div class="container mt-5">
-    <div class="row text-center mb-4">
-        <div class="col-12">
-            @if (!string.IsNullOrEmpty(Model.PhotoUrl))
-            {
-                <img src="@Model.PhotoUrl" alt="@Model.Name Profile Photo" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
-            }
-            else
-            {
-                <img src="https://ui-avatars.com/api/?name=@Model.Name&background=random" alt="Default Photo" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
-            }
-            <h1 class="mt-3">@Model.Name</h1>
+<div class="w-full pb-24">
+    <!-- Top Banner -->
+    <div class="relative w-full bg-gradient-to-r from-[var(--color-primary-light)] via-[var(--color-bg)] to-[var(--color-primary-light)] dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 border-b border-[var(--color-border)] py-10">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav aria-label="Breadcrumb" class="flex items-center text-xs text-[var(--color-text-muted)] gap-2 mb-6">
+                <a href="/" class="hover:text-[var(--color-primary)] transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+                    <span>Home</span>
+                </a>
+                <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <a href="/Chefs" class="hover:text-[var(--color-primary)] transition-colors">Home Chefs</a>
+                <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-right"></use></svg>
+                <span class="text-[var(--color-text)] font-semibold">@Model.Name</span>
+            </nav>
+
+            <div class="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-start">
+                <img src="@avatarUrl"
+                     alt="@Model.Name Profile Photo"
+                     class="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-[var(--color-card-bg)] shadow-lg shrink-0" />
+                <div class="space-y-2">
+                    <div class="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                        <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full @(Model.IsAcceptingOrders ? "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700" : "bg-amber-100 text-amber-900 dark:bg-amber-950/80 dark:text-amber-200 border border-amber-300 dark:border-amber-700")">
+                            <span class="w-1.5 h-1.5 rounded-full @(Model.IsAcceptingOrders ? "bg-emerald-500 animate-pulse" : "bg-amber-500")"></span>
+                            <span>@(Model.IsAcceptingOrders ? "Accepting Orders" : "Currently Unavailable")</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)]">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                            <span>Verified Kitchen</span>
+                        </span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">@Model.Name</h1>
+                    <p class="text-xs sm:text-sm text-[var(--color-text-muted)] flex items-center justify-center sm:justify-start gap-1.5">
+                        <svg class="w-4 h-4 text-[var(--color-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#map-pin"></use></svg>
+                        <span>@(Model.Address ?? "Pickup location not specified.")</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- رسالة تحذير إذا كان الطباخ لا يستقبل طلبات (Scenario 2) -->
-    @if (!Model.IsAcceptingOrders)
-    {
-        <div class="alert alert-warning text-center" role="alert">
-            This chef is currently unavailable for new orders.
-        </div>
-    }
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
+        @if (!Model.IsAcceptingOrders)
+        {
+            <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs sm:text-sm text-amber-900 dark:text-amber-200 font-medium text-center">
+                This chef is currently unavailable for new orders. Please check back later.
+            </div>
+        }
 
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    @if (!string.IsNullOrEmpty(Model.Bio))
-                    {
-                        <h4 class="card-title">About</h4>
-                        <p class="card-text">@Model.Bio</p>
-                        <hr />
-                    }
-
-                    <h4 class="card-title">Pickup Location</h4>
-                    <p class="card-text">@(Model.Address ?? "Location not specified.")</p>
-                    <hr />
-
-                    <h4 class="card-title">Working Hours</h4>
-                    @if (Model.WorkingHours != null && Model.WorkingHours.Any())
-                    {
-                        <ul class="list-unstyled">
-                            @foreach (var hours in Model.WorkingHours)
-                            {
-                                <li><i class="bi bi-clock"></i> @hours</li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <p class="card-text text-muted">Working hours not specified.</p>
-                    }
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- About / Bio -->
+            <div class="md:col-span-2 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)]">About This Kitchen</h2>
+                <p class="text-sm text-[var(--color-text)] leading-relaxed">
+                    @(string.IsNullOrWhiteSpace(Model.Bio) ? "Authentic homemade meals prepared fresh to order with quality ingredients." : Model.Bio)
+                </p>
+                <div class="pt-4 border-t border-[var(--color-border-light)] flex flex-wrap gap-3">
+                    <a href="/Dishes?search=@Uri.EscapeDataString(Model.Name)"
+                       class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-xs">
+                        <span>Browse Kitchen Dishes</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+                    </a>
+                    <a href="/Chefs"
+                       class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] text-xs font-bold uppercase tracking-wider transition-colors">
+                        <span>All Home Chefs</span>
+                    </a>
                 </div>
+            </div>
+
+            <!-- Working Hours -->
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs space-y-4">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                    <span>Working Hours</span>
+                </h2>
+                @if (Model.WorkingHours != null && Model.WorkingHours.Any())
+                {
+                    <ul class="space-y-2 text-xs text-[var(--color-text)]">
+                        @foreach (var hours in Model.WorkingHours)
+                        {
+                            <li class="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] font-medium">
+                                @hours
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-xs text-[var(--color-text-muted)]">Working hours not specified yet.</p>
+                }
             </div>
         </div>
     </div>
