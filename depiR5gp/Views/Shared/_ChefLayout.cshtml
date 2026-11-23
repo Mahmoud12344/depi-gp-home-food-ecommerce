@@ -400,6 +400,24 @@
                 <svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
                 <span>Back to Marketplace</span>
             </a>
+
+            <button type="button"
+                    @@click="window.toggleTheme()"
+                    class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)] transition-colors cursor-pointer">
+                <svg class="w-4 h-4 opacity-75 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#moon"></use></svg>
+                <svg class="w-4 h-4 text-amber-400 hidden dark:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sun"></use></svg>
+                <span class="dark:hidden">Dark Mode</span>
+                <span class="hidden dark:inline">Light Mode</span>
+            </button>
+
+            <form asp-controller="Account" asp-action="Logout" method="post" class="w-full">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>
+                    <span>Log Out</span>
+                </button>
+            </form>
         </div>
     </aside>
 
