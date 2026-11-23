@@ -329,8 +329,8 @@
 
 <div x-data="chefDashboardAnalytics()" class="cd-root w-full space-y-6">
 
-    <!-- Chef Profile Header Bar + Period Switcher -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
+    <!-- Chef Profile Header Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
         <div class="flex items-center gap-4 min-w-0">
             @if (!string.IsNullOrWhiteSpace(header.PhotoUrl))
             {
@@ -352,19 +352,25 @@
             </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 shrink-0">
-            <!-- Reporting Period Switcher -->
-            <div class="cd-period-pill" role="group" aria-label="Reporting period">
-                <button type="button" :class="period === '7d' ? 'is-active' : ''" @@click="setPeriod('7d')">7 days</button>
-                <button type="button" :class="period === '30d' ? 'is-active' : ''" @@click="setPeriod('30d')">30 days</button>
-                <button type="button" :class="period === '90d' ? 'is-active' : ''" @@click="setPeriod('90d')">90 days</button>
-            </div>
-
+        <div class="flex items-center shrink-0">
             <a href="/Chefs/EditProfile"
                class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)] text-sm font-medium transition-colors">
                 <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
                 <span>Edit Profile</span>
             </a>
+        </div>
+    </div>
+
+    <!-- Statistics Section Header + Period Switcher -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <h2 class="text-base font-semibold text-[var(--color-text)]">Performance Overview</h2>
+            <p class="text-xs text-[var(--color-text-muted)]">Live kitchen statistics compared with the prior period.</p>
+        </div>
+        <div class="cd-period-pill w-fit" role="group" aria-label="Reporting period">
+            <button type="button" :class="period === '7d' ? 'is-active' : ''" @@click="setPeriod('7d')">7 days</button>
+            <button type="button" :class="period === '30d' ? 'is-active' : ''" @@click="setPeriod('30d')">30 days</button>
+            <button type="button" :class="period === '90d' ? 'is-active' : ''" @@click="setPeriod('90d')">90 days</button>
         </div>
     </div>
 
