@@ -17,6 +17,13 @@ public class AccountController(
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            if (User.IsInRole(AppRoles.Chef)) return RedirectToAction("Index", "ChefDashboard");
+            if (User.IsInRole(AppRoles.Admin)) return RedirectToAction("Index", "Admin");
+            if (User.IsInRole(AppRoles.Support)) return RedirectToAction("AgentDesk", "Support");
+        }
+
         return View(new LoginVM { ReturnUrl = returnUrl });
     }
 
@@ -102,24 +109,40 @@ public class AccountController(
         {
             TempData["SuccessMessage"] = $"Welcome back, {user.FirstName}!";
 
-            if (!string.IsNullOrWhiteSpace(loginVm.ReturnUrl) && Url.IsLocalUrl(loginVm.ReturnUrl))
-            {
-                return LocalRedirect(loginVm.ReturnUrl);
-            }
+            var returnUrl = loginVm.ReturnUrl?.Trim();
+            bool hasLocalReturn = !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl);
 
             if (await userManager.IsInRoleAsync(user, AppRoles.Admin))
             {
+                if (hasLocalReturn && returnUrl!.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
+                    return LocalRedirect(returnUrl);
                 return RedirectToAction("Index", "Admin");
             }
 
             if (await userManager.IsInRoleAsync(user, AppRoles.Chef))
             {
+                if (hasLocalReturn && (
+                    returnUrl!.StartsWith("/ChefDashboard", StringComparison.OrdinalIgnoreCase) ||
+                    returnUrl.StartsWith("/MenuManagement", StringComparison.OrdinalIgnoreCase) ||
+                    returnUrl.StartsWith("/Chefs/EditProfile", StringComparison.OrdinalIgnoreCase) ||
+                    returnUrl.StartsWith("/Chefs/Onboarding", StringComparison.OrdinalIgnoreCase) ||
+                    returnUrl.StartsWith("/Dashboard", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return LocalRedirect(returnUrl);
+                }
                 return RedirectToAction("Index", "ChefDashboard");
             }
 
             if (await userManager.IsInRoleAsync(user, AppRoles.Support))
             {
+                if (hasLocalReturn && returnUrl!.StartsWith("/Support", StringComparison.OrdinalIgnoreCase))
+                    return LocalRedirect(returnUrl);
                 return RedirectToAction("AgentDesk", "Support");
+            }
+
+            if (hasLocalReturn)
+            {
+                return LocalRedirect(returnUrl!);
             }
 
             return RedirectToAction("Index", "Home");

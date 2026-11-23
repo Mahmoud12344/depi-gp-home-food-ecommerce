@@ -1,11 +1,16 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using depiR5gp.Models;
+using depiR5gp.Models.Users;
 
 namespace depiR5gp.Controllers;
 
 public class HomeController : Controller {
     public IActionResult Index() {
+        if (User.Identity?.IsAuthenticated == true && User.IsInRole(AppRoles.Chef))
+        {
+            return RedirectToAction("Index", "ChefDashboard");
+        }
         return View();
     }
 
