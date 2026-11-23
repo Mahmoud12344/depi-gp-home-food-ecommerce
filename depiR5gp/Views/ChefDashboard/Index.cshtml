@@ -11,19 +11,41 @@
 }
 
 <div class="w-full space-y-8">
-    <!-- Clean Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-semibold text-[var(--color-text)] tracking-tight">Dashboard</h1>
-            <p class="text-sm text-[var(--color-text-muted)] mt-1">
-                Overview of @header.KitchenName orders, menu, and earnings.
-            </p>
+    <!-- Chef Profile Header Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
+        <div class="flex items-center gap-3.5 min-w-0">
+            @if (!string.IsNullOrWhiteSpace(header.PhotoUrl))
+            {
+                <img src="@header.PhotoUrl" alt="@header.ChefName" class="chef-avatar-lg" />
+            }
+            else
+            {
+                <div class="chef-avatar-lg bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
+                </div>
+            }
+            <div class="min-w-0">
+                <h1 class="text-xl sm:text-2xl font-semibold text-[var(--color-text)] tracking-tight truncate">
+                    @header.ChefName
+                </h1>
+                <p class="text-sm text-[var(--color-text-muted)] truncate">
+                    @header.KitchenName@(!string.IsNullOrWhiteSpace(header.AreaName) ? $" · {header.AreaName}" : "")
+                </p>
+            </div>
         </div>
-        <a href="/MenuManagement/Create"
-           class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-medium transition-colors w-fit">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
-            <span>Add New Dish</span>
-        </a>
+
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+            <a href="/Chefs/EditProfile"
+               class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)] text-sm font-medium transition-colors">
+                <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
+                <span>Edit Profile</span>
+            </a>
+            <a href="/MenuManagement/Create"
+               class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-medium transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
+                <span>Add New Dish</span>
+            </a>
+        </div>
     </div>
 
     <!-- 4 Live Metric Cards (Shown only on Dashboard Overview) -->

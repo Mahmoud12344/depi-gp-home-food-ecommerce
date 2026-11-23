@@ -86,7 +86,32 @@
     .chef-menu-grid {
         display: grid;
         grid-template-columns: repeat(1, minmax(0, 1fr));
-        gap: 1.25rem;
+        gap: 1rem;
+    }
+
+    .chef-dish-img-wrap {
+        position: relative;
+        height: 132px;
+        background-color: var(--color-surface-subtle);
+        overflow: hidden;
+    }
+
+    .chef-avatar-sm {
+        width: 38px;
+        height: 38px;
+        border-radius: 9999px;
+        object-fit: cover;
+        border: 1px solid var(--color-border);
+        flex-shrink: 0;
+    }
+
+    .chef-avatar-lg {
+        width: 52px;
+        height: 52px;
+        border-radius: 9999px;
+        object-fit: cover;
+        border: 2px solid var(--color-border);
+        flex-shrink: 0;
     }
 
     @@media (min-width: 768px) {
@@ -130,7 +155,7 @@
         }
 
         .chef-main {
-            padding: 2rem 2.5rem;
+            padding: 1.5rem 2rem;
         }
 
         .chef-setting-row {
@@ -213,18 +238,25 @@
         <div class="flex flex-col flex-1 overflow-y-auto px-3.5 py-5">
             <!-- Kitchen Identity -->
             <div class="flex items-center justify-between gap-2.5 px-2 pb-4">
-                <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-9 h-9 rounded-lg bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
-                    </div>
+                <a href="/Chefs/EditProfile" class="flex items-center gap-2.5 min-w-0 group">
+                    @if (!string.IsNullOrWhiteSpace(header.PhotoUrl))
+                    {
+                        <img src="@header.PhotoUrl" alt="@header.KitchenName" class="chef-avatar-sm" />
+                    }
+                    else
+                    {
+                        <div class="chef-avatar-sm bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
+                        </div>
+                    }
                     <div class="min-w-0">
-                        <p class="text-sm font-semibold text-[var(--color-text)] truncate leading-tight">@header.KitchenName</p>
+                        <p class="text-sm font-semibold text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors truncate leading-tight">@header.KitchenName</p>
                         @if (!string.IsNullOrWhiteSpace(header.AreaName))
                         {
                             <p class="text-xs text-[var(--color-text-muted)] truncate mt-0.5">@header.AreaName</p>
                         }
                     </div>
-                </div>
+                </a>
                 <button type="button"
                         @@click="mobileSidebarOpen = false"
                         aria-label="Close menu"

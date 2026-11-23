@@ -7,7 +7,9 @@ namespace depiR5gp.ViewModels;
 public class ChefPortalHeaderVM
 {
     public int ChefProfileId { get; set; }
+    public string ChefName { get; set; } = string.Empty;
     public string KitchenName { get; set; } = string.Empty;
+    public string? PhotoUrl { get; set; }
     public string AreaName { get; set; } = string.Empty;
     public bool IsAcceptingOrders { get; set; }
     public string Status { get; set; } = "Pending";
@@ -21,6 +23,19 @@ public class ChefPortalHeaderVM
 
     public static async Task<ChefPortalHeaderVM> LoadAsync(ApplicationDbContext context, ChefProfile chef)
     {
+        var chefUser = await context.Users
+            .AsNoTracking()
+            .Where(u => u.Id == chef.UserId)
+            .Select(u => new { u.FirstName, u.LastName, u.ProfileImagePath })
+            .FirstOrDefaultAsync();
+
+        var chefFullName = chefUser is not null
+            ? $"{chefUser.FirstName} {chefUser.LastName}".Trim()
+            : string.Empty;
+        var resolvedPhoto = !string.IsNullOrWhiteSpace(chef.PhotoUrl)
+            ? chef.PhotoUrl
+            : chefUser?.ProfileImagePath;
+
         var orderCounts = await context.Orders
             .AsNoTracking()
             .Where(o => o.ChefProfileId == chef.Id)
@@ -44,7 +59,9 @@ public class ChefPortalHeaderVM
         return new ChefPortalHeaderVM
         {
             ChefProfileId = chef.Id,
+            ChefName = !string.IsNullOrWhiteSpace(chefFullName) ? chefFullName : chef.KitchenName,
             KitchenName = chef.KitchenName,
+            PhotoUrl = resolvedPhoto,
             AreaName = !string.IsNullOrWhiteSpace(chef.Area)
                 ? PickupAreas.NameOf(chef.Area)
                 : (chef.Address ?? string.Empty),
