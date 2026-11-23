@@ -162,20 +162,12 @@
             <span>Wallet &amp; Ledger</span>
         </a>
         <a href="/Chefs/EditProfile"
-           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "profile" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "profile" || activeTab == "hours" || activeTab == "documents" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
             <span>Kitchen Profile</span>
         </a>
         <a href="/Dashboard"
            class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "status" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
             <span>Application Status</span>
-        </a>
-        <a href="/ChefDashboard/WorkingHours"
-           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "hours" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
-            <span>Working Hours</span>
-        </a>
-        <a href="/ChefDashboard/Documents"
-           class="pb-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer @(activeTab == "documents" ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
-            <span>Documents</span>
         </a>
     </div>
 </div>

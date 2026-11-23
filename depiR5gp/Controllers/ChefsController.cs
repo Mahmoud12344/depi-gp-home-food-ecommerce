@@ -146,9 +146,12 @@ public class ChefsController(
     //  تعديل الملف الشخصي للشيف (Edit Profile)
     // ==========================================
 
+    private static readonly string[] DayNames =
+        ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
     [HttpGet]
     [Authorize(Roles = AppRoles.Chef)]
-    public async Task<IActionResult> EditProfile()
+    public async Task<IActionResult> EditProfile(string? tab = null)
     {
         int userId = GetCurrentUserId();
 
@@ -159,7 +162,8 @@ public class ChefsController(
             return RedirectToAction(nameof(Onboarding));
         }
 
-        await PopulateChefHeaderAsync(userId);
+        model.ActiveSection = tab?.ToLowerInvariant() is "hours" or "documents" ? tab.ToLowerInvariant() : "profile";
+        await PopulateChefProfileSectionsAsync(userId, model);
         return View(model);
     }
 
@@ -177,7 +181,8 @@ public class ChefsController(
 
         if (!ModelState.IsValid)
         {
-            await PopulateChefHeaderAsync(userId);
+            model.ActiveSection = "profile";
+            await PopulateChefProfileSectionsAsync(userId, model);
             return View(model);
         }
 
@@ -186,21 +191,62 @@ public class ChefsController(
         if (!isUpdated)
         {
             ModelState.AddModelError(string.Empty, "An error occurred while saving your profile changes.");
-            await PopulateChefHeaderAsync(userId);
+            model.ActiveSection = "profile";
+            await PopulateChefProfileSectionsAsync(userId, model);
             return View(model);
         }
 
         TempData["SuccessMessage"] = "Kitchen profile updated successfully!";
-        return RedirectToAction(nameof(EditProfile));
+        return RedirectToAction(nameof(EditProfile), new { tab = "profile" });
     }
 
-    private async Task PopulateChefHeaderAsync(int userId)
+    private async Task PopulateChefProfileSectionsAsync(int userId, EditChefProfileViewModel model)
     {
-        var chef = await context.ChefProfiles.AsNoTracking().FirstOrDefaultAsync(c => c.UserId == userId);
-        if (chef is not null)
+        var chef = await context.ChefProfiles
+            .AsNoTracking()
+            .Include(c => c.WorkingHours)
+            .Include(c => c.Documents)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+
+        if (chef is null) return;
+
+        ViewData["ChefHeader"] = await depiR5gp.ViewModels.ChefPortalHeaderVM.LoadAsync(context, chef);
+
+        var existingByDay = chef.WorkingHours.ToDictionary(w => w.DayOfWeek);
+        model.WorkingHoursSchedule = new depiR5gp.ViewModels.ChefWorkingHoursVM
         {
-            ViewData["ChefHeader"] = await depiR5gp.ViewModels.ChefPortalHeaderVM.LoadAsync(context, chef);
-        }
+            Days = Enumerable.Range(0, 7).Select(i =>
+            {
+                byte day = (byte)i;
+                if (existingByDay.TryGetValue(day, out var hours))
+                {
+                    return new depiR5gp.ViewModels.ChefWorkingDayVM
+                    {
+                        DayOfWeek = day,
+                        DayName = DayNames[i],
+                        IsOpen = true,
+                        OpenTime = hours.OpenTime.ToString("HH:mm"),
+                        CloseTime = hours.CloseTime.ToString("HH:mm")
+                    };
+                }
+
+                return new depiR5gp.ViewModels.ChefWorkingDayVM
+                {
+                    DayOfWeek = day,
+                    DayName = DayNames[i],
+                    IsOpen = false,
+                    OpenTime = "12:00",
+                    CloseTime = "22:00"
+                };
+            }).ToList()
+        };
+
+        model.DocumentsSection = new depiR5gp.ViewModels.ChefDocumentsVM
+        {
+            KitchenName = chef.KitchenName,
+            Status = chef.Status,
+            Documents = chef.Documents.OrderByDescending(d => d.UploadedAt).ToList()
+        };
     }
 
     private int GetCurrentUserId()

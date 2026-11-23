@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
 namespace depiR5gp.Models.Chefs
@@ -28,5 +28,9 @@ namespace depiR5gp.Models.Chefs
         public string? ExistingPhotoUrl { get; set; } // لعرض الصورة الحالية
 
         public bool IsAcceptingOrders { get; set; }
+
+        public string ActiveSection { get; set; } = "profile";
+        public depiR5gp.ViewModels.ChefWorkingHoursVM WorkingHoursSchedule { get; set; } = new();
+        public depiR5gp.ViewModels.ChefDocumentsVM DocumentsSection { get; set; } = new();
     }
 }

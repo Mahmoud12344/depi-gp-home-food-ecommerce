@@ -68,43 +68,8 @@ public class ChefDashboardController(
     }
 
     [HttpGet]
-    public async Task<IActionResult> WorkingHours()
-    {
-        var chef = await GetCurrentChefAsync(includeWorkingHours: true);
-        if (chef is null) return RedirectToAction("Onboarding", "Chefs");
-        await PopulateHeaderAsync(chef);
-
-        var existingByDay = chef.WorkingHours.ToDictionary(w => w.DayOfWeek);
-        var model = new ChefWorkingHoursVM
-        {
-            Days = Enumerable.Range(0, 7).Select(i =>
-            {
-                byte day = (byte)i;
-                if (existingByDay.TryGetValue(day, out var hours))
-                {
-                    return new ChefWorkingDayVM
-                    {
-                        DayOfWeek = day,
-                        DayName = DayNames[i],
-                        IsOpen = true,
-                        OpenTime = hours.OpenTime.ToString("HH:mm"),
-                        CloseTime = hours.CloseTime.ToString("HH:mm")
-                    };
-                }
-
-                return new ChefWorkingDayVM
-                {
-                    DayOfWeek = day,
-                    DayName = DayNames[i],
-                    IsOpen = false,
-                    OpenTime = "12:00",
-                    CloseTime = "22:00"
-                };
-            }).ToList()
-        };
-
-        return View(model);
-    }
+    public IActionResult WorkingHours() =>
+        RedirectToAction("EditProfile", "Chefs", new { tab = "hours" });
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -113,6 +78,7 @@ public class ChefDashboardController(
         var chef = await GetCurrentChefAsync(includeWorkingHours: true);
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
 
+        var errors = new List<string>();
         var newHours = new List<ChefWorkingHours>();
         foreach (var day in model.Days)
         {
@@ -121,13 +87,13 @@ public class ChefDashboardController(
 
             if (!TimeOnly.TryParse(day.OpenTime, out var openTime) || !TimeOnly.TryParse(day.CloseTime, out var closeTime))
             {
-                ModelState.AddModelError(string.Empty, $"Invalid open/close time for {DayNames[day.DayOfWeek]}.");
+                errors.Add($"Invalid open/close time for {DayNames[day.DayOfWeek]}.");
                 continue;
             }
 
             if (openTime >= closeTime)
             {
-                ModelState.AddModelError(string.Empty, $"Close time must be after open time for {DayNames[day.DayOfWeek]}.");
+                errors.Add($"Close time must be after open time for {DayNames[day.DayOfWeek]}.");
                 continue;
             }
 
@@ -140,14 +106,10 @@ public class ChefDashboardController(
             });
         }
 
-        if (!ModelState.IsValid)
+        if (errors.Count > 0)
         {
-            foreach (var d in model.Days)
-            {
-                if (d.DayOfWeek <= 6) d.DayName = DayNames[d.DayOfWeek];
-            }
-            await PopulateHeaderAsync(chef);
-            return View(model);
+            TempData["ErrorMessage"] = string.Join(" ", errors);
+            return RedirectToAction("EditProfile", "Chefs", new { tab = "hours" });
         }
 
         context.ChefWorkingHours.RemoveRange(chef.WorkingHours);
@@ -158,25 +120,12 @@ public class ChefDashboardController(
 
         await context.SaveChangesAsync();
         TempData["SuccessMessage"] = "Kitchen working hours updated successfully.";
-        return RedirectToAction(nameof(WorkingHours));
+        return RedirectToAction("EditProfile", "Chefs", new { tab = "hours" });
     }
 
     [HttpGet]
-    public async Task<IActionResult> Documents()
-    {
-        var chef = await GetCurrentChefAsync(includeDocuments: true);
-        if (chef is null) return RedirectToAction("Onboarding", "Chefs");
-        await PopulateHeaderAsync(chef);
-
-        var model = new ChefDocumentsVM
-        {
-            KitchenName = chef.KitchenName,
-            Status = chef.Status,
-            Documents = chef.Documents.OrderByDescending(d => d.UploadedAt).ToList()
-        };
-
-        return View(model);
-    }
+    public IActionResult Documents() =>
+        RedirectToAction("EditProfile", "Chefs", new { tab = "documents" });
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -188,26 +137,26 @@ public class ChefDashboardController(
         if (!AllowedDocTypes.Contains(docType))
         {
             TempData["ErrorMessage"] = "Invalid document type selected.";
-            return RedirectToAction(nameof(Documents));
+            return RedirectToAction("EditProfile", "Chefs", new { tab = "documents" });
         }
 
         if (documentFile is null || documentFile.Length == 0)
         {
             TempData["ErrorMessage"] = "Please choose a document file to upload.";
-            return RedirectToAction(nameof(Documents));
+            return RedirectToAction("EditProfile", "Chefs", new { tab = "documents" });
         }
 
         if (documentFile.Length > 5 * 1024 * 1024)
         {
             TempData["ErrorMessage"] = "Document file must be smaller than 5 MB.";
-            return RedirectToAction(nameof(Documents));
+            return RedirectToAction("EditProfile", "Chefs", new { tab = "documents" });
         }
 
         var ext = Path.GetExtension(documentFile.FileName).ToLowerInvariant();
         if (!AllowedDocExtensions.Contains(ext))
         {
             TempData["ErrorMessage"] = "Only PDF, JPG, JPEG, and PNG files are allowed.";
-            return RedirectToAction(nameof(Documents));
+            return RedirectToAction("EditProfile", "Chefs", new { tab = "documents" });
         }
 
         var url = await fileService.SaveAsync(documentFile, "chef_documents", docType);
@@ -234,7 +183,7 @@ public class ChefDashboardController(
 
         await context.SaveChangesAsync();
         TempData["SuccessMessage"] = $"{docType} document uploaded and saved successfully.";
-        return RedirectToAction(nameof(Documents));
+        return RedirectToAction("EditProfile", "Chefs", new { tab = "documents" });
     }
 
     private async Task<ChefProfile?> GetCurrentChefAsync(bool includeWorkingHours = false, bool includeDocuments = false)
