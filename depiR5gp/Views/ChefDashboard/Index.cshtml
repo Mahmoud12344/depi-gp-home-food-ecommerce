@@ -14,35 +14,35 @@
     <!-- Clean Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-semibold text-[var(--color-text)] tracking-tight">Dashboard</h1>
-            <p class="text-[15px] text-[var(--color-text-muted)] mt-1">
+            <h1 class="text-2xl font-semibold text-[var(--color-text)] tracking-tight">Dashboard</h1>
+            <p class="text-sm text-[var(--color-text-muted)] mt-1">
                 Overview of @header.KitchenName orders, menu, and earnings.
             </p>
         </div>
         <a href="/MenuManagement/Create"
-           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[15px] font-medium transition-colors w-fit">
+           class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-medium transition-colors w-fit">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
             <span>Add New Dish</span>
         </a>
     </div>
 
     <!-- 4 Live Metric Cards (Shown only on Dashboard Overview) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6">
-            <span class="text-sm font-medium text-[var(--color-text-muted)] block">Pending Acceptance</span>
-            <span class="text-3xl font-semibold text-[var(--color-text)] mt-2 block">@header.PendingOrdersCount</span>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-xl p-5">
+            <span class="text-xs font-medium text-[var(--color-text-muted)] block">Pending Acceptance</span>
+            <span class="text-2xl font-semibold text-[var(--color-text)] mt-1.5 block">@header.PendingOrdersCount</span>
         </div>
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6">
-            <span class="text-sm font-medium text-[var(--color-text-muted)] block">In Preparation</span>
-            <span class="text-3xl font-semibold text-[var(--color-text)] mt-2 block">@header.PreparingOrdersCount</span>
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-xl p-5">
+            <span class="text-xs font-medium text-[var(--color-text-muted)] block">In Preparation</span>
+            <span class="text-2xl font-semibold text-[var(--color-text)] mt-1.5 block">@header.PreparingOrdersCount</span>
         </div>
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6">
-            <span class="text-sm font-medium text-[var(--color-text-muted)] block">Ready for Pickup</span>
-            <span class="text-3xl font-semibold text-[var(--color-text)] mt-2 block">@header.ReadyOrdersCount</span>
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-xl p-5">
+            <span class="text-xs font-medium text-[var(--color-text-muted)] block">Ready for Pickup</span>
+            <span class="text-2xl font-semibold text-[var(--color-text)] mt-1.5 block">@header.ReadyOrdersCount</span>
         </div>
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6">
-            <span class="text-sm font-medium text-[var(--color-text-muted)] block">Net Earnings</span>
-            <span class="text-3xl font-semibold text-[var(--color-primary)] mt-2 block">@header.NetWalletEarnings.ToString("N2") EGP</span>
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-xl p-5">
+            <span class="text-xs font-medium text-[var(--color-text-muted)] block">Net Earnings</span>
+            <span class="text-2xl font-semibold text-[var(--color-primary)] mt-1.5 block">@header.NetWalletEarnings.ToString("N2") EGP</span>
         </div>
     </div>
 

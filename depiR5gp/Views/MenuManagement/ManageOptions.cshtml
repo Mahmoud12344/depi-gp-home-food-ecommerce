@@ -32,20 +32,20 @@
     }" class="w-full space-y-8">
 
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--color-border)]">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-semibold text-[var(--color-text)] tracking-tight">Customization Options</h1>
-            <p class="text-[15px] text-[var(--color-text-muted)] mt-1">
+            <h1 class="text-2xl font-semibold text-[var(--color-text)] tracking-tight">Customization Options</h1>
+            <p class="text-sm text-[var(--color-text-muted)] mt-1">
                 Configure portion sizes, spice levels, or paid extras for <strong class="text-[var(--color-text)]">@Model.DishName</strong> (Base: @Model.BasePrice.ToString("N2") EGP).
             </p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
             <a href="/MenuManagement/Edit/@Model.DishId"
-               class="px-4 py-2.5 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] transition-colors">
+               class="px-4 py-2 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] transition-colors">
                 Edit Dish
             </a>
             <a href="/MenuManagement"
-               class="px-4 py-2.5 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] transition-colors">
+               class="px-4 py-2 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] transition-colors">
                 Back to Menu
             </a>
         </div>

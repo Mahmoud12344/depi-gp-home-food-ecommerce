@@ -27,6 +27,99 @@
     };
 }
 
+<style>
+    .chef-shell {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-height: calc(100vh - 4.5rem);
+        background-color: var(--color-bg);
+    }
+
+    .chef-mobile-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background-color: var(--color-card-bg);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .chef-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        inset-inline-start: 0;
+        z-index: 50;
+        width: 260px;
+        flex-shrink: 0;
+        background-color: var(--color-card-bg);
+        border-inline-end: 1px solid var(--color-border);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s ease-out;
+    }
+
+    .chef-sidebar-closed {
+        transform: translateX(-100%);
+    }
+
+    .chef-sidebar-open {
+        transform: translateX(0);
+    }
+
+    .chef-main {
+        flex: 1 1 0%;
+        min-width: 0;
+        padding: 1.75rem 1.25rem;
+    }
+
+    .chef-container {
+        max-width: 1040px;
+        margin-inline: auto;
+        width: 100%;
+    }
+
+    .chef-setting-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding-block: 1.25rem;
+        align-items: start;
+    }
+
+    .chef-setting-row-center {
+        align-items: center;
+    }
+
+    @@media (min-width: 1024px) {
+        .chef-shell {
+            flex-direction: row;
+            align-items: stretch;
+        }
+
+        .chef-mobile-bar {
+            display: none;
+        }
+
+        .chef-sidebar {
+            position: static;
+            z-index: auto;
+            transform: none !important;
+        }
+
+        .chef-main {
+            padding: 2rem 2.5rem;
+        }
+
+        .chef-setting-row {
+            grid-template-columns: 270px 1fr;
+            gap: 2rem;
+        }
+    }
+</style>
+
 <div x-data="{
         mobileSidebarOpen: false,
         profileGroupOpen: @(isProfileGroup ? "true" : "false"),
@@ -61,28 +154,28 @@
             }
         }
     }"
-     class="w-full min-h-[calc(100vh-4.5rem)] flex flex-col lg:flex-row bg-[var(--color-bg)]">
+     class="chef-shell">
 
     <span x-ref="availToken" class="hidden">@Html.AntiForgeryToken()</span>
 
     <!-- Mobile Top Bar -->
-    <div class="lg:hidden flex items-center justify-between px-4 py-3.5 bg-[var(--color-card-bg)] border-b border-[var(--color-border)]">
+    <div class="chef-mobile-bar">
         <div class="flex items-center gap-3 min-w-0">
             <button type="button"
                     @@click="mobileSidebarOpen = true"
                     aria-label="Open chef menu"
                     class="p-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#menu"></use></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#menu"></use></svg>
             </button>
-            <span class="text-base font-semibold text-[var(--color-text)] truncate">@header.KitchenName</span>
+            <span class="text-sm font-semibold text-[var(--color-text)] truncate">@header.KitchenName</span>
         </div>
 
         <button type="button"
                 @@click="toggleAvailability()"
                 :disabled="toggling"
-                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-card-bg)] text-sm font-medium cursor-pointer">
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-card-bg)] text-xs font-medium cursor-pointer">
             <span class="w-2 h-2 rounded-full" :class="isKitchenOpen ? 'bg-emerald-500' : 'bg-rose-500'"></span>
-            <span x-text="isKitchenOpen ? 'Open' : 'Paused'">@(header.IsAcceptingOrders ? "Open" : "Paused")</span>
+            <span x-text="isKitchenOpen ? 'Online' : 'Paused'">@(header.IsAcceptingOrders ? "Online" : "Paused")</span>
         </button>
     </div>
 
@@ -94,151 +187,147 @@
          class="fixed inset-0 z-40 bg-black/40 lg:hidden"></div>
 
     <!-- Untitled UI Style Sidebar with Section Dividers -->
-    <aside :class="mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-           class="fixed inset-y-0 start-0 z-50 w-[280px] lg:static lg:z-auto shrink-0 bg-[var(--color-card-bg)] border-e border-[var(--color-border)] flex flex-col justify-between transition-transform duration-200 ease-out">
+    <aside :class="mobileSidebarOpen ? 'chef-sidebar-open' : 'chef-sidebar-closed'"
+           class="chef-sidebar">
 
-        <div class="flex flex-col flex-1 overflow-y-auto px-4 py-6">
+        <div class="flex flex-col flex-1 overflow-y-auto px-3.5 py-5">
             <!-- Kitchen Identity -->
-            <div class="flex items-start justify-between gap-3 px-2 pb-5">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="w-10 h-10 rounded-xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+            <div class="flex items-center justify-between gap-2.5 px-2 pb-4">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-lg bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
                     </div>
                     <div class="min-w-0">
-                        <p class="text-[15px] font-semibold text-[var(--color-text)] truncate leading-snug">@header.KitchenName</p>
+                        <p class="text-sm font-semibold text-[var(--color-text)] truncate leading-tight">@header.KitchenName</p>
                         @if (!string.IsNullOrWhiteSpace(header.AreaName))
                         {
-                            <p class="text-sm text-[var(--color-text-muted)] truncate">@header.AreaName</p>
+                            <p class="text-xs text-[var(--color-text-muted)] truncate mt-0.5">@header.AreaName</p>
                         }
                     </div>
                 </div>
                 <button type="button"
                         @@click="mobileSidebarOpen = false"
                         aria-label="Close menu"
-                        class="lg:hidden p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                        class="lg:hidden p-1 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
                 </button>
             </div>
 
-            <!-- Kitchen Availability Modern Badge Row -->
-            <div class="px-2 pb-5">
+            <!-- Kitchen Status Toggle -->
+            <div class="px-1.5 pb-4">
                 <button type="button"
                         @@click="toggleAvailability()"
                         :disabled="toggling"
-                        class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] hover:border-[var(--color-primary)]/50 transition-colors cursor-pointer disabled:opacity-60">
-                    <span class="text-sm font-medium text-[var(--color-text)]">Kitchen Status</span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md border border-[var(--color-border)] bg-[var(--color-card-bg)] text-sm font-medium text-[var(--color-text)] shadow-2xs">
-                        <span class="w-2 h-2 rounded-full" :class="isKitchenOpen ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                        class="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] hover:border-[var(--color-primary)]/50 transition-colors cursor-pointer disabled:opacity-60">
+                    <span class="text-xs font-medium text-[var(--color-text-muted)]">Kitchen Status</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-[var(--color-border)] bg-[var(--color-card-bg)] text-xs font-medium text-[var(--color-text)]">
+                        <span class="w-1.5 h-1.5 rounded-full" :class="isKitchenOpen ? 'bg-emerald-500' : 'bg-rose-500'"></span>
                         <span x-text="isKitchenOpen ? 'Online' : 'Paused'">@(header.IsAcceptingOrders ? "Online" : "Paused")</span>
                     </span>
                 </button>
             </div>
 
             <!-- Navigation -->
-            <nav aria-label="Chef Portal Navigation" class="space-y-1">
-                <!-- Section 1: Core -->
+            <nav aria-label="Chef Portal Navigation" class="space-y-0.5">
                 <a href="/ChefDashboard"
-                   class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-colors @(activeTab == "overview" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                    <span class="flex items-center gap-3">
-                        <svg class="w-5 h-5 @(activeTab == "overview" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#layout-grid"></use></svg>
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "overview" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "overview" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#layout-grid"></use></svg>
                         <span>Dashboard</span>
                     </span>
                 </a>
 
                 <a href="/ChefDashboard/Orders"
-                   class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-colors @(activeTab == "orders" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                    <span class="flex items-center gap-3">
-                        <svg class="w-5 h-5 @(activeTab == "orders" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "orders" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "orders" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
                         <span>Live Orders</span>
                     </span>
-                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)]">
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-muted)]">
                         @header.ActiveOrdersCount
                     </span>
                 </a>
 
                 <a href="/MenuManagement"
-                   class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-colors @(activeTab == "menu" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                    <span class="flex items-center gap-3">
-                        <svg class="w-5 h-5 @(activeTab == "menu" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "menu" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "menu" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
                         <span>Menu &amp; Dishes</span>
                     </span>
-                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)]">
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-muted)]">
                         @header.DishesCount
                     </span>
                 </a>
 
-                <!-- Divider -->
-                <hr class="my-4 border-[var(--color-border)]" />
+                <hr class="my-3 border-[var(--color-border)]" />
 
-                <!-- Section 2: Expandable Kitchen Settings Group -->
+                <!-- Expandable Kitchen Profile Group -->
                 <div>
                     <button type="button"
                             @@click="profileGroupOpen = !profileGroupOpen"
-                            class="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-colors cursor-pointer @(isProfileGroup ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                        <span class="flex items-center gap-3">
-                            <svg class="w-5 h-5 @(isProfileGroup ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sliders"></use></svg>
+                            class="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer @(isProfileGroup ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                        <span class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 @(isProfileGroup ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sliders"></use></svg>
                             <span>Kitchen Profile</span>
                         </span>
-                        <svg class="w-4 h-4 transition-transform duration-150"
+                        <svg class="w-3.5 h-3.5 transition-transform duration-150"
                              :class="profileGroupOpen ? 'rotate-180' : ''"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-down"></use></svg>
                     </button>
 
-                    <div x-show="profileGroupOpen" x-transition class="mt-1 space-y-1 ps-8">
+                    <div x-show="profileGroupOpen" x-transition class="mt-0.5 space-y-0.5 ps-7">
                         <a href="/Chefs/EditProfile?tab=profile"
-                           class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "profile" && (activeSubTab == "profile" || activeSubTab == "") ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                            <span>Kitchen Details</span>
+                           class="block px-3 py-1.5 rounded-lg text-sm font-medium transition-colors @(activeTab == "profile" && (activeSubTab == "profile" || activeSubTab == "") ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                            Kitchen Details
                         </a>
                         <a href="/Chefs/EditProfile?tab=hours"
-                           class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "profile" && activeSubTab == "hours" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                            <span>Working Hours</span>
+                           class="block px-3 py-1.5 rounded-lg text-sm font-medium transition-colors @(activeTab == "profile" && activeSubTab == "hours" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                            Working Hours
                         </a>
                         <a href="/Chefs/EditProfile?tab=documents"
-                           class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "profile" && activeSubTab == "documents" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                            <span>Documents</span>
+                           class="block px-3 py-1.5 rounded-lg text-sm font-medium transition-colors @(activeTab == "profile" && activeSubTab == "documents" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                            Documents
                         </a>
                     </div>
                 </div>
 
-                <!-- Divider -->
-                <hr class="my-4 border-[var(--color-border)]" />
+                <hr class="my-3 border-[var(--color-border)]" />
 
-                <!-- Section 3: Finance & Insights -->
                 <a href="/ChefDashboard/History"
-                   class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-colors @(activeTab == "history" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                    <span class="flex items-center gap-3">
-                        <svg class="w-5 h-5 @(activeTab == "history" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#receipt"></use></svg>
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "history" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "history" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#receipt"></use></svg>
                         <span>Order History</span>
                     </span>
                 </a>
 
                 <a href="/ChefDashboard/Reviews"
-                   class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-colors @(activeTab == "reviews" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                    <span class="flex items-center gap-3">
-                        <svg class="w-5 h-5 @(activeTab == "reviews" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "reviews" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "reviews" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#star"></use></svg>
                         <span>Reviews</span>
                     </span>
-                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)]">
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-muted)]">
                         @header.ReviewsCount
                     </span>
                 </a>
 
                 <a href="/ChefDashboard/Wallet"
-                   class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-colors @(activeTab == "wallet" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                    <span class="flex items-center gap-3">
-                        <svg class="w-5 h-5 @(activeTab == "wallet" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "wallet" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "wallet" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
                         <span>Wallet &amp; Payouts</span>
                     </span>
                 </a>
             </nav>
         </div>
 
-        <!-- Bottom Utility Section -->
-        <div class="px-4 py-4 border-t border-[var(--color-border)] space-y-1">
+        <!-- Bottom Utility Links -->
+        <div class="px-3.5 py-3.5 border-t border-[var(--color-border)] space-y-0.5">
             <a href="/Dashboard"
-               class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-colors @(activeTab == "status" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
-                <span class="flex items-center gap-3">
-                    <svg class="w-5 h-5 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
+               class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "status" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                <span class="flex items-center gap-2.5">
+                    <svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
                     <span>Verification</span>
                 </span>
                 <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] text-xs font-medium text-[var(--color-text)]">
@@ -248,16 +337,18 @@
             </a>
 
             <a href="/"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)] transition-colors">
-                <svg class="w-5 h-5 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
+               class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)] transition-colors">
+                <svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
                 <span>Back to Marketplace</span>
             </a>
         </div>
     </aside>
 
-    <!-- Full-Width Main Workspace -->
-    <div class="flex-1 min-w-0 w-full px-5 sm:px-8 lg:px-10 py-8">
-        @RenderBody()
+    <!-- Balanced Main Workspace -->
+    <div class="chef-main">
+        <div class="chef-container">
+            @RenderBody()
+        </div>
     </div>
 </div>
 

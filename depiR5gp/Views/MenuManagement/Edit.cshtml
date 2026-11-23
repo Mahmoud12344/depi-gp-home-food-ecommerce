@@ -5,22 +5,22 @@
     ViewData["ActiveChefTab"] = "menu";
 }
 
-<div class="w-full space-y-8">
+<div class="w-full space-y-6">
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--color-border)]">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-semibold text-[var(--color-text)] tracking-tight">Edit Dish</h1>
-            <p class="text-[15px] text-[var(--color-text-muted)] mt-1">
+            <h1 class="text-2xl font-semibold text-[var(--color-text)] tracking-tight">Edit Dish</h1>
+            <p class="text-sm text-[var(--color-text-muted)] mt-1">
                 Update pricing, details, availability, or photo for @Model.Name.
             </p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
             <a href="/MenuManagement/ManageOptions/@Model.Id"
-               class="px-4 py-2.5 rounded-xl border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white text-sm font-medium transition-colors">
+               class="px-4 py-2 rounded-xl border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white text-sm font-medium transition-colors">
                 Manage Options
             </a>
             <a href="/MenuManagement"
-               class="px-4 py-2.5 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] transition-colors">
+               class="px-4 py-2 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] transition-colors">
                 Back to Menu
             </a>
         </div>
@@ -44,124 +44,124 @@
         @if (!ViewData.ModelState.IsValid)
         {
             <div asp-validation-summary="ModelOnly"
-                 class="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-sm text-rose-700 dark:text-rose-300 font-medium"></div>
+                 class="mb-5 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-sm text-rose-700 dark:text-rose-300 font-medium"></div>
         }
 
         <!-- Photo -->
-        <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div class="lg:col-span-4">
-                <label asp-for="ImageFile" class="block text-[15px] font-medium text-[var(--color-text)]">Dish Photo</label>
-                <p class="text-sm text-[var(--color-text-muted)] mt-1">Leave empty to keep the current photo.</p>
+        <div class="chef-setting-row">
+            <div>
+                <label asp-for="ImageFile" class="block text-sm font-medium text-[var(--color-text)]">Dish Photo</label>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">Leave empty to keep the current photo.</p>
             </div>
-            <div class="lg:col-span-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-                <div class="w-24 h-24 rounded-2xl overflow-hidden bg-[var(--color-surface-subtle)] border border-[var(--color-border)] flex items-center justify-center shrink-0">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div class="w-20 h-20 rounded-xl overflow-hidden bg-[var(--color-surface-subtle)] border border-[var(--color-border)] flex items-center justify-center shrink-0">
                     <template x-if="previewUrl">
                         <img :src="previewUrl" alt="@Model.Name" class="w-full h-full object-cover" />
                     </template>
                     <template x-if="!previewUrl">
-                        <svg class="w-8 h-8 text-[var(--color-text-muted)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
+                        <svg class="w-7 h-7 text-[var(--color-text-muted)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
                     </template>
                 </div>
                 <div class="flex-1 w-full">
                     <input asp-for="ImageFile" type="file" accept=".jpg,.jpeg,.png,.webp" @@change="onFileChange($event)"
-                           class="w-full p-2.5 bg-[var(--color-card-bg)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3.5 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--color-surface-subtle)] file:text-[var(--color-text)] cursor-pointer" />
-                    <span asp-validation-for="ImageFile" class="text-rose-600 text-sm mt-1 block"></span>
+                           class="w-full p-2 bg-[var(--color-card-bg)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[var(--color-surface-subtle)] file:text-[var(--color-text)] cursor-pointer" />
+                    <span asp-validation-for="ImageFile" class="text-rose-600 text-xs mt-1 block"></span>
                 </div>
             </div>
         </div>
 
         <!-- Name & Price -->
-        <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div class="lg:col-span-4">
-                <span class="block text-[15px] font-medium text-[var(--color-text)]">Dish Name &amp; Base Price</span>
-                <p class="text-sm text-[var(--color-text-muted)] mt-1">Set a clear title and starting price in EGP.</p>
+        <div class="chef-setting-row">
+            <div>
+                <span class="block text-sm font-medium text-[var(--color-text)]">Dish Name &amp; Base Price</span>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">Set a clear title and starting price in EGP.</p>
             </div>
-            <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="sm:col-span-2">
-                    <label asp-for="Name" class="block text-sm font-medium text-[var(--color-text)] mb-1.5">Dish Name</label>
+                    <label asp-for="Name" class="block text-xs font-medium text-[var(--color-text)] mb-1.5">Dish Name</label>
                     <input asp-for="Name"
-                           class="w-full px-4 py-3 bg-[var(--color-card-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden" />
-                    <span asp-validation-for="Name" class="text-rose-600 text-sm mt-1 block"></span>
+                           class="w-full px-3.5 py-2.5 bg-[var(--color-card-bg)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    <span asp-validation-for="Name" class="text-rose-600 text-xs mt-1 block"></span>
                 </div>
                 <div>
-                    <label asp-for="Price" class="block text-sm font-medium text-[var(--color-text)] mb-1.5">Price (EGP)</label>
+                    <label asp-for="Price" class="block text-xs font-medium text-[var(--color-text)] mb-1.5">Price (EGP)</label>
                     <input asp-for="Price" type="number" step="0.50" min="1"
-                           class="w-full px-4 py-3 bg-[var(--color-card-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden" />
-                    <span asp-validation-for="Price" class="text-rose-600 text-sm mt-1 block"></span>
+                           class="w-full px-3.5 py-2.5 bg-[var(--color-card-bg)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    <span asp-validation-for="Price" class="text-rose-600 text-xs mt-1 block"></span>
                 </div>
             </div>
         </div>
 
         <!-- Category & Cuisine -->
-        <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div class="lg:col-span-4">
-                <span class="block text-[15px] font-medium text-[var(--color-text)]">Classification</span>
-                <p class="text-sm text-[var(--color-text-muted)] mt-1">Helps customers discover your dish via filters.</p>
+        <div class="chef-setting-row">
+            <div>
+                <span class="block text-sm font-medium text-[var(--color-text)]">Classification</span>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">Helps customers discover your dish via filters.</p>
             </div>
-            <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label asp-for="CategoryId" class="block text-sm font-medium text-[var(--color-text)] mb-1.5">Category</label>
+                    <label asp-for="CategoryId" class="block text-xs font-medium text-[var(--color-text)] mb-1.5">Category</label>
                     <select asp-for="CategoryId"
-                            class="w-full px-4 py-3 bg-[var(--color-card-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden">
+                            class="w-full px-3.5 py-2.5 bg-[var(--color-card-bg)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden">
                         <option value="0">Select category</option>
                         @foreach (var cat in Model.Categories)
                         {
                             <option value="@cat.Id">@cat.Name</option>
                         }
                     </select>
-                    <span asp-validation-for="CategoryId" class="text-rose-600 text-sm mt-1 block"></span>
+                    <span asp-validation-for="CategoryId" class="text-rose-600 text-xs mt-1 block"></span>
                 </div>
                 <div>
-                    <label asp-for="CuisineId" class="block text-sm font-medium text-[var(--color-text)] mb-1.5">Cuisine</label>
+                    <label asp-for="CuisineId" class="block text-xs font-medium text-[var(--color-text)] mb-1.5">Cuisine</label>
                     <select asp-for="CuisineId"
-                            class="w-full px-4 py-3 bg-[var(--color-card-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden">
+                            class="w-full px-3.5 py-2.5 bg-[var(--color-card-bg)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden">
                         <option value="0">Select cuisine</option>
                         @foreach (var cuisine in Model.Cuisines)
                         {
                             <option value="@cuisine.Id">@cuisine.Name</option>
                         }
                     </select>
-                    <span asp-validation-for="CuisineId" class="text-rose-600 text-sm mt-1 block"></span>
+                    <span asp-validation-for="CuisineId" class="text-rose-600 text-xs mt-1 block"></span>
                 </div>
             </div>
         </div>
 
         <!-- Description -->
-        <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div class="lg:col-span-4">
-                <label asp-for="Description" class="block text-[15px] font-medium text-[var(--color-text)]">Description &amp; Ingredients</label>
-                <p class="text-sm text-[var(--color-text-muted)] mt-1">Include portion size, key ingredients, and allergens.</p>
+        <div class="chef-setting-row">
+            <div>
+                <label asp-for="Description" class="block text-sm font-medium text-[var(--color-text)]">Description &amp; Ingredients</label>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">Include portion size, ingredients, and allergens.</p>
             </div>
-            <div class="lg:col-span-8">
+            <div>
                 <textarea asp-for="Description" rows="4"
-                          class="w-full px-4 py-3 bg-[var(--color-card-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed"></textarea>
-                <span asp-validation-for="Description" class="text-rose-600 text-sm mt-1 block"></span>
+                          class="w-full px-3.5 py-2.5 bg-[var(--color-card-bg)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed"></textarea>
+                <span asp-validation-for="Description" class="text-rose-600 text-xs mt-1 block"></span>
             </div>
         </div>
 
         <!-- Availability -->
-        <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div class="lg:col-span-4">
-                <span class="block text-[15px] font-medium text-[var(--color-text)]">Availability</span>
-                <p class="text-sm text-[var(--color-text-muted)] mt-1">Uncheck to temporarily mark this dish Sold Out.</p>
+        <div class="chef-setting-row chef-setting-row-center">
+            <div>
+                <span class="block text-sm font-medium text-[var(--color-text)]">Availability</span>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">Uncheck to temporarily mark Sold Out.</p>
             </div>
-            <div class="lg:col-span-8">
-                <label for="editDishAvailableSwitch" class="inline-flex items-center gap-3 cursor-pointer">
+            <div>
+                <label for="editDishAvailableSwitch" class="inline-flex items-center gap-2.5 cursor-pointer">
                     <input asp-for="IsAvailable" type="checkbox" id="editDishAvailableSwitch"
-                           class="w-5 h-5 rounded accent-[var(--color-primary)] cursor-pointer" />
-                    <span class="text-[15px] font-medium text-[var(--color-text)]">Available for ordering</span>
+                           class="w-4 h-4 rounded accent-[var(--color-primary)] cursor-pointer" />
+                    <span class="text-sm font-medium text-[var(--color-text)]">Available for ordering</span>
                 </label>
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="pt-6 flex items-center justify-end gap-3">
+        <div class="pt-5 flex items-center justify-end gap-3">
             <a href="/MenuManagement"
-               class="px-5 py-2.5 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[15px] font-medium text-[var(--color-text)] transition-colors">
+               class="px-4 py-2 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] transition-colors">
                 Cancel
             </a>
             <button type="submit"
-                    class="px-6 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[15px] font-medium transition-colors cursor-pointer">
+                    class="px-5 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-medium transition-colors cursor-pointer">
                 Save Changes
             </button>
         </div>

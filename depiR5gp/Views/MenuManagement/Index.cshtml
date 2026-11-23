@@ -17,16 +17,16 @@
     }" class="w-full space-y-8">
 
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--color-border)]">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-semibold text-[var(--color-text)] tracking-tight">Menu &amp; Dishes</h1>
-            <p class="text-[15px] text-[var(--color-text-muted)] mt-1">
+            <h1 class="text-2xl font-semibold text-[var(--color-text)] tracking-tight">Menu &amp; Dishes</h1>
+            <p class="text-sm text-[var(--color-text-muted)] mt-1">
                 @Model.Dishes.Count dish@(Model.Dishes.Count == 1 ? "" : "es") · @Model.AvailableCount available · @Model.SoldOutCount sold out
             </p>
         </div>
 
         <a href="/MenuManagement/Create"
-           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[15px] font-medium transition-colors w-fit">
+           class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-medium transition-colors w-fit">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
             <span>Add New Dish</span>
         </a>
