@@ -291,7 +291,7 @@
                 var doc = Model.DocumentsSection.Documents.FirstOrDefault(d =>
                     string.Equals(d.DocType, entry.Key, StringComparison.OrdinalIgnoreCase));
 
-                <div class="p-5 bg-[var(--color-card-bg)] rounded-xl border border-[var(--color-border)] flex flex-col justify-between gap-4">
+                <div class="chef-card-fx p-5 bg-[var(--color-card-bg)] rounded-xl border border-[var(--color-border)] flex flex-col justify-between gap-4">
                     <div class="space-y-1">
                         <h3 class="text-sm font-semibold text-[var(--color-text)]">@entry.Value.Title</h3>
                         <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">@entry.Value.Subtitle</p>

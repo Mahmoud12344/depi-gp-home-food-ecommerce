@@ -97,6 +97,97 @@
         overflow: hidden;
     }
 
+    .chef-dish-img-wrap img {
+        transition: transform 0.38s cubic-bezier(0.22, 0.68, 0.36, 1), opacity 0.25s ease;
+    }
+
+    .chef-dish-card:hover .chef-dish-img-wrap img {
+        transform: scale(1.05);
+    }
+
+    .chef-card-fx {
+        box-shadow: 0 2px 10px -2px rgba(45, 35, 28, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: transform 0.22s cubic-bezier(0.22, 0.68, 0.36, 1),
+                    box-shadow 0.22s ease,
+                    border-color 0.22s ease;
+    }
+
+    .chef-card-fx:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 28px -8px rgba(125, 70, 48, 0.14), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+        border-color: rgba(var(--color-primary-rgb), 0.35);
+    }
+
+    [data-theme="dark"] .chef-card-fx,
+    .dark .chef-card-fx {
+        box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 245, 235, 0.06);
+    }
+
+    [data-theme="dark"] .chef-card-fx:hover,
+    .dark .chef-card-fx:hover {
+        box-shadow: 0 16px 32px -6px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(226, 138, 104, 0.3);
+        border-color: rgba(226, 138, 104, 0.4);
+    }
+
+    @@keyframes chefFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .chef-fade-up {
+        animation: chefFadeUp 0.36s cubic-bezier(0.22, 0.68, 0.36, 1) both;
+    }
+
+    .chef-icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--color-border);
+        background-color: var(--color-surface-subtle);
+        color: var(--color-text);
+        cursor: pointer;
+        transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .chef-icon-btn:hover {
+        transform: translateY(-2px);
+        background-color: var(--color-card-bg);
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+        box-shadow: 0 6px 14px -4px rgba(0, 0, 0, 0.15);
+    }
+
+    .chef-icon-btn-danger {
+        color: #e11d48;
+    }
+
+    [data-theme="dark"] .chef-icon-btn-danger,
+    .dark .chef-icon-btn-danger {
+        color: #fb7185;
+    }
+
+    .chef-icon-btn-danger:hover {
+        border-color: #e11d48;
+        color: #e11d48;
+        background-color: rgba(225, 29, 72, 0.08);
+    }
+
+    [data-theme="dark"] .chef-icon-btn-danger:hover,
+    .dark .chef-icon-btn-danger:hover {
+        border-color: #fb7185;
+        color: #fda4af;
+        background-color: rgba(251, 113, 133, 0.14);
+    }
+
     .chef-avatar-sm {
         width: 38px;
         height: 38px;
@@ -176,7 +267,15 @@
         mobileSidebarOpen: false,
         profileGroupOpen: @(isProfileGroup ? "true" : "false"),
         isKitchenOpen: @(header.IsAcceptingOrders ? "true" : "false"),
+        isDark: document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark'),
         toggling: false,
+        toggleTheme() {
+            this.isDark = !this.isDark;
+            const next = this.isDark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.classList.toggle('dark', this.isDark);
+            try { localStorage.setItem('hc_theme', next); } catch (e) {}
+        },
         async toggleAvailability() {
             if (this.toggling) return;
             this.toggling = true;
@@ -381,8 +480,8 @@
             </nav>
         </div>
 
-        <!-- Bottom Utility Links -->
-        <div class="px-3.5 py-3.5 border-t border-[var(--color-border)] space-y-0.5">
+        <!-- Bottom Utility Bar (Verification + Icon-only Theme & Logout) -->
+        <div class="px-3.5 py-3.5 border-t border-[var(--color-border)] space-y-3">
             <a href="/Dashboard"
                class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "status" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
                 <span class="flex items-center gap-2.5">
@@ -395,29 +494,26 @@
                 </span>
             </a>
 
-            <a href="/"
-               class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)] transition-colors">
-                <svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg>
-                <span>Back to Marketplace</span>
-            </a>
-
-            <button type="button"
-                    @@click="window.toggleTheme()"
-                    class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)] transition-colors cursor-pointer">
-                <svg class="w-4 h-4 opacity-75 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#moon"></use></svg>
-                <svg class="w-4 h-4 text-amber-400 hidden dark:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sun"></use></svg>
-                <span class="dark:hidden">Dark Mode</span>
-                <span class="hidden dark:inline">Light Mode</span>
-            </button>
-
-            <form asp-controller="Account" asp-action="Logout" method="post" class="w-full">
-                @Html.AntiForgeryToken()
-                <button type="submit"
-                        class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>
-                    <span>Log Out</span>
+            <div class="flex items-center justify-between gap-2 px-1">
+                <button type="button"
+                        @@click="toggleTheme()"
+                        :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+                        :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+                        class="chef-icon-btn">
+                    <svg x-show="!isDark" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#moon"></use></svg>
+                    <svg x-show="isDark" x-cloak class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sun"></use></svg>
                 </button>
-            </form>
+
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            title="Log out"
+                            aria-label="Log out"
+                            class="chef-icon-btn chef-icon-btn-danger">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>
+                    </button>
+                </form>
+            </div>
         </div>
     </aside>
 
