@@ -38,7 +38,26 @@
                             <h4 class="text-xs font-bold text-[var(--color-text)]">@(order.Items.Count == 0 ? "Order details unavailable" : string.Join(", ", order.Items.Select(item => $"{item.DishName} × {item.Quantity}")))</h4>
                             <p class="text-xs text-[var(--color-text-muted)]">@order.ChefName · <span class="font-bold text-[var(--color-primary)]">@order.Total.ToString("0.00") EGP</span></p>
                         </div>
-                        <a asp-controller="Orders" asp-action="Track" asp-route-id="@order.Id" class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)]">Track Order</a>
+                        <div class="flex flex-wrap items-center gap-2 shrink-0">
+                            @if (string.Equals(order.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (order.HasReview)
+                                {
+                                    <a asp-controller="Customer" asp-action="Reviews"
+                                       class="inline-flex items-center gap-1 px-3.5 py-2 rounded-full bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-xs font-bold text-amber-900 dark:text-amber-200">
+                                        <span>★ @(order.ReviewRating ?? 5)/5 Reviewed</span>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Reviews" asp-action="Create" asp-route-orderId="@order.Id"
+                                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider transition-colors">
+                                        <span>Rate Chef &amp; Dishes</span>
+                                    </a>
+                                }
+                            }
+                            <a asp-controller="Orders" asp-action="Track" asp-route-id="@order.Id" class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] hover:text-[var(--color-primary)]">Track Order</a>
+                        </div>
                     </div>
                 }
             }

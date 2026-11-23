@@ -1,0 +1,183 @@
+@model depiR5gp.ViewModels.CustomerReviewsPageVM
+@{
+    ViewData["Title"] = "My Reviews";
+    ViewData["CustomerActivePage"] = "Reviews";
+}
+
+<div class="w-full pb-24">
+    <!-- Banner -->
+    <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav aria-label="Breadcrumb" class="flex items-center text-[13px] text-[var(--color-text-muted)] gap-2 mb-2">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-[var(--color-primary)] font-medium">Home</a>
+                <span aria-hidden="true">/</span>
+                <span class="text-[var(--color-text)] font-semibold">My Reviews</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--color-text)]">My Account &amp; Activity</h1>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5">Rate chefs and homemade dishes from your completed orders</p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <partial name="~/Views/Customer/Partials/_CustomerNav.cshtml" model="Model.Profile" />
+
+        <!-- Section 1: Completed Orders Waiting for Review -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-lg font-bold text-[var(--color-text)]">Orders Waiting for Your Review</h2>
+                    <p class="text-xs text-[var(--color-text-muted)]">Share feedback on the chef and dishes from your recent completed orders.</p>
+                </div>
+                @if (Model.PendingOrders.Count > 0)
+                {
+                    <span class="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-xs font-bold text-amber-900 dark:text-amber-200">
+                        @Model.PendingOrders.Count pending
+                    </span>
+                }
+            </div>
+
+            @if (Model.PendingOrders.Count == 0)
+            {
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-6 text-sm text-[var(--color-text-muted)]">
+                    You're all caught up! Any new completed orders will appear here ready for your review.
+                </div>
+            }
+            else
+            {
+                <div class="space-y-3">
+                    @foreach (var order in Model.PendingOrders)
+                    {
+                        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3.5 min-w-0">
+                                @if (!string.IsNullOrWhiteSpace(order.ChefPhotoUrl))
+                                {
+                                    <img src="@order.ChefPhotoUrl" alt="@order.KitchenName"
+                                         class="w-12 h-12 rounded-full object-cover border border-[var(--color-border)] shrink-0" />
+                                }
+                                else
+                                {
+                                    <div class="w-12 h-12 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                                    </div>
+                                }
+                                <div class="space-y-1 min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <a href="/Chefs/Details/@order.ChefProfileId" class="font-bold text-sm text-[var(--color-text)] hover:text-[var(--color-primary)]">
+                                            @order.KitchenName
+                                        </a>
+                                        <span class="text-xs text-[var(--color-text-muted)]">· #@order.OrderReference</span>
+                                        <span class="text-xs text-[var(--color-text-muted)]">· @order.OrderDate.ToLocalTime().ToString("dd MMM yyyy")</span>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                                        @foreach (var dish in order.Dishes)
+                                        {
+                                            <a href="/Dishes/Details/@dish.DishId"
+                                               class="px-2.5 py-0.5 rounded-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-xs text-[var(--color-text)] hover:border-[var(--color-primary)]">
+                                                @dish.DishName × @dish.Quantity
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a asp-controller="Reviews" asp-action="Create" asp-route-orderId="@order.OrderId"
+                               class="px-5 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0">
+                                Rate Chef &amp; Dishes
+                            </a>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+
+        <!-- Section 2: Submitted Reviews -->
+        <section class="space-y-4">
+            <div>
+                <h2 class="text-lg font-bold text-[var(--color-text)]">Your Published Reviews (@Model.SubmittedReviews.Count)</h2>
+                <p class="text-xs text-[var(--color-text-muted)]">Reviews you've written appear on both the chef's kitchen page and the dishes you ordered.</p>
+            </div>
+
+            @if (Model.SubmittedReviews.Count == 0)
+            {
+                <div class="bg-[var(--color-card-bg)] border border-dashed border-[var(--color-border)] rounded-2xl p-8 text-center text-sm text-[var(--color-text-muted)]">
+                    You haven't submitted any reviews yet.
+                </div>
+            }
+            else
+            {
+                <div class="space-y-4">
+                    @foreach (var rev in Model.SubmittedReviews)
+                    {
+                        <article class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-2xs space-y-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    @if (!string.IsNullOrWhiteSpace(rev.ChefPhotoUrl))
+                                    {
+                                        <img src="@rev.ChefPhotoUrl" alt="@rev.KitchenName"
+                                             class="w-10 h-10 rounded-full object-cover border border-[var(--color-border)] shrink-0" />
+                                    }
+                                    else
+                                    {
+                                        <div class="w-10 h-10 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                                        </div>
+                                    }
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <a href="/Chefs/Details/@rev.ChefProfileId" class="font-bold text-sm text-[var(--color-text)] hover:text-[var(--color-primary)]">
+                                                @rev.KitchenName
+                                            </a>
+                                            <span class="text-xs text-[var(--color-text-muted)]">· #@rev.OrderReference</span>
+                                            <span class="text-xs text-[var(--color-text-muted)]">· @rev.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</span>
+                                        </div>
+                                        <div class="flex items-center gap-1 mt-0.5 text-[var(--color-star)]" aria-label="@rev.Rating out of 5 stars">
+                                            @for (int s = 1; s <= 5; s++)
+                                            {
+                                                <svg class="w-4 h-4 @(s <= rev.Rating ? "fill-current" : "text-neutral-300 dark:text-neutral-700")" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                                            }
+                                            <span class="text-xs font-semibold text-[var(--color-text-muted)] ms-1">@rev.Rating/5</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <a asp-controller="Reviews" asp-action="Edit" asp-route-id="@rev.ReviewId"
+                                       class="px-3.5 py-1.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors">
+                                        Edit
+                                    </a>
+                                    <form asp-controller="Reviews" asp-action="Delete" asp-route-id="@rev.ReviewId" method="post"
+                                          onsubmit="return confirm('Delete this review?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="px-3.5 py-1.5 rounded-full border border-rose-200 dark:border-rose-900 text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(rev.Comment))
+                            {
+                                <p class="text-sm text-[var(--color-text)] leading-relaxed">@rev.Comment</p>
+                            }
+
+                            @if (rev.Dishes.Count > 0)
+                            {
+                                <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-[var(--color-border-light)]">
+                                    <span class="text-xs font-semibold text-[var(--color-text-muted)] me-1">Dishes ordered:</span>
+                                    @foreach (var dish in rev.Dishes)
+                                    {
+                                        <a href="/Dishes/Details/@dish.DishId"
+                                           class="px-2.5 py-0.5 rounded-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-xs text-[var(--color-text)] hover:border-[var(--color-primary)]">
+                                            @dish.DishName × @dish.Quantity
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+</div>
