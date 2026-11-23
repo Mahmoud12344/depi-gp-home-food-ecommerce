@@ -16,7 +16,9 @@ namespace depiR5gp.Models.Chefs
         [Display(Name = "العنوان")]
         public string? Address { get; set; }
 
-        [Required(ErrorMessage = "ساعات العمل مطلوبة.")]
+        [Display(Name = "Pickup Area")]
+        public string? Area { get; set; }
+
         [Display(Name = "ساعات العمل")]
         public string? WorkingHours { get; set; }
 

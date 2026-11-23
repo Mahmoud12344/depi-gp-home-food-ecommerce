@@ -58,12 +58,27 @@
                     <span asp-validation-for="Bio" class="text-rose-500 text-xs block"></span>
                 </div>
 
-                <!-- Address -->
-                <div class="space-y-1.5">
-                    <label asp-for="Address" class="block font-bold text-[var(--color-text)]">Pickup Address</label>
-                    <input asp-for="Address" placeholder="Detailed address for order pickups"
-                           class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
-                    <span asp-validation-for="Address" class="text-rose-500 text-xs block"></span>
+                <!-- Pickup Area & Address -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label asp-for="Area" class="block font-bold text-[var(--color-text)]">Pickup Neighborhood Area</label>
+                        <select asp-for="Area"
+                                class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium">
+                            <option value="">-- Select Pickup Area --</option>
+                            @foreach (var area in depiR5gp.Models.Chefs.PickupAreas.All)
+                            {
+                                <option value="@area.Key">@area.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Area" class="text-rose-500 text-xs block"></span>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label asp-for="Address" class="block font-bold text-[var(--color-text)]">Pickup Address</label>
+                        <input asp-for="Address" placeholder="Detailed address for order pickups"
+                               class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                        <span asp-validation-for="Address" class="text-rose-500 text-xs block"></span>
+                    </div>
                 </div>
 
                 <!-- Accepting Orders Switch -->

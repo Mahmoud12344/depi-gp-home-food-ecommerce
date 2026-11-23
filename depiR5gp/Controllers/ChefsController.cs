@@ -152,15 +152,14 @@ public class ChefsController(
     {
         int userId = GetCurrentUserId();
 
-        // استدعاء الدالة اللي عملناها في الـ Service
         var model = await chefService.GetChefProfileForEditAsync(userId);
-
         if (model == null)
         {
             TempData["ErrorMessage"] = "Please submit your chef onboarding application first.";
             return RedirectToAction(nameof(Onboarding));
         }
 
+        await PopulateChefHeaderAsync(userId);
         return View(model);
     }
 
@@ -169,26 +168,39 @@ public class ChefsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditProfile(EditChefProfileViewModel model)
     {
+        int userId = GetCurrentUserId();
+
+        if (!string.IsNullOrWhiteSpace(model.Area) && !PickupAreas.IsValid(model.Area))
+        {
+            ModelState.AddModelError(nameof(model.Area), "Please select a valid pickup area from the list.");
+        }
+
         if (!ModelState.IsValid)
         {
+            await PopulateChefHeaderAsync(userId);
             return View(model);
         }
 
-        int userId = GetCurrentUserId();
-
-        // استدعاء دالة الحفظ من الـ Service
         bool isUpdated = await chefService.UpdateChefProfileAsync(userId, model);
 
         if (!isUpdated)
         {
-            ModelState.AddModelError(string.Empty, "حدث خطأ أثناء حفظ التعديلات.");
+            ModelState.AddModelError(string.Empty, "An error occurred while saving your profile changes.");
+            await PopulateChefHeaderAsync(userId);
             return View(model);
         }
 
-        TempData["SuccessMessage"] = "تم تحديث بياناتك بنجاح!";
-
-        // إعادة توجيه الشيف لصفحة التعديل لرؤية التغييرات (أو يمكنك توجيهه لصفحة البروفايل)
+        TempData["SuccessMessage"] = "Kitchen profile updated successfully!";
         return RedirectToAction(nameof(EditProfile));
+    }
+
+    private async Task PopulateChefHeaderAsync(int userId)
+    {
+        var chef = await context.ChefProfiles.AsNoTracking().FirstOrDefaultAsync(c => c.UserId == userId);
+        if (chef is not null)
+        {
+            ViewData["ChefHeader"] = await depiR5gp.ViewModels.ChefPortalHeaderVM.LoadAsync(context, chef);
+        }
     }
 
     private int GetCurrentUserId()

@@ -93,6 +93,7 @@ public class ChefService(IUnitOfWork unitOfWork, IFileService fileService) : ICh
             Name = chef.KitchenName,
             Bio = chef.Bio,
             Address = chef.Address,
+            Area = chef.Area,
             ExistingPhotoUrl = chef.PhotoUrl,
             IsAcceptingOrders = chef.IsAcceptingOrders
         };
@@ -110,6 +111,10 @@ public class ChefService(IUnitOfWork unitOfWork, IFileService fileService) : ICh
         }
         chef.Bio = model.Bio;
         chef.Address = model.Address;
+        if (PickupAreas.IsValid(model.Area))
+        {
+            chef.Area = model.Area;
+        }
         chef.IsAcceptingOrders = model.IsAcceptingOrders;
 
         // رفع الصورة الشخصية في حال تم إرفاق ملف جديد باستخدام IFileService

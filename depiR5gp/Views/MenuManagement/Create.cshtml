@@ -1,161 +1,142 @@
+@model depiR5gp.ViewModels.DishFormVM
 @{
-    ViewData["Title"] = "Add New Dish - Menu Management";
+    ViewData["Title"] = "Add New Dish - Chef Portal";
     ViewData["ActiveChefTab"] = "menu";
 }
-<!-- Views/MenuManagement/Create.cshtml -->
-<!-- Source: Views/Chefs/Partials/_AddDishModal.cshtml (SCRUM-36, SCRUM-61) -->
-<!-- TODO(backend): POST /MenuManagement/Create with CreateDishDto, handle image upload, store preset options in DishOptionGroups -->
 
-<div x-data="{
-    isKitchenAvailable: true,
-    editProfileOpen: false,
-    dishForm: {
-        name: '',
-        nameAr: '',
-        description: '',
-        descriptionAr: '',
-        category: 'Traditional Egyptian',
-        price: 180,
-        prepTime: 45,
-        image: 'https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80',
-        isAvailable: true,
-        optionGroups: [
-            {
-                title: 'Rice Choice',
-                type: 'radio',
-                required: true,
-                options: [
-                    { name: 'Vermicelli Rice (أرز بالشعرية)', extraPrice: 0 },
-                    { name: 'Egyptian White Rice (أرز مصري مفلفل)', extraPrice: 0 }
-                ]
-            }
-        ]
-    },
-    addOptionGroup() {
-        this.dishForm.optionGroups.push({
-            title: '',
-            type: 'radio',
-            required: false,
-            options: [{ name: '', extraPrice: 0 }]
-        });
-    },
-    removeOptionGroup(idx) {
-        this.dishForm.optionGroups.splice(idx, 1);
-    },
-    addOptionItem(gIdx) {
-        this.dishForm.optionGroups[gIdx].options.push({ name: '', extraPrice: 0 });
-    },
-    removeOptionItem(gIdx, oIdx) {
-        this.dishForm.optionGroups[gIdx].options.splice(oIdx, 1);
-    }
-}" class="w-full pb-24">
-
+<div class="w-full pb-24">
     <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs">
-            <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border)] mb-6">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
-                            Add New Dish to Kitchen Menu
-                        </h3>
-                        <p class="text-[11px] text-[var(--color-text-muted)]">
-                            Configure dish titles, pricing, baladi ingredients, and preset customization options
-                        </p>
-                    </div>
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div class="flex items-center justify-between gap-4 pb-4 border-b border-[var(--color-border-light)]">
+                <div>
+                    <h2 class="text-lg font-bold uppercase tracking-tight text-[var(--color-text)]">Add New Dish</h2>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                        Create a new homemade dish for your kitchen menu. You can add customization options right after saving.
+                    </p>
                 </div>
-                <a href="/MenuManagement" class="text-xs font-bold text-[var(--color-primary)] hover:underline">← Back to Menu</a>
+                <a href="/MenuManagement"
+                   class="px-4 py-2 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-xs font-bold text-[var(--color-text)] transition-colors shrink-0">
+                    Back to Menu
+                </a>
             </div>
 
-            <form method="post" action="/MenuManagement/Create" class="space-y-6 text-xs">
+            <form asp-controller="MenuManagement" asp-action="Create" method="post" enctype="multipart/form-data"
+                  x-data="{
+                      previewUrl: null,
+                      onFileChange(e) {
+                          const file = e.target.files?.[0];
+                          if (!file) { this.previewUrl = null; return; }
+                          const reader = new FileReader();
+                          reader.onload = ev => this.previewUrl = ev.target.result;
+                          reader.readAsDataURL(file);
+                      }
+                  }"
+                  class="space-y-5 text-xs">
                 @Html.AntiForgeryToken()
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Title (English)</label>
-                        <input type="text" name="Name" required x-model="dishForm.name" placeholder="e.g. Stuffed Pigeon with Spiced Freekeh"
-                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="ModelOnly"
+                         class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 font-medium"></div>
+                }
+
+                <!-- Dish Image Upload + Live Preview -->
+                <div class="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)]">
+                    <div class="w-28 h-28 rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 border border-[var(--color-border)] flex items-center justify-center shrink-0">
+                        <template x-if="previewUrl">
+                            <img :src="previewUrl" alt="Dish preview" class="w-full h-full object-cover" />
+                        </template>
+                        <template x-if="!previewUrl">
+                            <svg class="w-9 h-9 text-[var(--color-text-muted)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
+                        </template>
                     </div>
-                    <div>
-                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Title (Arabic)</label>
-                        <input type="text" name="NameAr" required x-model="dishForm.nameAr" placeholder="مثال: حمام محشي بالفريك البلدي المحمر"
-                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    <div class="flex-1 w-full space-y-1.5">
+                        <label asp-for="ImageFile" class="block font-bold text-[var(--color-text)]">Dish Photo (JPG, PNG, WEBP · max 5 MB)</label>
+                        <input asp-for="ImageFile" type="file" accept=".jpg,.jpeg,.png,.webp" @@change="onFileChange($event)"
+                               class="w-full p-2 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[var(--color-primary-light)] file:text-[var(--color-primary)] cursor-pointer" />
+                        <span asp-validation-for="ImageFile" class="text-rose-500 text-xs block"></span>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Description &amp; Heritage Spices (English)</label>
-                        <textarea rows="2" name="Description" required x-model="dishForm.description" placeholder="Slow-roasted domestic pigeon seasoned with coriander..."
-                                  class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
-                    </div>
-                    <div>
-                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Description &amp; Heritage Spices (Arabic)</label>
-                        <textarea rows="2" name="DescriptionAr" required x-model="dishForm.descriptionAr" placeholder="حمام بلدي محشو بالفريك المفلفل مع سمن بلدي..."
-                                  class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden"></textarea>
-                    </div>
-                </div>
-
+                <!-- Dish Name & Price -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Category</label>
-                        <select name="Category" x-model="dishForm.category"
-                                class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
-                            <option value="Traditional Egyptian">Traditional Egyptian (أكلات مصرية أصيلة)</option>
-                            <option value="Tagines & Casseroles">Tagines &amp; Casseroles (طواجن فرن بلدي)</option>
-                            <option value="Stuffed & Mahshi">Stuffed &amp; Mahshi (محاشي ومحمرات)</option>
-                            <option value="Grills & Poultry">Grills &amp; Poultry (مشويات وطيور)</option>
-                            <option value="Bakery & Desserts">Bakery &amp; Desserts (فطير ومخبوزات وحلويات)</option>
+                    <div class="sm:col-span-2 space-y-1.5">
+                        <label asp-for="Name" class="block font-bold text-[var(--color-text)]">Dish Name</label>
+                        <input asp-for="Name" placeholder="e.g., Traditional Stuffed Vine Leaves (Mahshi)"
+                               class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                        <span asp-validation-for="Name" class="text-rose-500 text-xs block"></span>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label asp-for="Price" class="block font-bold text-[var(--color-text)]">Base Price (EGP)</label>
+                        <input asp-for="Price" type="number" step="0.50" min="1" placeholder="150.00"
+                               class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
+                        <span asp-validation-for="Price" class="text-rose-500 text-xs block"></span>
+                    </div>
+                </div>
+
+                <!-- Category & Cuisine -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label asp-for="CategoryId" class="block font-bold text-[var(--color-text)]">Category</label>
+                        <select asp-for="CategoryId"
+                                class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium">
+                            <option value="0">-- Select Category --</option>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
                         </select>
+                        <span asp-validation-for="CategoryId" class="text-rose-500 text-xs block"></span>
                     </div>
-                    <div>
-                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Base Price (EGP)</label>
-                        <input type="number" name="Price" step="5" min="10" required x-model.number="dishForm.price"
-                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold focus:border-[var(--color-primary)] focus:outline-hidden" />
-                    </div>
-                    <div>
-                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Prep Time (Minutes)</label>
-                        <input type="number" name="PrepTimeMinutes" step="5" min="15" max="300" required x-model.number="dishForm.prepTime" placeholder="45"
-                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-bold focus:border-[var(--color-primary)] focus:outline-hidden" />
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                    <div class="sm:col-span-8">
-                        <label class="block font-semibold mb-1 text-[var(--color-text)]">Dish Photo URL</label>
-                        <input type="url" name="ImageUrl" required x-model="dishForm.image" placeholder="https://images.unsplash.com/..."
-                               class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden" />
-                    </div>
-                    <div class="sm:col-span-4 flex items-center justify-between sm:justify-start gap-3 sm:pt-6">
-                        <input type="hidden" name="IsAvailable" :value="dishForm.isAvailable" />
-                        <button type="button"
-                                @@click="dishForm.isAvailable = !dishForm.isAvailable"
-                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer"
-                                :class="dishForm.isAvailable ? 'bg-emerald-500' : 'bg-neutral-300 dark:bg-neutral-700'">
-                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-xs"
-                                  :class="dishForm.isAvailable ? 'translate-x-6' : 'translate-x-1'"></span>
-                        </button>
-                        <span class="font-bold text-xs"
-                              :class="dishForm.isAvailable ? 'text-emerald-600' : 'text-neutral-400'"
-                              x-text="dishForm.isAvailable ? 'Available Immediately' : 'Currently Unavailable'">
-                        </span>
+                    <div class="space-y-1.5">
+                        <label asp-for="CuisineId" class="block font-bold text-[var(--color-text)]">Cuisine</label>
+                        <select asp-for="CuisineId"
+                                class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium">
+                            <option value="0">-- Select Cuisine --</option>
+                            @foreach (var cuisine in Model.Cuisines)
+                            {
+                                <option value="@cuisine.Id">@cuisine.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CuisineId" class="text-rose-500 text-xs block"></span>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+                <!-- Description -->
+                <div class="space-y-1.5">
+                    <label asp-for="Description" class="block font-bold text-[var(--color-text)]">Description &amp; Ingredients</label>
+                    <textarea asp-for="Description" rows="4" placeholder="Describe ingredients, portion size, allergens, and preparation notes..."
+                              class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium leading-relaxed"></textarea>
+                    <span asp-validation-for="Description" class="text-rose-500 text-xs block"></span>
+                </div>
+
+                <!-- Availability Checkbox -->
+                <div class="flex items-start gap-3 p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)]">
+                    <input asp-for="IsAvailable" type="checkbox" id="dishAvailableSwitch"
+                           class="mt-0.5 w-4 h-4 rounded accent-[var(--color-primary)] cursor-pointer" />
+                    <label for="dishAvailableSwitch" class="cursor-pointer">
+                        <span class="block font-bold text-[var(--color-text)]">Available for Ordering Immediately</span>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">Uncheck to save as Sold Out until you are ready to prepare this dish.</span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border-light)]">
                     <a href="/MenuManagement"
-                       class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider transition-colors cursor-pointer">
-                        <span>Cancel</span>
+                       class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] font-bold uppercase tracking-wider transition-colors">
+                        Cancel
                     </a>
                     <button type="submit"
-                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
-                        <span>Save &amp; Publish Dish</span>
+                            class="px-6 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                        Publish Dish
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
