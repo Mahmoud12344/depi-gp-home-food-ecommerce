@@ -1,19 +1,337 @@
-@using depiR5gp.ViewModels
+@using System.Text.Json
+@model depiR5gp.ViewModels.ChefDashboardVM
 @{
     Layout = "~/Views/Shared/_ChefLayout.cshtml";
     ViewData["Title"] = "Chef Dashboard";
     ViewData["ActiveChefTab"] = "overview";
 
-    var header = ViewData["ChefHeader"] as ChefPortalHeaderVM ?? new ChefPortalHeaderVM
-    {
-        KitchenName = "My Home Kitchen"
-    };
+    var header = Model.Header;
+    var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    var periodsJson = JsonSerializer.Serialize(Model.Periods, jsonOptions);
 }
 
-<div class="w-full space-y-8">
-    <!-- Chef Profile Header Bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
-        <div class="flex items-center gap-3.5 min-w-0">
+<style>
+    .cd-root {
+        --cd-coral: #b4442f;
+        --cd-teal: #0f766e;
+        --cd-ochre: #b47b14;
+        --cd-ink: #3c332d;
+        --cd-track: rgba(120, 100, 86, 0.14);
+        --cd-grid: rgba(120, 100, 86, 0.18);
+        font-variant-numeric: tabular-nums;
+    }
+
+    html[data-theme="dark"] .cd-root,
+    .dark .cd-root {
+        --cd-coral: #f08a73;
+        --cd-teal: #5eead4;
+        --cd-ochre: #f2c15a;
+        --cd-ink: #e5d7cb;
+        --cd-track: rgba(245, 226, 212, 0.14);
+        --cd-grid: rgba(245, 226, 212, 0.16);
+    }
+
+    .cd-period-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px;
+        border-radius: 9999px;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface-subtle);
+    }
+
+    .cd-period-pill button {
+        padding: 6px 14px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        transition: background-color 0.18s ease, color 0.18s ease;
+        cursor: pointer;
+        border: 0;
+        background: transparent;
+    }
+
+    .cd-period-pill button.is-active {
+        background: var(--color-primary);
+        color: #ffffff;
+    }
+
+    .cd-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .cd-charts-row-1,
+    .cd-charts-row-2 {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.25rem;
+    }
+
+    @@media (min-width: 640px) {
+        .cd-kpi-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (min-width: 1024px) {
+        .cd-kpi-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .cd-charts-row-1 {
+            grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+        }
+
+        .cd-charts-row-2 {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        }
+    }
+
+    .cd-panel {
+        background: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 1rem;
+        padding: 1.25rem 1.35rem;
+        min-width: 0;
+    }
+
+    .cd-kpi {
+        background: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 1rem;
+        padding: 1.15rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 118px;
+    }
+
+    .cd-kpi-hero {
+        color: #ffffff;
+        border-color: rgba(15, 118, 110, 0.35);
+        background: radial-gradient(ellipse at 10% -20%, #2a8a78, transparent 68%), linear-gradient(145deg, #166558, #0c443b);
+    }
+
+    .cd-kpi-hero .cd-kpi-muted {
+        color: rgba(235, 250, 246, 0.85);
+    }
+
+    .cd-delta {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 6px;
+    }
+
+    .cd-delta-up {
+        color: var(--cd-teal);
+        background: rgba(15, 118, 110, 0.12);
+    }
+
+    .cd-delta-down {
+        color: var(--cd-coral);
+        background: rgba(180, 68, 47, 0.12);
+    }
+
+    .cd-kpi-hero .cd-delta-up {
+        color: #ccfbf1;
+        background: rgba(255, 255, 255, 0.16);
+    }
+
+    .cd-kpi-hero .cd-delta-down {
+        color: #fecdd3;
+        background: rgba(255, 255, 255, 0.16);
+    }
+
+    /* Chart 1: Area & Line Chart */
+    .cd-line-wrap {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    .cd-line-y {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: right;
+        font-size: 11px;
+        color: var(--color-text-muted);
+        padding-right: 4px;
+    }
+
+    .cd-line-plot {
+        position: relative;
+        height: 210px;
+        min-width: 0;
+    }
+
+    .cd-line-plot svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .cd-line-zones {
+        position: absolute;
+        inset: 0;
+        display: flex;
+    }
+
+    .cd-line-zones button {
+        flex: 1;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        cursor: crosshair;
+    }
+
+    .cd-tooltip {
+        pointer-events: none;
+        position: absolute;
+        top: 6px;
+        transform: translateX(-50%);
+        min-width: 150px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.14);
+        font-size: 11.5px;
+        z-index: 10;
+    }
+
+    .cd-line-axis {
+        display: flex;
+        justify-content: space-between;
+        margin-left: 60px;
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--color-text-muted);
+    }
+
+    /* Chart 2: Donut Chart */
+    .cd-donut-ring {
+        position: relative;
+        width: 158px;
+        height: 158px;
+        margin: 0 auto 1rem;
+    }
+
+    .cd-donut-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        text-align: center;
+    }
+
+    .cd-mix-track {
+        display: block;
+        height: 5px;
+        border-radius: 9999px;
+        background: var(--cd-track);
+        overflow: hidden;
+    }
+
+    .cd-mix-fill {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        transition: width 0.35s ease;
+    }
+
+    /* Chart 3: Horizontal Top Dishes Bars */
+    .cd-dish-bar-track {
+        height: 8px;
+        border-radius: 9999px;
+        background: var(--cd-track);
+        overflow: hidden;
+    }
+
+    .cd-dish-bar-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: var(--color-primary);
+        transition: width 0.35s ease;
+    }
+
+    /* Chart 4: Stacked Column Chart (Day of Week) */
+    .cd-stack-plot {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px;
+        height: 185px;
+        margin-top: 10px;
+    }
+
+    .cd-stack-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border: 0;
+        background: transparent;
+        border-radius: 8px;
+        padding: 4px 2px 2px;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+    .cd-stack-col:hover,
+    .cd-stack-col.is-active {
+        background: var(--color-surface-subtle);
+    }
+
+    .cd-stack-track {
+        flex: 1;
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        border-bottom: 1px solid var(--color-border);
+        padding-bottom: 1px;
+    }
+
+    .cd-stack-bar {
+        width: min(64%, 34px);
+        min-width: 10px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 6px 6px 2px 2px;
+        overflow: hidden;
+        transition: height 0.35s ease;
+    }
+
+    .cd-stack-upper {
+        background: repeating-linear-gradient(135deg, var(--cd-teal) 0 4px, rgba(15, 118, 110, 0.55) 4px 6px);
+    }
+
+    .cd-stack-lower {
+        background: var(--cd-ink);
+    }
+
+    .cd-tone-teal { background-color: var(--cd-teal); color: var(--cd-teal); }
+    .cd-tone-coral { background-color: var(--cd-coral); color: var(--cd-coral); }
+    .cd-tone-ochre { background-color: var(--cd-ochre); color: var(--cd-ochre); }
+    .cd-tone-ink { background-color: var(--cd-ink); color: var(--cd-ink); }
+</style>
+
+<div x-data="chefDashboardAnalytics()" class="cd-root w-full space-y-6">
+
+    <!-- Chef Profile Header Bar + Period Switcher -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
+        <div class="flex items-center gap-4 min-w-0">
             @if (!string.IsNullOrWhiteSpace(header.PhotoUrl))
             {
                 <img src="@header.PhotoUrl" alt="@header.ChefName" class="chef-avatar-lg" />
@@ -21,80 +339,486 @@
             else
             {
                 <div class="chef-avatar-lg bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
                 </div>
             }
             <div class="min-w-0">
                 <h1 class="text-xl sm:text-2xl font-semibold text-[var(--color-text)] tracking-tight truncate">
                     @header.ChefName
                 </h1>
-                <p class="text-sm text-[var(--color-text-muted)] truncate">
+                <p class="text-sm text-[var(--color-text-muted)] truncate mt-0.5">
                     @header.KitchenName@(!string.IsNullOrWhiteSpace(header.AreaName) ? $" · {header.AreaName}" : "")
                 </p>
             </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+            <!-- Reporting Period Switcher -->
+            <div class="cd-period-pill" role="group" aria-label="Reporting period">
+                <button type="button" :class="period === '7d' ? 'is-active' : ''" @@click="setPeriod('7d')">7 days</button>
+                <button type="button" :class="period === '30d' ? 'is-active' : ''" @@click="setPeriod('30d')">30 days</button>
+                <button type="button" :class="period === '90d' ? 'is-active' : ''" @@click="setPeriod('90d')">90 days</button>
+            </div>
+
             <a href="/Chefs/EditProfile"
                class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-card-bg)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)] text-sm font-medium transition-colors">
                 <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#edit-3"></use></svg>
                 <span>Edit Profile</span>
             </a>
-            <a href="/MenuManagement/Create"
-               class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-medium transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
-                <span>Add New Dish</span>
-            </a>
         </div>
     </div>
 
-    <!-- 4 Live Metric Cards (Shown only on Dashboard Overview) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-xl p-5">
-            <span class="text-xs font-medium text-[var(--color-text-muted)] block">Pending Acceptance</span>
-            <span class="text-2xl font-semibold text-[var(--color-text)] mt-1.5 block">@header.PendingOrdersCount</span>
-        </div>
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-xl p-5">
-            <span class="text-xs font-medium text-[var(--color-text-muted)] block">In Preparation</span>
-            <span class="text-2xl font-semibold text-[var(--color-text)] mt-1.5 block">@header.PreparingOrdersCount</span>
-        </div>
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-xl p-5">
-            <span class="text-xs font-medium text-[var(--color-text-muted)] block">Ready for Pickup</span>
-            <span class="text-2xl font-semibold text-[var(--color-text)] mt-1.5 block">@header.ReadyOrdersCount</span>
-        </div>
-        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-xl p-5">
-            <span class="text-xs font-medium text-[var(--color-text-muted)] block">Net Earnings</span>
-            <span class="text-2xl font-semibold text-[var(--color-primary)] mt-1.5 block">@header.NetWalletEarnings.ToString("N2") EGP</span>
-        </div>
+    <!-- 4 Dynamic KPI Cards -->
+    <div class="cd-kpi-grid">
+        <!-- Hero Teal Card: Net Earnings -->
+        <article class="cd-kpi cd-kpi-hero">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold cd-kpi-muted">Net Earnings</span>
+                <span class="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                </span>
+            </div>
+            <strong class="text-2xl font-bold tracking-tight my-1.5" x-text="fmtEgp(stats.netEarnings)"></strong>
+            <div class="flex items-center gap-2 text-xs cd-kpi-muted">
+                <template x-if="deltaText(stats.netEarnings, stats.prevNetEarnings)">
+                    <span class="cd-delta" :class="stats.netEarnings >= stats.prevNetEarnings ? 'cd-delta-up' : 'cd-delta-down'"
+                          x-text="deltaText(stats.netEarnings, stats.prevNetEarnings)"></span>
+                </template>
+                <span x-text="'in last ' + stats.label"></span>
+            </div>
+        </article>
+
+        <!-- Total Orders -->
+        <article class="cd-kpi">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold text-[var(--color-text-muted)]">Total Orders</span>
+                <span class="w-7 h-7 rounded-lg bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                </span>
+            </div>
+            <strong class="text-2xl font-bold text-[var(--color-text)] tracking-tight my-1.5" x-text="stats.totalOrders"></strong>
+            <div class="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+                <template x-if="deltaText(stats.totalOrders, stats.prevTotalOrders)">
+                    <span class="cd-delta" :class="stats.totalOrders >= stats.prevTotalOrders ? 'cd-delta-up' : 'cd-delta-down'"
+                          x-text="deltaText(stats.totalOrders, stats.prevTotalOrders)"></span>
+                </template>
+                <span x-text="stats.completedOrders + ' completed'"></span>
+            </div>
+        </article>
+
+        <!-- Live Kitchen Queue -->
+        <a href="/ChefDashboard/Orders" class="cd-kpi hover:border-[var(--color-primary)] transition-colors">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold text-[var(--color-text-muted)]">Active Queue</span>
+                <span class="w-7 h-7 rounded-lg bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                </span>
+            </div>
+            <strong class="text-2xl font-bold text-[var(--color-text)] tracking-tight my-1.5">@header.ActiveOrdersCount</strong>
+            <div class="text-xs text-[var(--color-text-muted)]">
+                @header.PendingOrdersCount pending · @header.PreparingOrdersCount preparing · @header.ReadyOrdersCount ready
+            </div>
+        </a>
+
+        <!-- Avg Order Value & Rating -->
+        <article class="cd-kpi">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold text-[var(--color-text-muted)]">Avg. Order Value</span>
+                <span class="w-7 h-7 rounded-lg bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trending-up"></use></svg>
+                </span>
+            </div>
+            <strong class="text-2xl font-bold text-[var(--color-text)] tracking-tight my-1.5" x-text="fmtEgp(stats.averageOrderValue)"></strong>
+            <div class="text-xs text-[var(--color-text-muted)]">
+                @if (Model.ReviewsCount > 0)
+                {
+                    <span>★ @Model.AverageRating.ToString("0.0") (@Model.ReviewsCount review@(Model.ReviewsCount == 1 ? "" : "s"))</span>
+                }
+                else
+                {
+                    <span>No customer reviews yet</span>
+                }
+            </div>
+        </article>
     </div>
 
-    <!-- Quick Shortcuts -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <a href="/MenuManagement"
-           class="bg-[var(--color-card-bg)] border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-6 transition-colors flex items-center justify-between gap-4">
-            <div>
-                <h2 class="text-base font-semibold text-[var(--color-text)]">Menu &amp; Dishes (@header.DishesCount)</h2>
-                <p class="text-sm text-[var(--color-text-muted)] mt-1">Manage dishes, prices, availability, and options.</p>
-            </div>
-            <svg class="w-5 h-5 text-[var(--color-text-muted)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
-        </a>
+    <!-- ROW 1: Chart 1 (Revenue & Net Earnings Area/Line) + Chart 2 (Orders by Status Donut) -->
+    <div class="cd-charts-row-1">
+        <!-- CHART 1: Revenue & Net Earnings Over Time -->
+        <section class="cd-panel">
+            <header class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div>
+                    <h2 class="text-base font-semibold text-[var(--color-text)]">Net Earnings &amp; Gross Sales</h2>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5" x-text="'Completed order revenue over the last ' + stats.label"></p>
+                </div>
+                <div class="flex items-center gap-4 text-xs font-medium text-[var(--color-text-muted)]">
+                    <span class="inline-flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full" style="background: var(--cd-coral);"></span>
+                        Net Earnings
+                    </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full" style="background: var(--cd-ink);"></span>
+                        Gross Sales
+                    </span>
+                </div>
+            </header>
 
-        <a href="/Chefs/EditProfile?tab=hours"
-           class="bg-[var(--color-card-bg)] border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-6 transition-colors flex items-center justify-between gap-4">
-            <div>
-                <h2 class="text-base font-semibold text-[var(--color-text)]">Kitchen Profile &amp; Hours</h2>
-                <p class="text-sm text-[var(--color-text-muted)] mt-1">Update details, working hours, and documents.</p>
-            </div>
-            <svg class="w-5 h-5 text-[var(--color-text-muted)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
-        </a>
+            <div class="cd-line-wrap">
+                <div class="cd-line-y">
+                    <template x-for="(tick, ti) in yTicks()" :key="ti">
+                        <span x-text="fmtAxis(tick)"></span>
+                    </template>
+                </div>
 
-        <a href="/ChefDashboard/Orders"
-           class="bg-[var(--color-card-bg)] border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-6 transition-colors flex items-center justify-between gap-4">
-            <div>
-                <h2 class="text-base font-semibold text-[var(--color-text)]">Live Orders (@header.ActiveOrdersCount)</h2>
-                <p class="text-sm text-[var(--color-text-muted)] mt-1">Accept, prepare, and complete incoming orders.</p>
+                <div class="cd-line-plot" @@mouseleave="hoverIdx = null">
+                    <svg viewBox="0 0 600 200" preserveAspectRatio="none" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="cdNetAreaGrad" x1="0" x2="0" y1="0" y2="1">
+                                <stop offset="0%" stop-color="var(--cd-coral)" stop-opacity="0.28" />
+                                <stop offset="100%" stop-color="var(--cd-coral)" stop-opacity="0.02" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Horizontal Gridlines -->
+                        <line x1="0" x2="600" y1="0" y2="0" stroke="var(--cd-grid)" stroke-dasharray="3 4" vector-effect="non-scaling-stroke" />
+                        <line x1="0" x2="600" y1="50" y2="50" stroke="var(--cd-grid)" stroke-dasharray="3 4" vector-effect="non-scaling-stroke" />
+                        <line x1="0" x2="600" y1="100" y2="100" stroke="var(--cd-grid)" stroke-dasharray="3 4" vector-effect="non-scaling-stroke" />
+                        <line x1="0" x2="600" y1="150" y2="150" stroke="var(--cd-grid)" stroke-dasharray="3 4" vector-effect="non-scaling-stroke" />
+                        <line x1="0" x2="600" y1="200" y2="200" stroke="var(--color-border)" vector-effect="non-scaling-stroke" />
+
+                        <!-- Area & Curves -->
+                        <path :d="netAreaPath()" fill="url(#cdNetAreaGrad)" />
+                        <path :d="grossLinePath()" fill="none" stroke="var(--cd-ink)" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+                        <path :d="netLinePath()" fill="none" stroke="var(--cd-coral)" stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+
+                        <!-- Hover Crosshair & Dots -->
+                        <template x-if="hoverIdx !== null">
+                            <g>
+                                <line :x1="pointX(hoverIdx)" :x2="pointX(hoverIdx)" y1="0" y2="200" stroke="var(--color-text-muted)" stroke-dasharray="2 4" vector-effect="non-scaling-stroke" />
+                                <circle :cx="pointX(hoverIdx)" :cy="pointY(stats.timelineGross[hoverIdx])" r="4" fill="var(--cd-ink)" />
+                                <circle :cx="pointX(hoverIdx)" :cy="pointY(stats.timelineNet[hoverIdx])" r="5" fill="var(--cd-coral)" />
+                            </g>
+                        </template>
+                    </svg>
+
+                    <!-- Interactive Hover Zones -->
+                    <div class="cd-line-zones">
+                        <template x-for="(lbl, idx) in stats.timelineLabels" :key="idx">
+                            <button type="button"
+                                    :aria-label="lbl + ': Net ' + fmtEgp(stats.timelineNet[idx])"
+                                    @@mouseenter="hoverIdx = idx"
+                                    @@focus="hoverIdx = idx"
+                                    @@click="hoverIdx = idx"></button>
+                        </template>
+                    </div>
+
+                    <!-- Floating Tooltip -->
+                    <div x-show="hoverIdx !== null" x-cloak class="cd-tooltip"
+                         :style="'left: clamp(78px, ' + tooltipLeftPct() + '%, calc(100% - 78px))'">
+                        <p class="font-semibold text-[var(--color-text)] mb-1" x-text="hoverIdx !== null ? stats.timelineLabels[hoverIdx] : ''"></p>
+                        <div class="flex justify-between gap-3 text-[var(--color-text-muted)]">
+                            <span>Net</span>
+                            <strong class="text-[var(--color-text)]" x-text="hoverIdx !== null ? fmtEgp(stats.timelineNet[hoverIdx]) : ''"></strong>
+                        </div>
+                        <div class="flex justify-between gap-3 text-[var(--color-text-muted)]">
+                            <span>Gross</span>
+                            <strong class="text-[var(--color-text)]" x-text="hoverIdx !== null ? fmtEgp(stats.timelineGross[hoverIdx]) : ''"></strong>
+                        </div>
+                        <div class="flex justify-between gap-3 text-[var(--color-text-muted)] mt-0.5 pt-1 border-t border-[var(--color-border)]">
+                            <span>Orders</span>
+                            <strong class="text-[var(--color-text)]" x-text="hoverIdx !== null ? stats.timelineOrders[hoverIdx] : 0"></strong>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <svg class="w-5 h-5 text-[var(--color-text-muted)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
-        </a>
+
+            <div class="cd-line-axis">
+                <template x-for="(lbl, idx) in stats.timelineLabels" :key="idx">
+                    <span x-text="lbl"></span>
+                </template>
+            </div>
+        </section>
+
+        <!-- CHART 2: Orders by Status Donut -->
+        <section class="cd-panel flex flex-col justify-between">
+            <header class="mb-3">
+                <h2 class="text-base font-semibold text-[var(--color-text)]">Orders by Status</h2>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Click a status to highlight its share.</p>
+            </header>
+
+            <div>
+                <div class="cd-donut-ring">
+                    <svg viewBox="0 0 124 124" class="w-full h-full" aria-hidden="true">
+                        <circle cx="62" cy="62" r="47" fill="none" stroke="var(--cd-track)" stroke-width="14" />
+                        <g transform="rotate(-90 62 62)">
+                            <template x-for="(slice, si) in donutSegments()" :key="slice.label">
+                                <circle cx="62" cy="62" r="47" pathLength="100"
+                                        fill="none" stroke-width="14"
+                                        :stroke="toneColor(slice.tone)"
+                                        :stroke-dasharray="slice.dash"
+                                        :stroke-dashoffset="slice.offset"
+                                        :style="'transition: opacity 0.2s ease; opacity: ' + (activeStatus !== null && activeStatus !== si ? '0.25' : '1')" />
+                            </template>
+                        </g>
+                    </svg>
+                    <div class="cd-donut-center">
+                        <strong class="text-2xl font-bold text-[var(--color-text)] leading-none"
+                                x-text="activeStatus === null ? stats.totalOrders : stats.statusBreakdown[activeStatus].count"></strong>
+                        <span class="text-xs text-[var(--color-text-muted)] mt-1"
+                              x-text="activeStatus === null ? 'Total Orders' : stats.statusBreakdown[activeStatus].label"></span>
+                    </div>
+                </div>
+
+                <!-- Legend with Progress Bars -->
+                <div class="space-y-1.5">
+                    <template x-for="(s, si) in stats.statusBreakdown" :key="s.label">
+                        <button type="button"
+                                @@click="activeStatus = (activeStatus === si ? null : si)"
+                                :class="activeStatus === si ? 'bg-[var(--color-surface-subtle)]' : 'hover:bg-[var(--color-surface-subtle)]/70'"
+                                class="w-full grid grid-cols-12 items-center gap-2 px-2 py-1.5 rounded-lg text-left transition-colors cursor-pointer">
+                            <span class="col-span-5 inline-flex items-center gap-2 text-xs font-medium text-[var(--color-text)] truncate">
+                                <span class="w-2 h-2 rounded-full shrink-0" :style="'background:' + toneColor(s.tone)"></span>
+                                <span class="truncate" x-text="s.label"></span>
+                            </span>
+                            <span class="col-span-4 cd-mix-track">
+                                <span class="cd-mix-fill" :style="'width:' + s.percent + '%; background:' + toneColor(s.tone)"></span>
+                            </span>
+                            <span class="col-span-3 text-right text-xs font-semibold text-[var(--color-text)]"
+                                  x-text="s.count + ' (' + s.percent + '%)'"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ROW 2: Chart 3 (Top Selling Dishes Horizontal Bars) + Chart 4 (Orders by Day of Week Vertical Bars) -->
+    <div class="cd-charts-row-2">
+        <!-- CHART 3: Top 5 Best-Selling Dishes -->
+        <section class="cd-panel">
+            <header class="flex items-start justify-between gap-3 mb-4">
+                <div>
+                    <h2 class="text-base font-semibold text-[var(--color-text)]">Top Selling Dishes</h2>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5" x-text="'Most ordered dishes in the last ' + stats.label"></p>
+                </div>
+                <a href="/MenuManagement" class="text-xs font-medium text-[var(--color-primary)] hover:underline shrink-0">View Menu</a>
+            </header>
+
+            <template x-if="stats.topDishes.length === 0">
+                <div class="py-12 text-center text-sm text-[var(--color-text-muted)]">
+                    No dish orders recorded in this period yet.
+                </div>
+            </template>
+
+            <div class="space-y-4" x-show="stats.topDishes.length > 0">
+                <template x-for="(dish, di) in stats.topDishes" :key="di">
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between gap-3 text-sm">
+                            <span class="font-medium text-[var(--color-text)] truncate" x-text="dish.dishName"></span>
+                            <span class="text-xs text-[var(--color-text-muted)] shrink-0">
+                                <strong class="text-[var(--color-text)]" x-text="dish.quantity + ' sold'"></strong>
+                                · <span x-text="fmtEgp(dish.revenue)"></span>
+                            </span>
+                        </div>
+                        <div class="cd-dish-bar-track">
+                            <div class="cd-dish-bar-fill" :style="'width:' + dishBarPct(dish.quantity) + '%'"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <!-- CHART 4: Orders by Day of Week (Stacked Column Chart) -->
+        <section class="cd-panel">
+            <header class="flex flex-wrap items-start justify-between gap-3 mb-2">
+                <div>
+                    <h2 class="text-base font-semibold text-[var(--color-text)]">Orders by Day of Week</h2>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Spot your busiest pickup days.</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-[var(--color-text-muted)]">
+                    <span class="inline-flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full" style="background: var(--cd-ink);"></span>
+                        Completed
+                    </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full" style="background: var(--cd-teal);"></span>
+                        Other
+                    </span>
+                </div>
+            </header>
+
+            <!-- Interactive Readout Line -->
+            <div class="h-5 flex items-center justify-end text-xs font-semibold text-[var(--color-text)]">
+                <template x-if="activeWeekday !== null">
+                    <span x-text="weekdayReadout(activeWeekday)"></span>
+                </template>
+            </div>
+
+            <div class="cd-stack-plot" @@mouseleave="activeWeekday = null">
+                <template x-for="(day, di) in stats.weekdayOrders" :key="day.day">
+                    <button type="button"
+                            class="cd-stack-col"
+                            :class="activeWeekday === di ? 'is-active' : ''"
+                            @@mouseenter="activeWeekday = di"
+                            @@focus="activeWeekday = di"
+                            @@click="activeWeekday = di">
+                        <span class="cd-stack-track">
+                            <span class="cd-stack-bar" :style="'height:' + weekdayHeightPct(day) + '%'">
+                                <span x-show="day.other > 0" class="cd-stack-upper" :style="'flex-grow:' + day.other"></span>
+                                <span x-show="day.completed > 0" class="cd-stack-lower" :style="'flex-grow:' + day.completed"></span>
+                            </span>
+                        </span>
+                        <span class="text-xs text-[var(--color-text-muted)] mt-2 font-medium" x-text="day.day"></span>
+                    </button>
+                </template>
+            </div>
+        </section>
     </div>
 </div>
+
+@section Scripts {
+<script>
+    function chefDashboardAnalytics() {
+        const periods = @Html.Raw(periodsJson);
+        return {
+            periods,
+            period: '30d',
+            hoverIdx: null,
+            activeStatus: null,
+            activeWeekday: null,
+
+            get stats() {
+                return this.periods[this.period] || this.periods['30d'];
+            },
+
+            setPeriod(p) {
+                this.period = p;
+                this.hoverIdx = null;
+                this.activeStatus = null;
+                this.activeWeekday = null;
+            },
+
+            fmtEgp(val) {
+                const n = Number(val || 0);
+                return n.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' EGP';
+            },
+
+            fmtAxis(val) {
+                if (val === 0) return '0';
+                if (val >= 1000) return (val / 1000).toFixed(val % 1000 === 0 ? 0 : 1) + 'k';
+                return Math.round(val).toString();
+            },
+
+            deltaText(cur, prev) {
+                if (!prev || prev <= 0) return '';
+                const pct = ((cur - prev) / prev) * 100;
+                const sign = pct >= 0 ? '+' : '−';
+                return sign + Math.abs(pct).toFixed(1) + '%';
+            },
+
+            maxLineValue() {
+                const all = [...(this.stats.timelineNet || []), ...(this.stats.timelineGross || [])];
+                const raw = Math.max(100, ...all);
+                const step = raw <= 500 ? 100 : raw <= 2000 ? 500 : 1000;
+                return Math.ceil((raw * 1.15) / step) * step;
+            },
+
+            yTicks() {
+                const max = this.maxLineValue();
+                return [max, max * 0.75, max * 0.5, max * 0.25, 0];
+            },
+
+            pointX(idx) {
+                const len = Math.max(1, (this.stats.timelineLabels || []).length);
+                return len > 1 ? (idx / (len - 1)) * 600 : 300;
+            },
+
+            pointY(val) {
+                const max = this.maxLineValue();
+                return 200 - (Math.max(0, Number(val || 0)) / max) * 200;
+            },
+
+            smoothCurve(values) {
+                if (!values || values.length === 0) return '';
+                const pts = values.map((v, i) => [this.pointX(i), this.pointY(v)]);
+                return pts.reduce((acc, [x, y], i) => {
+                    if (i === 0) return `M ${x.toFixed(1)} ${y.toFixed(1)}`;
+                    const [px, py] = pts[i - 1];
+                    const mid = ((x + px) / 2).toFixed(1);
+                    return `${acc} C ${mid} ${py.toFixed(1)}, ${mid} ${y.toFixed(1)}, ${x.toFixed(1)} ${y.toFixed(1)}`;
+                }, '');
+            },
+
+            netLinePath() {
+                return this.smoothCurve(this.stats.timelineNet);
+            },
+
+            grossLinePath() {
+                return this.smoothCurve(this.stats.timelineGross);
+            },
+
+            netAreaPath() {
+                const line = this.netLinePath();
+                if (!line) return '';
+                const len = (this.stats.timelineNet || []).length;
+                const lastX = this.pointX(Math.max(0, len - 1)).toFixed(1);
+                return `${line} L ${lastX} 200 L 0 200 Z`;
+            },
+
+            tooltipLeftPct() {
+                if (this.hoverIdx === null) return 50;
+                const len = Math.max(1, (this.stats.timelineLabels || []).length);
+                return len > 1 ? (this.hoverIdx / (len - 1)) * 100 : 50;
+            },
+
+            toneColor(tone) {
+                const map = {
+                    teal: 'var(--cd-teal)',
+                    coral: 'var(--cd-coral)',
+                    ochre: 'var(--cd-ochre)',
+                    ink: 'var(--cd-ink)'
+                };
+                return map[tone] || 'var(--cd-ink)';
+            },
+
+            donutSegments() {
+                const slices = this.stats.statusBreakdown || [];
+                const total = slices.reduce((sum, s) => sum + s.count, 0);
+                if (total === 0) return [];
+                let offset = 0;
+                return slices.map(s => {
+                    const ratio = (s.count / total) * 100;
+                    const gap = ratio > 2 ? 1.2 : 0;
+                    const seg = {
+                        label: s.label,
+                        tone: s.tone,
+                        dash: `${Math.max(0, ratio - gap).toFixed(2)} 100`,
+                        offset: (-offset).toFixed(2)
+                    };
+                    offset += ratio;
+                    return seg;
+                });
+            },
+
+            dishBarPct(qty) {
+                const max = Math.max(1, ...(this.stats.topDishes || []).map(d => d.quantity));
+                return Math.max(6, Math.round((qty / max) * 100));
+            },
+
+            weekdayHeightPct(day) {
+                const total = day.completed + day.other;
+                if (total === 0) return 0;
+                const max = Math.max(1, ...(this.stats.weekdayOrders || []).map(d => d.completed + d.other));
+                return Math.max(8, Math.round((total / max) * 100));
+            },
+
+            weekdayReadout(idx) {
+                const d = (this.stats.weekdayOrders || [])[idx];
+                if (!d) return '';
+                const total = d.completed + d.other;
+                return `${d.day} · ${total} order${total === 1 ? '' : 's'} · ${this.fmtEgp(d.revenue)}`;
+            }
+        };
+    }
+</script>
+}

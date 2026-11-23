@@ -97,3 +97,62 @@ public class ChefDocumentsVM
     public string Status { get; set; } = "Pending";
     public List<ChefDocument> Documents { get; set; } = [];
 }
+
+public class ChefDashboardPeriodVM
+{
+    public string Key { get; set; } = "30d";
+    public string Label { get; set; } = "30 days";
+    public decimal NetEarnings { get; set; }
+    public decimal GrossSales { get; set; }
+    public decimal PrevNetEarnings { get; set; }
+    public int TotalOrders { get; set; }
+    public int PrevTotalOrders { get; set; }
+    public int CompletedOrders { get; set; }
+    public decimal AverageOrderValue { get; set; }
+
+    // Chart 1: Revenue & Net Earnings over time (line/area chart)
+    public List<string> TimelineLabels { get; set; } = [];
+    public List<decimal> TimelineNet { get; set; } = [];
+    public List<decimal> TimelineGross { get; set; } = [];
+    public List<int> TimelineOrders { get; set; } = [];
+
+    // Chart 2: Orders by status (donut/pie chart)
+    public List<StatusSliceVM> StatusBreakdown { get; set; } = [];
+
+    // Chart 3: Top 5 best-selling dishes (horizontal bar chart)
+    public List<TopDishStatVM> TopDishes { get; set; } = [];
+
+    // Chart 4: Orders by day of week (vertical stacked bar chart)
+    public List<WeekdayOrderStatVM> WeekdayOrders { get; set; } = [];
+}
+
+public class StatusSliceVM
+{
+    public string Label { get; set; } = string.Empty;
+    public string Tone { get; set; } = "ink";
+    public int Count { get; set; }
+    public int Percent { get; set; }
+}
+
+public class TopDishStatVM
+{
+    public string DishName { get; set; } = string.Empty;
+    public int Quantity { get; set; }
+    public decimal Revenue { get; set; }
+}
+
+public class WeekdayOrderStatVM
+{
+    public string Day { get; set; } = string.Empty;
+    public int Completed { get; set; }
+    public int Other { get; set; }
+    public decimal Revenue { get; set; }
+}
+
+public class ChefDashboardVM
+{
+    public ChefPortalHeaderVM Header { get; set; } = new();
+    public double AverageRating { get; set; }
+    public int ReviewsCount { get; set; }
+    public Dictionary<string, ChefDashboardPeriodVM> Periods { get; set; } = new();
+}

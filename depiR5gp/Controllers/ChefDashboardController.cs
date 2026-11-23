@@ -25,8 +25,168 @@ public class ChefDashboardController(
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
-        await PopulateHeaderAsync(chef);
-        return View();
+
+        var header = await ChefPortalHeaderVM.LoadAsync(context, chef);
+        ViewData["ChefHeader"] = header;
+
+        var todayUtc = DateTime.UtcNow.Date;
+        var windowStart = todayUtc.AddDays(-180);
+
+        var recentOrders = await context.Orders
+            .AsNoTracking()
+            .Where(o => o.ChefProfileId == chef.Id && o.CreatedAt >= windowStart)
+            .Select(o => new OrderAnalyticsRow(
+                o.Id,
+                o.Status,
+                o.Total,
+                o.CommissionAmount,
+                o.CreatedAt,
+                o.Items.Select(i => new OrderItemAnalyticsRow(i.DishName, i.Quantity, i.UnitPrice)).ToList()))
+            .ToListAsync();
+
+        var approvedRatings = await context.Reviews
+            .AsNoTracking()
+            .Where(r => r.ChefProfileId == chef.Id && r.ModerationStatus == "Approved")
+            .Select(r => r.Rating)
+            .ToListAsync();
+
+        var vm = new ChefDashboardVM
+        {
+            Header = header,
+            ReviewsCount = approvedRatings.Count,
+            AverageRating = approvedRatings.Count > 0 ? Math.Round(approvedRatings.Average(r => (double)r), 1) : 0,
+            Periods = new Dictionary<string, ChefDashboardPeriodVM>
+            {
+                ["7d"] = BuildPeriodAnalytics("7d", "7 days", 7, 1, todayUtc, recentOrders),
+                ["30d"] = BuildPeriodAnalytics("30d", "30 days", 30, 3, todayUtc, recentOrders),
+                ["90d"] = BuildPeriodAnalytics("90d", "90 days", 90, 10, todayUtc, recentOrders)
+            }
+        };
+
+        return View(vm);
+    }
+
+    private sealed record OrderItemAnalyticsRow(string DishName, int Quantity, decimal UnitPrice);
+    private sealed record OrderAnalyticsRow(
+        int Id,
+        string Status,
+        decimal Total,
+        decimal CommissionAmount,
+        DateTime CreatedAt,
+        List<OrderItemAnalyticsRow> Items);
+
+    private static ChefDashboardPeriodVM BuildPeriodAnalytics(
+        string key,
+        string label,
+        int totalDays,
+        int bucketDays,
+        DateTime todayUtc,
+        List<OrderAnalyticsRow> allOrders)
+    {
+        var start = todayUtc.AddDays(-(totalDays - 1));
+        var prevStart = start.AddDays(-totalDays);
+
+        var curOrders = allOrders.Where(o => o.CreatedAt >= start).ToList();
+        var prevOrders = allOrders.Where(o => o.CreatedAt >= prevStart && o.CreatedAt < start).ToList();
+
+        var curCompleted = curOrders.Where(o => o.Status == "Completed").ToList();
+        var prevCompleted = prevOrders.Where(o => o.Status == "Completed").ToList();
+
+        var netEarnings = curCompleted.Sum(o => o.Total - o.CommissionAmount);
+        var grossSales = curCompleted.Sum(o => o.Total);
+        var prevNet = prevCompleted.Sum(o => o.Total - o.CommissionAmount);
+        var avgOrder = curCompleted.Count > 0 ? Math.Round(grossSales / curCompleted.Count, 2) : 0m;
+
+        // Chart 1: Timeline buckets
+        var timelineLabels = new List<string>();
+        var timelineNet = new List<decimal>();
+        var timelineGross = new List<decimal>();
+        var timelineOrders = new List<int>();
+
+        int bucketCount = Math.Max(1, totalDays / bucketDays);
+        for (int b = 0; b < bucketCount; b++)
+        {
+            var bStart = start.AddDays(b * bucketDays);
+            var bEnd = b == bucketCount - 1 ? todayUtc.AddDays(1) : bStart.AddDays(bucketDays);
+
+            var bucketOrders = curOrders.Where(o => o.CreatedAt >= bStart && o.CreatedAt < bEnd).ToList();
+            var bucketCompleted = bucketOrders.Where(o => o.Status == "Completed").ToList();
+
+            timelineLabels.Add(bucketDays == 1 ? bStart.ToString("ddd") : bStart.ToString("MMM d"));
+            timelineNet.Add(Math.Round(bucketCompleted.Sum(o => o.Total - o.CommissionAmount), 2));
+            timelineGross.Add(Math.Round(bucketCompleted.Sum(o => o.Total), 2));
+            timelineOrders.Add(bucketOrders.Count);
+        }
+
+        // Chart 2: Orders by status
+        int completedCnt = curOrders.Count(o => o.Status == "Completed");
+        int activeCnt = curOrders.Count(o => o.Status is "Accepted" or "Preparing" or "Ready");
+        int pendingCnt = curOrders.Count(o => o.Status == "Pending");
+        int cancelledCnt = curOrders.Count(o => o.Status is "Cancelled" or "Rejected");
+        int statusTotal = curOrders.Count;
+
+        int Pct(int c) => statusTotal > 0 ? (int)Math.Round(c * 100.0 / statusTotal) : 0;
+
+        var statusBreakdown = new List<StatusSliceVM>
+        {
+            new() { Label = "Completed", Tone = "teal", Count = completedCnt, Percent = Pct(completedCnt) },
+            new() { Label = "In Progress", Tone = "ink", Count = activeCnt, Percent = Pct(activeCnt) },
+            new() { Label = "Pending", Tone = "ochre", Count = pendingCnt, Percent = Pct(pendingCnt) },
+            new() { Label = "Cancelled", Tone = "coral", Count = cancelledCnt, Percent = Pct(cancelledCnt) }
+        };
+
+        // Chart 3: Top 5 best-selling dishes
+        var topDishes = curOrders
+            .Where(o => o.Status is not ("Cancelled" or "Rejected"))
+            .SelectMany(o => o.Items)
+            .GroupBy(i => i.DishName)
+            .Select(g => new TopDishStatVM
+            {
+                DishName = g.Key,
+                Quantity = g.Sum(x => x.Quantity),
+                Revenue = Math.Round(g.Sum(x => x.Quantity * x.UnitPrice), 2)
+            })
+            .OrderByDescending(x => x.Quantity)
+            .ThenByDescending(x => x.Revenue)
+            .Take(5)
+            .ToList();
+
+        // Chart 4: Orders by day of week (Sun..Sat)
+        string[] shortDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        var weekdayOrders = Enumerable.Range(0, 7).Select(dow =>
+        {
+            var dayOrders = curOrders.Where(o => (int)o.CreatedAt.DayOfWeek == dow).ToList();
+            int comp = dayOrders.Count(o => o.Status == "Completed");
+            int other = dayOrders.Count - comp;
+            decimal rev = Math.Round(dayOrders.Where(o => o.Status == "Completed").Sum(o => o.Total - o.CommissionAmount), 2);
+            return new WeekdayOrderStatVM
+            {
+                Day = shortDays[dow],
+                Completed = comp,
+                Other = other,
+                Revenue = rev
+            };
+        }).ToList();
+
+        return new ChefDashboardPeriodVM
+        {
+            Key = key,
+            Label = label,
+            NetEarnings = Math.Round(netEarnings, 2),
+            GrossSales = Math.Round(grossSales, 2),
+            PrevNetEarnings = Math.Round(prevNet, 2),
+            TotalOrders = curOrders.Count,
+            PrevTotalOrders = prevOrders.Count,
+            CompletedOrders = completedCnt,
+            AverageOrderValue = avgOrder,
+            TimelineLabels = timelineLabels,
+            TimelineNet = timelineNet,
+            TimelineGross = timelineGross,
+            TimelineOrders = timelineOrders,
+            StatusBreakdown = statusBreakdown,
+            TopDishes = topDishes,
+            WeekdayOrders = weekdayOrders
+        };
     }
 
     public IActionResult Profile() => RedirectToAction("EditProfile", "Chefs");
