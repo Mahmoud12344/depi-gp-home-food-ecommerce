@@ -21,7 +21,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-[var(--color-text)] tracking-tight">Menu &amp; Dishes</h1>
             <p class="text-sm text-[var(--color-text-muted)] mt-1">
-                @Model.Dishes.Count dish@(Model.Dishes.Count == 1 ? "" : "es") · @Model.AvailableCount available · @Model.SoldOutCount sold out
+                @Model.TotalCount dish@(Model.TotalCount == 1 ? "" : "es") · @Model.AvailableCount available · @Model.SoldOutCount sold out
             </p>
         </div>
 
@@ -47,7 +47,7 @@
             </div>
             <div class="pt-2">
                 <a href="/MenuManagement/Create"
-                   class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[15px] font-medium transition-colors">
+                   class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-medium transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#plus"></use></svg>
                     <span>Add Your First Dish</span>
                 </a>
@@ -56,8 +56,8 @@
     }
     else
     {
-        <!-- Full-Width Dish Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- 3-Per-Row Dish Grid -->
+        <div class="chef-menu-grid">
             @foreach (var dish in Model.Dishes)
             {
                 <div x-data="{
@@ -177,6 +177,65 @@
                 </div>
             }
         </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            var startItem = ((Model.CurrentPage - 1) * Model.PageSize) + 1;
+            var endItem = Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount);
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-5 border-t border-[var(--color-border)]">
+                <p class="text-sm text-[var(--color-text-muted)]">
+                    Showing <strong class="text-[var(--color-text)]">@startItem–@endItem</strong> of <strong class="text-[var(--color-text)]">@Model.TotalCount</strong> dishes
+                </p>
+
+                <nav aria-label="Menu pagination" class="flex items-center gap-1.5">
+                    @if (Model.CurrentPage > 1)
+                    {
+                        <a href="/MenuManagement?page=@(Model.CurrentPage - 1)"
+                           class="px-3.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-card-bg)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] transition-colors">
+                            Previous
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="px-3.5 py-1.5 rounded-lg border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-muted)] opacity-50 cursor-not-allowed">
+                            Previous
+                        </span>
+                    }
+
+                    @for (int p = 1; p <= Model.TotalPages; p++)
+                    {
+                        if (p == Model.CurrentPage)
+                        {
+                            <span class="w-9 h-9 rounded-lg bg-[var(--color-primary)] text-white text-sm font-semibold inline-flex items-center justify-center">
+                                @p
+                            </span>
+                        }
+                        else
+                        {
+                            <a href="/MenuManagement?page=@p"
+                               class="w-9 h-9 rounded-lg border border-[var(--color-border)] bg-[var(--color-card-bg)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] inline-flex items-center justify-center transition-colors">
+                                @p
+                            </a>
+                        }
+                    }
+
+                    @if (Model.CurrentPage < Model.TotalPages)
+                    {
+                        <a href="/MenuManagement?page=@(Model.CurrentPage + 1)"
+                           class="px-3.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-card-bg)] hover:bg-[var(--color-surface-subtle)] text-sm font-medium text-[var(--color-text)] transition-colors">
+                            Next
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="px-3.5 py-1.5 rounded-lg border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-muted)] opacity-50 cursor-not-allowed">
+                            Next
+                        </span>
+                    }
+                </nav>
+            </div>
+        }
     }
 
     <!-- Delete Confirmation Modal -->

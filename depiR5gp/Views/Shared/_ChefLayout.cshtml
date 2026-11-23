@@ -1,6 +1,8 @@
 @using depiR5gp.ViewModels
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["HideHeader"] = true;
+    ViewData["HideFooter"] = true;
 
     var activeTab = (ViewData["ActiveChefTab"] as string ?? "overview").ToLowerInvariant();
     var activeSubTab = (ViewData["ActiveChefSubTab"] as string ?? "").ToLowerInvariant();
@@ -32,7 +34,7 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        min-height: calc(100vh - 4.5rem);
+        min-height: 100vh;
         background-color: var(--color-bg);
     }
 
@@ -76,9 +78,27 @@
     }
 
     .chef-container {
-        max-width: 1040px;
+        max-width: 1160px;
         margin-inline: auto;
         width: 100%;
+    }
+
+    .chef-menu-grid {
+        display: grid;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+
+    @@media (min-width: 768px) {
+        .chef-menu-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (min-width: 1024px) {
+        .chef-menu-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
     }
 
     .chef-setting-row {

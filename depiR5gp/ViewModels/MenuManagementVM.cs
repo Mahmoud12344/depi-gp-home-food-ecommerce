@@ -20,8 +20,12 @@ public class MenuDishListItemVM
 public class MenuIndexVM
 {
     public List<MenuDishListItemVM> Dishes { get; set; } = [];
-    public int AvailableCount => Dishes.Count(d => d.IsAvailable);
-    public int SoldOutCount => Dishes.Count(d => !d.IsAvailable);
+    public int CurrentPage { get; set; } = 1;
+    public int PageSize { get; set; } = 6;
+    public int TotalCount { get; set; }
+    public int AvailableCount { get; set; }
+    public int SoldOutCount { get; set; }
+    public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalCount / PageSize) : 1;
 }
 
 public class DishFormVM

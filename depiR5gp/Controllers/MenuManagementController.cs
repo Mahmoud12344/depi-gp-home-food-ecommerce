@@ -20,16 +20,28 @@ public class MenuManagementController(
     private static readonly string[] ActiveOrderStatuses = ["Pending", "Accepted", "Preparing", "Ready"];
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1)
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
         await PopulateHeaderAsync(chef);
 
-        var dishes = await context.Dishes
+        const int pageSize = 6;
+        if (page < 1) page = 1;
+
+        var baseQuery = context.Dishes
             .AsNoTracking()
-            .Where(d => d.ChefProfileId == chef.Id && !d.IsArchived)
+            .Where(d => d.ChefProfileId == chef.Id && !d.IsArchived);
+
+        var totalCount = await baseQuery.CountAsync();
+        var availableCount = await baseQuery.CountAsync(d => d.IsAvailable);
+        var totalPages = Math.Max(1, (int)Math.Ceiling((double)totalCount / pageSize));
+        if (page > totalPages) page = totalPages;
+
+        var dishes = await baseQuery
             .OrderByDescending(d => d.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(d => new MenuDishListItemVM
             {
                 Id = d.Id,
@@ -44,7 +56,15 @@ public class MenuManagementController(
             })
             .ToListAsync();
 
-        return View(new MenuIndexVM { Dishes = dishes });
+        return View(new MenuIndexVM
+        {
+            Dishes = dishes,
+            CurrentPage = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            AvailableCount = availableCount,
+            SoldOutCount = totalCount - availableCount
+        });
     }
 
     [HttpGet]

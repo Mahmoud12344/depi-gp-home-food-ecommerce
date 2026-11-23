@@ -46,7 +46,10 @@
     @await Html.PartialAsync("~/Views/Shared/Icons/_Sprite.cshtml")
     
     <!-- Header -->
-    @await Html.PartialAsync("~/Views/Shared/Partials/_Header.cshtml")
+    @if (ViewData["HideHeader"] as bool? != true)
+    {
+        @await Html.PartialAsync("~/Views/Shared/Partials/_Header.cshtml")
+    }
 
     <!-- Main Content Area -->
     <main role="main" class="flex-1 @(noScroll ? "min-h-0 overflow-hidden flex flex-col" : "")">
