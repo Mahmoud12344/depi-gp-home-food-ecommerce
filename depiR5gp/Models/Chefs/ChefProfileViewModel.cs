@@ -1,4 +1,4 @@
-﻿namespace depiR5gp.Models.Chefs;
+namespace depiR5gp.Models.Chefs;
 
 public class ChefProfileViewModel
 {

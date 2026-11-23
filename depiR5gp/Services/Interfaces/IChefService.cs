@@ -1,4 +1,4 @@
-﻿using depiR5gp.Models.Chefs;
+using depiR5gp.Models.Chefs;
 
 namespace depiR5gp.Services.Interfaces {
     public interface IChefService {
