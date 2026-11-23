@@ -1,13 +1,11 @@
 @model depiR5gp.Models.Chefs.EditChefProfileViewModel
 @{
-    ViewData["Title"] = "Kitchen Profile & Settings - Chef Portal";
+    Layout = "~/Views/Shared/_ChefLayout.cshtml";
+    ViewData["Title"] = "Kitchen Profile";
     ViewData["ActiveChefTab"] = "profile";
+    ViewData["ActiveChefSubTab"] = Model.ActiveSection;
 
     var openDays = Model.WorkingHoursSchedule.Days.Where(d => d.IsOpen).ToList();
-    var closedDays = Model.WorkingHoursSchedule.Days.Where(d => !d.IsOpen).ToList();
-    var typicalHours = openDays.Count > 0
-        ? $"{openDays.First().OpenTime} – {openDays.First().CloseTime}"
-        : "Not scheduled yet";
 
     var docLabels = new Dictionary<string, (string Title, string Subtitle)>(StringComparer.OrdinalIgnoreCase)
     {
@@ -17,17 +15,17 @@
     };
 
     var docStatus = Model.DocumentsSection.Status;
-    var statusBadgeClass = docStatus switch
+    var statusDot = docStatus switch
     {
-        "Approved" => "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100 border-emerald-300 dark:border-emerald-800",
-        "Rejected" => "bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-100 border-rose-300 dark:border-rose-800",
-        _ => "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100 border-amber-300 dark:border-amber-800"
+        "Approved" => "bg-emerald-500",
+        "Rejected" => "bg-rose-500",
+        _ => "bg-amber-500"
     };
-    var statusBadgeText = docStatus switch
+    var statusText = docStatus switch
     {
-        "Approved" => "Verified & Active",
+        "Approved" => "Verified",
         "Rejected" => "Action Required",
-        _ => "Pending Verification"
+        _ => "Pending Review"
     };
 }
 
@@ -39,33 +37,36 @@
             url.searchParams.set('tab', name);
             window.history.replaceState({}, '', url);
         }
-    }" class="w-full pb-24">
+    }" class="w-full space-y-8">
 
-    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
+    <!-- Clean Page Header -->
+    <div class="space-y-5">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-semibold text-[var(--color-text)] tracking-tight">Kitchen Profile</h1>
+            <p class="text-[15px] text-[var(--color-text-muted)] mt-1">
+                Manage your public kitchen details, weekly pickup hours, and compliance documents.
+            </p>
+        </div>
 
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
-        <!-- Unified Profile Sub-Navigation Pills -->
-        <div class="flex flex-wrap items-center gap-2.5 bg-[var(--color-surface-subtle)] p-2 rounded-2xl border border-[var(--color-border)]">
+        <!-- Clean Underline Tabs -->
+        <div class="flex items-center gap-6 border-b border-[var(--color-border)] overflow-x-auto">
             <button type="button"
                     @@click="setSection('profile')"
                     :class="section === 'profile'
-                        ? 'bg-[var(--color-primary)] text-white shadow-xs'
-                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-card-bg)]'"
-                    class="flex-1 min-w-[140px] px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
-                <span>Kitchen Details</span>
+                        ? 'border-[var(--color-primary)] text-[var(--color-primary)] font-semibold'
+                        : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3.5 text-[15px] border-b-2 whitespace-nowrap transition-colors cursor-pointer">
+                Kitchen Details
             </button>
 
             <button type="button"
                     @@click="setSection('hours')"
                     :class="section === 'hours'
-                        ? 'bg-[var(--color-primary)] text-white shadow-xs'
-                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-card-bg)]'"
-                    class="flex-1 min-w-[140px] px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                        ? 'border-[var(--color-primary)] text-[var(--color-primary)] font-semibold'
+                        : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3.5 text-[15px] border-b-2 whitespace-nowrap transition-colors flex items-center gap-2 cursor-pointer">
                 <span>Working Hours</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold"
-                      :class="section === 'hours' ? 'bg-white/20 text-white' : 'bg-[var(--color-card-bg)] text-[var(--color-text-muted)]'">
+                <span class="px-2 py-0.5 rounded-full text-xs bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-muted)]">
                     @openDays.Count/7
                 </span>
             </button>
@@ -73,326 +74,289 @@
             <button type="button"
                     @@click="setSection('documents')"
                     :class="section === 'documents'
-                        ? 'bg-[var(--color-primary)] text-white shadow-xs'
-                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-card-bg)]'"
-                    class="flex-1 min-w-[140px] px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#file-text"></use></svg>
+                        ? 'border-[var(--color-primary)] text-[var(--color-primary)] font-semibold'
+                        : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]'"
+                    class="pb-3.5 text-[15px] border-b-2 whitespace-nowrap transition-colors flex items-center gap-2 cursor-pointer">
                 <span>Documents</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold"
-                      :class="section === 'documents' ? 'bg-white/20 text-white' : 'bg-[var(--color-card-bg)] text-[var(--color-text-muted)]'">
+                <span class="px-2 py-0.5 rounded-full text-xs bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-muted)]">
                     @Model.DocumentsSection.Documents.Count/3
                 </span>
             </button>
         </div>
+    </div>
 
-        <!-- ========================================================= -->
-        <!-- SECTION 1: KITCHEN PROFILE DETAILS                        -->
-        <!-- ========================================================= -->
-        <div x-show="section === 'profile'" x-cloak
-             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div class="border-b border-[var(--color-border-light)] pb-4">
-                <h2 class="text-lg font-bold uppercase tracking-tight text-[var(--color-text)]">Kitchen Profile Details</h2>
-                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-                    Update your kitchen name, bio, pickup neighborhood, address, profile photo, and order availability.
-                </p>
-            </div>
+    <!-- ========================================================= -->
+    <!-- SECTION 1: KITCHEN PROFILE DETAILS                        -->
+    <!-- ========================================================= -->
+    <div x-show="section === 'profile'" x-cloak>
+        <form asp-controller="Chefs" asp-action="EditProfile" method="post" enctype="multipart/form-data" class="divide-y divide-[var(--color-border)]">
+            @Html.AntiForgeryToken()
 
-            <form asp-controller="Chefs" asp-action="EditProfile" method="post" enctype="multipart/form-data" class="space-y-6 text-xs">
-                @Html.AntiForgeryToken()
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly"
+                     class="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-sm text-rose-700 dark:text-rose-300 font-medium"></div>
+            }
 
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    <div asp-validation-summary="ModelOnly"
-                         class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 font-medium"></div>
-                }
-
-                <!-- Profile Photo -->
-                <div class="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)]">
+            <!-- Row: Photo -->
+            <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-4">
+                    <label asp-for="PhotoFile" class="block text-[15px] font-medium text-[var(--color-text)]">Kitchen Photo</label>
+                    <p class="text-sm text-[var(--color-text-muted)] mt-1">Shown on your public chef storefront and dish cards.</p>
+                </div>
+                <div class="lg:col-span-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
                     @if (!string.IsNullOrEmpty(Model.ExistingPhotoUrl))
                     {
-                        <img src="@Model.ExistingPhotoUrl" alt="Profile Photo"
-                             class="w-24 h-24 rounded-full object-cover border-2 border-[var(--color-primary)] shadow-xs shrink-0" />
+                        <img src="@Model.ExistingPhotoUrl" alt="Kitchen photo"
+                             class="w-20 h-20 rounded-full object-cover border border-[var(--color-border)] shrink-0" />
                     }
                     else
                     {
-                        <div class="w-24 h-24 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center shrink-0">
-                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
+                        <div class="w-20 h-20 rounded-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-muted)] flex items-center justify-center shrink-0">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
                         </div>
                     }
-
-                    <div class="flex-1 w-full space-y-1.5">
-                        <label asp-for="PhotoFile" class="block font-bold text-[var(--color-text)]">Upload New Kitchen Photo</label>
+                    <div class="flex-1 w-full">
                         <input asp-for="PhotoFile" type="file" accept="image/*"
-                               class="w-full p-2 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[var(--color-primary-light)] file:text-[var(--color-primary)] cursor-pointer" />
-                        <span asp-validation-for="PhotoFile" class="text-rose-500 text-xs block"></span>
+                               class="w-full p-2.5 bg-[var(--color-card-bg)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3.5 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--color-surface-subtle)] file:text-[var(--color-text)] cursor-pointer" />
+                        <span asp-validation-for="PhotoFile" class="text-rose-600 text-sm mt-1 block"></span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Kitchen Name -->
-                <div class="space-y-1.5">
-                    <label asp-for="Name" class="block font-bold text-[var(--color-text)]">Kitchen / Chef Name</label>
+            <!-- Row: Kitchen Name -->
+            <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-4">
+                    <label asp-for="Name" class="block text-[15px] font-medium text-[var(--color-text)]">Kitchen Name</label>
+                    <p class="text-sm text-[var(--color-text-muted)] mt-1">Your kitchen brand name visible to customers.</p>
+                </div>
+                <div class="lg:col-span-8">
                     <input asp-for="Name" placeholder="Enter your kitchen name"
-                           class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
-                    <span asp-validation-for="Name" class="text-rose-500 text-xs block"></span>
+                           class="w-full px-4 py-3 bg-[var(--color-card-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden" />
+                    <span asp-validation-for="Name" class="text-rose-600 text-sm mt-1 block"></span>
                 </div>
+            </div>
 
-                <!-- Bio -->
-                <div class="space-y-1.5">
-                    <label asp-for="Bio" class="block font-bold text-[var(--color-text)]">Bio</label>
+            <!-- Row: Bio -->
+            <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-4">
+                    <label asp-for="Bio" class="block text-[15px] font-medium text-[var(--color-text)]">Kitchen Story &amp; Bio</label>
+                    <p class="text-sm text-[var(--color-text-muted)] mt-1">Share your cooking heritage, specialties, and ingredients.</p>
+                </div>
+                <div class="lg:col-span-8">
                     <textarea asp-for="Bio" rows="4" placeholder="Tell customers about your experience and cooking style..."
-                              class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium"></textarea>
-                    <span asp-validation-for="Bio" class="text-rose-500 text-xs block"></span>
+                              class="w-full px-4 py-3 bg-[var(--color-card-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden leading-relaxed"></textarea>
+                    <span asp-validation-for="Bio" class="text-rose-600 text-sm mt-1 block"></span>
                 </div>
+            </div>
 
-                <!-- Pickup Area & Address -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="space-y-1.5">
-                        <label asp-for="Area" class="block font-bold text-[var(--color-text)]">Pickup Neighborhood Area</label>
+            <!-- Row: Pickup Location -->
+            <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-4">
+                    <span class="block text-[15px] font-medium text-[var(--color-text)]">Pickup Location</span>
+                    <p class="text-sm text-[var(--color-text-muted)] mt-1">Neighborhood is public; exact street address is shared only after order confirmation.</p>
+                </div>
+                <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="Area" class="block text-sm font-medium text-[var(--color-text)] mb-1.5">Neighborhood Area</label>
                         <select asp-for="Area"
-                                class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium">
-                            <option value="">-- Select Pickup Area --</option>
+                                class="w-full px-4 py-3 bg-[var(--color-card-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden">
+                            <option value="">Select pickup area</option>
                             @foreach (var area in depiR5gp.Models.Chefs.PickupAreas.All)
                             {
                                 <option value="@area.Key">@area.Name</option>
                             }
                         </select>
-                        <span asp-validation-for="Area" class="text-rose-500 text-xs block"></span>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label asp-for="Address" class="block font-bold text-[var(--color-text)]">Pickup Address</label>
-                        <input asp-for="Address" placeholder="Detailed address for order pickups"
-                               class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
-                        <span asp-validation-for="Address" class="text-rose-500 text-xs block"></span>
-                    </div>
-                </div>
-
-                <!-- Accepting Orders Switch -->
-                <div class="flex items-start gap-3 p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)]">
-                    <input asp-for="IsAcceptingOrders" type="checkbox" id="acceptingOrdersSwitch"
-                           class="mt-0.5 w-4 h-4 rounded accent-[var(--color-primary)] cursor-pointer" />
-                    <label for="acceptingOrdersSwitch" class="cursor-pointer">
-                        <span class="block font-bold text-[var(--color-text)]">Accepting New Orders</span>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">Uncheck this if your kitchen is temporarily unavailable.</span>
-                    </label>
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border-light)]">
-                    <a href="/ChefDashboard"
-                       class="px-5 py-2.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] font-bold uppercase tracking-wider transition-colors">
-                        Cancel
-                    </a>
-                    <button type="submit"
-                            class="px-6 py-2.5 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
-                        Save Profile Changes
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- ========================================================= -->
-        <!-- SECTION 2: WORKING HOURS SCHEDULE                         -->
-        <!-- ========================================================= -->
-        <div x-show="section === 'hours'" x-cloak
-             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div class="flex items-center justify-between pb-4 border-b border-[var(--color-border-light)]">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#clock"></use></svg>
+                        <span asp-validation-for="Area" class="text-rose-600 text-sm mt-1 block"></span>
                     </div>
                     <div>
-                        <h2 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
-                            Kitchen Operating Hours Schedule
-                        </h2>
-                        <p class="text-[11px] text-[var(--color-text-muted)]">
-                            Configure your weekly open days and daily pickup counter hours
-                        </p>
+                        <label asp-for="Address" class="block text-sm font-medium text-[var(--color-text)] mb-1.5">Exact Pickup Address</label>
+                        <input asp-for="Address" placeholder="Building, street, floor"
+                               class="w-full px-4 py-3 bg-[var(--color-card-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden" />
+                        <span asp-validation-for="Address" class="text-rose-600 text-sm mt-1 block"></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Live Schedule Summary -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] space-y-1">
-                    <span class="font-bold text-[var(--color-text)]">Open Days:</span>
-                    <div class="flex items-center gap-2 flex-wrap pt-1">
-                        @if (openDays.Count > 0)
-                        {
-                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100 text-[11px] font-bold">
-                                @openDays.Count day@(openDays.Count == 1 ? "" : "s") / week
-                            </span>
-                            @if (closedDays.Count > 0)
-                            {
-                                <span class="text-[11px] text-[var(--color-text-muted)]">
-                                    Closed: @string.Join(", ", closedDays.Select(d => d.DayName[..3]))
-                                </span>
-                            }
-                        }
-                        else
-                        {
-                            <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100 text-[11px] font-bold">
-                                No working days set
-                            </span>
-                        }
-                    </div>
+            <!-- Row: Order Availability -->
+            <div class="py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <div class="lg:col-span-4">
+                    <span class="block text-[15px] font-medium text-[var(--color-text)]">Order Availability</span>
+                    <p class="text-sm text-[var(--color-text-muted)] mt-1">Pause incoming orders anytime without hiding your menu.</p>
                 </div>
-                <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] space-y-1">
-                    <span class="font-bold text-[var(--color-text)]">Typical Pickup Hours:</span>
-                    <div class="flex items-center gap-2 pt-1 font-bold text-[var(--color-primary)]">
-                        <span>@typicalHours (Cairo Time)</span>
-                    </div>
+                <div class="lg:col-span-8">
+                    <label for="acceptingOrdersSwitch" class="inline-flex items-center gap-3 cursor-pointer">
+                        <input asp-for="IsAcceptingOrders" type="checkbox" id="acceptingOrdersSwitch"
+                               class="w-5 h-5 rounded accent-[var(--color-primary)] cursor-pointer" />
+                        <span class="text-[15px] font-medium text-[var(--color-text)]">Accepting new customer orders</span>
+                    </label>
                 </div>
             </div>
 
-            <form asp-controller="ChefDashboard" asp-action="WorkingHours" method="post" class="space-y-4 text-xs">
-                @Html.AntiForgeryToken()
-
-                <div class="divide-y divide-[var(--color-border-light)] border border-[var(--color-border)] rounded-2xl overflow-hidden">
-                    @for (int i = 0; i < Model.WorkingHoursSchedule.Days.Count; i++)
-                    {
-                        var day = Model.WorkingHoursSchedule.Days[i];
-                        <div x-data="{ isOpen: @(day.IsOpen ? "true" : "false") }"
-                             :class="isOpen ? '' : 'bg-[var(--color-surface-subtle)]/50'"
-                             class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors">
-
-                            <input type="hidden" name="Days[@i].DayOfWeek" value="@day.DayOfWeek" />
-                            <input type="hidden" name="Days[@i].DayName" value="@day.DayName" />
-
-                            <label class="flex items-center gap-2.5 font-bold text-[var(--color-text)] w-36 cursor-pointer select-none">
-                                <input type="checkbox"
-                                       name="Days[@i].IsOpen"
-                                       value="true"
-                                       x-model="isOpen"
-                                       @(day.IsOpen ? "checked" : null)
-                                       class="w-4 h-4 rounded accent-[var(--color-primary)] cursor-pointer" />
-                                <input type="hidden" name="Days[@i].IsOpen" value="false" />
-                                <span>@day.DayName</span>
-                            </label>
-
-                            <span class="text-[11px] font-semibold"
-                                  :class="isOpen ? 'text-emerald-600' : 'text-rose-600'"
-                                  x-text="isOpen ? 'Open for Pickup Orders' : 'Closed (Rest Day)'">
-                                @(day.IsOpen ? "Open for Pickup Orders" : "Closed (Rest Day)")
-                            </span>
-
-                            <div class="flex items-center gap-2" :class="isOpen ? '' : 'opacity-45'">
-                                <input type="time"
-                                       name="Days[@i].OpenTime"
-                                       value="@day.OpenTime"
-                                       :readonly="!isOpen"
-                                       class="p-2 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl text-xs focus:border-[var(--color-primary)] focus:outline-hidden" />
-                                <span class="text-[var(--color-text-muted)]">to</span>
-                                <input type="time"
-                                       name="Days[@i].CloseTime"
-                                       value="@day.CloseTime"
-                                       :readonly="!isOpen"
-                                       class="p-2 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl text-xs focus:border-[var(--color-primary)] focus:outline-hidden" />
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border-light)]">
-                    <button type="submit"
-                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
-                        <span>Save Working Hours</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- ========================================================= -->
-        <!-- SECTION 3: COMPLIANCE DOCUMENTS & HYGIENE                 -->
-        <!-- ========================================================= -->
-        <div x-show="section === 'documents'" x-cloak
-             class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[var(--color-border-light)]">
-                <div>
-                    <h2 class="text-base sm:text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
-                        Identity &amp; Hygiene Certificates
-                    </h2>
-                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-                        Compliance documents on file for @Model.DocumentsSection.KitchenName
-                    </p>
-                </div>
-                <span class="px-3 py-1 rounded-full border text-xs font-bold uppercase w-fit @statusBadgeClass">
-                    @statusBadgeText
-                </span>
+            <!-- Save Footer -->
+            <div class="pt-6 flex items-center justify-end gap-3">
+                <a href="/ChefDashboard"
+                   class="px-5 py-2.5 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[15px] font-medium text-[var(--color-text)] transition-colors">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="px-6 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[15px] font-medium transition-colors cursor-pointer">
+                    Save Changes
+                </button>
             </div>
+        </form>
+    </div>
 
-            <!-- Uploaded Documents Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                @foreach (var entry in docLabels)
+    <!-- ========================================================= -->
+    <!-- SECTION 2: WORKING HOURS SCHEDULE                         -->
+    <!-- ========================================================= -->
+    <div x-show="section === 'hours'" x-cloak class="space-y-6">
+        <form asp-controller="ChefDashboard" asp-action="WorkingHours" method="post" class="space-y-6">
+            @Html.AntiForgeryToken()
+
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl divide-y divide-[var(--color-border)] overflow-hidden">
+                @for (int i = 0; i < Model.WorkingHoursSchedule.Days.Count; i++)
                 {
-                    var doc = Model.DocumentsSection.Documents.FirstOrDefault(d =>
-                        string.Equals(d.DocType, entry.Key, StringComparison.OrdinalIgnoreCase));
+                    var day = Model.WorkingHoursSchedule.Days[i];
+                    <div x-data="{ isOpen: @(day.IsOpen ? "true" : "false") }"
+                         :class="isOpen ? '' : 'bg-[var(--color-surface-subtle)]/50'"
+                         class="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
 
-                    <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] flex flex-col justify-between gap-3">
-                        <div class="space-y-1">
-                            <span class="text-[10px] font-bold uppercase text-[var(--color-text-muted)] block">@entry.Key</span>
-                            <strong class="text-sm text-[var(--color-text)] block">@entry.Value.Title</strong>
-                            <p class="text-[11px] text-[var(--color-text-muted)]">@entry.Value.Subtitle</p>
+                        <input type="hidden" name="Days[@i].DayOfWeek" value="@day.DayOfWeek" />
+                        <input type="hidden" name="Days[@i].DayName" value="@day.DayName" />
+
+                        <label class="flex items-center gap-3 text-[15px] font-medium text-[var(--color-text)] w-44 cursor-pointer select-none">
+                            <input type="checkbox"
+                                   name="Days[@i].IsOpen"
+                                   value="true"
+                                   x-model="isOpen"
+                                   @(day.IsOpen ? "checked" : null)
+                                   class="w-5 h-5 rounded accent-[var(--color-primary)] cursor-pointer" />
+                            <input type="hidden" name="Days[@i].IsOpen" value="false" />
+                            <span>@day.DayName</span>
+                        </label>
+
+                        <span class="inline-flex items-center gap-2 text-sm font-medium w-44"
+                              :class="isOpen ? 'text-emerald-600' : 'text-[var(--color-text-muted)]'">
+                            <span class="w-2 h-2 rounded-full" :class="isOpen ? 'bg-emerald-500' : 'bg-neutral-400'"></span>
+                            <span x-text="isOpen ? 'Open for pickup' : 'Closed'">@(day.IsOpen ? "Open for pickup" : "Closed")</span>
+                        </span>
+
+                        <div class="flex items-center gap-3" :class="isOpen ? '' : 'opacity-40'">
+                            <input type="time"
+                                   name="Days[@i].OpenTime"
+                                   value="@day.OpenTime"
+                                   :readonly="!isOpen"
+                                   class="px-3.5 py-2 bg-[var(--color-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden" />
+                            <span class="text-sm text-[var(--color-text-muted)]">to</span>
+                            <input type="time"
+                                   name="Days[@i].CloseTime"
+                                   value="@day.CloseTime"
+                                   :readonly="!isOpen"
+                                   class="px-3.5 py-2 bg-[var(--color-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden" />
                         </div>
-
-                        @if (doc is not null)
-                        {
-                            <div class="pt-3 border-t border-[var(--color-border-light)] flex items-center justify-between gap-2">
-                                <span class="text-[11px] text-emerald-600 font-semibold">
-                                    Uploaded @doc.UploadedAt.ToLocalTime().ToString("MMM dd, yyyy")
-                                </span>
-                                <a href="@doc.FileUrl" target="_blank" rel="noopener noreferrer"
-                                   class="px-3 py-1 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white font-bold transition-colors">
-                                    View
-                                </a>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="pt-3 border-t border-[var(--color-border-light)]">
-                                <span class="text-[11px] text-amber-600 font-semibold">Not uploaded yet</span>
-                            </div>
-                        }
                     </div>
                 }
             </div>
 
-            <!-- Upload / Renew Document Form -->
-            <form asp-controller="ChefDashboard" asp-action="Documents" method="post" enctype="multipart/form-data"
-                  class="space-y-4 text-xs pt-5 border-t border-[var(--color-border-light)]">
-                @Html.AntiForgeryToken()
+            <div class="flex items-center justify-end">
+                <button type="submit"
+                        class="px-6 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[15px] font-medium transition-colors cursor-pointer">
+                    Save Working Hours
+                </button>
+            </div>
+        </form>
+    </div>
 
-                <div>
-                    <h3 class="font-bold uppercase tracking-wider text-[var(--color-text)]">Upload or Renew a Compliance Document</h3>
-                    <p class="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-                        Accepted formats: PDF, JPG, JPEG, PNG (max 5 MB). Uploading a new file replaces your previous file for that document type.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="docType" class="block font-semibold mb-1.5 text-[var(--color-text)]">Document Type</label>
-                        <select id="docType" name="docType" required
-                                class="w-full p-2.5 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl font-medium focus:border-[var(--color-primary)] focus:outline-hidden">
-                            <option value="Identity">National ID / Identity Proof</option>
-                            <option value="HealthCertificate">Health &amp; Food Safety Certificate</option>
-                            <option value="CulinaryLicense">Culinary License / Permit</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="documentFile" class="block font-semibold mb-1.5 text-[var(--color-text)]">Document File</label>
-                        <input id="documentFile" type="file" name="documentFile" accept=".pdf,.jpg,.jpeg,.png" required
-                               class="w-full p-2 bg-white dark:bg-neutral-900 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[var(--color-primary-light)] file:text-[var(--color-primary)] cursor-pointer" />
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-2">
-                    <button type="submit"
-                            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer">
-                        <span>Upload Document</span>
-                    </button>
-                </div>
-            </form>
+    <!-- ========================================================= -->
+    <!-- SECTION 3: COMPLIANCE DOCUMENTS & HYGIENE                 -->
+    <!-- ========================================================= -->
+    <div x-show="section === 'documents'" x-cloak class="space-y-8">
+        <!-- Status Summary Row -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--color-border)]">
+            <div>
+                <h2 class="text-lg font-semibold text-[var(--color-text)]">Verification &amp; Compliance Documents</h2>
+                <p class="text-sm text-[var(--color-text-muted)] mt-0.5">
+                    Keep your identity and food safety documents up to date for @Model.DocumentsSection.KitchenName.
+                </p>
+            </div>
+            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-card-bg)] text-sm font-medium text-[var(--color-text)] w-fit">
+                <span class="w-2 h-2 rounded-full @statusDot"></span>
+                <span>@statusText</span>
+            </span>
         </div>
+
+        <!-- Document Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            @foreach (var entry in docLabels)
+            {
+                var doc = Model.DocumentsSection.Documents.FirstOrDefault(d =>
+                    string.Equals(d.DocType, entry.Key, StringComparison.OrdinalIgnoreCase));
+
+                <div class="p-6 bg-[var(--color-card-bg)] rounded-2xl border border-[var(--color-border)] flex flex-col justify-between gap-5">
+                    <div class="space-y-1.5">
+                        <h3 class="text-base font-semibold text-[var(--color-text)]">@entry.Value.Title</h3>
+                        <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">@entry.Value.Subtitle</p>
+                    </div>
+
+                    @if (doc is not null)
+                    {
+                        <div class="pt-4 border-t border-[var(--color-border)] flex items-center justify-between gap-3">
+                            <span class="text-sm text-emerald-600 font-medium">
+                                Uploaded @doc.UploadedAt.ToLocalTime().ToString("MMM dd, yyyy")
+                            </span>
+                            <a href="@doc.FileUrl" target="_blank" rel="noopener noreferrer"
+                               class="px-3.5 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-primary)] text-sm font-medium text-[var(--color-text)] transition-colors">
+                                View file
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="pt-4 border-t border-[var(--color-border)]">
+                            <span class="text-sm text-[var(--color-text-muted)]">Not uploaded yet</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Upload Form -->
+        <form asp-controller="ChefDashboard" asp-action="Documents" method="post" enctype="multipart/form-data"
+              class="p-6 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl space-y-5">
+            @Html.AntiForgeryToken()
+
+            <div>
+                <h3 class="text-base font-semibold text-[var(--color-text)]">Upload or Replace Document</h3>
+                <p class="text-sm text-[var(--color-text-muted)] mt-0.5">
+                    PDF, JPG, JPEG, or PNG up to 5 MB. Uploading replaces any previous file of the same type.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label for="docType" class="block text-sm font-medium text-[var(--color-text)] mb-1.5">Document Type</label>
+                    <select id="docType" name="docType" required
+                            class="w-full px-4 py-3 bg-[var(--color-bg)] text-[15px] text-[var(--color-text)] border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden">
+                        <option value="Identity">National ID / Identity Proof</option>
+                        <option value="HealthCertificate">Health &amp; Food Safety Certificate</option>
+                        <option value="CulinaryLicense">Culinary License / Permit</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="documentFile" class="block text-sm font-medium text-[var(--color-text)] mb-1.5">File</label>
+                    <input id="documentFile" type="file" name="documentFile" accept=".pdf,.jpg,.jpeg,.png" required
+                           class="w-full p-2.5 bg-[var(--color-bg)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-xl file:me-3 file:py-1.5 file:px-3.5 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--color-surface-subtle)] file:text-[var(--color-text)] cursor-pointer" />
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="submit"
+                        class="px-6 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[15px] font-medium transition-colors cursor-pointer">
+                    Upload Document
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
