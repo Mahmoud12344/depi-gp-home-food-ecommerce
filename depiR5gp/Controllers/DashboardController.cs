@@ -1,45 +1,44 @@
 using Microsoft.AspNetCore.Mvc;
+using depiR5gp.Data;
 using depiR5gp.Services.Interfaces;
 using depiR5gp.Models.Chefs;
 using depiR5gp.Models.Users;
+using depiR5gp.ViewModels;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
-namespace depiR5gp.Controllers
+namespace depiR5gp.Controllers;
+
+[Authorize(Roles = AppRoles.Chef)]
+public class DashboardController(
+    IChefService chefService,
+    ApplicationDbContext context) : Controller
 {
-    [Authorize(Roles = AppRoles.Chef)]
-    public class DashboardController : Controller
+    public async Task<IActionResult> Index()
     {
-        private readonly IChefService _chefService;
-
-        public DashboardController(IChefService chefService)
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdClaim, out int userId))
         {
-            _chefService = chefService;
+            return Challenge();
         }
 
-        public async Task<IActionResult> Index()
+        var chefProfile = await chefService.GetChefApplicationStatusAsync(userId);
+        if (chefProfile is null)
         {
-            // جلب الـ ID الخاص بالشيف المسجل دخوله (مع تحويله لـ int ليتوافق مع مشروعك)
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!int.TryParse(userIdClaim, out int userId))
-            {
-                return Challenge();
-            }
-
-            var chefProfile = await _chefService.GetChefApplicationStatusAsync(userId);
-
-            if (chefProfile == null)
-            {
-                return RedirectToAction("Onboarding", "Chefs");
-            }
-
-            var viewModel = new ChefApplicationStatusVM
-            {
-                Status = chefProfile.Status,
-                RejectionNotes = chefProfile.RejectionReason
-            };
-
-            return View(viewModel);
+            return RedirectToAction("Onboarding", "Chefs");
         }
+
+        if (chefProfile.Status == "Approved")
+        {
+            ViewData["ChefHeader"] = await ChefPortalHeaderVM.LoadAsync(context, chefProfile);
+        }
+
+        var viewModel = new ChefApplicationStatusVM
+        {
+            Status = chefProfile.Status,
+            RejectionNotes = chefProfile.RejectionReason
+        };
+
+        return View(viewModel);
     }
 }

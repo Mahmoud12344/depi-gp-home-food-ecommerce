@@ -55,7 +55,8 @@ public class ChefsController(
             return Unauthorized(new { loginRequired = true });
         }
 
-        bool chefExists = await context.ChefProfiles.AnyAsync(c => c.Id == id && c.Status == "Approved");
+        bool chefExists = await context.ChefProfiles.AnyAsync(c =>
+            c.Id == id && c.Status == "Approved" && c.User.Status == UserStatus.Active);
         if (!chefExists)
         {
             return NotFound(new { success = false, message = "This chef kitchen is no longer available." });
@@ -86,7 +87,7 @@ public class ChefsController(
     [Authorize(Roles = AppRoles.Chef)]
     public async Task<IActionResult> Onboarding()
     {
-        int userId = GetCurrentUserId();
+        if (!TryGetCurrentUserId(out int userId)) return Challenge();
 
         if (await chefService.HasPendingOrApprovedApplicationAsync(userId))
         {
@@ -103,6 +104,8 @@ public class ChefsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Onboarding(ChefApplicationViewModel model)
     {
+        if (!TryGetCurrentUserId(out int userId)) return Challenge();
+
         // [SCRUM-345]   التحقق من موافقة الشيف على اتفاقية العمولة
         if (!model.HasAcceptedTerms)
         {
@@ -125,8 +128,6 @@ public class ChefsController(
             ViewBag.CommissionRate = await chefService.GetCommissionRate();
             return View(model);
         }
-
-        int userId = GetCurrentUserId();
 
         // إرسال البيانات للـ Service لمعالجتها
         var result = await chefService.SubmitApplicationAsync(userId, model);
@@ -153,12 +154,22 @@ public class ChefsController(
     [Authorize(Roles = AppRoles.Chef)]
     public async Task<IActionResult> EditProfile(string? tab = null)
     {
-        int userId = GetCurrentUserId();
+        if (!TryGetCurrentUserId(out int userId)) return Challenge();
+
+        var statusCheck = await chefService.GetChefApplicationStatusAsync(userId);
+        if (statusCheck is null)
+        {
+            TempData["ErrorMessage"] = "Please submit your chef onboarding application first.";
+            return RedirectToAction(nameof(Onboarding));
+        }
+        if (statusCheck.Status != "Approved")
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
 
         var model = await chefService.GetChefProfileForEditAsync(userId);
         if (model == null)
         {
-            TempData["ErrorMessage"] = "Please submit your chef onboarding application first.";
             return RedirectToAction(nameof(Onboarding));
         }
 
@@ -172,7 +183,11 @@ public class ChefsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditProfile(EditChefProfileViewModel model)
     {
-        int userId = GetCurrentUserId();
+        if (!TryGetCurrentUserId(out int userId)) return Challenge();
+
+        var statusCheck = await chefService.GetChefApplicationStatusAsync(userId);
+        if (statusCheck is null) return RedirectToAction(nameof(Onboarding));
+        if (statusCheck.Status != "Approved") return RedirectToAction("Index", "Dashboard");
 
         if (!string.IsNullOrWhiteSpace(model.Area) && !PickupAreas.IsValid(model.Area))
         {
@@ -249,28 +264,9 @@ public class ChefsController(
         };
     }
 
-    private int GetCurrentUserId()
+    private bool TryGetCurrentUserId(out int userId)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (int.TryParse(userIdClaim, out int userId) && userId > 0)
-        {
-            return userId;
-        }
-
-        var existingUser = context.Users.FirstOrDefault();
-        if (existingUser != null)
-        {
-            return existingUser.Id;
-        }
-
-        var dummyUser = new depiR5gp.Models.Users.AppUser
-        {
-            UserName = "testchef@example.com",
-            Email = "testchef@example.com"
-        };
-        context.Users.Add(dummyUser);
-        context.SaveChanges();
-
-        return dummyUser.Id;
+        return int.TryParse(userIdClaim, out userId) && userId > 0;
     }
 }

@@ -46,7 +46,7 @@ public class AdminDashboardService(IUnitOfWork unitOfWork) : IAdminDashboardServ
 
         decimal grossRevenue = orders.Sum(o => o.Total);
         decimal commission = orders.Sum(o => o.CommissionAmount);
-        int deliveredCount = orders.Count(o => o.Status == "Delivered");
+        int deliveredCount = orders.Count(o => o.Status == "Completed");
         int pendingCount = orders.Count - deliveredCount;
 
         // 3. Top 5 Kitchens by Revenue (for Horizontal Bar Chart)
@@ -95,7 +95,7 @@ public class AdminDashboardService(IUnitOfWork unitOfWork) : IAdminDashboardServ
             PendingApplicationsCount = pendingApps,
             TotalDishesCount = totalDishes,
             CardPaymentsTotal = orders.Where(o => o.PaymentMethod != "Cash").Sum(o => o.Total),
-            CashCollectionsTotal = orders.Where(o => o.PaymentMethod == "Cash").Sum(o => o.Total),
+            CashCollectionsTotal = orders.Where(o => o.PaymentMethod == "Cash" && o.Status == "Completed").Sum(o => o.Total),
             ChefPayoutLiabilities = Math.Max(0m, grossRevenue - commission),
             RevenueLabels = trend.Select(t => t.Label).ToList(),
             RevenueValues = trend.Select(t => t.Value).ToList(),

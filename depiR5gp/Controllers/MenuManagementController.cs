@@ -24,6 +24,7 @@ public class MenuManagementController(
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
         await PopulateHeaderAsync(chef);
 
         const int pageSize = 6;
@@ -72,6 +73,7 @@ public class MenuManagementController(
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
         await PopulateHeaderAsync(chef);
 
         var model = new DishFormVM { IsAvailable = true };
@@ -85,8 +87,10 @@ public class MenuManagementController(
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
 
         ValidateImageFile(model.ImageFile);
+        await ValidateTaxonomyAsync(model);
 
         if (!ModelState.IsValid)
         {
@@ -126,6 +130,7 @@ public class MenuManagementController(
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
 
         var dish = await context.Dishes
             .AsNoTracking()
@@ -160,6 +165,7 @@ public class MenuManagementController(
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
 
         var dish = await context.Dishes
             .FirstOrDefaultAsync(d => d.Id == id && d.ChefProfileId == chef.Id && !d.IsArchived);
@@ -171,6 +177,7 @@ public class MenuManagementController(
         }
 
         ValidateImageFile(model.ImageFile);
+        await ValidateTaxonomyAsync(model);
 
         if (!ModelState.IsValid)
         {
@@ -215,6 +222,12 @@ public class MenuManagementController(
                 ? NotFound(new { success = false, message = "Chef profile not found." })
                 : RedirectToAction("Onboarding", "Chefs");
         }
+        if (chef.Status != "Approved")
+        {
+            return IsAjaxRequest()
+                ? BadRequest(new { success = false, message = "Your kitchen must be approved first." })
+                : RedirectToAction("Index", "Dashboard");
+        }
 
         var dish = await context.Dishes
             .FirstOrDefaultAsync(d => d.Id == id && d.ChefProfileId == chef.Id && !d.IsArchived);
@@ -248,6 +261,7 @@ public class MenuManagementController(
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
 
         var dish = await context.Dishes
             .FirstOrDefaultAsync(d => d.Id == id && d.ChefProfileId == chef.Id && !d.IsArchived);
@@ -281,6 +295,7 @@ public class MenuManagementController(
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
 
         int targetId = id ?? dishId ?? 0;
         if (targetId <= 0)
@@ -340,6 +355,7 @@ public class MenuManagementController(
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
 
         int targetId = id > 0 ? id : model.DishId;
         var dish = await context.Dishes
@@ -440,6 +456,18 @@ public class MenuManagementController(
         if (!AllowedImageExtensions.Contains(ext))
         {
             ModelState.AddModelError(nameof(DishFormVM.ImageFile), "Only JPG, JPEG, PNG, and WEBP images are allowed.");
+        }
+    }
+
+    private async Task ValidateTaxonomyAsync(DishFormVM model)
+    {
+        if (!await context.Categories.AsNoTracking().AnyAsync(c => c.Id == model.CategoryId))
+        {
+            ModelState.AddModelError(nameof(DishFormVM.CategoryId), "Please select a valid category.");
+        }
+        if (!await context.Cuisines.AsNoTracking().AnyAsync(c => c.Id == model.CuisineId))
+        {
+            ModelState.AddModelError(nameof(DishFormVM.CuisineId), "Please select a valid cuisine.");
         }
     }
 

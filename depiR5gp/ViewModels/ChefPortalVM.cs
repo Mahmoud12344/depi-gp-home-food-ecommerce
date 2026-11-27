@@ -156,3 +156,85 @@ public class ChefDashboardVM
     public int ReviewsCount { get; set; }
     public Dictionary<string, ChefDashboardPeriodVM> Periods { get; set; } = new();
 }
+
+public class ChefLiveOrderItemVM
+{
+    public string DishName { get; set; } = string.Empty;
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    public string? Note { get; set; }
+    public List<string> OptionLabels { get; set; } = [];
+}
+
+public class ChefLiveOrderCardVM
+{
+    public int OrderId { get; set; }
+    public string Reference { get; set; } = string.Empty;
+    public string Status { get; set; } = "Pending";
+    public string CustomerName { get; set; } = string.Empty;
+    public string PaymentMethod { get; set; } = "Cash";
+    public decimal Total { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public List<ChefLiveOrderItemVM> Items { get; set; } = [];
+}
+
+public class ChefLiveOrdersVM
+{
+    public List<ChefLiveOrderCardVM> Orders { get; set; } = [];
+}
+
+public class ChefHistoryOrderRowVM
+{
+    public int OrderId { get; set; }
+    public string Reference { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public string DishSummary { get; set; } = string.Empty;
+    public string CustomerName { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public decimal GrossTotal { get; set; }
+    public decimal NetEarnings { get; set; }
+    public string? CancellationReason { get; set; }
+}
+
+public class ChefOrderHistoryVM
+{
+    public string SelectedStatus { get; set; } = "all";
+    public List<ChefHistoryOrderRowVM> Orders { get; set; } = [];
+}
+
+public class ChefReviewItemVM
+{
+    public int ReviewId { get; set; }
+    public string CustomerName { get; set; } = string.Empty;
+    public string DishSummary { get; set; } = string.Empty;
+    public byte Rating { get; set; }
+    public string? Comment { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+public class ChefReviewsTabVM
+{
+    public double AverageRating { get; set; }
+    public int TotalReviewsCount { get; set; }
+    public List<ChefReviewItemVM> Reviews { get; set; } = [];
+}
+
+public class ChefWalletLedgerRowVM
+{
+    public DateTime OccurredAt { get; set; }
+    public string Reference { get; set; } = string.Empty;
+    public string TypeLabel { get; set; } = string.Empty;
+    public decimal? GrossAmount { get; set; }
+    public decimal? CommissionAmount { get; set; }
+    public decimal NetDelta { get; set; }
+    public decimal RunningBalance { get; set; }
+}
+
+public class ChefWalletVM
+{
+    public decimal AvailableBalance { get; set; }
+    public decimal CurrentMonthCommission { get; set; }
+    public decimal EffectiveCommissionPercent { get; set; } = 15m;
+    public decimal TotalDisbursed { get; set; }
+    public List<ChefWalletLedgerRowVM> LedgerRows { get; set; } = [];
+}

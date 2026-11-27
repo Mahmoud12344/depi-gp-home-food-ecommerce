@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using depiR5gp.Data;
 using depiR5gp.Models.Chefs;
+using depiR5gp.Models.Orders;
+using depiR5gp.Models.Payments;
 using depiR5gp.Models.Users;
 using depiR5gp.Services.Interfaces;
 using depiR5gp.ViewModels;
@@ -20,11 +22,14 @@ public class ChefDashboardController(
 
     private static readonly string[] AllowedDocExtensions = [".pdf", ".jpg", ".jpeg", ".png"];
     private static readonly string[] AllowedDocTypes = ["Identity", "HealthCertificate", "CulinaryLicense"];
+    private static readonly string[] ActiveOrderStatuses = ["Pending", "Accepted", "Preparing", "Ready"];
+    private static readonly string[] HistoricalOrderStatuses = ["Completed", "Cancelled", "Rejected"];
 
     public async Task<IActionResult> Index()
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
 
         var header = await ChefPortalHeaderVM.LoadAsync(context, chef);
         ViewData["ChefHeader"] = header;
@@ -191,12 +196,400 @@ public class ChefDashboardController(
 
     public IActionResult Profile() => RedirectToAction("EditProfile", "Chefs");
 
+    [HttpGet]
     public async Task<IActionResult> Orders()
     {
         var chef = await GetCurrentChefAsync();
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
+
         await PopulateHeaderAsync(chef);
-        return View();
+
+        var liveOrders = await context.Orders
+            .AsNoTracking()
+            .Include(o => o.User)
+            .Include(o => o.Items)
+                .ThenInclude(i => i.Options)
+            .Where(o => o.ChefProfileId == chef.Id && ActiveOrderStatuses.Contains(o.Status))
+            .OrderBy(o => o.CreatedAt)
+            .ToListAsync();
+
+        var vm = new ChefLiveOrdersVM
+        {
+            Orders = liveOrders.Select(o => new ChefLiveOrderCardVM
+            {
+                OrderId = o.Id,
+                Reference = o.Reference,
+                Status = o.Status == "Accepted" ? "Preparing" : o.Status,
+                CustomerName = o.User is not null
+                    ? $"{o.User.FirstName} {o.User.LastName}".Trim()
+                    : $"Customer #{o.UserId}",
+                PaymentMethod = o.PaymentMethod,
+                Total = o.Total,
+                CreatedAt = o.CreatedAt,
+                Items = o.Items.OrderBy(i => i.LineNo).Select(i => new ChefLiveOrderItemVM
+                {
+                    DishName = i.DishName,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice,
+                    Note = i.Note,
+                    OptionLabels = i.Options.Select(opt =>
+                        opt.ExtraPrice > 0
+                            ? $"{opt.OptionName} (+{opt.ExtraPrice:0.##} EGP)"
+                            : opt.OptionName).ToList()
+                }).ToList()
+            }).ToList()
+        };
+
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateOrderStatus(int orderId, string nextStatus)
+    {
+        var chef = await GetCurrentChefAsync();
+        if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
+
+        if (nextStatus is not ("Preparing" or "Ready" or "Completed"))
+        {
+            TempData["ErrorMessage"] = "Invalid order status transition.";
+            return RedirectToAction(nameof(Orders));
+        }
+
+        var order = await context.Orders
+            .FirstOrDefaultAsync(o => o.Id == orderId && o.ChefProfileId == chef.Id);
+        if (order is null)
+        {
+            TempData["ErrorMessage"] = "Order not found.";
+            return RedirectToAction(nameof(Orders));
+        }
+
+        bool validTransition = (order.Status, nextStatus) switch
+        {
+            ("Pending", "Preparing") => true,
+            ("Accepted", "Preparing") => true,
+            ("Accepted", "Ready") => true,
+            ("Preparing", "Ready") => true,
+            ("Ready", "Completed") => true,
+            _ => false
+        };
+
+        if (!validTransition)
+        {
+            TempData["ErrorMessage"] = $"Cannot transition order #{order.Reference} from {order.Status} to {nextStatus}.";
+            return RedirectToAction(nameof(Orders));
+        }
+
+        order.Status = nextStatus;
+        if (nextStatus == "Completed")
+        {
+            order.PaymentStatus = "Paid";
+        }
+
+        int? chefUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int uid) ? uid : null;
+        context.OrderStatusHistories.Add(new OrderStatusHistory
+        {
+            OrderId = order.Id,
+            ChangedByUserId = chefUserId,
+            Status = nextStatus,
+            ChangedAt = DateTime.UtcNow
+        });
+
+        await context.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Order #{order.Reference} updated to {nextStatus}.";
+        return RedirectToAction(nameof(Orders));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RejectOrder(int orderId, string? rejectReason, string? rejectionNote)
+    {
+        var chef = await GetCurrentChefAsync();
+        if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
+
+        var order = await context.Orders
+            .FirstOrDefaultAsync(o => o.Id == orderId && o.ChefProfileId == chef.Id);
+        if (order is null)
+        {
+            TempData["ErrorMessage"] = "Order not found.";
+            return RedirectToAction(nameof(Orders));
+        }
+
+        if (order.Status != "Pending")
+        {
+            TempData["ErrorMessage"] = "Only pending orders can be rejected.";
+            return RedirectToAction(nameof(Orders));
+        }
+
+        string reasonLabel = rejectReason switch
+        {
+            "capacity" => "Kitchen at maximum capacity for this time slot",
+            "ingredients" => "Fresh ingredients out of stock for today",
+            "early_close" => "Kitchen counter closed early today",
+            "instructions" => "Special customer instructions cannot be accommodated",
+            _ => "Order declined by kitchen"
+        };
+
+        string? note = rejectionNote?.Trim();
+        string fullReason = string.IsNullOrWhiteSpace(note) ? reasonLabel : $"{reasonLabel} — {note}";
+        if (fullReason.Length > 500)
+        {
+            fullReason = fullReason[..500];
+        }
+
+        order.Status = "Rejected";
+        order.CancellationReason = fullReason;
+
+        int? chefUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int uid) ? uid : null;
+        context.OrderStatusHistories.Add(new OrderStatusHistory
+        {
+            OrderId = order.Id,
+            ChangedByUserId = chefUserId,
+            Status = "Rejected",
+            ChangedAt = DateTime.UtcNow
+        });
+
+        await context.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Order #{order.Reference} has been rejected.";
+        return RedirectToAction(nameof(Orders));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> History(string? status = "all")
+    {
+        var chef = await GetCurrentChefAsync();
+        if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
+
+        await PopulateHeaderAsync(chef);
+
+        string normalizedStatus = HistoricalOrderStatuses.FirstOrDefault(
+            s => s.Equals(status, StringComparison.OrdinalIgnoreCase)) ?? "all";
+
+        var query = context.Orders
+            .AsNoTracking()
+            .Include(o => o.User)
+            .Include(o => o.Items)
+            .Where(o => o.ChefProfileId == chef.Id && HistoricalOrderStatuses.Contains(o.Status));
+
+        if (normalizedStatus != "all")
+        {
+            query = query.Where(o => o.Status == normalizedStatus);
+        }
+
+        var orders = await query
+            .OrderByDescending(o => o.CreatedAt)
+            .ThenByDescending(o => o.Id)
+            .ToListAsync();
+
+        var vm = new ChefOrderHistoryVM
+        {
+            SelectedStatus = normalizedStatus,
+            Orders = orders.Select(o =>
+            {
+                var itemLabels = o.Items.OrderBy(i => i.LineNo)
+                    .Select(i => i.Quantity > 1 ? $"{i.DishName} (x{i.Quantity})" : i.DishName)
+                    .ToList();
+
+                return new ChefHistoryOrderRowVM
+                {
+                    OrderId = o.Id,
+                    Reference = o.Reference,
+                    Status = o.Status,
+                    DishSummary = itemLabels.Count > 0 ? string.Join(", ", itemLabels) : $"Order #{o.Reference}",
+                    CustomerName = o.User is not null
+                        ? $"{o.User.FirstName} {o.User.LastName}".Trim()
+                        : $"Customer #{o.UserId}",
+                    CreatedAt = o.CreatedAt,
+                    GrossTotal = o.Total,
+                    NetEarnings = o.Status == "Completed" ? Math.Max(0m, o.Total - o.CommissionAmount) : 0m,
+                    CancellationReason = o.CancellationReason
+                };
+            }).ToList()
+        };
+
+        return View(vm);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Reviews()
+    {
+        var chef = await GetCurrentChefAsync();
+        if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
+
+        await PopulateHeaderAsync(chef);
+
+        var reviews = await context.Reviews
+            .AsNoTracking()
+            .Include(r => r.User)
+            .Include(r => r.Order)
+                .ThenInclude(o => o.Items)
+            .Where(r => r.ChefProfileId == chef.Id && r.ModerationStatus == "Approved")
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync();
+
+        var vm = new ChefReviewsTabVM
+        {
+            TotalReviewsCount = reviews.Count,
+            AverageRating = reviews.Count > 0 ? Math.Round(reviews.Average(r => (double)r.Rating), 1) : 0.0,
+            Reviews = reviews.Select(r =>
+            {
+                var dishes = r.Order?.Items?
+                    .OrderBy(i => i.LineNo)
+                    .Select(i => i.DishName)
+                    .ToList() ?? [];
+
+                return new ChefReviewItemVM
+                {
+                    ReviewId = r.Id,
+                    CustomerName = r.User is not null
+                        ? $"{r.User.FirstName} {r.User.LastName}".Trim()
+                        : $"Customer #{r.UserId}",
+                    DishSummary = dishes.Count > 0 ? string.Join(", ", dishes) : $"Order #{r.Order?.Reference ?? r.OrderId.ToString()}",
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt
+                };
+            }).ToList()
+        };
+
+        return View(vm);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Wallet()
+    {
+        var chef = await GetCurrentChefAsync();
+        if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
+
+        await PopulateHeaderAsync(chef);
+
+        var completedOrders = await context.Orders
+            .AsNoTracking()
+            .Where(o => o.ChefProfileId == chef.Id && o.Status == "Completed")
+            .OrderBy(o => o.CreatedAt)
+            .ThenBy(o => o.Id)
+            .ToListAsync();
+
+        var payouts = await context.Payouts
+            .AsNoTracking()
+            .Where(p => p.ChefProfileId == chef.Id && p.Status != "Rejected")
+            .OrderBy(p => p.Id)
+            .ToListAsync();
+
+        var monthStart = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        decimal currentMonthCommission = completedOrders
+            .Where(o => o.CreatedAt >= monthStart)
+            .Sum(o => o.CommissionAmount);
+
+        decimal totalNetEarned = completedOrders.Sum(o => Math.Max(0m, o.Total - o.CommissionAmount));
+        decimal totalPayouts = payouts.Sum(p => p.Amount);
+        decimal availableBalance = Math.Max(0m, totalNetEarned - totalPayouts);
+
+        decimal rate = chef.CommissionRate ?? 0.15m;
+        decimal ratePct = rate <= 1m ? Math.Round(rate * 100m, 1) : Math.Round(rate, 1);
+
+        var rawEvents = new List<(DateTime OccurredAt, string Reference, string TypeLabel, decimal? Gross, decimal? Commission, decimal NetDelta)>();
+
+        foreach (var o in completedOrders)
+        {
+            decimal net = Math.Max(0m, o.Total - o.CommissionAmount);
+            rawEvents.Add((
+                o.CreatedAt,
+                o.Reference,
+                "Completed Order Credit",
+                o.Total,
+                o.CommissionAmount,
+                net));
+        }
+
+        foreach (var p in payouts)
+        {
+            rawEvents.Add((
+                DateTime.UtcNow,
+                p.Reference ?? $"PAYOUT-{p.Id:D4}",
+                $"Payout ({p.Status})",
+                null,
+                null,
+                -p.Amount));
+        }
+
+        var orderedEvents = rawEvents.OrderBy(e => e.OccurredAt).ToList();
+        decimal running = 0m;
+        var ledgerRows = new List<ChefWalletLedgerRowVM>(orderedEvents.Count);
+
+        foreach (var ev in orderedEvents)
+        {
+            running += ev.NetDelta;
+            ledgerRows.Add(new ChefWalletLedgerRowVM
+            {
+                OccurredAt = ev.OccurredAt,
+                Reference = ev.Reference,
+                TypeLabel = ev.TypeLabel,
+                GrossAmount = ev.Gross,
+                CommissionAmount = ev.Commission,
+                NetDelta = ev.NetDelta,
+                RunningBalance = Math.Max(0m, running)
+            });
+        }
+
+        ledgerRows.Reverse();
+
+        return View(new ChefWalletVM
+        {
+            AvailableBalance = availableBalance,
+            CurrentMonthCommission = currentMonthCommission,
+            EffectiveCommissionPercent = ratePct,
+            TotalDisbursed = totalPayouts,
+            LedgerRows = ledgerRows
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RequestPayout()
+    {
+        var chef = await GetCurrentChefAsync();
+        if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
+
+        decimal totalNetEarned = await context.Orders
+            .AsNoTracking()
+            .Where(o => o.ChefProfileId == chef.Id && o.Status == "Completed")
+            .SumAsync(o => (decimal?)(o.Total - o.CommissionAmount)) ?? 0m;
+
+        decimal totalPayouts = await context.Payouts
+            .AsNoTracking()
+            .Where(p => p.ChefProfileId == chef.Id && p.Status != "Rejected")
+            .SumAsync(p => (decimal?)p.Amount) ?? 0m;
+
+        decimal availableBalance = Math.Round(totalNetEarned - totalPayouts, 2);
+        if (availableBalance <= 0m)
+        {
+            TempData["ErrorMessage"] = "You have no available balance to withdraw at this time.";
+            return RedirectToAction(nameof(Wallet));
+        }
+
+        var payout = new Payout
+        {
+            ChefProfileId = chef.Id,
+            Amount = availableBalance,
+            Status = "Pending",
+            Reference = $"PAY-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}",
+            IdempotencyKey = Guid.NewGuid().ToString("N"),
+            IsSimulated = true
+        };
+
+        context.Payouts.Add(payout);
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = $"Payout request for {availableBalance:N2} EGP ({payout.Reference}) has been submitted.";
+        return RedirectToAction(nameof(Wallet));
     }
 
     [HttpPost]
@@ -209,6 +602,13 @@ public class ChefDashboardController(
             return IsAjaxRequest()
                 ? NotFound(new { success = false, message = "Chef profile not found." })
                 : RedirectToAction("Onboarding", "Chefs");
+        }
+
+        if (chef.Status != "Approved")
+        {
+            return IsAjaxRequest()
+                ? BadRequest(new { success = false, message = "Your kitchen must be approved before accepting orders." })
+                : RedirectToAction("Index", "Dashboard");
         }
 
         chef.IsAcceptingOrders = !chef.IsAcceptingOrders;
@@ -237,6 +637,7 @@ public class ChefDashboardController(
     {
         var chef = await GetCurrentChefAsync(includeWorkingHours: true);
         if (chef is null) return RedirectToAction("Onboarding", "Chefs");
+        if (chef.Status != "Approved") return RedirectToAction("Index", "Dashboard");
 
         var errors = new List<string>();
         var newHours = new List<ChefWorkingHours>();

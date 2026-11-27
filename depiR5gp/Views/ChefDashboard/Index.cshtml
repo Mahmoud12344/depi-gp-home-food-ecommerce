@@ -290,6 +290,13 @@
         transition: width 0.35s ease;
     }
 
+    .cd-legend-row {
+        display: grid;
+        grid-template-columns: minmax(96px, 1.3fr) 1fr auto;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
     /* Chart 3: Horizontal Top Dishes Bars */
     .cd-dish-bar-track {
         height: 8px;
@@ -619,15 +626,15 @@
                         <button type="button"
                                 @@click="activeStatus = (activeStatus === si ? null : si)"
                                 :class="activeStatus === si ? 'bg-[var(--color-surface-subtle)]' : 'hover:bg-[var(--color-surface-subtle)]/70'"
-                                class="w-full grid grid-cols-12 items-center gap-2 px-2 py-1.5 rounded-lg text-left transition-colors cursor-pointer">
-                            <span class="col-span-5 inline-flex items-center gap-2 text-xs font-medium text-[var(--color-text)] truncate">
+                                class="w-full cd-legend-row px-2 py-1.5 rounded-lg text-left transition-colors cursor-pointer">
+                            <span class="inline-flex items-center gap-2 text-xs font-medium text-[var(--color-text)] min-w-0">
                                 <span class="w-2 h-2 rounded-full shrink-0" :style="'background:' + toneColor(s.tone)"></span>
-                                <span class="truncate" x-text="s.label"></span>
+                                <span class="whitespace-nowrap" x-text="s.label"></span>
                             </span>
-                            <span class="col-span-4 cd-mix-track">
+                            <span class="cd-mix-track">
                                 <span class="cd-mix-fill" :style="'width:' + s.percent + '%; background:' + toneColor(s.tone)"></span>
                             </span>
-                            <span class="col-span-3 text-right text-xs font-semibold text-[var(--color-text)]"
+                            <span class="text-right text-xs font-semibold text-[var(--color-text)] whitespace-nowrap"
                                   x-text="s.count + ' (' + s.percent + '%)'"></span>
                         </button>
                     </template>
