@@ -1,10 +1,10 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using depiR5gp.ViewModels;
 using depiR5gp.Models.Users;
+using depiR5gp.Services.Interfaces;
 
 namespace depiR5gp.Controllers;
 
@@ -12,14 +12,18 @@ public class AccountController(
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
     RoleManager<IdentityRole<int>> roleManager,
-    IConfiguration configuration) : Controller
+    IChefService chefService,
+    IWebHostEnvironment env) : Controller
 {
     [HttpGet]
-    public IActionResult Login(string? returnUrl = null)
+    public async Task<IActionResult> Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            if (User.IsInRole(AppRoles.Chef)) return RedirectToAction("Index", "ChefDashboard");
+            if (User.IsInRole(AppRoles.Chef))
+            {
+                return await RedirectChefByApplicationStatusAsync();
+            }
             if (User.IsInRole(AppRoles.Admin)) return RedirectToAction("Index", "Admin");
             if (User.IsInRole(AppRoles.Support)) return RedirectToAction("AgentDesk", "Support");
         }
@@ -38,52 +42,6 @@ public class AccountController(
 
         string identifier = loginVm.Email.Trim();
 
-        //Check Admin credentials from Secrets / Configuration 
-
-        var adminEmail = configuration["Admin:Email"] ?? "admin@homechef.eg";
-        var adminPassword = configuration["Admin:Password"] ?? "Admin@123";
-        if ((string.Equals(identifier, adminEmail, StringComparison.OrdinalIgnoreCase) ||
-             string.Equals(identifier, "admin", StringComparison.OrdinalIgnoreCase)) &&
-            loginVm.Password == adminPassword)
-        {
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, "1"),
-                new(ClaimTypes.Name, "Admin"),
-                new(ClaimTypes.Email, adminEmail),
-                new(ClaimTypes.Role, AppRoles.Admin)
-            };
-            var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
-            await HttpContext.SignInAsync(
-                IdentityConstants.ApplicationScheme,
-                new ClaimsPrincipal(identity),
-                new AuthenticationProperties { IsPersistent = loginVm.RememberMe });
-            TempData["SuccessMessage"] = "Welcome back, Admin!";
-            return RedirectToAction("Index", "Admin");
-        }
-        // 2. Check Support credentials from Secrets / Configuration 
-        var supportEmail = configuration["Support:Email"] ?? "support@homechef.eg";
-        var supportPassword = configuration["Support:Password"] ?? "Support@123";
-        if ((string.Equals(identifier, supportEmail, StringComparison.OrdinalIgnoreCase) ||
-             string.Equals(identifier, "support", StringComparison.OrdinalIgnoreCase)) &&
-            loginVm.Password == supportPassword)
-        {
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, "2"),
-                new(ClaimTypes.Name, "Support Agent"),
-                new(ClaimTypes.Email, supportEmail),
-                new(ClaimTypes.Role, AppRoles.Support)
-            };
-            var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
-            await HttpContext.SignInAsync(
-                IdentityConstants.ApplicationScheme,
-                new ClaimsPrincipal(identity),
-                new AuthenticationProperties { IsPersistent = loginVm.RememberMe });
-            TempData["SuccessMessage"] = "Welcome back, Support Agent!";
-            return RedirectToAction("AgentDesk", "Support");
-        }
-
         AppUser? user = await userManager.FindByEmailAsync(identifier)
                         ?? await userManager.FindByNameAsync(identifier);
 
@@ -93,7 +51,7 @@ public class AccountController(
             return View("Login", loginVm);
         }
 
-            if (user.Status == UserStatus.Suspended)
+        if (user.Status == UserStatus.Suspended)
         {
             ModelState.AddModelError(string.Empty, "Your account has been suspended. Please contact support.");
             return View("Login", loginVm);
@@ -121,15 +79,25 @@ public class AccountController(
 
             if (await userManager.IsInRoleAsync(user, AppRoles.Chef))
             {
+                var chefProfile = await chefService.GetChefApplicationStatusAsync(user.Id);
+                if (chefProfile is null)
+                {
+                    return RedirectToAction("Onboarding", "Chefs");
+                }
+                if (chefProfile.Status != "Approved")
+                {
+                    return RedirectToAction("Index", "Dashboard");
+                }
+
                 if (hasLocalReturn && (
                     returnUrl!.StartsWith("/ChefDashboard", StringComparison.OrdinalIgnoreCase) ||
                     returnUrl.StartsWith("/MenuManagement", StringComparison.OrdinalIgnoreCase) ||
                     returnUrl.StartsWith("/Chefs/EditProfile", StringComparison.OrdinalIgnoreCase) ||
-                    returnUrl.StartsWith("/Chefs/Onboarding", StringComparison.OrdinalIgnoreCase) ||
                     returnUrl.StartsWith("/Dashboard", StringComparison.OrdinalIgnoreCase)))
                 {
                     return LocalRedirect(returnUrl);
                 }
+
                 return RedirectToAction("Index", "ChefDashboard");
             }
 
@@ -151,9 +119,6 @@ public class AccountController(
         ModelState.AddModelError(string.Empty, "Invalid email/username or password.");
         return View("Login", loginVm);
     }
-
-
-
 
     [HttpGet]
     public IActionResult Register()
@@ -222,6 +187,7 @@ public class AccountController(
             IdentityResult roleResult = await userManager.AddToRoleAsync(user, assignedRole);
             if (!roleResult.Succeeded)
             {
+                await userManager.DeleteAsync(user);
                 foreach (var error in roleResult.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
@@ -258,14 +224,6 @@ public class AccountController(
     }
 
     [HttpGet]
-    [ActionName("Logout")]
-    public async Task<IActionResult> LogoutGet()
-    {
-        await signInManager.SignOutAsync();
-        return RedirectToAction("Login", "Account");
-    }
-
-    [HttpGet]
     public IActionResult ForgotPassword()
     {
         return View(new ForgotPasswordVM());
@@ -290,9 +248,14 @@ public class AccountController(
 
         string token = await userManager.GeneratePasswordResetTokenAsync(user);
 
-        // TODO(email): In production, send the reset link via an IEmailSender service.
-        // For local development/testing without an SMTP server, redirect to ResetPassword with the generated token.
-        return RedirectToAction("ResetPassword", new { email = user.Email, token });
+        if (env.IsDevelopment())
+        {
+            // Local development convenience without SMTP server
+            return RedirectToAction("ResetPassword", new { email = user.Email, token });
+        }
+
+        TempData["InfoMessage"] = "If an account with that email exists, recovery instructions have been sent.";
+        return RedirectToAction("Login");
     }
 
     [HttpGet]
@@ -343,4 +306,22 @@ public class AccountController(
     }
 
     public IActionResult AccessDenied() => View();
+
+    private async Task<IActionResult> RedirectChefByApplicationStatusAsync()
+    {
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId) || userId <= 0)
+        {
+            return RedirectToAction("Onboarding", "Chefs");
+        }
+
+        var chefProfile = await chefService.GetChefApplicationStatusAsync(userId);
+        if (chefProfile is null)
+        {
+            return RedirectToAction("Onboarding", "Chefs");
+        }
+
+        return chefProfile.Status == "Approved"
+            ? RedirectToAction("Index", "ChefDashboard")
+            : RedirectToAction("Index", "Dashboard");
+    }
 }
