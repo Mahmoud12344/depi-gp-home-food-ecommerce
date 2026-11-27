@@ -64,6 +64,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # IDE & Editor
+.vs/
 .idea/
 .vscode/
 *.suo
@@ -71,4 +72,4 @@ yarn-error.log*
 
 # Visual Studio
 .vs/
-**/.vs/
+**/.vs/.agents/

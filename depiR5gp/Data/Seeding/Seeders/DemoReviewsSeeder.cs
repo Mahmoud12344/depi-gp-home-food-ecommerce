@@ -95,6 +95,12 @@ public class DemoReviewsSeeder : ISeeder
                 12)
         };
 
+        var dishesByChef = await context.DbContext.Dishes
+            .AsNoTracking()
+            .Where(d => !d.IsArchived)
+            .GroupBy(d => d.ChefProfileId)
+            .ToDictionaryAsync(g => g.Key, g => g.OrderBy(d => d.Id).ToList(), context.CancellationToken);
+
         bool anyReviewsExist = await context.DbContext.Reviews.AnyAsync(context.CancellationToken);
         int seededCount = 0;
 
@@ -118,6 +124,7 @@ public class DemoReviewsSeeder : ISeeder
             }
 
             var existingOrder = await context.DbContext.Orders
+                .Include(o => o.Items)
                 .FirstOrDefaultAsync(o => o.Reference == item.OrderReference, context.CancellationToken);
 
             var createdAt = DateTime.UtcNow.AddDays(-item.DaysAgo);
@@ -131,7 +138,7 @@ public class DemoReviewsSeeder : ISeeder
                 {
                     UserId = customer.Id,
                     ChefProfileId = chefProfile.Id,
-                    Status = "Delivered",
+                    Status = "Completed",
                     PaymentMethod = "Cash",
                     PaymentStatus = "Paid",
                     Reference = item.OrderReference,
@@ -144,6 +151,20 @@ public class DemoReviewsSeeder : ISeeder
                     DeliveryAddress = customer.Address ?? "Cairo, Egypt",
                     CreatedAt = createdAt.AddHours(-2)
                 };
+
+                if (dishesByChef.TryGetValue(chefProfile.Id, out var chefDishes) && chefDishes.Count > 0)
+                {
+                    var chosenDish = chefDishes[seededCount % chefDishes.Count];
+                    int qty = Math.Max(1, (int)Math.Round(item.OrderTotal / Math.Max(chosenDish.Price, 1m)));
+                    existingOrder.Items.Add(new OrderItem
+                    {
+                        LineNo = 1,
+                        DishId = chosenDish.Id,
+                        DishName = chosenDish.Name,
+                        UnitPrice = Math.Round(item.OrderTotal / qty, 2),
+                        Quantity = qty
+                    });
+                }
 
                 context.DbContext.Orders.Add(existingOrder);
                 await context.DbContext.SaveChangesAsync(context.CancellationToken);

@@ -88,10 +88,10 @@ public class CustomerController(
         string primaryArea = model.PrimaryArea.Trim();
         string address = model.Address.Trim();
         string? dietaryPreferences = string.IsNullOrWhiteSpace(model.DietaryPreferences)
-            ? user.DietaryPreferences
+            ? null
             : model.DietaryPreferences.Trim();
         string? allergies = string.IsNullOrWhiteSpace(model.Allergies)
-            ? user.Allergies
+            ? null
             : model.Allergies.Trim();
 
         bool profileChanged = !string.Equals(user.FirstName, nameParts[0], StringComparison.Ordinal)
@@ -226,6 +226,8 @@ public class CustomerController(
                 ChefName = order.ChefProfile == null ? "Unknown chef" : order.ChefProfile.KitchenName,
                 Total = order.Total,
                 Status = order.Status,
+                HasReview = order.Review != null,
+                ReviewRating = order.Review == null ? null : order.Review.Rating,
                 Items = order.Items
                     .OrderBy(item => item.LineNo)
                     .Select(item => new CustomerOrderItemVM
@@ -333,6 +335,78 @@ public class CustomerController(
         {
             Profile = BuildViewModel(user),
             Transactions = transactions
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Reviews()
+    {
+        var user = await GetCurrentUserAsync();
+        if (user is null)
+        {
+            return Challenge();
+        }
+
+        var pendingOrders = await context.Orders
+            .AsNoTracking()
+            .Where(o => o.UserId == user.Id && o.Status == "Completed" && o.Review == null)
+            .OrderByDescending(o => o.CreatedAt)
+            .Select(o => new PendingOrderReviewVM
+            {
+                OrderId = o.Id,
+                OrderReference = o.Reference,
+                OrderDate = o.CreatedAt,
+                ChefProfileId = o.ChefProfileId,
+                KitchenName = o.ChefProfile == null ? "Home Kitchen" : o.ChefProfile.KitchenName,
+                ChefPhotoUrl = o.ChefProfile == null ? null : o.ChefProfile.PhotoUrl,
+                Total = o.Total,
+                Dishes = o.Items
+                    .OrderBy(i => i.LineNo)
+                    .Select(i => new ReviewedDishRefVM
+                    {
+                        DishId = i.DishId,
+                        DishName = i.DishName,
+                        Quantity = i.Quantity
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+
+        var submittedReviews = await context.Reviews
+            .AsNoTracking()
+            .Where(r => r.UserId == user.Id)
+            .OrderByDescending(r => r.CreatedAt)
+            .Select(r => new CustomerSubmittedReviewVM
+            {
+                ReviewId = r.Id,
+                OrderId = r.OrderId,
+                OrderReference = r.Order == null ? string.Empty : r.Order.Reference,
+                ChefProfileId = r.ChefProfileId,
+                KitchenName = r.ChefProfile == null ? "Home Kitchen" : r.ChefProfile.KitchenName,
+                ChefPhotoUrl = r.ChefProfile == null ? null : r.ChefProfile.PhotoUrl,
+                Rating = r.Rating,
+                Comment = r.Comment,
+                ModerationStatus = r.ModerationStatus,
+                CreatedAt = r.CreatedAt,
+                Dishes = r.Order == null
+                    ? new List<ReviewedDishRefVM>()
+                    : r.Order.Items
+                        .OrderBy(i => i.LineNo)
+                        .Select(i => new ReviewedDishRefVM
+                        {
+                            DishId = i.DishId,
+                            DishName = i.DishName,
+                            Quantity = i.Quantity
+                        })
+                        .ToList()
+            })
+            .ToListAsync();
+
+        return View(new CustomerReviewsPageVM
+        {
+            Profile = BuildViewModel(user),
+            PendingOrders = pendingOrders,
+            SubmittedReviews = submittedReviews
         });
     }
 

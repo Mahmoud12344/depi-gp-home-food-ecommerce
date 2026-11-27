@@ -1,21 +1,23 @@
+@model depiR5gp.Models.Platform.PlatformSettings
 @{
     ViewData["Title"] = "Platform Settings & AI FAQs - Admin Portal";
     ViewData["ActiveAdminTab"] = "settings";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var currentCommissionPercent = ((Model?.CommissionRate ?? 0.15m) * 100m).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    var faqs = ViewBag.Faqs as List<depiR5gp.Models.Support.Faq> ?? new List<depiR5gp.Models.Support.Faq>();
+    var faqSearch = ViewBag.FaqSearch as string;
 }
 <!-- Views/Admin/Settings.cshtml -->
 <!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 428-458 & _AIFaqManagement.cshtml) -->
 <!-- Backlog Subtask: SCRUM-493 -->
-<!-- TODO(backend): Bind PlatformSettings.CommissionRate and AI Assistant FAQ entries; wire POST /Admin/Settings -->
 
 <div x-data="{
-    commissionRate: 15,
+    commissionRate: @currentCommissionPercent,
     showAddForm: false,
     newFaqQuestion: '',
     newFaqCategory: 'Ordering & Pickup',
     newFaqAnswer: ''
 }" class="w-full pb-24">
-
-    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
         <!-- TAB 5: Platform Settings -->
@@ -117,82 +119,56 @@
                 <svg class="w-4 h-4 text-neutral-400 absolute start-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#search"></use></svg>
                 <input type="text"
                        name="faqSearch"
+                       value="@faqSearch"
                        placeholder="Filter questions by keyword or topic..."
                        class="w-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-full ps-9 pe-4 py-2 text-xs text-[var(--color-text)] focus:outline-hidden font-medium" />
             </form>
 
             <!-- FAQ Cards Stream -->
             <div class="space-y-3">
-                <!-- BEGIN SAMPLE: Unrolled 3 FAQ Entries from _AIFaqManagement.cshtml -->
-                <!-- FAQ 1 -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2 text-xs">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider mb-1">Ordering &amp; Pickup</span>
-                            <h4 class="font-bold text-sm text-[var(--color-text)]">How does domestic kitchen counter pickup work?</h4>
-                        </div>
-                        <form method="post" action="/Admin/Settings" class="inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="faqId" value="faq-1" />
-                            <input type="hidden" name="actionType" value="DeleteFaq" />
-                            <button type="submit"
-                                    class="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
-                                    title="Delete FAQ entry">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
-                            </button>
-                        </form>
+                @if (!faqs.Any())
+                {
+                    <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-2xl p-6 text-center text-xs text-[var(--color-text-muted)]">
+                        @(string.IsNullOrWhiteSpace(faqSearch)
+                            ? "No FAQ entries yet. Click 'Add FAQ Entry' above to add policies to the AI Assistant knowledge base."
+                            : $"No FAQ entries matched \"{faqSearch}\".")
                     </div>
-                    <p class="text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-surface-subtle)]/60 p-3 rounded-xl border border-[var(--color-border-light)]">
-                        Customers place an order online and receive the neighborhood pickup zone. Upon confirmation, the chef shares the exact villa/apartment address and pickup window for hot handover.
-                    </p>
-                </div>
+                }
+                else
+                {
+                    foreach (var faq in faqs)
+                    {
+                        string displayCategory = "General";
+                        string displayQuestion = faq.Question;
+                        if (faq.Question.StartsWith('[') && faq.Question.IndexOf(']') is int closeIdx && closeIdx > 1)
+                        {
+                            displayCategory = faq.Question[1..closeIdx];
+                            displayQuestion = faq.Question[(closeIdx + 1)..].TrimStart();
+                        }
 
-                <!-- FAQ 2 -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2 text-xs">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider mb-1">Hygiene &amp; Safety</span>
-                            <h4 class="font-bold text-sm text-[var(--color-text)]">What hygiene standards do domestic kitchens follow?</h4>
+                        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2 text-xs">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <span class="inline-block px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider mb-1">@displayCategory</span>
+                                    <h4 class="font-bold text-sm text-[var(--color-text)]">@displayQuestion</h4>
+                                </div>
+                                <form method="post" action="/Admin/Settings" class="inline" onsubmit="return confirm('Delete this FAQ entry?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="faqId" value="@faq.Id" />
+                                    <input type="hidden" name="actionType" value="DeleteFaq" />
+                                    <button type="submit"
+                                            class="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+                                            title="Delete FAQ entry">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
+                                    </button>
+                                </form>
+                            </div>
+                            <p class="text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-surface-subtle)]/60 p-3 rounded-xl border border-[var(--color-border-light)]">
+                                @faq.Answer
+                            </p>
                         </div>
-                        <form method="post" action="/Admin/Settings" class="inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="faqId" value="faq-2" />
-                            <input type="hidden" name="actionType" value="DeleteFaq" />
-                            <button type="submit"
-                                    class="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
-                                    title="Delete FAQ entry">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
-                            </button>
-                        </form>
-                    </div>
-                    <p class="text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-surface-subtle)]/60 p-3 rounded-xl border border-[var(--color-border-light)]">
-                        All registered domestic kitchens undergo in-person inspections, require medical food handler certificates, and must use 100% baladi butter without artificial trans-fats.
-                    </p>
-                </div>
-
-                <!-- FAQ 3 -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2 text-xs">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider mb-1">Payments &amp; Refunds</span>
-                            <h4 class="font-bold text-sm text-[var(--color-text)]">Can I cancel an order and get a 100% refund?</h4>
-                        </div>
-                        <form method="post" action="/Admin/Settings" class="inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="faqId" value="faq-3" />
-                            <input type="hidden" name="actionType" value="DeleteFaq" />
-                            <button type="submit"
-                                    class="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
-                                    title="Delete FAQ entry">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#trash-2"></use></svg>
-                            </button>
-                        </form>
-                    </div>
-                    <p class="text-[var(--color-text-muted)] leading-relaxed bg-[var(--color-surface-subtle)]/60 p-3 rounded-xl border border-[var(--color-border-light)]">
-                        Yes! If you cancel while the order is still in Pending status (before the chef begins oven cooking), a 100% full reversal is credited to your wallet balance immediately.
-                    </p>
-                </div>
-                <!-- END SAMPLE -->
+                    }
+                }
             </div>
         </div>
     </div>

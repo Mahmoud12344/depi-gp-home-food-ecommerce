@@ -1,0 +1,128 @@
+@using Microsoft.EntityFrameworkCore
+@using depiR5gp.Data
+@inject ApplicationDbContext Db
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["HideHeader"] = true;
+    ViewData["HideFooter"] = true;
+
+    var activeTab = (ViewData["ActiveAdminTab"] as string ?? "kpis").ToLowerInvariant();
+    var adminName = User.Identity?.Name ?? "Platform Administrator";
+    var pendingApplications = await Db.ChefProfiles.AsNoTracking().CountAsync(c => c.Status == "Pending");
+    var pendingReviews = await Db.Reviews.AsNoTracking().CountAsync(r => r.ModerationStatus == "Pending");
+
+    string NavClass(string tab) => activeTab == tab
+        ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold"
+        : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]";
+}
+
+<style>
+    .admin-shell { display: flex; flex-direction: column; width: 100%; height: 100vh; overflow-y: auto; background: var(--color-bg); }
+    .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; background: var(--color-card-bg); border-bottom: 1px solid var(--color-border); }
+    .admin-sidebar { position: fixed; inset-block: 0; inset-inline-start: 0; z-index: 50; width: 260px; display: flex; flex-direction: column; background: var(--color-card-bg); border-inline-end: 1px solid var(--color-border); transition: transform .2s ease-out; }
+    .admin-sidebar-closed { transform: translateX(-100%); }
+    .admin-sidebar-open { transform: translateX(0); }
+    .admin-main { flex: 1 1 0%; min-width: 0; padding: 1.5rem 1.25rem 3rem; }
+    .admin-icon-btn { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface-subtle); color: var(--color-text); transition: transform .18s ease, border-color .18s ease, color .18s ease; }
+    .admin-icon-btn:hover { transform: translateY(-2px); border-color: var(--color-primary); color: var(--color-primary); }
+    .admin-icon-btn-danger { color: #e11d48; }
+    .admin-icon-btn-danger:hover { border-color: #e11d48; color: #e11d48; }
+    @@media (min-width: 1024px) {
+        .admin-shell { flex-direction: row; overflow: hidden; }
+        .admin-mobile-bar { display: none; }
+        .admin-sidebar { position: static; height: 100vh; overflow-y: auto; transform: none !important; }
+        .admin-main { height: 100vh; overflow-y: auto; padding: 1.75rem 2.25rem 3.5rem; }
+    }
+</style>
+
+<div x-data="{
+        mobileSidebarOpen: false,
+        isDark: document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark'),
+        toggleTheme() {
+            this.isDark = !this.isDark;
+            const next = this.isDark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.classList.toggle('dark', this.isDark);
+            try { localStorage.setItem('hc_theme', next); } catch (e) {}
+        }
+    }" class="admin-shell">
+
+    <div class="admin-mobile-bar">
+        <div class="flex items-center gap-3 min-w-0">
+            <button type="button" @@click="mobileSidebarOpen = true" aria-label="Open admin navigation" class="p-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#menu"></use></svg>
+            </button>
+            <span class="text-sm font-semibold text-[var(--color-text)] truncate">Platform Administration</span>
+        </div>
+        <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Operational</span>
+    </div>
+
+    <div x-cloak x-show="mobileSidebarOpen" x-transition.opacity @@click="mobileSidebarOpen = false" class="fixed inset-0 z-40 bg-black/40 lg:hidden"></div>
+
+    <aside :class="mobileSidebarOpen ? 'admin-sidebar-open' : 'admin-sidebar-closed'" class="admin-sidebar">
+        <div class="flex flex-col flex-1 overflow-y-auto px-3.5 py-5">
+            <div class="flex items-center justify-between gap-2.5 px-2 pb-4">
+                <a href="/Admin" class="flex items-center gap-2.5 min-w-0 group">
+                    <div class="w-10 h-10 shrink-0 rounded-full border border-[var(--color-border)] bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors truncate leading-tight">HomeChef Admin</p>
+                        <p class="text-xs text-[var(--color-text-muted)] truncate mt-0.5">@adminName</p>
+                    </div>
+                </a>
+                <button type="button" @@click="mobileSidebarOpen = false" aria-label="Close admin navigation" class="lg:hidden p-1 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <div class="px-1.5 pb-4">
+                <div class="flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)]">
+                    <span class="text-xs font-medium text-[var(--color-text-muted)]">Platform Status</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-[var(--color-border)] bg-[var(--color-card-bg)] text-xs font-medium text-[var(--color-text)]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Operational</span>
+                </div>
+            </div>
+
+            <nav aria-label="Admin portal navigation" class="space-y-0.5">
+                <a href="/Admin" aria-current="@(activeTab == "kpis" ? "page" : null)" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @NavClass("kpis")">
+                    <svg class="w-4 h-4 @(activeTab == "kpis" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#layout-grid"></use></svg><span>Dashboard</span>
+                </a>
+                <a href="/Admin/Chefs" aria-current="@(activeTab == "applications" ? "page" : null)" class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @NavClass("applications")">
+                    <span class="flex items-center gap-2.5"><svg class="w-4 h-4 @(activeTab == "applications" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user-check"></use></svg><span>Chef Applications</span></span>
+                    @if (pendingApplications > 0) { <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-muted)]">@pendingApplications</span> }
+                </a>
+                <a href="/Admin/Orders" aria-current="@(activeTab == "orders" ? "page" : null)" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @NavClass("orders")">
+                    <svg class="w-4 h-4 @(activeTab == "orders" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#receipt"></use></svg><span>Order Settlements</span>
+                </a>
+                <a href="/Admin/Payouts" aria-current="@(activeTab == "payouts" ? "page" : null)" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @NavClass("payouts")">
+                    <svg class="w-4 h-4 @(activeTab == "payouts" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg><span>Cash &amp; Payouts</span>
+                </a>
+
+                <hr class="my-3 border-[var(--color-border)]" />
+
+                <a href="/Admin/Users" aria-current="@(activeTab == "users" ? "page" : null)" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @NavClass("users")">
+                    <svg class="w-4 h-4 @(activeTab == "users" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#users"></use></svg><span>User Accounts</span>
+                </a>
+                <a href="/Admin/Reviews" aria-current="@(activeTab == "reviews" ? "page" : null)" class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @NavClass("reviews")">
+                    <span class="flex items-center gap-2.5"><svg class="w-4 h-4 @(activeTab == "reviews" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#star"></use></svg><span>Review Moderation</span></span>
+                    @if (pendingReviews > 0) { <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-muted)]">@pendingReviews</span> }
+                </a>
+                <a href="/Admin/Settings" aria-current="@(activeTab == "settings" ? "page" : null)" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @NavClass("settings")">
+                    <svg class="w-4 h-4 @(activeTab == "settings" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sliders"></use></svg><span>Platform Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="px-3.5 py-3.5 border-t border-[var(--color-border)] space-y-3">
+            <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)] transition-colors"><svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#home"></use></svg><span>View Marketplace</span></a>
+            <div class="flex items-center justify-between gap-2 px-1">
+                <button type="button" @@click="toggleTheme()" :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'" :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'" class="admin-icon-btn cursor-pointer"><svg x-show="!isDark" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#moon"></use></svg><svg x-show="isDark" x-cloak class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sun"></use></svg></button>
+                <form asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button type="submit" title="Log out" aria-label="Log out" class="admin-icon-btn admin-icon-btn-danger cursor-pointer"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg></button></form>
+            </div>
+        </div>
+    </aside>
+
+    <div class="admin-main">@RenderBody()</div>
+</div>
+
+@section Scripts { @await RenderSectionAsync("Scripts", required: false) }

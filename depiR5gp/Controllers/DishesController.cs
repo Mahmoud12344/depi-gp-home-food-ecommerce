@@ -6,35 +6,31 @@ using depiR5gp.Data;
 using depiR5gp.Models.Menu;
 using depiR5gp.Models.ReviewsLoyalty;
 using depiR5gp.Models.Users;
+using depiR5gp.Services.Interfaces;
 using depiR5gp.ViewModels;
 
 namespace depiR5gp.Controllers;
 
-public class DishesController(ApplicationDbContext context, UserManager<AppUser> userManager, ILogger<DishesController> logger) : Controller
+public class DishesController(ApplicationDbContext context, UserManager<AppUser> userManager, ILogger<DishesController> logger, IDishService dishService) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index()
-    {
-        List<Dish> dishes = await context.Dishes
-            .AsNoTracking()
-            .Include(dish => dish.DishOptions)
-            .Include(dish => dish.Category)
-            .Include(dish => dish.ChefProfile)
-            .Where(dish => !dish.IsArchived)
-            .OrderBy(dish => dish.Id)
-            .ToListAsync();
-
-        ViewData["DishCatalog"] = dishes;
-        return View();
-    }
+    public async Task<IActionResult> Index(DishFilterViewModel filter)
+        => View(await dishService.GetCatalogAsync(filter));
 
     [HttpGet("Dishes/Details/{id:int}")]
     public async Task<IActionResult> Details(int id)
     {
         Dish? dish = await context.Dishes
             .AsNoTracking()
-            .Include(dish => dish.DishOptions)
-            .SingleOrDefaultAsync(dish => dish.Id == id && !dish.IsArchived);
+            .Include(d => d.DishOptions)
+            .Include(d => d.Category)
+            .Include(d => d.Cuisine)
+            .Include(d => d.ChefProfile)
+                .ThenInclude(c => c.User)
+            .SingleOrDefaultAsync(d => d.Id == id
+                                    && !d.IsArchived
+                                    && d.ChefProfile.Status == "Approved"
+                                    && d.ChefProfile.User.Status == UserStatus.Active);
 
         if (dish is null)
         {
@@ -46,15 +42,59 @@ public class DishesController(ApplicationDbContext context, UserManager<AppUser>
             return NotFound();
         }
 
-        logger.LogInformation(
-            "Loaded dish details. DishId={DishId}, Available={Available}, Database={Database}",
-            dish.Id,
-            dish.IsAvailable,
-            context.Database.GetDbConnection().Database);
+        List<Review> reviews = await context.Reviews
+            .AsNoTracking()
+            .Include(r => r.User)
+            .Where(r => r.ChefProfileId == dish.ChefProfileId && r.ModerationStatus == "Approved")
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync();
+
+        double averageRating = reviews.Count > 0 ? Math.Round(reviews.Average(r => (double)r.Rating), 1) : 0;
+
+        // Build dynamic gallery starting with this dish's photo, then other photos from the same kitchen
+        List<string> galleryImages = [];
+        if (!string.IsNullOrWhiteSpace(dish.ImageUrl))
+        {
+            galleryImages.Add(dish.ImageUrl);
+        }
+
+        List<string?> siblingDishImages = await context.Dishes
+            .AsNoTracking()
+            .Where(d => d.ChefProfileId == dish.ChefProfileId && d.Id != dish.Id && !d.IsArchived && d.ImageUrl != null)
+            .Select(d => d.ImageUrl)
+            .Take(4)
+            .ToListAsync();
+
+        foreach (var img in siblingDishImages)
+        {
+            if (!string.IsNullOrWhiteSpace(img) && !galleryImages.Contains(img))
+            {
+                galleryImages.Add(img);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(dish.ChefProfile?.PhotoUrl) && !galleryImages.Contains(dish.ChefProfile.PhotoUrl))
+        {
+            galleryImages.Add(dish.ChefProfile.PhotoUrl);
+        }
+
+        if (galleryImages.Count == 0)
+        {
+            galleryImages.Add("/icons/chibi-chef.png");
+        }
 
         AppUser? user = await userManager.GetUserAsync(User);
         bool isFavorite = user is not null && await context.Favorites.AnyAsync(favorite => favorite.UserId == user.Id && favorite.DishId == id);
-        return View(new DishDetailsVM { Dish = dish, IsFavorite = isFavorite });
+
+        return View(new DishDetailsVM
+        {
+            Dish = dish,
+            IsFavorite = isFavorite,
+            GalleryImages = galleryImages,
+            Reviews = reviews,
+            AverageRating = averageRating,
+            ReviewCount = reviews.Count
+        });
     }
 
     [HttpGet]
@@ -67,14 +107,16 @@ public class DishesController(ApplicationDbContext context, UserManager<AppUser>
 
         var dishes = await context.Dishes
             .AsNoTracking()
-            .Where(dish => !dish.IsArchived)
+            .Where(dish => !dish.IsArchived
+                        && dish.ChefProfile.Status == "Approved"
+                        && dish.ChefProfile.User.Status == UserStatus.Active)
             .Select(dish => new
             {
                 id = dish.Id,
                 name = dish.Name,
                 price = dish.Price,
                 image = dish.ImageUrl,
-                isAvailable = dish.IsAvailable,
+                isAvailable = dish.IsAvailable && dish.ChefProfile.IsAcceptingOrders,
                 isFavorite = favoriteDishIds.Contains(dish.Id)
             })
             .ToListAsync();
@@ -103,7 +145,10 @@ public class DishesController(ApplicationDbContext context, UserManager<AppUser>
             return Unauthorized(new { loginRequired = true });
 
         var dishExists = await context.Dishes
-            .AnyAsync(d => d.Id == id && !d.IsArchived);
+            .AnyAsync(d => d.Id == id
+                        && !d.IsArchived
+                        && d.ChefProfile.Status == "Approved"
+                        && d.ChefProfile.User.Status == UserStatus.Active);
 
         if (!dishExists)
             return NotFound(new
@@ -138,9 +183,7 @@ public class DishesController(ApplicationDbContext context, UserManager<AppUser>
         await context.SaveChangesAsync();
 
         var count = await context.Favorites
-            .CountAsync(f =>
-                f.UserId == user.Id &&
-                f.DishId != null);
+            .CountAsync(f => f.UserId == user.Id);
 
         logger.LogInformation(
             "Favorite toggled. UserId={UserId}, DishId={DishId}, IsFavorite={IsFavorite}, Count={Count}",
@@ -170,7 +213,7 @@ public class DishesController(ApplicationDbContext context, UserManager<AppUser>
             return Json(new { count = 0 });
 
         var count = await context.Favorites
-            .CountAsync(f => f.UserId == user.Id && f.DishId != null);
+            .CountAsync(f => f.UserId == user.Id);
 
         return Json(new { count });
     }

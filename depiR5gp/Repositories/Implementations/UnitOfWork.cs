@@ -1,4 +1,6 @@
 using depiR5gp.Data;
+using depiR5gp.Models.Payments;
+using depiR5gp.Models.Support;
 using depiR5gp.Repositories.Interfaces;
 
 namespace depiR5gp.Repositories.Implementations;
@@ -12,11 +14,15 @@ public class UnitOfWork : IUnitOfWork
     public IDishRepository Dishes { get; }
     public ICartRepository Carts { get; }
     public IOrderRepository Orders { get; }
+    IReviewRepository IUnitOfWork.Reviews => Reviews;
     public IReviewRepository Reviews { get; }
     public IConversationRepository Conversations { get; }
     public ISupportRepository SupportCases { get; }
     public IUserRepository Users { get; }
-    public IPlatformSettingRepository PlatformSettingRepository{ get;}
+    public IPlatformSettingRepository PlatformSettingRepository { get; }
+    public IGenericRepository<Faq> Faqs { get; }
+    public IGenericRepository<Payout> Payouts { get; }
+    public IGenericRepository<LedgerEntry> LedgerEntries { get; }
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -30,6 +36,9 @@ public class UnitOfWork : IUnitOfWork
         SupportCases = new SupportRepository(_context);
         Users = new UserRepository(_context);
         PlatformSettingRepository = new PlatformSettingRepository(_context);
+        Faqs = new GenericRepository<Faq>(_context);
+        Payouts = new GenericRepository<Payout>(_context);
+        LedgerEntries = new GenericRepository<LedgerEntry>(_context);
     }
 
     // الدالة المطلوبة للواجهة IUnitOfWork

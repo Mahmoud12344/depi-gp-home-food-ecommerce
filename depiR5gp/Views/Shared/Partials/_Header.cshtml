@@ -8,24 +8,7 @@
 <header class="sticky top-0 z-30 w-full bg-[var(--color-surface)] shadow-xs transition-colors"
         x-data="{ mobileMenuOpen: false, searchOpen: false, notificationsOpen: false, userDropdownOpen: false }">
 
-    <!-- 1. Marquee Announcement Bar: Dark text on coral with min 13px font size -->
-    <div class="w-full bg-[#ff7e6b] text-[#1f1b19] text-[13px] py-2 overflow-hidden border-b border-black/10 select-none font-medium">
-        <div class="animate-marquee flex items-center gap-8 whitespace-nowrap tracking-wide">
-            <span>Order authentic home-cooked food from certified domestic kitchens</span>
-            <span class="opacity-60">✦</span>
-            <span>Direct kitchen counter pickup · NO delivery markups</span>
-            <span class="opacity-60">✦</span>
-            <span>Join our foodie club &amp; enjoy up to 20% off your first kitchen pickup</span>
-            <span class="opacity-60">✦</span>
-            <span>100% pure Egyptian baladi ghee &amp; freshly butchered meats</span>
-            <span class="opacity-60">✦</span>
-            <span>Order authentic home-cooked food from certified domestic kitchens</span>
-            <span class="opacity-60">✦</span>
-            <span>Direct kitchen counter pickup · NO delivery markups</span>
-        </div>
-    </div>
-
-    <!-- 2. Main Header Bar: 1fr auto 1fr Grid for perfectly centered logo -->
+    <!-- Main Header Bar: 1fr auto 1fr Grid for perfectly centered logo -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="h-18 sm:h-20 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
             <!-- Left Column (1fr) -->
@@ -169,7 +152,7 @@
                         <div class="space-y-2 max-h-60 overflow-y-auto">
                             <!-- TODO(backend): Loop through notifications model -->
                             <!-- BEGIN SAMPLE -->
-                            <a href="/Orders/Track/1" class="block p-2 rounded-xl text-xs cursor-pointer transition-colors bg-[var(--color-primary-light)] font-medium">
+                            <a href="/Customer/MyOrders" class="block p-2 rounded-xl text-xs cursor-pointer transition-colors bg-[var(--color-primary-light)] font-medium">
                                 <p class="font-semibold text-[var(--color-primary)]">
                                     Order #HC-2026-9041 Accepted!
                                 </p>
@@ -232,6 +215,14 @@
                                    class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs font-semibold text-[var(--color-primary)]">
                                     <span>Chef Dashboard</span>
                                 </a>
+                                <a href="/Chefs/EditProfile" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>Edit Kitchen Profile</span>
+                                </a>
+                                <a href="/Dashboard" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>Application Status</span>
+                                </a>
                             }
                             @if (User.IsInRole("Support"))
                             {
@@ -241,29 +232,37 @@
                                 </a>
                             }
 
-                            <a href="/Customer/Profile" @@click="userDropdownOpen = false"
-                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                                <span>My Profile</span>
-                            </a>
-                            <a href="/Customer/MyOrders" @@click="userDropdownOpen = false"
-                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                                <span>Order History</span>
-                            </a>
+                            @if (User.IsInRole("Customer"))
+                            {
+                                <a href="/Customer/Profile" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>My Profile</span>
+                                </a>
+                                <a href="/Customer/MyOrders" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>Order History</span>
+                                </a>
+                                <a href="/Customer/Reviews" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>My Reviews</span>
+                                </a>
+                                <a href="/Customer/Points" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>Loyalty Points</span>
+                                </a>
+                            }
+
                             <a href="/Chat" @@click="userDropdownOpen = false"
                                class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs flex items-center justify-between">
                                 <span>Chat Inbox</span>
-                                <span class="px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-bold text-[10px]">2</span>
                             </a>
                             <a href="/Support" @@click="userDropdownOpen = false"
                                class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                                <span>My Support Cases</span>
-                            </a>
-                            <a href="/Customer/Points" @@click="userDropdownOpen = false"
-                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                                <span>Loyalty Points</span>
+                                <span>Support Center</span>
                             </a>
 
                             <form asp-controller="Account" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
                                 <button type="submit"
                                         class="w-full text-start px-2 py-1.5 text-rose-600 hover:bg-rose-50 rounded-xs flex items-center gap-1.5 mt-1 border-t border-[var(--color-border-light)] cursor-pointer">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>
@@ -318,6 +317,17 @@
              style="display: none;"
              class="py-3 border-t border-[var(--color-border)]">
             <form method="get" action="/Dishes" class="flex items-center gap-2 max-w-xl mx-auto">
+                @if (Context.Request.Path.StartsWithSegments("/Dishes"))
+                {
+                    foreach (var key in new[] { "category", "area", "minPrice", "maxPrice", "sort" })
+                    {
+                        var v = Context.Request.Query[key].ToString();
+                        if (!string.IsNullOrEmpty(v))
+                        {
+                            <input type="hidden" name="@key" value="@v" />
+                        }
+                    }
+                }
                 <div class="relative flex-1">
                     <input type="text"
                            name="search"

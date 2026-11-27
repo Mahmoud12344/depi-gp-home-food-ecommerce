@@ -1,0 +1,530 @@
+@using depiR5gp.ViewModels
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["HideHeader"] = true;
+    ViewData["HideFooter"] = true;
+
+    var activeTab = (ViewData["ActiveChefTab"] as string ?? "overview").ToLowerInvariant();
+    var activeSubTab = (ViewData["ActiveChefSubTab"] as string ?? "").ToLowerInvariant();
+    var header = ViewData["ChefHeader"] as ChefPortalHeaderVM ?? new ChefPortalHeaderVM
+    {
+        KitchenName = "My Home Kitchen",
+        AreaName = "Cairo",
+        IsAcceptingOrders = true,
+        Status = "Approved"
+    };
+
+    var isProfileGroup = activeTab is "profile" or "hours" or "documents";
+    var statusDotColor = header.Status switch
+    {
+        "Approved" => "bg-emerald-500",
+        "Rejected" => "bg-rose-500",
+        _ => "bg-amber-500"
+    };
+    var statusLabel = header.Status switch
+    {
+        "Approved" => "Verified",
+        "Rejected" => "Rejected",
+        _ => "Pending"
+    };
+}
+
+<style>
+    .chef-shell {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100vh;
+        overflow-y: auto;
+        background-color: var(--color-bg);
+    }
+
+    .chef-mobile-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background-color: var(--color-card-bg);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .chef-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        inset-inline-start: 0;
+        z-index: 50;
+        width: 260px;
+        flex-shrink: 0;
+        background-color: var(--color-card-bg);
+        border-inline-end: 1px solid var(--color-border);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s ease-out;
+    }
+
+    .chef-sidebar-closed {
+        transform: translateX(-100%);
+    }
+
+    .chef-sidebar-open {
+        transform: translateX(0);
+    }
+
+    .chef-main {
+        flex: 1 1 0%;
+        min-width: 0;
+        padding: 1.5rem 1.25rem 3rem;
+    }
+
+    .chef-container {
+        max-width: 1160px;
+        margin-inline: auto;
+        width: 100%;
+    }
+
+    .chef-menu-grid {
+        display: grid;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .chef-dish-img-wrap {
+        position: relative;
+        height: 215px;
+        background-color: var(--color-surface-subtle);
+        overflow: hidden;
+    }
+
+    .chef-dish-img-wrap img {
+        transition: transform 0.38s cubic-bezier(0.22, 0.68, 0.36, 1), opacity 0.25s ease;
+    }
+
+    .chef-dish-card:hover .chef-dish-img-wrap img {
+        transform: scale(1.05);
+    }
+
+    .chef-card-fx {
+        box-shadow: 0 2px 10px -2px rgba(45, 35, 28, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: transform 0.22s cubic-bezier(0.22, 0.68, 0.36, 1),
+                    box-shadow 0.22s ease,
+                    border-color 0.22s ease;
+    }
+
+    .chef-card-fx:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 28px -8px rgba(125, 70, 48, 0.14), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+        border-color: rgba(var(--color-primary-rgb), 0.35);
+    }
+
+    [data-theme="dark"] .chef-card-fx,
+    .dark .chef-card-fx {
+        box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 245, 235, 0.06);
+    }
+
+    [data-theme="dark"] .chef-card-fx:hover,
+    .dark .chef-card-fx:hover {
+        box-shadow: 0 16px 32px -6px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(226, 138, 104, 0.3);
+        border-color: rgba(226, 138, 104, 0.4);
+    }
+
+    @@keyframes chefFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .chef-fade-up {
+        animation: chefFadeUp 0.36s cubic-bezier(0.22, 0.68, 0.36, 1) both;
+    }
+
+    .chef-icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--color-border);
+        background-color: var(--color-surface-subtle);
+        color: var(--color-text);
+        cursor: pointer;
+        transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .chef-icon-btn:hover {
+        transform: translateY(-2px);
+        background-color: var(--color-card-bg);
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+        box-shadow: 0 6px 14px -4px rgba(0, 0, 0, 0.15);
+    }
+
+    .chef-icon-btn-danger {
+        color: #e11d48;
+    }
+
+    [data-theme="dark"] .chef-icon-btn-danger,
+    .dark .chef-icon-btn-danger {
+        color: #fb7185;
+    }
+
+    .chef-icon-btn-danger:hover {
+        border-color: #e11d48;
+        color: #e11d48;
+        background-color: rgba(225, 29, 72, 0.08);
+    }
+
+    [data-theme="dark"] .chef-icon-btn-danger:hover,
+    .dark .chef-icon-btn-danger:hover {
+        border-color: #fb7185;
+        color: #fda4af;
+        background-color: rgba(251, 113, 133, 0.14);
+    }
+
+    .chef-avatar-sm {
+        width: 38px;
+        height: 38px;
+        border-radius: 9999px;
+        object-fit: cover;
+        border: 1px solid var(--color-border);
+        flex-shrink: 0;
+    }
+
+    .chef-avatar-lg {
+        width: 80px;
+        height: 80px;
+        border-radius: 9999px;
+        object-fit: cover;
+        border: 2px solid var(--color-border);
+        flex-shrink: 0;
+    }
+
+    @@media (min-width: 768px) {
+        .chef-menu-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (min-width: 1024px) {
+        .chef-menu-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    .chef-setting-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding-block: 1.25rem;
+        align-items: start;
+    }
+
+    .chef-setting-row-center {
+        align-items: center;
+    }
+
+    @@media (min-width: 1024px) {
+        .chef-shell {
+            flex-direction: row;
+            align-items: stretch;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chef-mobile-bar {
+            display: none;
+        }
+
+        .chef-sidebar {
+            position: static;
+            z-index: auto;
+            height: 100vh;
+            overflow-y: auto;
+            transform: none !important;
+        }
+
+        .chef-main {
+            height: 100vh;
+            overflow-y: auto;
+            padding: 1.75rem 2.25rem 3.5rem;
+        }
+
+        .chef-setting-row {
+            grid-template-columns: 270px 1fr;
+            gap: 2rem;
+        }
+    }
+</style>
+
+<div x-data="{
+        mobileSidebarOpen: false,
+        profileGroupOpen: @(isProfileGroup ? "true" : "false"),
+        isKitchenOpen: @(header.IsAcceptingOrders ? "true" : "false"),
+        isDark: document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark'),
+        toggling: false,
+        toggleTheme() {
+            this.isDark = !this.isDark;
+            const next = this.isDark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.classList.toggle('dark', this.isDark);
+            try { localStorage.setItem('hc_theme', next); } catch (e) {}
+        },
+        async toggleAvailability() {
+            if (this.toggling) return;
+            this.toggling = true;
+            try {
+                const token = this.$refs.availToken.querySelector('input[name=__RequestVerificationToken]')?.value || '';
+                const res = await fetch('/ChefDashboard/ToggleAvailability', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'RequestVerificationToken': token
+                    }
+                });
+                if (!res.ok) throw new Error('Request failed');
+                const data = await res.json();
+                if (data.success) {
+                    this.isKitchenOpen = !!data.isAcceptingOrders;
+                    window.dispatchEvent(new CustomEvent('hc-toast', {
+                        detail: { type: this.isKitchenOpen ? 'success' : 'info', message: data.message }
+                    }));
+                }
+            } catch (e) {
+                window.dispatchEvent(new CustomEvent('hc-toast', {
+                    detail: { type: 'error', message: 'Could not update kitchen status. Please try again.' }
+                }));
+            } finally {
+                this.toggling = false;
+            }
+        }
+    }"
+     class="chef-shell">
+
+    <span x-ref="availToken" class="hidden">@Html.AntiForgeryToken()</span>
+
+    <!-- Mobile Top Bar -->
+    <div class="chef-mobile-bar">
+        <div class="flex items-center gap-3 min-w-0">
+            <button type="button"
+                    @@click="mobileSidebarOpen = true"
+                    aria-label="Open chef menu"
+                    class="p-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-subtle)] cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#menu"></use></svg>
+            </button>
+            <span class="text-sm font-semibold text-[var(--color-text)] truncate">@header.KitchenName</span>
+        </div>
+
+        <button type="button"
+                @@click="toggleAvailability()"
+                :disabled="toggling"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-card-bg)] text-xs font-medium cursor-pointer">
+            <span class="w-2 h-2 rounded-full" :class="isKitchenOpen ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+            <span x-text="isKitchenOpen ? 'Online' : 'Paused'">@(header.IsAcceptingOrders ? "Online" : "Paused")</span>
+        </button>
+    </div>
+
+    <!-- Mobile Backdrop -->
+    <div x-cloak
+         x-show="mobileSidebarOpen"
+         x-transition.opacity
+         @@click="mobileSidebarOpen = false"
+         class="fixed inset-0 z-40 bg-black/40 lg:hidden"></div>
+
+    <!-- Untitled UI Style Sidebar with Section Dividers -->
+    <aside :class="mobileSidebarOpen ? 'chef-sidebar-open' : 'chef-sidebar-closed'"
+           class="chef-sidebar">
+
+        <div class="flex flex-col flex-1 overflow-y-auto px-3.5 py-5">
+            <!-- Kitchen Identity -->
+            <div class="flex items-center justify-between gap-2.5 px-2 pb-4">
+                <a href="/Chefs/EditProfile" class="flex items-center gap-2.5 min-w-0 group">
+                    @if (!string.IsNullOrWhiteSpace(header.PhotoUrl))
+                    {
+                        <img src="@header.PhotoUrl" alt="@header.KitchenName" class="chef-avatar-sm" />
+                    }
+                    else
+                    {
+                        <div class="chef-avatar-sm bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#user"></use></svg>
+                        </div>
+                    }
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors truncate leading-tight">@header.KitchenName</p>
+                        @if (!string.IsNullOrWhiteSpace(header.AreaName))
+                        {
+                            <p class="text-xs text-[var(--color-text-muted)] truncate mt-0.5">@header.AreaName</p>
+                        }
+                    </div>
+                </a>
+                <button type="button"
+                        @@click="mobileSidebarOpen = false"
+                        aria-label="Close menu"
+                        class="lg:hidden p-1 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                </button>
+            </div>
+
+            <!-- Kitchen Status Toggle -->
+            <div class="px-1.5 pb-4">
+                <button type="button"
+                        @@click="toggleAvailability()"
+                        :disabled="toggling"
+                        class="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] hover:border-[var(--color-primary)]/50 transition-colors cursor-pointer disabled:opacity-60">
+                    <span class="text-xs font-medium text-[var(--color-text-muted)]">Kitchen Status</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-[var(--color-border)] bg-[var(--color-card-bg)] text-xs font-medium text-[var(--color-text)]">
+                        <span class="w-1.5 h-1.5 rounded-full" :class="isKitchenOpen ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                        <span x-text="isKitchenOpen ? 'Online' : 'Paused'">@(header.IsAcceptingOrders ? "Online" : "Paused")</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- Navigation -->
+            <nav aria-label="Chef Portal Navigation" class="space-y-0.5">
+                <a href="/ChefDashboard"
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "overview" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "overview" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#layout-grid"></use></svg>
+                        <span>Dashboard</span>
+                    </span>
+                </a>
+
+                <a href="/ChefDashboard/Orders"
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "orders" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "orders" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                        <span>Live Orders</span>
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-muted)]">
+                        @header.ActiveOrdersCount
+                    </span>
+                </a>
+
+                <a href="/MenuManagement"
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "menu" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "menu" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#utensils"></use></svg>
+                        <span>Menu &amp; Dishes</span>
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-muted)]">
+                        @header.DishesCount
+                    </span>
+                </a>
+
+                <hr class="my-3 border-[var(--color-border)]" />
+
+                <!-- Expandable Kitchen Profile Group -->
+                <div>
+                    <button type="button"
+                            @@click="profileGroupOpen = !profileGroupOpen"
+                            class="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer @(isProfileGroup ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                        <span class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 @(isProfileGroup ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sliders"></use></svg>
+                            <span>Kitchen Profile</span>
+                        </span>
+                        <svg class="w-3.5 h-3.5 transition-transform duration-150"
+                             :class="profileGroupOpen ? 'rotate-180' : ''"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chevron-down"></use></svg>
+                    </button>
+
+                    <div x-show="profileGroupOpen" x-transition class="mt-0.5 space-y-0.5 ps-7">
+                        <a href="/Chefs/EditProfile?tab=profile"
+                           class="block px-3 py-1.5 rounded-lg text-sm font-medium transition-colors @(activeTab == "profile" && (activeSubTab == "profile" || activeSubTab == "") ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                            Kitchen Details
+                        </a>
+                        <a href="/Chefs/EditProfile?tab=hours"
+                           class="block px-3 py-1.5 rounded-lg text-sm font-medium transition-colors @(activeTab == "profile" && activeSubTab == "hours" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                            Working Hours
+                        </a>
+                        <a href="/Chefs/EditProfile?tab=documents"
+                           class="block px-3 py-1.5 rounded-lg text-sm font-medium transition-colors @(activeTab == "profile" && activeSubTab == "documents" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                            Documents
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="my-3 border-[var(--color-border)]" />
+
+                <a href="/ChefDashboard/History"
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "history" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "history" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#receipt"></use></svg>
+                        <span>Order History</span>
+                    </span>
+                </a>
+
+                <a href="/ChefDashboard/Reviews"
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "reviews" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "reviews" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#star"></use></svg>
+                        <span>Reviews</span>
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-muted)]">
+                        @header.ReviewsCount
+                    </span>
+                </a>
+
+                <a href="/ChefDashboard/Wallet"
+                   class="flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "wallet" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                    <span class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 @(activeTab == "wallet" ? "text-[var(--color-primary)]" : "opacity-75")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#wallet"></use></svg>
+                        <span>Wallet &amp; Payouts</span>
+                    </span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Bottom Utility Bar (Verification + Icon-only Theme & Logout) -->
+        <div class="px-3.5 py-3.5 border-t border-[var(--color-border)] space-y-3">
+            <a href="/Dashboard"
+               class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors @(activeTab == "status" ? "bg-[var(--color-surface-subtle)] text-[var(--color-text)] font-semibold" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]")">
+                <span class="flex items-center gap-2.5">
+                    <svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shield-check"></use></svg>
+                    <span>Verification</span>
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] text-xs font-medium text-[var(--color-text)]">
+                    <span class="w-1.5 h-1.5 rounded-full @statusDotColor"></span>
+                    <span>@statusLabel</span>
+                </span>
+            </a>
+
+            <div class="flex items-center justify-between gap-2 px-1">
+                <button type="button"
+                        @@click="toggleTheme()"
+                        :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+                        :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+                        class="chef-icon-btn">
+                    <svg x-show="!isDark" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#moon"></use></svg>
+                    <svg x-show="isDark" x-cloak class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#sun"></use></svg>
+                </button>
+
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            title="Log out"
+                            aria-label="Log out"
+                            class="chef-icon-btn chef-icon-btn-danger">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Balanced Main Workspace -->
+    <div class="chef-main">
+        <div class="chef-container">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

@@ -1,52 +1,111 @@
+@model List<depiR5gp.Models.Chefs.ChefProfile>
 @{
     ViewData["Title"] = "Chef Applications - Admin Portal";
     ViewData["ActiveAdminTab"] = "applications";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var currentStatus = (ViewBag.CurrentStatus as string) ?? "Pending";
 }
-<!-- Views/Admin/Chefs.cshtml -->
-<!-- Source: home_chef/src/pages/AdminDashboardPage.tsx (Views/Admin/Partials/_AdminDashboard.cshtml lines 276-311) -->
-<!-- TODO(backend): Loop through pending ChefApplications; wire Approve and Reject actions calling AdminController -->
 
 <div class="w-full pb-24">
-    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
-
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
-        <!-- TAB 2: Chef Applications -->
-        <div class="space-y-4">
-            <!-- BEGIN SAMPLE: Unrolled Pending Chef Application from _AdminDashboard.cshtml -->
-            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div class="space-y-1 text-xs">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-950 dark:text-amber-100 bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 px-2.5 py-0.5 rounded-full">
-                        Application Pending Review
-                    </span>
-                    <h3 class="text-base font-bold uppercase text-[var(--color-text)]">Kareem's Alexandria Seafood (Chef Kareem Nour)</h3>
-                    <p class="text-[var(--color-text-muted)]">Building 12, Abbas El-Akkad, Nasr City, Cairo · Area: Nasr City</p>
-                    <p class="text-[var(--color-primary)] font-semibold">ID: EGY-2930411-NAT · Cert: FS-CAIRO-2026-992</p>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <!-- TODO(backend): POST /Admin/Chefs (chefId=chef-4, decision=Reject) -->
-                    <form method="post" action="/Admin/Chefs" class="inline">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="chefId" value="chef-4" />
-                        <input type="hidden" name="decision" value="Reject" />
-                        <button type="submit"
-                                class="px-4 py-2 border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-surface)] text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer">
-                            Reject Application
-                        </button>
-                    </form>
-                    <!-- TODO(backend): POST /Admin/Chefs (chefId=chef-4, decision=Approve) -->
-                    <form method="post" action="/Admin/Chefs" class="inline">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="chefId" value="chef-4" />
-                        <input type="hidden" name="decision" value="Approve" />
-                        <button type="submit"
-                                class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-colors cursor-pointer">
-                            Approve &amp; Grant Kitchen
-                        </button>
-                    </form>
-                </div>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
+        <!-- Status Filter Pills -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-bold uppercase tracking-tight text-[var(--color-text)]">
+                    Chef Verification Queue
+                </h2>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                    Review submitted kitchen details, hygiene certificates, and IDs before granting kitchen access.
+                </p>
             </div>
-            <!-- END SAMPLE -->
+
+            <div class="flex items-center gap-2 flex-wrap">
+                @foreach (var tab in new[] { ("Pending", "Pending"), ("Approved", "Approved"), ("Rejected", "Rejected"), ("Suspended", "Suspended"), ("all", "All") })
+                {
+                    var isActive = string.Equals(currentStatus, tab.Item1, StringComparison.OrdinalIgnoreCase);
+                    <a asp-controller="Admin"
+                       asp-action="Chefs"
+                       asp-route-status="@tab.Item1"
+                       class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors @(isActive ? "bg-[var(--color-primary)] text-white shadow-xs" : "bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]")">
+                        @tab.Item2
+                    </a>
+                }
+            </div>
         </div>
+
+        <!-- Applications List -->
+        @if (Model == null || !Model.Any())
+        {
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-12 text-center space-y-3 shadow-xs">
+                <div class="w-12 h-12 mx-auto rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
+                </div>
+                <h3 class="text-base font-bold text-[var(--color-text)]">No chef applications in this view</h3>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                    All @currentStatus.ToLowerInvariant() applications have been handled.
+                </p>
+            </div>
+        }
+        else
+        {
+            <div class="space-y-4">
+                @foreach (var chef in Model)
+                {
+                    var badgeClass = chef.Status switch
+                    {
+                        "Approved" => "text-emerald-900 dark:text-emerald-100 bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-700",
+                        "Rejected" => "text-rose-900 dark:text-rose-100 bg-rose-100 dark:bg-rose-950/80 border-rose-300 dark:border-rose-700",
+                        "Suspended" => "text-neutral-900 dark:text-neutral-100 bg-neutral-200 dark:bg-neutral-800 border-neutral-400 dark:border-neutral-600",
+                        _ => "text-amber-950 dark:text-amber-100 bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-700"
+                    };
+
+                    var chefFullName = chef.User != null ? $"{chef.User.FirstName} {chef.User.LastName}".Trim() : "Applicant";
+                    var docCount = chef.Documents?.Count ?? 0;
+
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-[var(--color-primary)]/40 transition-colors">
+                        <div class="space-y-1.5 text-xs">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-[10px] font-bold uppercase tracking-widest border px-2.5 py-0.5 rounded-full @badgeClass">
+                                    @chef.Status
+                                </span>
+                                <span class="text-[11px] text-[var(--color-text-muted)] font-medium">
+                                    Application #@chef.Id · @docCount Document@(docCount == 1 ? "" : "s") Uploaded
+                                </span>
+                            </div>
+
+                            <h3 class="text-base font-bold text-[var(--color-text)]">
+                                @chef.KitchenName
+                                <span class="font-medium text-[var(--color-text-muted)] text-xs">(@chefFullName)</span>
+                            </h3>
+
+                            <p class="text-[var(--color-text-muted)]">
+                                @(string.IsNullOrWhiteSpace(chef.Address) ? "Address not provided" : chef.Address)
+                                @if (!string.IsNullOrWhiteSpace(chef.Area))
+                                {
+                                    <span> · Area: @depiR5gp.Models.Chefs.PickupAreas.NameOf(chef.Area)</span>
+                                }
+                            </p>
+
+                            @if (chef.User?.Email != null)
+                            {
+                                <p class="text-[var(--color-primary)] font-semibold">
+                                    @chef.User.Email @(!string.IsNullOrWhiteSpace(chef.User.PhoneNumber) ? $"· {chef.User.PhoneNumber}" : "")
+                                </p>
+                            }
+                        </div>
+
+                        <div class="flex items-center gap-2 shrink-0">
+                            <a asp-controller="Admin"
+                               asp-action="ReviewApplication"
+                               asp-route-id="@chef.Id"
+                               class="inline-flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full transition-colors shadow-xs">
+                                <span>@(chef.Status == "Pending" ? "Review Application" : "View Details")</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#arrow-right"></use></svg>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     </div>
 </div>

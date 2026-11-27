@@ -26,7 +26,9 @@ public class DemoUsersSeeder : ISeeder
         string? KitchenName,
         string? KitchenBio,
         string? StatusChangeReason,
-        int StatusDaysAgo = 0);
+        int StatusDaysAgo = 0,
+        string? KitchenStatus = null,
+        bool IncludeLicenseDoc = true);
 
     public async Task SeedAsync(SeedContext context)
     {
@@ -70,6 +72,27 @@ public class DemoUsersSeeder : ISeeder
                 "11 Sphinx St, Giza", "01011110007",
                 "Samir's Gourmet Burgers", "Hand-crafted beef burgers and loaded waffle fries.",
                 "Permanent account deactivation requested by chef owner.", 30),
+
+            // Chefs with Pending Applications (for Admin Review & Chef Application Status testing)
+            new("chef.amina", "Amina", "El-Gohary", AppRoles.Chef, UserStatus.Active, 0,
+                "19 Road 206, Degla, Maadi, Cairo", "01011110008",
+                "Amina's Heritage Kitchen", "Traditional duck molokhia, stuffed pigeon, and authentic rural Egyptian casseroles.",
+                null, 0, "Pending", true),
+
+            new("chef.hany", "Hany", "Roshdy", AppRoles.Chef, UserStatus.Active, 0,
+                "42 El-Merghany St, Heliopolis, Cairo", "01011110009",
+                "Hany's Gourmet Grills", "Charcoal-grilled kebabs, tarb, and slow-braised oxtail tagines.",
+                null, 0, "Pending", true),
+
+            new("chef.nabil", "Nabil", "Fawzy", AppRoles.Chef, UserStatus.Active, 0,
+                "12 Abbas El-Akkad St, Nasr City, Cairo", "01011110010",
+                "Om Nabil Casseroles", "Clay-oven okra with lamb, moussaka, and classic homemade béchamel pasta.",
+                null, 0, "Pending", false),
+
+            new("chef.salma", "Salma", "Hegazy", AppRoles.Chef, UserStatus.Active, 0,
+                "6 Shooting Club St, Dokki, Giza", "01011110011",
+                "Salma's Upper Egyptian Table", "Authentic Saidi keshk, fayesh, and slow-cooked earthen pot specialties.",
+                null, 0, "Pending", true),
 
             // Customers - Diverse statuses, points, and locations
             new("customer.sara", "Sara", "Ahmed", AppRoles.Customer, UserStatus.Active, 250,
@@ -157,16 +180,42 @@ public class DemoUsersSeeder : ISeeder
                 var hasProfile = await context.DbContext.ChefProfiles.AnyAsync(c => c.UserId == newUser.Id);
                 if (!hasProfile)
                 {
+                    var resolvedKitchenStatus = data.KitchenStatus
+                        ?? (data.Status == UserStatus.Active
+                            ? "Approved"
+                            : (data.Status == UserStatus.Suspended ? "Suspended" : "Rejected"));
+
                     var chefProfile = new ChefProfile
                     {
                         UserId = newUser.Id,
                         KitchenName = data.KitchenName ?? $"{data.FirstName}'s Kitchen",
                         Bio = data.KitchenBio ?? "Home-cooked food made with love.",
                         Address = data.Address,
-                        Status = data.Status == UserStatus.Active ? "Approved" : (data.Status == UserStatus.Suspended ? "Suspended" : "Rejected"),
+                        Area = ResolveAreaFromAddress(data.Address),
+                        Status = resolvedKitchenStatus,
                         HasAcceptedTerms = true,
                         CommissionRate = 0.15m
                     };
+
+                    chefProfile.Documents.Add(new ChefDocument
+                    {
+                        DocType = "Identity",
+                        FileUrl = "/uploads/chef_documents/1380f947-8228-4f68-bcef-458dcf92bf9d_Identity.pdf"
+                    });
+                    chefProfile.Documents.Add(new ChefDocument
+                    {
+                        DocType = "HealthCertificate",
+                        FileUrl = "/uploads/chef_documents/324da830-0875-4d7e-9c85-ac960e8533be_HealthCertificate.pdf"
+                    });
+                    if (data.IncludeLicenseDoc)
+                    {
+                        chefProfile.Documents.Add(new ChefDocument
+                        {
+                            DocType = "CulinaryLicense",
+                            FileUrl = "/uploads/chef_documents/8c19c441-4293-468e-b01c-c3d774441548_CulinaryLicense.pdf"
+                        });
+                    }
+
                     context.DbContext.ChefProfiles.Add(chefProfile);
                 }
             }
@@ -189,6 +238,33 @@ public class DemoUsersSeeder : ISeeder
         }
 
         await context.DbContext.SaveChangesAsync();
+
+        // Backfill missing Area for existing chefs so area filters work out of the box
+        var chefsWithoutArea = await context.DbContext.ChefProfiles
+            .Where(c => c.Area == null && c.Address != null)
+            .ToListAsync(context.CancellationToken);
+
+        if (chefsWithoutArea.Count > 0)
+        {
+            foreach (var chef in chefsWithoutArea)
+            {
+                chef.Area = ResolveAreaFromAddress(chef.Address);
+            }
+            await context.DbContext.SaveChangesAsync(context.CancellationToken);
+        }
+    }
+
+    private static string ResolveAreaFromAddress(string? address)
+    {
+        if (string.IsNullOrWhiteSpace(address)) return "maadi";
+        var a = address.ToLowerInvariant();
+        if (a.Contains("dokki") || a.Contains("mohandessin")) return "dokki";
+        if (a.Contains("heliopolis")) return "heliopolis";
+        if (a.Contains("zamalek")) return "zamalek";
+        if (a.Contains("nasr city")) return "nasr_city";
+        if (a.Contains("new cairo") || a.Contains("settlement")) return "new_cairo";
+        if (a.Contains("zayed") || a.Contains("october")) return "zayed";
+        return "maadi";
     }
 }
 

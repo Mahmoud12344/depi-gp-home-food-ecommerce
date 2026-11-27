@@ -1,0 +1,246 @@
+@model depiR5gp.Models.Chefs.ChefProfile
+@{
+    ViewData["Title"] = $"Review Application - {Model.KitchenName}";
+    ViewData["ActiveAdminTab"] = "applications";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var idDoc = Model.Documents?.FirstOrDefault(d =>
+        string.Equals(d.DocType, "Identity", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(d.DocType, "IdDocument", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(d.DocType, "ID", StringComparison.OrdinalIgnoreCase));
+    var healthDoc = Model.Documents?.FirstOrDefault(d =>
+        string.Equals(d.DocType, "HealthCertificate", StringComparison.OrdinalIgnoreCase));
+    var licenseDoc = Model.Documents?.FirstOrDefault(d =>
+        string.Equals(d.DocType, "CulinaryLicense", StringComparison.OrdinalIgnoreCase));
+
+    var statusBadgeClass = Model.Status switch
+    {
+        "Approved" => "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700",
+        "Rejected" => "bg-rose-100 text-rose-900 dark:bg-rose-950/80 dark:text-rose-200 border-rose-300 dark:border-rose-700",
+        _ => "bg-amber-100 text-amber-950 dark:bg-amber-950/80 dark:text-amber-200 border-amber-300 dark:border-amber-700"
+    };
+
+    var applicantName = Model.User != null ? $"{Model.User.FirstName} {Model.User.LastName}".Trim() : "Unknown Applicant";
+}
+
+<div class="w-full pb-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
+        <!-- Header Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-[10px] font-bold uppercase tracking-widest border px-2.5 py-0.5 rounded-full @statusBadgeClass">
+                        @Model.Status
+                    </span>
+                    <span class="text-xs text-[var(--color-text-muted)]">Application #@Model.Id</span>
+                </div>
+                <h2 class="text-2xl font-bold text-[var(--color-text)]">
+                    @Model.KitchenName
+                </h2>
+            </div>
+
+            <a asp-controller="Admin"
+               asp-action="Chefs"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--color-border)] bg-[var(--color-card-bg)] hover:border-[var(--color-primary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text)] transition-colors self-start sm:self-auto">
+                <span>&larr; Back to Applications</span>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left Column: Kitchen Details + Documents -->
+            <div class="lg:col-span-7 space-y-6">
+                <!-- Kitchen & Applicant Details -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+                    <div class="px-6 py-4 bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)]">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
+                            Kitchen &amp; Applicant Details
+                        </h3>
+                    </div>
+                    <dl class="divide-y divide-[var(--color-border-light)] text-xs">
+                        <div class="px-6 py-3.5 grid grid-cols-3 gap-4">
+                            <dt class="text-[var(--color-text-muted)] font-semibold">Applicant</dt>
+                            <dd class="col-span-2 font-bold text-[var(--color-text)]">@applicantName</dd>
+                        </div>
+                        @if (Model.User != null)
+                        {
+                            <div class="px-6 py-3.5 grid grid-cols-3 gap-4">
+                                <dt class="text-[var(--color-text-muted)] font-semibold">Contact</dt>
+                                <dd class="col-span-2 text-[var(--color-text)]">
+                                    @Model.User.Email
+                                    @if (!string.IsNullOrWhiteSpace(Model.User.PhoneNumber))
+                                    {
+                                        <span class="text-[var(--color-text-muted)]"> · @Model.User.PhoneNumber</span>
+                                    }
+                                </dd>
+                            </div>
+                        }
+                        <div class="px-6 py-3.5 grid grid-cols-3 gap-4">
+                            <dt class="text-[var(--color-text-muted)] font-semibold">Pickup Area</dt>
+                            <dd class="col-span-2 font-semibold text-[var(--color-text)]">
+                                @(string.IsNullOrWhiteSpace(Model.Area) ? "Not specified" : depiR5gp.Models.Chefs.PickupAreas.NameOf(Model.Area))
+                            </dd>
+                        </div>
+                        <div class="px-6 py-3.5 grid grid-cols-3 gap-4">
+                            <dt class="text-[var(--color-text-muted)] font-semibold">Address</dt>
+                            <dd class="col-span-2 font-semibold text-[var(--color-text)]">@(Model.Address ?? "Not provided")</dd>
+                        </div>
+                        <div class="px-6 py-3.5 grid grid-cols-3 gap-4">
+                            <dt class="text-[var(--color-text-muted)] font-semibold">Terms Accepted</dt>
+                            <dd class="col-span-2 font-semibold @(Model.HasAcceptedTerms ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600")">
+                                @(Model.HasAcceptedTerms ? "Yes — Commission & Hygiene Agreement Accepted" : "No")
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Uploaded Documents -->
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xs">
+                    <div class="px-6 py-4 bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)]">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
+                            Uploaded Verification Documents
+                        </h3>
+                    </div>
+                    <ul class="divide-y divide-[var(--color-border-light)] text-xs">
+                        <li class="px-6 py-4 flex items-center justify-between gap-4">
+                            <div>
+                                <p class="font-bold text-[var(--color-text)]">National ID</p>
+                                <p class="text-[11px] text-[var(--color-text-muted)]">Required government-issued identity document</p>
+                            </div>
+                            @if (idDoc != null && !string.IsNullOrEmpty(idDoc.FileUrl))
+                            {
+                                var idUrl = idDoc.FileUrl.StartsWith("/") ? idDoc.FileUrl : $"/uploads/chef_documents/{idDoc.FileUrl}";
+                                <a href="@idUrl" target="_blank" rel="noopener noreferrer"
+                                   class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[11px] font-bold uppercase tracking-wider transition-colors shrink-0">
+                                    View Document
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-rose-600 font-semibold">Not uploaded</span>
+                            }
+                        </li>
+
+                        <li class="px-6 py-4 flex items-center justify-between gap-4">
+                            <div>
+                                <p class="font-bold text-[var(--color-text)]">Health Certificate</p>
+                                <p class="text-[11px] text-[var(--color-text-muted)]">Required food safety &amp; hygiene clearance</p>
+                            </div>
+                            @if (healthDoc != null && !string.IsNullOrEmpty(healthDoc.FileUrl))
+                            {
+                                var healthUrl = healthDoc.FileUrl.StartsWith("/") ? healthDoc.FileUrl : $"/uploads/chef_documents/{healthDoc.FileUrl}";
+                                <a href="@healthUrl" target="_blank" rel="noopener noreferrer"
+                                   class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[11px] font-bold uppercase tracking-wider transition-colors shrink-0">
+                                    View Document
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-rose-600 font-semibold">Not uploaded</span>
+                            }
+                        </li>
+
+                        <li class="px-6 py-4 flex items-center justify-between gap-4">
+                            <div>
+                                <p class="font-bold text-[var(--color-text)]">Culinary License</p>
+                                <p class="text-[11px] text-[var(--color-text-muted)]">Optional commercial or culinary permit</p>
+                            </div>
+                            @if (licenseDoc != null && !string.IsNullOrEmpty(licenseDoc.FileUrl))
+                            {
+                                var licenseUrl = licenseDoc.FileUrl.StartsWith("/") ? licenseDoc.FileUrl : $"/uploads/chef_documents/{licenseDoc.FileUrl}";
+                                <a href="@licenseUrl" target="_blank" rel="noopener noreferrer"
+                                   class="px-4 py-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[11px] font-bold uppercase tracking-wider transition-colors shrink-0">
+                                    View Document
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-[var(--color-text-muted)]">Not provided (Optional)</span>
+                            }
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: Decision Panel -->
+            <div class="lg:col-span-5 space-y-6">
+                @if (Model.Status == "Pending")
+                {
+                    <!-- Approve Form -->
+                    <div class="bg-[var(--color-card-bg)] border border-emerald-300 dark:border-emerald-800 rounded-3xl overflow-hidden shadow-xs">
+                        <div class="px-6 py-4 bg-emerald-600 text-white">
+                            <h3 class="text-xs font-bold uppercase tracking-wider">Approve Application</h3>
+                        </div>
+                        <form asp-controller="Admin" asp-action="ApproveApplication" method="post" class="p-6 space-y-4 text-xs">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <div>
+                                <label for="approvalNotes" class="block font-semibold text-[var(--color-text)] mb-1.5">
+                                    Approval Notes (Optional)
+                                </label>
+                                <textarea name="approvalNotes" id="approvalNotes" rows="3"
+                                          placeholder="e.g., All documents are valid and verified."
+                                          class="w-full p-3 rounded-xl bg-white dark:bg-neutral-900 border border-[var(--color-border)] text-[var(--color-text)] focus:border-emerald-500 focus:outline-hidden"></textarea>
+                            </div>
+                            <button type="submit"
+                                    class="w-full py-3 px-5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                                Approve &amp; Activate Kitchen
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Reject Form -->
+                    <div class="bg-[var(--color-card-bg)] border border-rose-300 dark:border-rose-800 rounded-3xl overflow-hidden shadow-xs">
+                        <div class="px-6 py-4 bg-rose-600 text-white">
+                            <h3 class="text-xs font-bold uppercase tracking-wider">Reject Application</h3>
+                        </div>
+                        <form asp-controller="Admin" asp-action="RejectApplication" method="post" class="p-6 space-y-4 text-xs">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <div>
+                                <label for="rejectionReason" class="block font-semibold text-[var(--color-text)] mb-1.5">
+                                    Rejection Reason (Required)
+                                </label>
+                                <textarea name="rejectionReason" id="rejectionReason" rows="3" required
+                                          placeholder="e.g., The health certificate is expired or illegible."
+                                          class="w-full p-3 rounded-xl bg-white dark:bg-neutral-900 border border-[var(--color-border)] text-[var(--color-text)] focus:border-rose-500 focus:outline-hidden"></textarea>
+                            </div>
+                            <button type="submit"
+                                    class="w-full py-3 px-5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                                Reject Application
+                            </button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <!-- Already Processed Banner -->
+                    <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-6 space-y-4 shadow-xs text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase tracking-widest border px-2.5 py-0.5 rounded-full @statusBadgeClass">
+                                @Model.Status
+                            </span>
+                            <h3 class="text-sm font-bold text-[var(--color-text)]">Decision Recorded</h3>
+                        </div>
+                        <p class="text-[var(--color-text-muted)] leading-relaxed">
+                            This application has already been processed and its status can no longer be changed from the review queue.
+                        </p>
+                        @if (Model.Status == "Approved" && !string.IsNullOrWhiteSpace(Model.ApprovalNotes))
+                        {
+                            <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+                                <p class="font-bold text-emerald-800 dark:text-emerald-200 mb-1">Approval Notes</p>
+                                <p class="text-emerald-900 dark:text-emerald-100">@Model.ApprovalNotes</p>
+                            </div>
+                        }
+                        @if (Model.Status == "Rejected" && !string.IsNullOrWhiteSpace(Model.RejectionReason))
+                        {
+                            <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800">
+                                <p class="font-bold text-rose-800 dark:text-rose-200 mb-1">Rejection Reason</p>
+                                <p class="text-rose-900 dark:text-rose-100">@Model.RejectionReason</p>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

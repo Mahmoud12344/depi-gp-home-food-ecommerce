@@ -2,6 +2,8 @@ using depiR5gp.Data;
 using depiR5gp.Data.Seeding;
 using depiR5gp.Models.Users;
 using Microsoft.AspNetCore.Identity;
+using depiR5gp.Services;
+using depiR5gp.Services.Implementation;
 using depiR5gp.Services.Implementations;
 using depiR5gp.Services.Interfaces;
 using Microsoft.Data.SqlClient;
@@ -51,10 +53,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
     options.ValidationInterval = TimeSpan.Zero);
 
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 // Register Repositories & Unit of Work
 builder.Services.AddScoped(typeof(depiR5gp.Repositories.Interfaces.IGenericRepository<>), typeof(depiR5gp.Repositories.Implementations.GenericRepository<>));
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IUnitOfWork, depiR5gp.Repositories.Implementations.UnitOfWork>();
+builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IUserRepository, depiR5gp.Repositories.Implementations.UserRepository>();
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IChefRepository, depiR5gp.Repositories.Implementations.ChefRepository>();
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.IDishRepository, depiR5gp.Repositories.Implementations.DishRepository>();
 builder.Services.AddScoped<depiR5gp.Repositories.Interfaces.ICartRepository, depiR5gp.Repositories.Implementations.CartRepository>();
@@ -67,12 +72,21 @@ builder.Services.AddScoped<IFileService, LocalFileService>();
 builder.Services.AddControllersWithViews();
 //chef Services
 builder.Services.AddScoped<depiR5gp.Services.Interfaces.IChefService, depiR5gp.Services.Implementations.ChefService>();
+builder.Services.AddScoped<IDishService, DishService>();
 
-// Database Seeding Infrastructure (Development only)
-if (builder.Environment.IsDevelopment())
+// Database Seeding: Core seeders run in every environment (clean deployable baseline);
+// Demo seeders only run when Seeding:EnableDemoData=true AND the environment is Development.
+builder.Services.AddSeeders(builder.Configuration);
+if (!builder.Environment.IsDevelopment())
 {
-    builder.Services.AddSeeders(builder.Configuration);
+    builder.Services.PostConfigure<depiR5gp.Data.Seeding.SeedingOptions>(o => o.EnableDemoData = false);
 }
+
+//Admin Service
+builder.Services.AddScoped<IAdminService, AdminService>();
+
+//ChefProfile Service 
+builder.Services.AddScoped<IChefProfileService, ChefProfileService>();
 
 var app = builder.Build();
 
@@ -103,6 +117,12 @@ try
 
             IF COL_LENGTH('AppUsers', 'is_suspended') IS NOT NULL
             BEGIN
+                DECLARE @suspDefName sysname;
+                SELECT @suspDefName = [d].[name]
+                FROM [sys].[default_constraints] [d]
+                INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+                WHERE ([d].[parent_object_id] = OBJECT_ID(N'[AppUsers]') AND [c].[name] = N'is_suspended');
+                IF @suspDefName IS NOT NULL EXEC(N'ALTER TABLE [AppUsers] DROP CONSTRAINT [' + @suspDefName + '];');
                 ALTER TABLE [AppUsers] DROP COLUMN [is_suspended];
             END;
 
@@ -141,6 +161,16 @@ try
 
     db.Database.Migrate();
 
+    // Normalize legacy order status strings to the single canonical lifecycle:
+    // Pending -> Preparing -> Ready -> Completed (plus Cancelled / Rejected)
+    db.Database.ExecuteSqlRaw(@"
+        IF OBJECT_ID(N'[Orders]', N'U') IS NOT NULL
+        BEGIN
+            UPDATE [Orders] SET [status] = N'Completed', [payment_status] = N'Paid' WHERE [status] = N'Delivered';
+            UPDATE [Orders] SET [status] = N'Ready' WHERE [status] = N'OutForDelivery';
+        END;
+    ");
+
     // Ensure essential Identity roles exist in all environments (Production, Staging, Development)
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
     foreach (var role in AppRoles.All)
@@ -157,17 +187,14 @@ catch (Exception ex)
     logger.LogWarning("⚠️ Could not auto-apply migrations on startup ({Message}). Continuing...", ex.Message);
 }
 
-if (app.Environment.IsDevelopment())
+try
 {
-    try
-    {
-        await app.SeedDatabaseAsync();
-    }
-    catch (Exception ex)
-    {
-        var logger = app.Services.GetRequiredService<ILogger<Program>>();
-        logger.LogWarning("⚠️ Could not seed database on startup ({Message}). The application will continue running in offline/mock mode.", ex.Message);
-    }
+    await app.SeedDatabaseAsync();
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning("⚠️ Could not seed database on startup ({Message}). The application will continue running.", ex.Message);
 }
 
 if (!app.Environment.IsDevelopment())

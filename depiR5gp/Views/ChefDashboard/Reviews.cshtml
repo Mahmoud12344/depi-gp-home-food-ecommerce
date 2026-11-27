@@ -1,99 +1,82 @@
+@model depiR5gp.ViewModels.ChefReviewsTabVM
+@using System.Globalization
 @{
+    Layout = "~/Views/Shared/_ChefLayout.cshtml";
     ViewData["Title"] = "Customer Reviews - Chef Portal";
     ViewData["ActiveChefTab"] = "reviews";
+    var inv = CultureInfo.InvariantCulture;
 }
-<!-- Views/ChefDashboard/Reviews.cshtml -->
-<!-- Source: home_chef/src/pages/ChefDashboardPage.tsx (Views/Chefs/Partials/_ChefDashboard.cshtml lines 476-513) -->
-<!-- Backlog Subtask: SCRUM-556 -->
-<!-- TODO(backend): Add Reviews() action to ChefDashboardController and bind Model.Reviews and Model.AverageRating -->
 
-<div x-data="{
-    isKitchenAvailable: true,
-    editProfileOpen: false
-}" class="w-full pb-24">
+<div class="w-full space-y-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
+        <div>
+            <h1 class="text-2xl font-semibold text-[var(--color-text)] tracking-tight">Customer Reviews</h1>
+            <p class="text-sm text-[var(--color-text-muted)] mt-1">
+                Verified feedback left by customers on your completed kitchen orders.
+            </p>
+        </div>
+        <span class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-muted)] w-fit">
+            Read-Only (Platform Policy)
+        </span>
+    </div>
 
-    <partial name="~/Views/ChefDashboard/Partials/_ChefNav.cshtml" />
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <!-- TAB 4: Customer Reviews (SCRUM-556) -->
-        <div class="space-y-4">
-            <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border-light)] p-4 rounded-2xl flex items-center justify-between text-xs">
-                <div>
-                    <h3 class="font-bold uppercase text-[var(--color-text)]">
-                        Verified Kitchen Customer Feedback
-                    </h3>
-                    <p class="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-                        Rating average: <strong class="text-[var(--color-primary)]">4.9 / 5.0</strong> from 24 orders.
-                    </p>
-                </div>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    Read-Only (Platform Policy)
-                </span>
-            </div>
-
-            <div class="space-y-3">
-                <!-- BEGIN SAMPLE: Unrolled 3 Reviews from _ChefDashboard.cshtml -->
-                <!-- Review 1: Youssef Nabil -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-[var(--color-text)]">Youssef Nabil</span>
-                            <span class="text-[var(--color-text-muted)]">·</span>
-                            <span class="text-[11px] text-[var(--color-primary)] font-semibold">Baladi Duck Molokhia</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">2026-10-23</span>
-                    </div>
-                    <div class="flex items-center gap-1 text-amber-500">
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                    </div>
-                    <p class="text-[var(--color-text)] leading-relaxed italic">“The duck was browned to perfection with crispy skin and the molokhia was piping hot. Best homemade dinner in Maadi!”</p>
-                </div>
-
-                <!-- Review 2: Salma Fathy -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-[var(--color-text)]">Salma Fathy</span>
-                            <span class="text-[var(--color-text-muted)]">·</span>
-                            <span class="text-[11px] text-[var(--color-primary)] font-semibold">Feteer Meshaltet</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">2026-10-21</span>
-                    </div>
-                    <div class="flex items-center gap-1 text-amber-500">
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                    </div>
-                    <p class="text-[var(--color-text)] leading-relaxed italic">“Authentic baladi ghee flavor in the feteer. Portion was very generous for our family gathering.”</p>
-                </div>
-
-                <!-- Review 3: Karim Gad -->
-                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-[var(--color-text)]">Karim Gad</span>
-                            <span class="text-[var(--color-text-muted)]">·</span>
-                            <span class="text-[11px] text-[var(--color-primary)] font-semibold">Clay Oven Oxtail Tagine</span>
-                        </div>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">2026-10-18</span>
-                    </div>
-                    <div class="flex items-center gap-1 text-amber-500">
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><use href="#star"></use></svg>
-                    </div>
-                    <p class="text-[var(--color-text)] leading-relaxed italic">“Very tasty tagine, oxtail was fork-tender. Picked up on time right at the kitchen gate.”</p>
-                </div>
-                <!-- END SAMPLE -->
-            </div>
+    <div class="bg-[var(--color-surface-subtle)] border border-[var(--color-border)] p-4 rounded-2xl flex items-center justify-between text-xs">
+        <div>
+            <h3 class="font-bold uppercase text-[var(--color-text)]">
+                Verified Kitchen Customer Feedback
+            </h3>
+            <p class="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                @if (Model.TotalReviewsCount > 0)
+                {
+                    <span>Rating average: <strong class="text-[var(--color-primary)]">@Model.AverageRating.ToString("0.0", inv) / 5.0</strong> from @Model.TotalReviewsCount @(Model.TotalReviewsCount == 1 ? "review" : "reviews").</span>
+                }
+                else
+                {
+                    <span>No published reviews yet.</span>
+                }
+            </p>
         </div>
     </div>
-</div>
 
+    @if (Model.Reviews.Count == 0)
+    {
+        <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-10 text-center text-xs text-[var(--color-text-muted)]">
+            Customer reviews will appear here as soon as customers rate your completed orders.
+        </div>
+    }
+    else
+    {
+        <div class="space-y-3">
+            @foreach (var review in Model.Reviews)
+            {
+                <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-5 shadow-xs space-y-2 text-xs">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-[var(--color-text)]">@review.CustomerName</span>
+                            <span class="text-[var(--color-text-muted)]">·</span>
+                            <span class="text-[11px] text-[var(--color-primary)] font-semibold">@review.DishSummary</span>
+                        </div>
+                        <span class="text-[11px] text-[var(--color-text-muted)]">
+                            @review.CreatedAt.ToString("yyyy-MM-dd", inv)
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <svg class="w-3.5 h-3.5 fill-current @(i <= review.Rating ? "text-amber-500" : "text-neutral-300 dark:text-neutral-700")" viewBox="0 0 24 24">
+                                <use href="#star"></use>
+                            </svg>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(review.Comment))
+                    {
+                        <p class="text-[var(--color-text)] leading-relaxed italic">“@review.Comment”</p>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

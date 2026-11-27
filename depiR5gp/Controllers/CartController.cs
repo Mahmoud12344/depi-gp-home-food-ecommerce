@@ -17,7 +17,15 @@ public class CartController(ApplicationDbContext context, UserManager<AppUser> u
     public async Task<IActionResult> Index()
     {
         AppUser? user = await GetCurrentUserAsync();
-        List<CartItem> items = await GetOwnedItemsAsync(user?.Id, user is null ? GetGuestToken() : null);
+        string? guestToken = GetGuestToken();
+        if (user is not null && guestToken is not null)
+        {
+            await MergeGuestCartAsync(user.Id, guestToken);
+            await context.SaveChangesAsync();
+            Response.Cookies.Delete(GuestCartCookie);
+        }
+
+        List<CartItem> items = await GetOwnedItemsAsync(user?.Id, user is null ? guestToken : null);
         return View(new CartPageVM { Items = items.Select(ToViewModel).ToList() });
     }
 
@@ -25,7 +33,15 @@ public class CartController(ApplicationDbContext context, UserManager<AppUser> u
     public async Task<IActionResult> Count()
     {
         AppUser? user = await GetCurrentUserAsync();
-        return Json(new { count = await GetCartItemCountAsync(user?.Id, user is null ? GetGuestToken() : null) });
+        string? guestToken = GetGuestToken();
+        if (user is not null && guestToken is not null)
+        {
+            await MergeGuestCartAsync(user.Id, guestToken);
+            await context.SaveChangesAsync();
+            Response.Cookies.Delete(GuestCartCookie);
+        }
+
+        return Json(new { count = await GetCartItemCountAsync(user?.Id, user is null ? guestToken : null) });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -36,8 +52,22 @@ public class CartController(ApplicationDbContext context, UserManager<AppUser> u
         string? guestToken = GetGuestToken();
         if (user is null && guestToken is null) { guestToken = Guid.NewGuid().ToString("N"); AppendGuestCookie(guestToken); }
 
-        Dish? dish = await context.Dishes.AsNoTracking().Include(d => d.DishOptions).SingleOrDefaultAsync(d => d.Id == model.DishId);
-        if (dish is null || dish.IsArchived || !dish.IsAvailable) return CartError("This dish is currently unavailable.");
+        Dish? dish = await context.Dishes
+            .AsNoTracking()
+            .Include(d => d.DishOptions)
+            .Include(d => d.ChefProfile)
+                .ThenInclude(c => c.User)
+            .SingleOrDefaultAsync(d => d.Id == model.DishId);
+
+        if (dish is null
+            || dish.IsArchived
+            || !dish.IsAvailable
+            || dish.ChefProfile.Status != "Approved"
+            || !dish.ChefProfile.IsAcceptingOrders
+            || dish.ChefProfile.User.Status != UserStatus.Active)
+        {
+            return CartError("This dish or kitchen is currently unavailable for new orders.");
+        }
 
         string? note = NormalizeNote(model.Notes ?? model.SpecialInstructions);
         HashSet<int> optionIds = model.SelectedOptionIds.Where(id => id > 0).ToHashSet();
@@ -93,14 +123,15 @@ public class CartController(ApplicationDbContext context, UserManager<AppUser> u
 
         if (IsAjaxRequest())
         {
-            List<CartItem> items = await GetOwnedItemsAsync((await GetCurrentUserAsync())?.Id, GetGuestToken());
+            AppUser? currentUser = await GetCurrentUserAsync();
+            List<CartItem> items = await GetOwnedItemsAsync(currentUser?.Id, currentUser is null ? GetGuestToken() : null);
             return Json(new
             {
                 success = true,
                 itemId,
                 quantity = item.Quantity,
-                lineTotal = item.Quantity * item.Dish.Price,
-                subtotal = items.Sum(cartItem => cartItem.Quantity * cartItem.Dish.Price),
+                lineTotal = item.Quantity * GetUnitPrice(item),
+                subtotal = items.Sum(cartItem => cartItem.Quantity * GetUnitPrice(cartItem)),
                 totalQuantity = items.Sum(cartItem => cartItem.Quantity),
                 count = items.Sum(cartItem => cartItem.Quantity)
             });
@@ -156,13 +187,24 @@ public class CartController(ApplicationDbContext context, UserManager<AppUser> u
     private async Task<CartItem?> FindOwnedItemAsync(int id) => await OwnedQuery().SingleOrDefaultAsync(x => x.Id == id);
     private IQueryable<CartItem> OwnedQuery()
     {
-        IQueryable<CartItem> query = context.CartItems.Include(x => x.Dish).Include(x => x.Cart);
+        IQueryable<CartItem> query = context.CartItems
+            .Include(x => x.Dish)
+                .ThenInclude(d => d.ChefProfile)
+                    .ThenInclude(c => c.User)
+            .Include(x => x.Options)
+                .ThenInclude(o => o.DishOption)
+            .Include(x => x.Cart);
         string? userId = userManager.GetUserId(User);
         return int.TryParse(userId, out int id) ? query.Where(x => x.Cart.UserId == id && x.Cart.GuestToken == null) : query.Where(x => x.Cart.UserId == null && x.Cart.GuestToken == GetGuestToken());
     }
     private async Task<List<CartItem>> GetOwnedItemsAsync(int? userId, string? token)
     {
-        IQueryable<CartItem> query = context.CartItems.Include(x => x.Dish);
+        IQueryable<CartItem> query = context.CartItems
+            .Include(x => x.Dish)
+                .ThenInclude(d => d.ChefProfile)
+                    .ThenInclude(c => c.User)
+            .Include(x => x.Options)
+                .ThenInclude(o => o.DishOption);
         query = userId.HasValue ? query.Where(x => x.Cart.UserId == userId.Value && x.Cart.GuestToken == null) : query.Where(x => x.Cart.UserId == null && x.Cart.GuestToken == token);
         return await query.OrderBy(x => x.Id).ToListAsync();
     }
@@ -174,7 +216,28 @@ public class CartController(ApplicationDbContext context, UserManager<AppUser> u
     private async Task<AppUser?> GetCurrentUserAsync() => await userManager.GetUserAsync(User);
     private string? GetGuestToken() => Request.Cookies.TryGetValue(GuestCartCookie, out string? token) && Guid.TryParse(token, out _) ? token : null;
     private void AppendGuestCookie(string token) => Response.Cookies.Append(GuestCartCookie, token, new CookieOptions { HttpOnly = true, Secure = Request.IsHttps, SameSite = SameSiteMode.Lax, MaxAge = TimeSpan.FromDays(365), IsEssential = true });
-    private static CartPageItemVM ToViewModel(CartItem x) => new() { Id = x.Id, Name = x.Dish.Name, ImageUrl = x.Dish.ImageUrl, UnitPrice = x.Dish.Price, Quantity = x.Quantity, Note = x.Note, PresetKey = x.PresetKey, IsAvailable = x.Dish.IsAvailable && !x.Dish.IsArchived };
+    private static decimal GetUnitPrice(CartItem x) => x.Dish.Price + x.Options.Sum(o => o.DishOption?.ExtraPrice ?? 0m);
+    private static CartPageItemVM ToViewModel(CartItem x) => new()
+    {
+        Id = x.Id,
+        Name = x.Dish.Name,
+        ImageUrl = x.Dish.ImageUrl,
+        UnitPrice = GetUnitPrice(x),
+        Quantity = x.Quantity,
+        Note = x.Note,
+        PresetKey = x.PresetKey,
+        SelectedOptions = x.Options
+            .Where(o => o.DishOption != null)
+            .Select(o => o.DishOption.ExtraPrice > 0
+                ? $"{o.DishOption.Name} (+{o.DishOption.ExtraPrice:0.##} EGP)"
+                : o.DishOption.Name)
+            .ToList(),
+        IsAvailable = x.Dish.IsAvailable
+            && !x.Dish.IsArchived
+            && x.Dish.ChefProfile.Status == "Approved"
+            && x.Dish.ChefProfile.IsAcceptingOrders
+            && x.Dish.ChefProfile.User.Status == UserStatus.Active
+    };
     private static string? NormalizeNote(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     private static string BuildPresetKey(IEnumerable<int> ids, string? portion) => $"options:{string.Join(',', ids.OrderBy(x => x))}|portion:{portion?.Trim().ToLowerInvariant() ?? string.Empty}";
     private IActionResult CartError(string message) => IsAjaxRequest() ? BadRequest(new { success = false, message }) : RedirectWithError(message);

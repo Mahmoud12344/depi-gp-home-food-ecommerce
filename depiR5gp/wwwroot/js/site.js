@@ -2,6 +2,24 @@
 // Global Site Scripts
 // ============================================
 
+window.toggleTheme = function () {
+    try {
+        var current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        var next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('hc_theme', next);
+        document.documentElement.setAttribute('data-theme', next);
+        if (next === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: next } }));
+        return next;
+    } catch (e) {
+        return 'light';
+    }
+};
+
 // Anti-Forgery Token
 function getAntiForgeryToken() {
     var token = document.querySelector(
@@ -117,6 +135,9 @@ async function toggleFavorite(button) {
                     if (alpineData && 'favorited' in alpineData) {
                         alpineData.favorited = active;
                     }
+                    if (alpineData && 'isFav' in alpineData) {
+                        alpineData.isFav = active;
+                    }
                 } catch (error) {
                     console.warn(
                         'Could not update Alpine state:',
@@ -134,9 +155,18 @@ async function toggleFavorite(button) {
         }
 
         console.log('Favorite updated successfully:', data);
+        window.dispatchEvent(new CustomEvent('hc-toast', {
+            detail: {
+                type: 'success',
+                message: data.isFavorite ? 'Added dish to favorites.' : 'Removed dish from favorites.'
+            }
+        }));
 
     } catch (error) {
         console.error('Favorite error:', error);
+        window.dispatchEvent(new CustomEvent('hc-toast', {
+            detail: { type: 'error', message: error.message || 'Unable to update favorites.' }
+        }));
 
     } finally {
         delete button.dataset.busy;
@@ -144,10 +174,145 @@ async function toggleFavorite(button) {
     }
 }
 
+async function toggleChefFavorite(button) {
+    if (!button || button.dataset.busy === 'true') return;
 
-// Support both function names used by existing Razor views.
+    var chefId = button.getAttribute('data-favorite-chef-id');
+    var token = getAntiForgeryToken();
+
+    if (!chefId || !token) {
+        console.error('Missing chef ID or Anti-Forgery Token');
+        return;
+    }
+
+    button.dataset.busy = 'true';
+    button.disabled = true;
+
+    try {
+        var response = await fetch(
+            '/Chefs/ToggleFavorite?id=' + encodeURIComponent(chefId),
+            {
+                method: 'POST',
+                body: new URLSearchParams({
+                    __RequestVerificationToken: token
+                }),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                }
+            }
+        );
+
+        if (response.redirected || response.url.includes('/Account/Login')) {
+            window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
+
+        var data = await response.json();
+
+        if (!response.ok || !data.success) {
+            if (data.loginRequired) {
+                window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+            throw new Error(data.message || 'Unable to update favorite chef.');
+        }
+
+        var matchingButtons = document.querySelectorAll(
+            '[data-favorite-chef-id="' + CSS.escape(String(chefId)) + '"]'
+        );
+
+        matchingButtons.forEach(function (favoriteButton) {
+            var active = data.isFavorite;
+            favoriteButton.dataset.favoriteActive = active ? 'true' : 'false';
+            favoriteButton.setAttribute('aria-pressed', String(active));
+            favoriteButton.setAttribute('aria-label', active ? 'Remove chef from favorites' : 'Save chef to favorites');
+
+            var icon = favoriteButton.querySelector('svg');
+            if (icon) {
+                icon.classList.toggle('fill-rose-500', active);
+                icon.classList.toggle('text-rose-500', active);
+                icon.classList.toggle('fill-none', !active);
+            }
+
+            favoriteButton.classList.toggle('active', active);
+
+            var scope = favoriteButton.closest('[x-data]');
+            if (scope && window.Alpine) {
+                try {
+                    var alpineData = window.Alpine.$data(scope);
+                    if (alpineData && 'favorited' in alpineData) alpineData.favorited = active;
+                    if (alpineData && 'isFav' in alpineData) alpineData.isFav = active;
+                } catch (err) {
+                    console.warn('Could not update Alpine state:', err);
+                }
+            }
+        });
+
+        if (typeof data.count !== 'undefined') {
+            window.updateFavoritesCount(data.count);
+        } else {
+            window.refreshFavoritesCount();
+        }
+
+        window.dispatchEvent(new CustomEvent('hc-toast', {
+            detail: {
+                type: 'success',
+                message: data.isFavorite ? 'Added chef kitchen to favorites.' : 'Removed chef kitchen from favorites.'
+            }
+        }));
+    } catch (error) {
+        console.error('Chef favorite error:', error);
+        window.dispatchEvent(new CustomEvent('hc-toast', {
+            detail: { type: 'error', message: error.message || 'Unable to update favorites.' }
+        }));
+    } finally {
+        delete button.dataset.busy;
+        button.disabled = false;
+    }
+}
+
+async function restoreChefFavorites() {
+    var buttons = document.querySelectorAll('[data-favorite-chef-id]');
+    if (!buttons.length) return;
+
+    try {
+        var response = await fetch('/Chefs/FavoriteIds', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!response.ok) return;
+        var data = await response.json();
+        var ids = new Set((data.chefIds || []).map(String));
+
+        buttons.forEach(function (button) {
+            var active = ids.has(String(button.getAttribute('data-favorite-chef-id')));
+            button.dataset.favoriteActive = active ? 'true' : 'false';
+            button.setAttribute('aria-pressed', String(active));
+            var icon = button.querySelector('svg');
+            if (icon) {
+                icon.classList.toggle('fill-rose-500', active);
+                icon.classList.toggle('text-rose-500', active);
+                icon.classList.toggle('fill-none', !active);
+            }
+            var scope = button.closest('[x-data]');
+            if (scope && window.Alpine) {
+                try {
+                    var alpineData = window.Alpine.$data(scope);
+                    if (alpineData && 'favorited' in alpineData) alpineData.favorited = active;
+                    if (alpineData && 'isFav' in alpineData) alpineData.isFav = active;
+                } catch (e) {}
+            }
+        });
+    } catch (e) {
+        console.warn('Failed to restore chef favorites:', e);
+    }
+}
+
+// Support function names used across Razor views.
 window.toggleFavoriteDish = toggleFavorite;
 window.toggleDishFavorite = toggleFavorite;
+window.toggleChefFavorite = toggleChefFavorite;
+window.restoreChefFavorites = restoreChefFavorites;
 
 
 // ============================================
@@ -281,28 +446,6 @@ window.toggleDishFavorite = toggleFavorite;
                         }
                     });
 
-
-                // Fix dish details links.
-                document
-                    .querySelectorAll(
-                        '[onclick*="/Dishes/Details/"]'
-                    )
-                    .forEach(function (link) {
-
-                        var cardText = link.textContent || '';
-
-                        var dish = dishCatalog.find(function (item) {
-                            return cardText.indexOf(item.name) >= 0;
-                        });
-
-                        if (dish) {
-                            link.onclick = function () {
-                                window.location.href =
-                                    '/Dishes/Details/' + dish.id;
-                            };
-                        }
-                    });
-
             })
 
             .catch(function (error) {
@@ -425,6 +568,7 @@ window.toggleDishFavorite = toggleFavorite;
 
             refreshCartCount();
             refreshFavoritesCount();
+            if (window.restoreChefFavorites) window.restoreChefFavorites();
 
         });
 
@@ -436,11 +580,8 @@ window.toggleDishFavorite = toggleFavorite;
         document.addEventListener(
             'open-quick-view',
             function (event) {
-
-                if (event.detail) {
-                    event.detail = normalizeDishPayload(
-                        event.detail
-                    );
+                if (event.detail && typeof event.detail === 'object') {
+                    Object.assign(event.detail, normalizeDishPayload(event.detail));
                 }
             }
         );
@@ -453,11 +594,8 @@ window.toggleDishFavorite = toggleFavorite;
         document.addEventListener(
             'open-options-modal',
             function (event) {
-
-                if (event.detail) {
-                    event.detail = normalizeDishPayload(
-                        event.detail
-                    );
+                if (event.detail && typeof event.detail === 'object') {
+                    Object.assign(event.detail, normalizeDishPayload(event.detail));
                 }
             }
         );
@@ -552,6 +690,14 @@ window.toggleDishFavorite = toggleFavorite;
                             detail: data
                         })
                     );
+                    window.dispatchEvent(
+                        new CustomEvent('hc-toast', {
+                            detail: {
+                                type: 'success',
+                                message: data.message || 'Added to cart!'
+                            }
+                        })
+                    );
                 })
 
                 .catch(function (error) {
@@ -559,6 +705,14 @@ window.toggleDishFavorite = toggleFavorite;
                     window.dispatchEvent(
                         new CustomEvent('cart-error', {
                             detail: error.message
+                        })
+                    );
+                    window.dispatchEvent(
+                        new CustomEvent('hc-toast', {
+                            detail: {
+                                type: 'error',
+                                message: error.message || 'Could not add item to cart.'
+                            }
                         })
                     );
                 })

@@ -14,6 +14,8 @@ public class CustomerOrderVM
     public string ChefName { get; set; } = string.Empty;
     public decimal Total { get; set; }
     public string Status { get; set; } = string.Empty;
+    public bool HasReview { get; set; }
+    public byte? ReviewRating { get; set; }
     public IReadOnlyList<CustomerOrderItemVM> Items { get; set; } = [];
 }
 

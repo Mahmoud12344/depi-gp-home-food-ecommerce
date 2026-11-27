@@ -1,22 +1,16 @@
 <!-- Views/Shared/Partials/_OptionsDialog.cshtml -->
-<!-- Source: home_chef/src/components/common/OptionsDialog.tsx -->
-<!-- TODO(backend): Bind dish option groups, pricing modifiers, and cart customization server-side -->
-
 <div x-cloak
      x-data="{
          open: false,
-         dish: { id: 1, name: 'Baladi Duck Molokhia with Vermicelli Rice', kitchenName: 'Amina\'s Heritage Kitchen', price: 240 },
+         dish: { id: 1, name: '', kitchenName: '', price: 0, isAvailable: true, hasRequiredOptions: false },
          quantity: 1,
-         portionExtra: 0,
-         addonRice: false,
-         addonBread: false,
          note: '',
          get total() {
-             const extra = this.portionExtra + (this.addonRice ? 35 : 0) + (this.addonBread ? 15 : 0);
-             return ((this.dish.price || 240) + extra) * this.quantity;
+             return (Number(this.dish.price) || 0) * this.quantity;
          }
      }"
-     @@open-options-modal.window="if ($event.detail) dish = $event.detail; quantity = 1; portionExtra = 0; addonRice = false; addonBread = false; note = ''; open = true"
+     @@open-options-modal.window="if ($event.detail) dish = $event.detail; quantity = 1; note = ''; open = true"
+     @@cart-added.window="open = false"
      x-show="open"
      style="display: none;"
      x-transition:enter="transition ease-out duration-200"
@@ -29,7 +23,7 @@
 
     <form method="post" action="/Cart/Add"
           :data-dish-name="dish.name"
-          class="relative w-full max-w-lg bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-sm shadow-xl my-8 overflow-hidden"
+          class="relative w-full max-w-lg bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl shadow-xl my-8 overflow-hidden"
           @@click.away="open = false">
         @Html.AntiForgeryToken()
         <input type="hidden" name="dishId" :value="dish.id" />
@@ -38,176 +32,78 @@
         <!-- Header -->
         <div class="flex items-start justify-between p-4 sm:p-5 border-b border-[var(--color-border)]">
             <div>
-                <span class="text-xs text-[var(--color-primary)] font-medium"
-                      x-text="dish.kitchenName">
-                    Amina's Heritage Kitchen
-                </span>
-                <h3 class="text-base sm:text-lg font-bold uppercase tracking-tight text-[var(--color-text)] mt-0.5"
-                    x-text="dish.name">
-                    Baladi Duck Molokhia with Vermicelli Rice
-                </h3>
+                <span class="text-xs text-[var(--color-primary)] font-semibold" x-text="dish.kitchenName"></span>
+                <h3 class="text-base sm:text-lg font-bold uppercase tracking-tight text-[var(--color-text)] mt-0.5" x-text="dish.name"></h3>
                 <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-                    Customize options &amp; special instructions
+                    Select quantity &amp; add kitchen notes
                 </p>
             </div>
             <button type="button"
                     @@click="open = false"
                     class="p-1.5 text-neutral-400 hover:text-[var(--color-text)] transition-colors rounded-xs cursor-pointer"
                     aria-label="Close">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="#x"></use>
-                </svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
             </button>
         </div>
 
         <!-- Body -->
-        <div class="p-4 sm:p-6 space-y-6 max-h-[60vh] overflow-y-auto">
-            <!-- Option Groups -->
-            <!-- TODO(backend): Loop through Dish.OptionGroups (DishOptionGroup model); bind GroupName, IsRequired, IsMultiSelect, and OptionValues with PriceModifiers -->
-            <div class="space-y-5">
-                <!-- BEGIN SAMPLE -->
-                <!-- Group 1: Single-select Required -->
-                <div class="border-b border-[var(--color-border-light)] pb-5 last:border-0">
-                    <div class="flex items-baseline justify-between mb-2.5">
-                        <h4 class="text-sm font-bold uppercase tracking-wide text-[var(--color-text)]">
-                            Portion &amp; Duck Cut
-                        </h4>
-                        <span class="text-[11px] font-semibold text-[var(--color-primary)] bg-[var(--color-primary-light)] px-2 py-0.5 rounded-xs">
-                            Required
-                        </span>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label @@click="portionExtra = 0"
-                               :class="portionExtra === 0 ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)] font-medium' : 'border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                               class="flex items-center justify-between p-2.5 rounded-xs border cursor-pointer transition-colors">
-                            <div class="flex items-center gap-2.5">
-                                <input type="radio" name="portionOption" value="Quarter Duck Breast" checked class="sr-only" />
-                                <div :class="portionExtra === 0 ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white'"
-                                     class="w-4 h-4 rounded-full border flex items-center justify-center transition-colors">
-                                    <div x-show="portionExtra === 0" class="w-2 h-2 rounded-full bg-[var(--color-primary)]"></div>
-                                </div>
-                                <span class="text-xs">Quarter Roasted Duck Breast + Molokhia &amp; Rice</span>
-                            </div>
-                        </label>
-
-                        <label @@click="portionExtra = 95"
-                               :class="portionExtra === 95 ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)] font-medium' : 'border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                               class="flex items-center justify-between p-2.5 rounded-xs border cursor-pointer transition-colors">
-                            <div class="flex items-center gap-2.5">
-                                <input type="radio" name="portionOption" value="Half Duck Feast" class="sr-only" />
-                                <div :class="portionExtra === 95 ? 'border-[var(--color-primary)]' : 'border-neutral-400 bg-white'"
-                                     class="w-4 h-4 rounded-full border flex items-center justify-center transition-colors">
-                                    <div x-show="portionExtra === 95" class="w-2 h-2 rounded-full bg-[var(--color-primary)]"></div>
-                                </div>
-                                <span class="text-xs">Half Roasted Baladi Duck Feast (Serves 2)</span>
-                            </div>
-                            <span class="text-xs font-semibold">+95.00 EGP</span>
-                        </label>
-                    </div>
+        <div class="p-4 sm:p-6 space-y-5 max-h-[60vh] overflow-y-auto">
+            <template x-if="dish.hasRequiredOptions">
+                <div class="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200">
+                    This dish has required customization options (such as portion or stuffing choice). Please open the dish page to choose your options.
                 </div>
-
-                <!-- Group 2: Multi-select Optional -->
-                <div class="border-b border-[var(--color-border-light)] pb-5 last:border-0">
-                    <div class="flex items-baseline justify-between mb-2.5">
-                        <h4 class="text-sm font-bold uppercase tracking-wide text-[var(--color-text)]">
-                            Extra Sides &amp; Accompaniments
-                        </h4>
-                        <span class="text-[11px] text-[var(--color-text-muted)]">
-                            Optional
-                        </span>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label @@click.prevent="addonRice = !addonRice"
-                               :class="addonRice ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)] font-medium' : 'border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                               class="flex items-center justify-between p-2.5 rounded-xs border cursor-pointer transition-colors">
-                            <div class="flex items-center gap-2.5">
-                                <input type="checkbox" name="selectedOptions" value="Extra Vermicelli Rice" :checked="addonRice" class="sr-only" />
-                                <div :class="addonRice ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white'"
-                                     class="w-4 h-4 rounded-xs border flex items-center justify-center transition-colors">
-                                    <svg x-show="addonRice" class="w-3 h-3 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <use href="#check"></use>
-                                    </svg>
-                                </div>
-                                <span class="text-xs">Extra Vermicelli Baladi Rice Bowl</span>
-                            </div>
-                            <span class="text-xs font-semibold">+35.00 EGP</span>
-                        </label>
-
-                        <label @@click.prevent="addonBread = !addonBread"
-                               :class="addonBread ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)] font-medium' : 'border-[var(--color-border)] hover:bg-[var(--color-surface-subtle)] text-[var(--color-text)]'"
-                               class="flex items-center justify-between p-2.5 rounded-xs border cursor-pointer transition-colors">
-                            <div class="flex items-center gap-2.5">
-                                <input type="checkbox" name="selectedOptions" value="Pickled Eggplant & Baladi Bread" :checked="addonBread" class="sr-only" />
-                                <div :class="addonBread ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-neutral-400 bg-white'"
-                                     class="w-4 h-4 rounded-xs border flex items-center justify-center transition-colors">
-                                    <svg x-show="addonBread" class="w-3 h-3 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <use href="#check"></use>
-                                    </svg>
-                                </div>
-                                <span class="text-xs">Pickled Baladi Eggplant &amp; 2 Fresh Loaves</span>
-                            </div>
-                            <span class="text-xs font-semibold">+15.00 EGP</span>
-                        </label>
-                    </div>
-                </div>
-                <!-- END SAMPLE -->
-            </div>
-
-            <!-- Note Field -->
-            <div class="pt-2">
+            </template>
+            <div class="pt-1" x-show="!dish.hasRequiredOptions">
                 <div class="flex items-center justify-between mb-1.5">
-                    <label for="dish-note"
-                           class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    <label for="dish-note" class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
                         Note for Chef (Optional)
                     </label>
                     <span :class="note.length >= 190 ? 'text-rose-600 font-bold' : 'text-[var(--color-text-muted)]'"
                           class="text-[11px] font-mono"
-                          x-text="note.length + '/200'">
-                        0/200
-                    </span>
+                          x-text="note.length + '/200'">0/200</span>
                 </div>
                 <textarea id="dish-note"
                           name="specialInstructions"
                           x-model="note"
-                          rows="2"
+                          rows="3"
                           maxlength="200"
                           placeholder="e.g. Mild garlic, crispy bread, packing instructions..."
-                          class="w-full text-xs p-3 border border-[var(--color-border)] rounded-xs focus:border-[var(--color-primary)] focus:outline-hidden bg-transparent resize-none"></textarea>
+                          class="w-full text-xs p-3 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden bg-white dark:bg-neutral-900 text-[var(--color-text)] resize-none"></textarea>
                 <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
-                    Notes are for preparation preferences only and do not alter prices.
+                    Need custom dish options? <a :href="'/Dishes/Details/' + dish.id" class="text-[var(--color-primary)] font-semibold hover:underline">Open full dish page</a>.
                 </p>
             </div>
         </div>
 
         <!-- Footer with Quantity Stepper and Add Button -->
         <div class="p-4 sm:p-5 border-t border-[var(--color-border)] bg-[var(--color-surface-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
-            <!-- Quantity Stepper -->
-            <div class="flex items-center border border-[var(--color-border)] bg-white dark:bg-neutral-800 rounded-xs">
+            <div class="flex items-center border border-[var(--color-border)] bg-white dark:bg-neutral-800 rounded-full p-0.5" x-show="!dish.hasRequiredOptions">
                 <button type="button"
                         @@click="quantity = Math.max(1, quantity - 1)"
-                        class="w-9 h-9 flex items-center justify-center text-base font-semibold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer"
-                        aria-label="Decrease quantity">
-                    −
-                </button>
+                        class="w-9 h-9 rounded-full flex items-center justify-center text-base font-semibold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer"
+                        aria-label="Decrease quantity">−</button>
                 <span class="w-10 text-center font-bold text-xs" x-text="quantity">1</span>
                 <button type="button"
                         @@click="quantity = quantity + 1"
-                        class="w-9 h-9 flex items-center justify-center text-base font-semibold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer"
-                        aria-label="Increase quantity">
-                    +
-                </button>
+                        class="w-9 h-9 rounded-full flex items-center justify-center text-base font-semibold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer"
+                        aria-label="Increase quantity">+</button>
             </div>
 
-            <!-- Add to cart action -->
-            <button type="submit"
-                    class="w-full sm:w-auto inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)]">
-                <span>
-                    <span>Add to Order</span> · <span x-text="total.toFixed(2) + ' EGP'">240.00 EGP</span>
-                </span>
-            </button>
+            <template x-if="!dish.hasRequiredOptions">
+                <button type="submit"
+                        :disabled="dish.isAvailable === false"
+                        class="w-full sm:w-auto inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                    <span x-show="dish.isAvailable !== false">Add to Order · <span x-text="total.toFixed(2) + ' EGP'">0.00 EGP</span></span>
+                    <span x-show="dish.isAvailable === false">Currently Unavailable</span>
+                </button>
+            </template>
+            <template x-if="dish.hasRequiredOptions">
+                <a :href="'/Dishes/Details/' + dish.id"
+                   class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)]">
+                    <span>Choose Required Options</span>
+                </a>
+            </template>
         </div>
     </form>
 </div>
-

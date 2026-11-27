@@ -1,4 +1,5 @@
 @model depiR5gp.Models.Chefs.ChefApplicationViewModel
+@using depiR5gp.Models.Chefs
 
 @{
     ViewData["Title"] = "Chef Onboarding";
@@ -9,7 +10,7 @@
     step: 'form',
     kitchenName: '@(Model?.KitchenName ?? "")',
     address: '@(Model?.Address ?? "")'
-}" class="w-full pb-24">
+    }" class="w-full pb-24">
 
     <!-- Breadcrumb banner -->
     <div class="relative w-full bg-[var(--color-surface-subtle)] border-b border-[var(--color-border)] py-6 md:py-8 overflow-hidden">
@@ -65,7 +66,8 @@
         <!-- Application Form -->
         <form x-show="step === 'form'"
               method="post"
-              action="/Chefs/Onboarding"
+              asp-action="Onboarding"
+              asp-controller="Chefs"
               enctype="multipart/form-data"
               class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl p-8 sm:p-10 shadow-sm space-y-8">
             @Html.AntiForgeryToken()
@@ -98,6 +100,18 @@
                            placeholder="e.g. Building 24, Road 200, Ground Floor, Degla, Maadi"
                            class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium" />
                     <span asp-validation-for="Address" class="text-rose-500 text-xs mt-1 block"></span>
+                </div>
+                <!-- Pickup Area -->
+                <div>
+                    <label class="block font-semibold mb-1 text-[var(--color-text)]">Pickup Area *</label>
+                    <select name="Area" class="w-full p-3 bg-white dark:bg-neutral-900 text-[var(--color-text)] placeholder:text-neutral-500 border border-[var(--color-border)] rounded-xl focus:border-[var(--color-primary)] focus:outline-hidden font-medium">
+                        <option value="">Select your area</option>
+                        @foreach (var a in PickupAreas.All)
+                        {
+                            <option value="@a.Key" selected="@(Model?.Area == a.Key)">@a.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Area" class="text-rose-500 text-xs mt-1 block"></span>
                 </div>
             </div>
 
@@ -146,17 +160,18 @@
                 </div>
             </div>
 
-            <!-- Agreement Checkbox -->
+            <!-- [SCRUM-346] Agreement Checkbox -->
             <div class="p-4 bg-[var(--color-surface-subtle)] rounded-2xl border border-[var(--color-border-light)] text-xs space-y-2">
                 <label class="flex items-start gap-3 cursor-pointer">
                     <input asp-for="HasAcceptedTerms"
                            type="checkbox"
-                           required
                            class="mt-1 w-4 h-4 rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)] border-neutral-300" />
                     <span class="text-[var(--color-text)] leading-relaxed">
                   
-                        <!--TODO fetch this from the platform setting    -->
-                        <strong class="block">Agree to @((ViewBag.CommissionRate * 100).ToString("F2"))% Platform Commission &amp; Domestic Hygiene Terms</strong>
+                        @{
+                            var commissionPct = (((decimal?)(ViewBag.CommissionRate)) ?? 0.15m) * 100m;
+                        }
+                        <strong class="block">Agree to @commissionPct.ToString("0.##")% Platform Commission &amp; Domestic Hygiene Terms</strong>
                         <span class="text-[var(--color-text-muted)] text-[11px]">
                             I certify that meals are prepared using pure butter and fresh ingredients in a sanitized kitchen, with timely customer handover.
                         </span>

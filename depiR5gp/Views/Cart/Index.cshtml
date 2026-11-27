@@ -49,7 +49,15 @@
                                     <div class="space-y-1 min-w-0">
                                         <h3 class="text-sm font-bold uppercase tracking-tight text-[var(--color-text)]">@item.Name</h3>
                                         <p class="text-xs font-semibold text-[var(--color-primary)]">@item.UnitPrice.ToString("N2") EGP</p>
-                                        @if (!string.IsNullOrWhiteSpace(item.PresetKey)) { <p class="text-[11px] text-[var(--color-text-muted)]">Customized dish</p> }
+                                        @if (item.SelectedOptions.Count > 0)
+                                        {
+                                            <div class="flex flex-wrap gap-1 pt-0.5">
+                                                @foreach (var opt in item.SelectedOptions)
+                                                {
+                                                    <span class="inline-block px-2 py-0.5 rounded-md bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] text-[var(--color-text)] font-medium">@opt</span>
+                                                }
+                                            </div>
+                                        }
                                         @if (!string.IsNullOrWhiteSpace(item.Note)) { <p class="text-[11px] text-[var(--color-text-muted)] italic">“@item.Note”</p> }
                                         @if (!item.IsAvailable) { <p class="text-[11px] font-semibold text-rose-600">Currently unavailable</p> }
                                     </div>

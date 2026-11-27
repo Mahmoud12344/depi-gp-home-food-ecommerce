@@ -1,3 +1,5 @@
+using depiR5gp.Models.Payments;
+using depiR5gp.Models.Support;
 using depiR5gp.Repositories.Implementations;
 
 namespace depiR5gp.Repositories.Interfaces;
@@ -14,6 +16,9 @@ public interface IUnitOfWork : IDisposable
     ISupportRepository SupportCases { get; }
     IUserRepository Users { get; }
     IPlatformSettingRepository PlatformSettingRepository { get; }
+    IGenericRepository<Faq> Faqs { get; }
+    IGenericRepository<Payout> Payouts { get; }
+    IGenericRepository<LedgerEntry> LedgerEntries { get; }
 
     Task<int> CompleteAsync();
     Task SaveChangesAsync();
