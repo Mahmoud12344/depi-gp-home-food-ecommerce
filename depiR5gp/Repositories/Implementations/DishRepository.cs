@@ -1,5 +1,6 @@
 using depiR5gp.Data;
 using depiR5gp.Models.Menu;
+using depiR5gp.Models.Users;
 using depiR5gp.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ public class DishRepository(ApplicationDbContext context) : GenericRepository<Di
 {
 
     private IQueryable<Dish> VisibleDishes() => _context.Dishes.AsNoTracking()
-        .Where(d => !d.IsArchived && d.ChefProfile.Status == "Approved");
+        .Where(d => !d.IsArchived && d.ChefProfile.Status == "Approved" && d.ChefProfile.User.Status == UserStatus.Active);
 
     public async Task<List<DishCardViewModel>> SearchAsync(DishFilterViewModel f)
     {
@@ -21,6 +22,18 @@ public class DishRepository(ApplicationDbContext context) : GenericRepository<Di
                           || d.Cuisine.Name.Contains(s)
                           || d.ChefProfile.KitchenName.Contains(s));
         if (f.CuisineId != null) q = q.Where(d => d.CuisineId == f.CuisineId);
+        if (f.CategorySlug != null)
+        {
+            q = f.CategorySlug switch
+            {
+                "egyptian" => q.Where(d => d.Cuisine.Name.Contains("Egyptian") || d.Category.Name.Contains("Egyptian")),
+                "tagines" => q.Where(d => d.Name.Contains("Tagine") || (d.Description != null && d.Description.Contains("tagine")) || d.Category.Name.Contains("Tagine") || d.ChefProfile.KitchenName.Contains("Casserole")),
+                "bakery" => q.Where(d => d.Category.Name.Contains("Bakery") || d.Cuisine.Name.Contains("Bakery") || d.Name.Contains("Feteer") || d.Name.Contains("Hawawshi") || d.ChefProfile.KitchenName.Contains("Bakery")),
+                "alexandrian" => q.Where(d => d.Cuisine.Name.Contains("Alexandrian") || d.Cuisine.Name.Contains("Seafood") || d.Name.Contains("Alexandrian") || d.Category.Name.Contains("Seafood")),
+                "desserts" => q.Where(d => d.Category.Name.Contains("Dessert") || d.Category.Name.Contains("Sweet") || d.Cuisine.Name.Contains("Dessert") || d.Cuisine.Name.Contains("Patisserie") || d.Name.Contains("Om Ali")),
+                _ => q
+            };
+        }
         if (f.Area != null) q = q.Where(d => d.ChefProfile.Area == f.Area);
         if (f.MinPrice != null) q = q.Where(d => d.Price >= f.MinPrice);
         if (f.MaxPrice != null) q = q.Where(d => d.Price <= f.MaxPrice);
@@ -38,13 +51,15 @@ public class DishRepository(ApplicationDbContext context) : GenericRepository<Di
         {
             Id = d.Id,
             Name = d.Name,
+            Description = d.Description,
             ImageUrl = d.ImageUrl,
             Price = d.Price,
             CuisineName = d.Cuisine.Name,
             ChefId = d.ChefProfileId,
             KitchenName = d.ChefProfile.KitchenName,
             Area = d.ChefProfile.Area,
-            IsAvailable = d.IsAvailable,
+            IsAvailable = d.IsAvailable && d.ChefProfile.IsAcceptingOrders,
+            HasRequiredOptions = d.DishOptions.Any(o => o.IsRequired),
             Rating = d.ChefProfile.Reviews.Where(r => r.ModerationStatus == "Approved")
                         .Average(r => (double?)r.Rating) ?? 0,
             ReviewCount = d.ChefProfile.Reviews.Count(r => r.ModerationStatus == "Approved")

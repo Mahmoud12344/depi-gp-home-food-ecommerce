@@ -5,7 +5,13 @@
   and active dish captions with instant cart and favorite actions.
 *@
 
+@{
+    var dishIds = ViewBag.CarouselDishIds as int[] ?? new[] { 2, 4, 6, 1, 5, 3 };
+    var dishIdsJson = "[" + string.Join(", ", dishIds) + "]";
+}
+
 <div x-data="{
+    dishIds: @dishIdsJson,
     pos: 0,
     target: 0,
     selected: 0,
@@ -169,7 +175,7 @@
                 <!-- Slide 0: dish-2 -->
                 <div role="group"
                      aria-label="Oxtail Tagine with Caramelized Onions"
-                     @@click="if (selected === 0) { window.location.href = '/Dishes/Details/2'; } else { goTo(0); }"
+                     @@click="if (selected === 0) { window.location.href = '/Dishes/Details/@dishIds[0]'; } else { goTo(0); }"
                      class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
                      style="width: var(--cf-card); transform-style: preserve-3d;">
                     <img src="https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=800&auto=format&fit=crop&q=80"
@@ -192,7 +198,7 @@
                 <!-- Slide 1: dish-4 -->
                 <div role="group"
                      aria-label="Authentic Baladi Meshaltet Feteer (Large)"
-                     @@click="if (selected === 1) { window.location.href = '/Dishes/Details/4'; } else { goTo(1); }"
+                     @@click="if (selected === 1) { window.location.href = '/Dishes/Details/@dishIds[1]'; } else { goTo(1); }"
                      class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
                      style="width: var(--cf-card); transform-style: preserve-3d;">
                     <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80"
@@ -215,7 +221,7 @@
                 <!-- Slide 2: dish-6 -->
                 <div role="group"
                      aria-label="Baladi Cream Om Ali with Pistachios"
-                     @@click="if (selected === 2) { window.location.href = '/Dishes/Details/6'; } else { goTo(2); }"
+                     @@click="if (selected === 2) { window.location.href = '/Dishes/Details/@dishIds[2]'; } else { goTo(2); }"
                      class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
                      style="width: var(--cf-card); transform-style: preserve-3d;">
                     <img src="https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=800&auto=format&fit=crop&q=80"
@@ -238,7 +244,7 @@
                 <!-- Slide 3: dish-1 -->
                 <div role="group"
                      aria-label="Slow-Cooked Duck Tagine with Molokhia"
-                     @@click="if (selected === 3) { window.location.href = '/Dishes/Details/1'; } else { goTo(3); }"
+                     @@click="if (selected === 3) { window.location.href = '/Dishes/Details/@dishIds[3]'; } else { goTo(3); }"
                      class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
                      style="width: var(--cf-card); transform-style: preserve-3d;">
                     <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80"
@@ -261,7 +267,7 @@
                 <!-- Slide 4: dish-5 -->
                 <div role="group"
                      aria-label="Egyptian Stuffed Pigeon (Hamam Mahshi)"
-                     @@click="if (selected === 4) { window.location.href = '/Dishes/Details/5'; } else { goTo(4); }"
+                     @@click="if (selected === 4) { window.location.href = '/Dishes/Details/@dishIds[4]'; } else { goTo(4); }"
                      class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
                      style="width: var(--cf-card); transform-style: preserve-3d;">
                     <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80"
@@ -284,7 +290,7 @@
                 <!-- Slide 5: dish-3 -->
                 <div role="group"
                      aria-label="Crispy Baladi Beef Hawawshi"
-                     @@click="if (selected === 5) { window.location.href = '/Dishes/Details/3'; } else { goTo(5); }"
+                     @@click="if (selected === 5) { window.location.href = '/Dishes/Details/@dishIds[5]'; } else { goTo(5); }"
                      class="cf-carousel-card group border-2 border-white/60 dark:border-neutral-700 bg-[var(--color-card-bg)] shadow-2xl transition-shadow"
                      style="width: var(--cf-card); transform-style: preserve-3d;">
                     <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&auto=format&fit=crop&q=80"
@@ -336,7 +342,7 @@
         <div x-show="selected === 0" class="space-y-3">
             <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Om Nabil Casseroles · Zamalek</p>
             <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
-                <a href="/Dishes/Details/2">Oxtail Tagine with Caramelized Onions</a>
+                <a href="/Dishes/Details/@dishIds[0]">Oxtail Tagine with Caramelized Onions</a>
             </h3>
             <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
                 <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
@@ -359,7 +365,7 @@
         <div x-show="selected === 1" style="display: none;" class="space-y-3">
             <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Hajjah Fatma Bakery · Heliopolis</p>
             <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
-                <a href="/Dishes/Details/4">Authentic Baladi Meshaltet Feteer (Large)</a>
+                <a href="/Dishes/Details/@dishIds[1]">Authentic Baladi Meshaltet Feteer (Large)</a>
             </h3>
             <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
                 <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
@@ -382,7 +388,7 @@
         <div x-show="selected === 2" style="display: none;" class="space-y-3">
             <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Hajjah Fatma Bakery · Heliopolis</p>
             <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
-                <a href="/Dishes/Details/6">Baladi Cream Om Ali with Pistachios</a>
+                <a href="/Dishes/Details/@dishIds[2]">Baladi Cream Om Ali with Pistachios</a>
             </h3>
             <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
                 <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
@@ -405,7 +411,7 @@
         <div x-show="selected === 3" style="display: none;" class="space-y-3">
             <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Amina's Heritage Kitchen · Maadi</p>
             <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
-                <a href="/Dishes/Details/1">Slow-Cooked Duck Tagine with Molokhia</a>
+                <a href="/Dishes/Details/@dishIds[3]">Slow-Cooked Duck Tagine with Molokhia</a>
             </h3>
             <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
                 <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
@@ -428,7 +434,7 @@
         <div x-show="selected === 4" style="display: none;" class="space-y-3">
             <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Om Nabil Casseroles · Zamalek</p>
             <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
-                <a href="/Dishes/Details/5">Egyptian Stuffed Pigeon (Hamam Mahshi)</a>
+                <a href="/Dishes/Details/@dishIds[4]">Egyptian Stuffed Pigeon (Hamam Mahshi)</a>
             </h3>
             <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
                 <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
@@ -451,7 +457,7 @@
         <div x-show="selected === 5" style="display: none;" class="space-y-3">
             <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">Amina's Heritage Kitchen · Maadi</p>
             <h3 class="text-xl sm:text-2xl font-serif font-black tracking-tight text-[var(--color-text)] cursor-pointer hover:text-[var(--color-primary)] transition-colors">
-                <a href="/Dishes/Details/3">Crispy Baladi Beef Hawawshi</a>
+                <a href="/Dishes/Details/@dishIds[5]">Crispy Baladi Beef Hawawshi</a>
             </h3>
             <div class="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs">
                 <div class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full font-bold text-amber-900 dark:text-amber-100">
@@ -475,7 +481,7 @@
         <div class="pt-4 mt-3 flex flex-wrap items-center justify-center gap-3 border-t border-[var(--color-border-light)]">
             <!-- Favorite Heart Button -->
             <button type="button"
-                    :data-favorite-dish-id="[2, 4, 6, 1, 5, 3][selected] || 1"
+                    :data-favorite-dish-id="dishIds[selected] || @dishIds[0]"
                     data-favorite-active="false"
                     @@click.stop="window.toggleDishFavorite($el)"
                     class="p-3 rounded-full border border-[var(--color-border)] hover:border-rose-400 text-[var(--color-text)] hover:text-rose-500 transition-colors cursor-pointer shadow-xs"
@@ -489,7 +495,7 @@
             <!-- Add to Cart CTA -->
             <form method="post" action="/Cart/Add" class="inline">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="dishId" :value="[2, 4, 6, 1, 5, 3][selected] || 1" />
+                <input type="hidden" name="dishId" :value="dishIds[selected] || @dishIds[0]" />
                 <input type="hidden" name="quantity" value="1" />
                 <button type="submit"
                         class="chef-menu-btn inline-flex items-center gap-2 px-6 sm:px-8 py-3 rounded-full font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer">
@@ -501,8 +507,8 @@
             </form>
 
             <!-- View Dish Page -->
-            <a :href="'/Dishes/Details/' + ([2, 4, 6, 1, 5, 3][selected] || 1)"
-               href="/Dishes/Details/1"
+            <a :href="'/Dishes/Details/' + (dishIds[selected] || @dishIds[0])"
+               href="/Dishes/Details/@dishIds[0]"
                class="inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white font-bold uppercase tracking-wider text-xs sm:text-sm transition-all cursor-pointer">
                 <span>Dish Details</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

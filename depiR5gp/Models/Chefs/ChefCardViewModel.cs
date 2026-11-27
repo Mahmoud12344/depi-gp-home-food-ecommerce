@@ -1,4 +1,4 @@
-﻿namespace depiR5gp.Models.Chefs;
+namespace depiR5gp.Models.Chefs;
 
 public class ChefCardViewModel
 {
@@ -10,5 +10,6 @@ public class ChefCardViewModel
     public string? Area { get; set; }
     public double Rating { get; set; }
     public int ReviewCount { get; set; }
+    public bool IsAcceptingOrders { get; set; } = true;
     public string AreaName => PickupAreas.NameOf(Area);
 }

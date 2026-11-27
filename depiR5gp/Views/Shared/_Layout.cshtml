@@ -55,26 +55,45 @@
     <main role="main" class="flex-1 @(noScroll ? "min-h-0 overflow-hidden flex flex-col" : "")">
 
         <!-- TempData Notification Banners -->
-        @if (TempData["ErrorMessage"] != null || TempData["SuccessMessage"] != null)
+        @if (TempData["ErrorMessage"] != null || TempData["SuccessMessage"] != null || TempData["InfoMessage"] != null)
         {
-            <div class="w-full px-4 sm:px-6 lg:px-8 pt-4">
+            <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 space-y-3">
                 @if (TempData["ErrorMessage"] != null)
                 {
-                    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center justify-content-between p-3.5 mb-4 text-sm text-red-800 bg-red-100 rounded-xl border border-red-200 shadow-xs" role="alert">
-                        <div class="d-flex align-items-center gap-2">
+                    <div x-data="{ show: true }" x-show="show" class="flex items-center justify-between gap-3 p-3.5 text-sm text-rose-800 dark:text-rose-200 bg-rose-50 dark:bg-rose-950/60 rounded-xl border border-rose-200 dark:border-rose-800 shadow-xs" role="alert">
+                        <div class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#alert-circle"></use></svg>
                             <strong class="font-medium">@TempData["ErrorMessage"]</strong>
                         </div>
-                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" @@click="show = false" class="p-1 text-rose-600 hover:opacity-75 cursor-pointer" aria-label="Close">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                        </button>
                     </div>
                 }
 
                 @if (TempData["SuccessMessage"] != null)
                 {
-                    <div data-success-notification class="alert alert-success alert-dismissible fade show d-flex align-items-center justify-content-between p-3.5 mb-4 text-sm text-green-800 bg-green-100 rounded-xl border border-green-200 shadow-xs transition-opacity duration-300" role="alert">
-                        <div class="d-flex align-items-center gap-2">
+                    <div x-data="{ show: true }" x-show="show" data-success-notification class="flex items-center justify-between gap-3 p-3.5 text-sm text-emerald-800 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/60 rounded-xl border border-emerald-200 dark:border-emerald-800 shadow-xs transition-opacity duration-300" role="alert">
+                        <div class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#check-circle-2"></use></svg>
                             <strong class="font-medium">@TempData["SuccessMessage"]</strong>
                         </div>
-                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" @@click="show = false" class="p-1 text-emerald-600 hover:opacity-75 cursor-pointer" aria-label="Close">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                        </button>
+                    </div>
+                }
+
+                @if (TempData["InfoMessage"] != null)
+                {
+                    <div x-data="{ show: true }" x-show="show" data-success-notification class="flex items-center justify-between gap-3 p-3.5 text-sm text-blue-800 dark:text-blue-200 bg-blue-50 dark:bg-blue-950/60 rounded-xl border border-blue-200 dark:border-blue-800 shadow-xs transition-opacity duration-300" role="alert">
+                        <div class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#info"></use></svg>
+                            <strong class="font-medium">@TempData["InfoMessage"]</strong>
+                        </div>
+                        <button type="button" @@click="show = false" class="p-1 text-blue-600 hover:opacity-75 cursor-pointer" aria-label="Close">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#x"></use></svg>
+                        </button>
                     </div>
                 }
             </div>

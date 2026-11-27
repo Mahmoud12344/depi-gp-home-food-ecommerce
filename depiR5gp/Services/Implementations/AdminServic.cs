@@ -32,6 +32,13 @@ namespace depiR5gp.Services.Implementation
 
             chefProfile.Status = "Approved";
             chefProfile.ApprovalNotes = approvalNotes?.Trim();
+            chefProfile.RejectionReason = null;
+
+            if (chefProfile.CommissionRate is null)
+            {
+                var settings = await _unitOfWork.PlatformSettingRepository.GetAllAsync();
+                chefProfile.CommissionRate = settings.FirstOrDefault()?.CommissionRate ?? 0.15m;
+            }
 
             _unitOfWork.Chefs.Update(chefProfile);
             await _unitOfWork.SaveChangesAsync();

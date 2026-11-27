@@ -87,32 +87,33 @@
                             </div>
 
                             <div class="flex items-center gap-2 shrink-0">
-                                @if (review.ModerationStatus == "Pending")
+                                @if (review.ModerationStatus != "Rejected")
                                 {
-                                    <div class="flex items-center gap-2">
-                                        <form method="post" action="/Admin/Reviews" class="inline">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="reviewId" value="@review.Id" />
-                                            <input type="hidden" name="moderationAction" value="Reject" />
-                                            <input type="hidden" name="status" value="@currentStatus" />
-                                            <button type="submit"
-                                                    class="px-3 py-1.5 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
-                                                Reject
-                                            </button>
-                                        </form>
-                                        <form method="post" action="/Admin/Reviews" class="inline">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="reviewId" value="@review.Id" />
-                                            <input type="hidden" name="moderationAction" value="Approve" />
-                                            <input type="hidden" name="status" value="@currentStatus" />
-                                            <button type="submit"
-                                                    class="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
-                                                Approve
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <form method="post" action="/Admin/Reviews" class="inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="reviewId" value="@review.Id" />
+                                        <input type="hidden" name="moderationAction" value="Reject" />
+                                        <input type="hidden" name="status" value="@currentStatus" />
+                                        <button type="submit"
+                                                class="px-3 py-1.5 rounded-full border border-rose-300 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                                            @(review.ModerationStatus == "Approved" ? "Censor / Hide" : "Reject")
+                                        </button>
+                                    </form>
                                 }
-                                <form method="post" action="/Admin/Reviews" class="inline">
+                                @if (review.ModerationStatus != "Approved")
+                                {
+                                    <form method="post" action="/Admin/Reviews" class="inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="reviewId" value="@review.Id" />
+                                        <input type="hidden" name="moderationAction" value="Approve" />
+                                        <input type="hidden" name="status" value="@currentStatus" />
+                                        <button type="submit"
+                                                class="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs">
+                                            @(review.ModerationStatus == "Rejected" ? "Restore" : "Approve")
+                                        </button>
+                                    </form>
+                                }
+                                <form method="post" action="/Admin/Reviews" class="inline" onsubmit="return confirm('Permanently delete this review?');">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="reviewId" value="@review.Id" />
                                     <input type="hidden" name="moderationAction" value="Delete" />

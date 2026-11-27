@@ -23,18 +23,23 @@
         .Where(g => g.Any(o => o.IsRequired))
         .Select(g => g.OrderBy(o => o.ExtraPrice).First())
         .ToList();
-    var defaultSelectedIdsJson = JsonSerializer.Serialize(defaultSelectedIds.Select(o => o.Id).ToList());
-    var optionPricesJson = JsonSerializer.Serialize(Model.Dish.DishOptions.ToDictionary(o => o.Id.ToString(), o => o.ExtraPrice));
-    var requiredGroupMapJson = JsonSerializer.Serialize(
-        optionGroups.Where(g => g.Any(o => o.IsRequired))
-            .ToDictionary(g => g.Key, g => g.Select(o => o.Id).ToList()));
+    var dishDetailsInitJson = JsonSerializer.Serialize(new
+    {
+        images = gallery,
+        selectedOptionIds = defaultSelectedIds.Select(o => o.Id).ToList(),
+        optionPrices = Model.Dish.DishOptions.ToDictionary(o => o.Id.ToString(), o => o.ExtraPrice),
+        requiredGroups = optionGroups.Where(g => g.Any(o => o.IsRequired))
+            .ToDictionary(g => g.Key, g => g.Select(o => o.Id).ToList())
+    }).Replace("</", "<\\/");
 }
 
-<div x-data='{
+<script type="application/json" id="dish-details-init-data">@Html.Raw(dishDetailsInitJson)</script>
+
+<div x-data="{
     activeImageIndex: 0,
     lightboxOpen: false,
     isZoomed: false,
-    images: @Html.Raw(galleryJson),
+    images: [],
     openLightbox() {
         this.lightboxOpen = true;
         this.isZoomed = false;
@@ -46,12 +51,21 @@
     quantity: 1,
     dishAvailable: @Model.Dish.IsAvailable.ToString().ToLowerInvariant(),
     basePrice: @Model.Dish.Price.ToString("0.00", inv),
-    selectedOptionIds: @Html.Raw(defaultSelectedIdsJson),
-    optionPrices: @Html.Raw(optionPricesJson),
-    requiredGroups: @Html.Raw(requiredGroupMapJson),
-    note: "",
+    selectedOptionIds: [],
+    optionPrices: {},
+    requiredGroups: {},
+    note: '',
     favorited: @Model.IsFavorite.ToString().ToLowerInvariant(),
-    activeAccordion: "description",
+    activeAccordion: 'description',
+    init() {
+        try {
+            const payload = JSON.parse(document.getElementById('dish-details-init-data').textContent || '{}');
+            this.images = payload.images || [];
+            this.selectedOptionIds = payload.selectedOptionIds || [];
+            this.optionPrices = payload.optionPrices || {};
+            this.requiredGroups = payload.requiredGroups || {};
+        } catch (e) {}
+    },
     toggleOption(id, groupName, isRequired) {
         if (isRequired) {
             const groupIds = this.requiredGroups[groupName] || [];
@@ -74,7 +88,7 @@
     get totalPrice() {
         return this.unitPrice * this.quantity;
     }
-}'
+}"
      class="w-full pb-36">
 
     <!-- 1. Breadcrumb Line -->
@@ -245,7 +259,7 @@
                         <div class="flex items-center text-[var(--color-star)]">
                             @for (int s = 1; s <= 5; s++)
                             {
-                                var filled = Model.ReviewCount == 0 || s <= Math.Round(Model.AverageRating);
+                                var filled = Model.ReviewCount > 0 && s <= Math.Round(Model.AverageRating);
                                 <svg class="w-4 h-4 @(filled ? "fill-current" : "stroke-current opacity-35")" viewBox="0 0 24 24"><use href="#star"></use></svg>
                             }
                         </div>
@@ -298,22 +312,22 @@
                     @if (optionGroups.Any())
                     {
                         <div class="space-y-5">
-                            @foreach (var group in optionGroups)
-                            {
-                                var isReq = group.Any(o => o.IsRequired);
-                                var groupKeyJson = JsonSerializer.Serialize(group.Key);
-                                <div class="space-y-2.5">
-                                    <div class="flex items-center justify-between text-[13px]">
-                                        <span class="font-bold uppercase tracking-wider text-[var(--color-text)]">@group.Key</span>
-                                        <span class="text-[11px] font-bold uppercase px-2 py-0.5 rounded-full @(isReq ? "bg-[var(--color-primary-light)] text-[var(--color-primary)]" : "bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)]")">
-                                            @(isReq ? "Required" : "Optional")
-                                        </span>
-                                    </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        @foreach (var opt in group.OrderBy(o => o.ExtraPrice).ThenBy(o => o.Name))
-                                        {
-                                            <button type="button"
-                                                    @@click="toggleOption(@opt.Id, @Html.Raw(groupKeyJson), @isReq.ToString().ToLowerInvariant())"
+                                @foreach (var group in optionGroups)
+                                {
+                                    var isReq = group.Any(o => o.IsRequired);
+                                    <div class="space-y-2.5">
+                                        <div class="flex items-center justify-between text-[13px]">
+                                            <span class="font-bold uppercase tracking-wider text-[var(--color-text)]">@group.Key</span>
+                                            <span class="text-[11px] font-bold uppercase px-2 py-0.5 rounded-full @(isReq ? "bg-[var(--color-primary-light)] text-[var(--color-primary)]" : "bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)]")">
+                                                @(isReq ? "Required" : "Optional")
+                                            </span>
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            @foreach (var opt in group.OrderBy(o => o.ExtraPrice).ThenBy(o => o.Name))
+                                            {
+                                                <button type="button"
+                                                        data-group="@group.Key"
+                                                        @@click="toggleOption(@opt.Id, $el.dataset.group, @isReq.ToString().ToLowerInvariant())"
                                                     :class="selectedOptionIds.includes(@opt.Id) ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 shadow-xs font-semibold' : 'border-[var(--color-border)] bg-[var(--color-card-bg)] font-medium'"
                                                     class="w-full flex items-center justify-between p-3.5 rounded-xl text-[13px] border text-[var(--color-text)] cursor-pointer transition-all">
                                                 <div class="flex items-center gap-3">

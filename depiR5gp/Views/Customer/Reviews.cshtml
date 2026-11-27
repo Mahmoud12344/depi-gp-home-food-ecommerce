@@ -129,6 +129,18 @@
                                             </a>
                                             <span class="text-xs text-[var(--color-text-muted)]">· #@rev.OrderReference</span>
                                             <span class="text-xs text-[var(--color-text-muted)]">· @rev.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</span>
+                                            @if (rev.ModerationStatus == "Rejected")
+                                            {
+                                                <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-900 dark:bg-rose-950/70 dark:text-rose-200 border border-rose-300 dark:border-rose-800">
+                                                    Hidden by Moderation
+                                                </span>
+                                            }
+                                            else if (rev.ModerationStatus == "Pending")
+                                            {
+                                                <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950/70 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
+                                                    Pending Review
+                                                </span>
+                                            }
                                         </div>
                                         <div class="flex items-center gap-1 mt-0.5 text-[var(--color-star)]" aria-label="@rev.Rating out of 5 stars">
                                             @for (int s = 1; s <= 5; s++)

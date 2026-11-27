@@ -88,10 +88,10 @@ public class CustomerController(
         string primaryArea = model.PrimaryArea.Trim();
         string address = model.Address.Trim();
         string? dietaryPreferences = string.IsNullOrWhiteSpace(model.DietaryPreferences)
-            ? user.DietaryPreferences
+            ? null
             : model.DietaryPreferences.Trim();
         string? allergies = string.IsNullOrWhiteSpace(model.Allergies)
-            ? user.Allergies
+            ? null
             : model.Allergies.Trim();
 
         bool profileChanged = !string.Equals(user.FirstName, nameParts[0], StringComparison.Ordinal)

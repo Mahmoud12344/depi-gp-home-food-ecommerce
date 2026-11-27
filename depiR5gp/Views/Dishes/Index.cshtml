@@ -78,9 +78,9 @@
                 {
                     <input type="hidden" name="search" value="@Model.Filter.Search" />
                 }
-                @if (Model.Filter.CuisineId != null)
+                @if (Model.Filter.CuisineId != null || Model.Filter.CategorySlug != null)
                 {
-                    <input type="hidden" name="category" value="@Model.Filter.CuisineId" />
+                    <input type="hidden" name="category" value="@(Model.Filter.CuisineId?.ToString(inv) ?? Model.Filter.CategorySlug)" />
                 }
                 @if (Model.Filter.Area != null)
                 {

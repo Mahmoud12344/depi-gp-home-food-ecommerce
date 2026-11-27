@@ -155,9 +155,15 @@ public class ReviewsController(ApplicationDbContext context) : Controller
 
         review.Rating = model.Rating;
         review.Comment = model.Comment.Trim();
+        if (review.ModerationStatus == "Rejected")
+        {
+            review.ModerationStatus = "Pending";
+        }
         await context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "Your review has been updated.";
+        TempData["SuccessMessage"] = review.ModerationStatus == "Pending"
+            ? "Your updated review has been submitted for moderation."
+            : "Your review has been updated.";
         return RedirectToAction("Reviews", "Customer");
     }
 

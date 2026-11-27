@@ -2,6 +2,24 @@
 // Global Site Scripts
 // ============================================
 
+window.toggleTheme = function () {
+    try {
+        var current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        var next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('hc_theme', next);
+        document.documentElement.setAttribute('data-theme', next);
+        if (next === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: next } }));
+        return next;
+    } catch (e) {
+        return 'light';
+    }
+};
+
 // Anti-Forgery Token
 function getAntiForgeryToken() {
     var token = document.querySelector(
@@ -428,28 +446,6 @@ window.restoreChefFavorites = restoreChefFavorites;
                         }
                     });
 
-
-                // Fix dish details links.
-                document
-                    .querySelectorAll(
-                        '[onclick*="/Dishes/Details/"]'
-                    )
-                    .forEach(function (link) {
-
-                        var cardText = link.textContent || '';
-
-                        var dish = dishCatalog.find(function (item) {
-                            return cardText.indexOf(item.name) >= 0;
-                        });
-
-                        if (dish) {
-                            link.onclick = function () {
-                                window.location.href =
-                                    '/Dishes/Details/' + dish.id;
-                            };
-                        }
-                    });
-
             })
 
             .catch(function (error) {
@@ -584,11 +580,8 @@ window.restoreChefFavorites = restoreChefFavorites;
         document.addEventListener(
             'open-quick-view',
             function (event) {
-
-                if (event.detail) {
-                    event.detail = normalizeDishPayload(
-                        event.detail
-                    );
+                if (event.detail && typeof event.detail === 'object') {
+                    Object.assign(event.detail, normalizeDishPayload(event.detail));
                 }
             }
         );
@@ -601,11 +594,8 @@ window.restoreChefFavorites = restoreChefFavorites;
         document.addEventListener(
             'open-options-modal',
             function (event) {
-
-                if (event.detail) {
-                    event.detail = normalizeDishPayload(
-                        event.detail
-                    );
+                if (event.detail && typeof event.detail === 'object') {
+                    Object.assign(event.detail, normalizeDishPayload(event.detail));
                 }
             }
         );

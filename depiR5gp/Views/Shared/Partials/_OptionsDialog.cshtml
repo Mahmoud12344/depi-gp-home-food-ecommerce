@@ -2,7 +2,7 @@
 <div x-cloak
      x-data="{
          open: false,
-         dish: { id: 1, name: '', kitchenName: '', price: 0 },
+         dish: { id: 1, name: '', kitchenName: '', price: 0, isAvailable: true, hasRequiredOptions: false },
          quantity: 1,
          note: '',
          get total() {
@@ -48,7 +48,12 @@
 
         <!-- Body -->
         <div class="p-4 sm:p-6 space-y-5 max-h-[60vh] overflow-y-auto">
-            <div class="pt-1">
+            <template x-if="dish.hasRequiredOptions">
+                <div class="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200">
+                    This dish has required customization options (such as portion or stuffing choice). Please open the dish page to choose your options.
+                </div>
+            </template>
+            <div class="pt-1" x-show="!dish.hasRequiredOptions">
                 <div class="flex items-center justify-between mb-1.5">
                     <label for="dish-note" class="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
                         Note for Chef (Optional)
@@ -72,7 +77,7 @@
 
         <!-- Footer with Quantity Stepper and Add Button -->
         <div class="p-4 sm:p-5 border-t border-[var(--color-border)] bg-[var(--color-surface-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="flex items-center border border-[var(--color-border)] bg-white dark:bg-neutral-800 rounded-full p-0.5">
+            <div class="flex items-center border border-[var(--color-border)] bg-white dark:bg-neutral-800 rounded-full p-0.5" x-show="!dish.hasRequiredOptions">
                 <button type="button"
                         @@click="quantity = Math.max(1, quantity - 1)"
                         class="w-9 h-9 rounded-full flex items-center justify-center text-base font-semibold hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer"
@@ -84,11 +89,21 @@
                         aria-label="Increase quantity">+</button>
             </div>
 
-            <button type="submit"
-                    class="w-full sm:w-auto inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
-                <span>Add to Order · <span x-text="total.toFixed(2) + ' EGP'">0.00 EGP</span></span>
-            </button>
+            <template x-if="!dish.hasRequiredOptions">
+                <button type="submit"
+                        :disabled="dish.isAvailable === false"
+                        class="w-full sm:w-auto inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#shopping-bag"></use></svg>
+                    <span x-show="dish.isAvailable !== false">Add to Order · <span x-text="total.toFixed(2) + ' EGP'">0.00 EGP</span></span>
+                    <span x-show="dish.isAvailable === false">Currently Unavailable</span>
+                </button>
+            </template>
+            <template x-if="dish.hasRequiredOptions">
+                <a :href="'/Dishes/Details/' + dish.id"
+                   class="w-full inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)]">
+                    <span>Choose Required Options</span>
+                </a>
+            </template>
         </div>
     </form>
 </div>

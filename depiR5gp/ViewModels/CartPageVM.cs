@@ -16,6 +16,7 @@ public sealed class CartPageItemVM
     public int Quantity { get; set; }
     public string? Note { get; set; }
     public string? PresetKey { get; set; }
+    public List<string> SelectedOptions { get; set; } = [];
     public bool IsAvailable { get; set; }
     public decimal LineTotal => UnitPrice * Quantity;
 }

@@ -1,6 +1,10 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using depiR5gp.Data;
 using depiR5gp.Models.Platform;
+using depiR5gp.Models.Support;
 using depiR5gp.Models.Users;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
@@ -12,19 +16,22 @@ namespace depiR5gp.Controllers;
 public class AdminController : Controller
 {
     private static readonly string[] ValidReviewStatuses = ["Pending", "Approved", "Rejected"];
-    private static readonly string[] ValidApplicationStatuses = ["Pending", "Approved", "Rejected"];
+    private static readonly string[] ValidApplicationStatuses = ["Pending", "Approved", "Rejected", "Suspended"];
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAdminService _adminService;
     private readonly IAdminDashboardService _dashboardService;
+    private readonly ApplicationDbContext _context;
 
     public AdminController(
         IUnitOfWork unitOfWork,
         IAdminService adminService,
-        IAdminDashboardService dashboardService)
+        IAdminDashboardService dashboardService,
+        ApplicationDbContext context)
     {
         _unitOfWork = unitOfWork;
         _adminService = adminService;
         _dashboardService = dashboardService;
+        _context = context;
     }
 
     [HttpGet]
@@ -56,24 +63,84 @@ public class AdminController : Controller
     public IActionResult Payouts() => View();
 
     [HttpGet]
-    public async Task<IActionResult> Settings()
+    public async Task<IActionResult> Settings(string? faqSearch = null)
     {
         var settingsList = await _unitOfWork.PlatformSettingRepository.GetAllAsync();
         var settings = settingsList.FirstOrDefault() ?? new PlatformSettings();
+
+        IQueryable<Faq> faqQuery = _context.Faqs.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(faqSearch))
+        {
+            string term = faqSearch.Trim();
+            faqQuery = faqQuery.Where(f => f.Question.Contains(term) || f.Answer.Contains(term));
+        }
+
+        ViewBag.Faqs = await faqQuery.OrderByDescending(f => f.UpdatedAt).ThenByDescending(f => f.Id).ToListAsync();
+        ViewBag.FaqSearch = faqSearch;
         return View(settings);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Settings(decimal commissionRate)
+    public async Task<IActionResult> Settings(
+        string? actionType,
+        decimal? commissionRate,
+        string? question,
+        string? category,
+        string? answer,
+        int? faqId)
     {
-        if (commissionRate < 5 || commissionRate > 35)
+        int? adminUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int uid) ? uid : null;
+
+        if (string.Equals(actionType, "AddFaq", StringComparison.OrdinalIgnoreCase))
+        {
+            if (string.IsNullOrWhiteSpace(question) || string.IsNullOrWhiteSpace(answer))
+            {
+                TempData["ErrorMessage"] = "Both question and verified answer are required to add an FAQ entry.";
+                return RedirectToAction(nameof(Settings));
+            }
+
+            string cleanCategory = string.IsNullOrWhiteSpace(category) ? "General" : category.Trim();
+            string storedQuestion = $"[{cleanCategory}] {question.Trim()}";
+
+            _context.Faqs.Add(new Faq
+            {
+                Question = storedQuestion.Length > 300 ? storedQuestion[..300] : storedQuestion,
+                Answer = answer.Trim(),
+                UpdatedByUserId = adminUserId,
+                UpdatedAt = DateTime.UtcNow
+            });
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "FAQ entry added to AI knowledge base.";
+            return RedirectToAction(nameof(Settings));
+        }
+
+        if (string.Equals(actionType, "DeleteFaq", StringComparison.OrdinalIgnoreCase))
+        {
+            if (faqId.HasValue)
+            {
+                var faq = await _context.Faqs.FindAsync(faqId.Value);
+                if (faq is not null)
+                {
+                    _context.Faqs.Remove(faq);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "FAQ entry removed.";
+                    return RedirectToAction(nameof(Settings));
+                }
+            }
+
+            TempData["ErrorMessage"] = "FAQ entry not found.";
+            return RedirectToAction(nameof(Settings));
+        }
+
+        if (commissionRate is null or < 5 or > 35)
         {
             TempData["ErrorMessage"] = "Commission rate must be between 5% and 35%.";
             return RedirectToAction(nameof(Settings));
         }
 
-        decimal decimalRate = Math.Round(commissionRate / 100m, 4);
+        decimal decimalRate = Math.Round(commissionRate.Value / 100m, 4);
         var settingsList = await _unitOfWork.PlatformSettingRepository.GetAllAsync();
         var settings = settingsList.FirstOrDefault();
 
@@ -82,6 +149,7 @@ public class AdminController : Controller
             settings = new PlatformSettings
             {
                 CommissionRate = decimalRate,
+                UpdatedByUserId = adminUserId,
                 UpdatedAt = DateTime.UtcNow
             };
             await _unitOfWork.PlatformSettingRepository.AddAsync(settings);
@@ -89,12 +157,13 @@ public class AdminController : Controller
         else
         {
             settings.CommissionRate = decimalRate;
+            settings.UpdatedByUserId = adminUserId;
             settings.UpdatedAt = DateTime.UtcNow;
             _unitOfWork.PlatformSettingRepository.Update(settings);
         }
 
         await _unitOfWork.SaveChangesAsync();
-        TempData["SuccessMessage"] = $"Platform commission rate updated to {commissionRate:0.##}% successfully.";
+        TempData["SuccessMessage"] = $"Platform commission rate updated to {commissionRate.Value:0.##}% successfully.";
         return RedirectToAction(nameof(Settings));
     }
 

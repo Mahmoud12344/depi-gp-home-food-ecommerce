@@ -15,8 +15,10 @@
     }));
 }
 
+<script type="application/json" id="initial-dish-options">@Html.Raw(serializedOptions.Replace("</", "<\\/"))</script>
+
 <div x-data="{
-        options: @Html.Raw(serializedOptions),
+        options: JSON.parse(document.getElementById('initial-dish-options').textContent || '[]'),
         addOption(group = '') {
             this.options.push({
                 id: 0,

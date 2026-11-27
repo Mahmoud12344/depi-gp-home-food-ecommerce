@@ -1,6 +1,7 @@
 using depiR5gp.Data;
 using depiR5gp.Models.Chefs;
 using depiR5gp.Models.Menu;
+using depiR5gp.Models.Users;
 using depiR5gp.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,8 @@ public class ChefRepository(ApplicationDbContext context) : GenericRepository<Ch
             .Include(c => c.User)
             .Include(c => c.Documents)
             .Include(c => c.WorkingHours)
+            .Include(c => c.Reviews)
+                .ThenInclude(r => r.User)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
@@ -53,7 +56,8 @@ public class ChefRepository(ApplicationDbContext context) : GenericRepository<Ch
 
     public async Task<List<ChefCardViewModel>> SearchAsync(ChefFilterViewModel f)
     {
-        var q = _context.ChefProfiles.AsNoTracking().Where(c => c.Status == "Approved");
+        var q = _context.ChefProfiles.AsNoTracking()
+            .Where(c => c.Status == "Approved" && c.User.Status == UserStatus.Active);
 
         if (f.Search is { } s)
             q = q.Where(c => c.KitchenName.Contains(s)
@@ -69,6 +73,7 @@ public class ChefRepository(ApplicationDbContext context) : GenericRepository<Ch
             PhotoUrl = c.PhotoUrl,
             Bio = c.Bio,
             Area = c.Area,
+            IsAcceptingOrders = c.IsAcceptingOrders,
             Rating = c.Reviews.Where(r => r.ModerationStatus == "Approved").Average(r => (double?)r.Rating) ?? 0,
             ReviewCount = c.Reviews.Count(r => r.ModerationStatus == "Approved")
         }).ToListAsync();
@@ -76,7 +81,7 @@ public class ChefRepository(ApplicationDbContext context) : GenericRepository<Ch
 
     public async Task<List<FilterOption>> GetAreaOptionsAsync() =>
         await _context.ChefProfiles.AsNoTracking()
-            .Where(c => c.Status == "Approved" && c.Area != null)
+            .Where(c => c.Status == "Approved" && c.User.Status == UserStatus.Active && c.Area != null)
             .GroupBy(c => c.Area!)
             .Select(g => new FilterOption { Value = g.Key, Name = g.Key, Count = g.Count() })
             .ToListAsync();

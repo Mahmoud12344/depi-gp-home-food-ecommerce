@@ -27,7 +27,10 @@ public class DishesController(ApplicationDbContext context, UserManager<AppUser>
             .Include(d => d.Cuisine)
             .Include(d => d.ChefProfile)
                 .ThenInclude(c => c.User)
-            .SingleOrDefaultAsync(d => d.Id == id && !d.IsArchived);
+            .SingleOrDefaultAsync(d => d.Id == id
+                                    && !d.IsArchived
+                                    && d.ChefProfile.Status == "Approved"
+                                    && d.ChefProfile.User.Status == UserStatus.Active);
 
         if (dish is null)
         {
@@ -104,14 +107,16 @@ public class DishesController(ApplicationDbContext context, UserManager<AppUser>
 
         var dishes = await context.Dishes
             .AsNoTracking()
-            .Where(dish => !dish.IsArchived)
+            .Where(dish => !dish.IsArchived
+                        && dish.ChefProfile.Status == "Approved"
+                        && dish.ChefProfile.User.Status == UserStatus.Active)
             .Select(dish => new
             {
                 id = dish.Id,
                 name = dish.Name,
                 price = dish.Price,
                 image = dish.ImageUrl,
-                isAvailable = dish.IsAvailable,
+                isAvailable = dish.IsAvailable && dish.ChefProfile.IsAcceptingOrders,
                 isFavorite = favoriteDishIds.Contains(dish.Id)
             })
             .ToListAsync();
@@ -140,7 +145,10 @@ public class DishesController(ApplicationDbContext context, UserManager<AppUser>
             return Unauthorized(new { loginRequired = true });
 
         var dishExists = await context.Dishes
-            .AnyAsync(d => d.Id == id && !d.IsArchived);
+            .AnyAsync(d => d.Id == id
+                        && !d.IsArchived
+                        && d.ChefProfile.Status == "Approved"
+                        && d.ChefProfile.User.Status == UserStatus.Active);
 
         if (!dishExists)
             return NotFound(new

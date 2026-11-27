@@ -169,7 +169,7 @@
                         <div class="space-y-2 max-h-60 overflow-y-auto">
                             <!-- TODO(backend): Loop through notifications model -->
                             <!-- BEGIN SAMPLE -->
-                            <a href="/Orders/Track/1" class="block p-2 rounded-xl text-xs cursor-pointer transition-colors bg-[var(--color-primary-light)] font-medium">
+                            <a href="/Customer/MyOrders" class="block p-2 rounded-xl text-xs cursor-pointer transition-colors bg-[var(--color-primary-light)] font-medium">
                                 <p class="font-semibold text-[var(--color-primary)]">
                                     Order #HC-2026-9041 Accepted!
                                 </p>
@@ -249,29 +249,37 @@
                                 </a>
                             }
 
-                            <a href="/Customer/Profile" @@click="userDropdownOpen = false"
-                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                                <span>My Profile</span>
-                            </a>
-                            <a href="/Customer/MyOrders" @@click="userDropdownOpen = false"
-                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                                <span>Order History</span>
-                            </a>
+                            @if (User.IsInRole("Customer"))
+                            {
+                                <a href="/Customer/Profile" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>My Profile</span>
+                                </a>
+                                <a href="/Customer/MyOrders" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>Order History</span>
+                                </a>
+                                <a href="/Customer/Reviews" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>My Reviews</span>
+                                </a>
+                                <a href="/Customer/Points" @@click="userDropdownOpen = false"
+                                   class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
+                                    <span>Loyalty Points</span>
+                                </a>
+                            }
+
                             <a href="/Chat" @@click="userDropdownOpen = false"
                                class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs flex items-center justify-between">
                                 <span>Chat Inbox</span>
-                                <span class="px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-bold text-[10px]">2</span>
                             </a>
                             <a href="/Support" @@click="userDropdownOpen = false"
                                class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                                <span>My Support Cases</span>
-                            </a>
-                            <a href="/Customer/Points" @@click="userDropdownOpen = false"
-                               class="block w-full text-start px-2 py-1.5 hover:bg-[var(--color-surface-subtle)] rounded-xs">
-                                <span>Loyalty Points</span>
+                                <span>Support Center</span>
                             </a>
 
                             <form asp-controller="Account" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
                                 <button type="submit"
                                         class="w-full text-start px-2 py-1.5 text-rose-600 hover:bg-rose-50 rounded-xs flex items-center gap-1.5 mt-1 border-t border-[var(--color-border-light)] cursor-pointer">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#log-out"></use></svg>

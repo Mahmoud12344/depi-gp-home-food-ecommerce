@@ -110,10 +110,20 @@
                                     <span class="font-bold">@c.Rating.ToString("0.0", inv)</span>
                                     <span class="opacity-75">(@c.ReviewCount)</span>
                                 </div>
-                                <span class="chef-list-status">
-                                    <span class="chef-list-pulse"></span>
-                                    <span>Taking Orders Now</span>
-                                </span>
+                                @if (c.IsAcceptingOrders)
+                                {
+                                    <span class="chef-list-status">
+                                        <span class="chef-list-pulse"></span>
+                                        <span>Taking Orders Now</span>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950/70 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        <span>Currently Paused</span>
+                                    </span>
+                                }
                             </div>
                         </div>
 
@@ -155,5 +165,22 @@
                 </div>
             }
         </div>
+
+        @if (!Model.Chefs.Any())
+        {
+            <div class="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-12 text-center space-y-4 max-w-lg mx-auto">
+                <div class="w-16 h-16 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center mx-auto">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#chef-hat"></use></svg>
+                </div>
+                <h3 class="text-lg font-bold uppercase text-[var(--color-text)]">No Matching Kitchens Found</h3>
+                <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+                    Try selecting another pickup neighborhood or clearing your search query.
+                </p>
+                <a href="/Chefs"
+                   class="inline-flex items-center justify-center font-medium uppercase tracking-wider transition-all duration-200 select-none cursor-pointer rounded-full text-xs md:text-sm px-6 py-2.5 gap-2 shadow-xs bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)]">
+                    <span>Show All Kitchens</span>
+                </a>
+            </div>
+        }
     </div>
 </div>

@@ -1,4 +1,4 @@
-﻿using depiR5gp.Models.Chefs;
+using depiR5gp.Models.Chefs;
 using depiR5gp.Models.Menu;
 using depiR5gp.Repositories.Interfaces;
 using depiR5gp.Services.Interfaces;
@@ -21,7 +21,8 @@ public class DishService(IUnitOfWork unitOfWork) : IDishService
             Cuisines = cuisines,
             Areas = areas,
             MaxDishPrice = await unitOfWork.Dishes.GetMaxPriceAsync(),
-            SelectedCuisineName = cuisines.FirstOrDefault(c => c.Value == filter.CuisineId?.ToString())?.Name,
+            SelectedCuisineName = cuisines.FirstOrDefault(c => c.Value == filter.CuisineId?.ToString())?.Name
+                                  ?? DishFilterViewModel.SlugLabel(filter.CategorySlug),
             SelectedAreaName = filter.Area == null ? null : PickupAreas.NameOf(filter.Area)
         };
     }
