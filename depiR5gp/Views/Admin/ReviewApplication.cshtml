@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = $"Review Application - {Model.KitchenName}";
     ViewData["ActiveAdminTab"] = "applications";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 
     var idDoc = Model.Documents?.FirstOrDefault(d =>
         string.Equals(d.DocType, "Identity", StringComparison.OrdinalIgnoreCase) ||
@@ -23,8 +24,6 @@
 }
 
 <div class="w-full pb-24">
-    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
-
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
         <!-- Header Bar -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

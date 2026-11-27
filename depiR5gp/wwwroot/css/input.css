@@ -163,31 +163,6 @@
   }
 }
 
-/* Marquee continuous scroll animation */
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
-}
-
-@keyframes marquee-rtl {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(50%); }
-}
-
-.animate-marquee {
-  display: inline-flex;
-  white-space: nowrap;
-  animation: marquee 28s linear infinite;
-}
-
-[dir="rtl"] .animate-marquee {
-  animation: marquee-rtl 28s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-
 /* Starburst Discount Stamp */
 .discount-burst {
   position: relative;

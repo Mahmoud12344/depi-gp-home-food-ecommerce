@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Review Moderation - Admin Portal";
     ViewData["ActiveAdminTab"] = "reviews";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 
     var currentStatus = ViewBag.CurrentStatus as string ?? "all";
 
@@ -22,8 +23,6 @@
 <!-- Backlog Subtask: SCRUM-552 -->
 
 <div class="w-full pb-24">
-    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
-
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
         <!-- TAB 4: Review Moderation (SCRUM-552) -->
         <div class="space-y-4">

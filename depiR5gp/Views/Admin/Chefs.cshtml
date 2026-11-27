@@ -2,12 +2,11 @@
 @{
     ViewData["Title"] = "Chef Applications - Admin Portal";
     ViewData["ActiveAdminTab"] = "applications";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var currentStatus = (ViewBag.CurrentStatus as string) ?? "Pending";
 }
 
 <div class="w-full pb-24">
-    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
-
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
         <!-- Status Filter Pills -->
         <div class="flex flex-wrap items-center justify-between gap-4">

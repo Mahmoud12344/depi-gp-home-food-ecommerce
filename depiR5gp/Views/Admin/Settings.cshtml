@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Platform Settings & AI FAQs - Admin Portal";
     ViewData["ActiveAdminTab"] = "settings";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var currentCommissionPercent = ((Model?.CommissionRate ?? 0.15m) * 100m).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
     var faqs = ViewBag.Faqs as List<depiR5gp.Models.Support.Faq> ?? new List<depiR5gp.Models.Support.Faq>();
     var faqSearch = ViewBag.FaqSearch as string;
@@ -17,8 +18,6 @@
     newFaqCategory: 'Ordering & Pickup',
     newFaqAnswer: ''
 }" class="w-full pb-24">
-
-    <partial name="~/Views/Admin/Partials/_AdminNav.cshtml" />
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
         <!-- TAB 5: Platform Settings -->
