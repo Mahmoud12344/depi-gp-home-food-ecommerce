@@ -1,13 +1,14 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using depiR5gp.Data;
+using depiR5gp.Models.Payments;
 using depiR5gp.Models.Platform;
 using depiR5gp.Models.Support;
 using depiR5gp.Models.Users;
 using depiR5gp.Repositories.Interfaces;
+using depiR5gp.Services.Implementations;
 using depiR5gp.Services.Interfaces;
+using depiR5gp.ViewModels.AdminDashboard;
 using System.Threading.Tasks;
 
 namespace depiR5gp.Controllers;
@@ -20,18 +21,18 @@ public class AdminController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAdminService _adminService;
     private readonly IAdminDashboardService _dashboardService;
-    private readonly ApplicationDbContext _context;
+    private readonly IChefService _chefService;
 
     public AdminController(
         IUnitOfWork unitOfWork,
         IAdminService adminService,
         IAdminDashboardService dashboardService,
-        ApplicationDbContext context)
+        IChefService chefService)
     {
         _unitOfWork = unitOfWork;
         _adminService = adminService;
         _dashboardService = dashboardService;
-        _context = context;
+        _chefService = chefService;
     }
 
     [HttpGet]
@@ -39,6 +40,7 @@ public class AdminController : Controller
     {
         var model = await _dashboardService.GetDashboardAsync(range, cancellationToken);
         ViewData["PendingChefApplicationsCount"] = model.PendingApplicationsCount;
+        ViewBag.CommissionRate = await _chefService.GetCommissionRate();
         return View(model);
     }
 
@@ -59,8 +61,221 @@ public class AdminController : Controller
         return View(filtered);
     }
 
-    public IActionResult Orders() => View();
-    public IActionResult Payouts() => View();
+    [HttpGet]
+    public async Task<IActionResult> Orders(CancellationToken cancellationToken = default)
+    {
+        var dashboard = await _dashboardService.GetDashboardAsync("all", cancellationToken);
+        ViewData["PendingChefApplicationsCount"] = dashboard.PendingApplicationsCount;
+
+        var allOrders = await _unitOfWork.Orders.GetValidOrdersWithChefAsync(startDate: null, cancellationToken);
+
+        decimal platformRate = dashboard.EffectiveCommissionRate;
+        var rows = allOrders.Select(o =>
+        {
+            decimal rate = o.CommissionRate > 1m ? o.CommissionRate / 100m : (o.CommissionRate > 0 ? o.CommissionRate : platformRate);
+            return new AdminOrderSettlementRowVM
+            {
+                OrderId = o.Id,
+                Reference = o.Reference,
+                ChefProfileId = o.ChefProfileId,
+                KitchenName = o.ChefProfile?.KitchenName ?? $"Kitchen #{o.ChefProfileId}",
+                CustomerName = o.User != null ? $"{o.User.FirstName} {o.User.LastName}".Trim() : $"Customer #{o.UserId}",
+                CreatedAt = o.CreatedAt,
+                Status = o.Status,
+                PaymentMethod = o.PaymentMethod,
+                GrossAmount = o.Total,
+                CommissionRatePercent = Math.Round(rate * 100m, 2),
+                CommissionAmount = o.CommissionAmount
+            };
+        }).ToList();
+
+        return View(new AdminOrdersSettlementPageVM
+        {
+            EffectiveCommissionPercent = dashboard.EffectiveCommissionPercent,
+            Orders = rows
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Payouts(CancellationToken cancellationToken = default)
+    {
+        var dashboard = await _dashboardService.GetDashboardAsync("all", cancellationToken);
+        ViewData["PendingChefApplicationsCount"] = dashboard.PendingApplicationsCount;
+        ViewBag.CommissionRate = dashboard.EffectiveCommissionRate;
+
+        var allPayouts = await _unitOfWork.Orders.GetPayoutsWithDetailsAsync(cancellationToken);
+
+        var payoutHistory = allPayouts.Select(p =>
+        {
+            var (channel, note) = AdminDashboardService.SplitPayoutReference(p.Reference, p.Id);
+            var ts = p.LedgerEntries.OrderByDescending(l => l.CreatedAt).Select(l => (DateTime?)l.CreatedAt).FirstOrDefault()
+                     ?? DateTime.UtcNow;
+            return new AdminPayoutLogRowVM
+            {
+                PayoutId = p.Id,
+                ChefProfileId = p.ChefProfileId,
+                KitchenName = p.ChefProfile?.KitchenName ?? $"Kitchen #{p.ChefProfileId}",
+                Amount = p.Amount,
+                ChannelLabel = channel,
+                ReferenceNote = note,
+                Status = p.Status,
+                CreatedAt = ts
+            };
+        }).ToList();
+
+        return View(new AdminPayoutsPageVM
+        {
+            EffectiveCommissionPercent = dashboard.EffectiveCommissionPercent,
+            CashRows = dashboard.CashReconciliationRows,
+            ChefPayoutOptions = dashboard.ChefPayoutOptions,
+            PayoutHistory = payoutHistory
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Payouts(
+        string? actionType,
+        int chefId,
+        decimal? amount,
+        string? paymentMethod,
+        string? referenceNote,
+        int? payoutId,
+        string? returnUrl,
+        CancellationToken cancellationToken = default)
+    {
+        IActionResult RedirectBack() =>
+            !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
+                ? LocalRedirect(returnUrl)
+                : RedirectToAction(nameof(Payouts));
+
+        var chef = await _unitOfWork.Chefs.GetByIdAsync(chefId);
+        if (chef is null)
+        {
+            TempData["ErrorMessage"] = "Selected kitchen was not found.";
+            return RedirectBack();
+        }
+
+        if (string.Equals(actionType, "ReconcileCash", StringComparison.OrdinalIgnoreCase))
+        {
+            decimal platformRate = await _chefService.GetCommissionRate();
+            if (platformRate > 1m) platformRate /= 100m;
+            decimal chefRate = chef.CommissionRate ?? platformRate;
+            if (chefRate > 1m) chefRate /= 100m;
+
+            var cashOrders = await _unitOfWork.Orders.FindAsync(
+                o => o.ChefProfileId == chef.Id && o.PaymentMethod == "Cash" && o.Status == "Completed");
+
+            decimal totalOwed = cashOrders.Sum(o => o.CommissionAmount > 0 ? o.CommissionAmount : Math.Round(o.Total * chefRate, 2));
+            var reconciledEntries = await _unitOfWork.LedgerEntries.FindAsync(
+                l => l.ChefProfileId == chef.Id && l.Type == "CashReconciled");
+            decimal alreadyReconciled = reconciledEntries.Sum(l => l.Amount);
+
+            decimal pendingOffset = Math.Max(0m, Math.Round(totalOwed - alreadyReconciled, 2));
+            if (pendingOffset <= 0m)
+            {
+                TempData["InfoMessage"] = $"Cash commissions for {chef.KitchenName} are already reconciled.";
+                return RedirectBack();
+            }
+
+            await _unitOfWork.LedgerEntries.AddAsync(new LedgerEntry
+            {
+                ChefProfileId = chef.Id,
+                Type = "CashReconciled",
+                Amount = pendingOffset,
+                CreatedAt = DateTime.UtcNow
+            });
+            await _unitOfWork.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Reconciled {pendingOffset:N2} EGP in cash commissions for {chef.KitchenName}.";
+            return RedirectBack();
+        }
+
+        decimal disburseAmount = Math.Round(amount ?? 0m, 2);
+        if (disburseAmount <= 0m)
+        {
+            TempData["ErrorMessage"] = "Please enter a valid payout amount greater than zero.";
+            return RedirectBack();
+        }
+
+        var completedChefOrders = await _unitOfWork.Orders.FindAsync(
+            o => o.ChefProfileId == chef.Id && o.Status == "Completed");
+        decimal completedNet = completedChefOrders.Sum(o => Math.Max(0m, o.Total - o.CommissionAmount));
+
+        var completedChefPayouts = await _unitOfWork.Payouts.FindAsync(
+            p => p.ChefProfileId == chef.Id && p.Status == "Completed");
+        decimal completedPayouts = completedChefPayouts.Sum(p => p.Amount);
+
+        decimal eligibleBalance = Math.Max(0m, Math.Round(completedNet - completedPayouts, 2));
+        if (disburseAmount > eligibleBalance)
+        {
+            TempData["ErrorMessage"] = $"Payout amount ({disburseAmount:N2} EGP) exceeds {chef.KitchenName}'s eligible balance ({eligibleBalance:N2} EGP).";
+            return RedirectBack();
+        }
+
+        string channelLabel = (paymentMethod ?? "instapay").ToLowerInvariant() switch
+        {
+            "bank" => "Bank Wire (IBAN)",
+            "vodafone_cash" => "Vodafone Cash Wallet",
+            _ => "InstaPay GPA"
+        };
+
+        string cleanRef = string.IsNullOrWhiteSpace(referenceNote)
+            ? $"BATCH-{DateTime.UtcNow:yyyyMMdd}-{chef.Id:D2}"
+            : referenceNote.Trim();
+        string storedReference = $"{channelLabel} | {cleanRef}";
+        if (storedReference.Length > 100) storedReference = storedReference[..100];
+
+        Payout? payout = null;
+        if (payoutId.HasValue)
+        {
+            var byId = await _unitOfWork.Payouts.GetByIdAsync(payoutId.Value);
+            if (byId is not null && byId.ChefProfileId == chef.Id)
+            {
+                payout = byId;
+            }
+        }
+        if (payout is null)
+        {
+            var pendingForChef = await _unitOfWork.Payouts.FindAsync(
+                p => p.ChefProfileId == chef.Id && p.Status == "Pending");
+            payout = pendingForChef.OrderBy(p => p.Id).FirstOrDefault();
+        }
+
+        if (payout is not null)
+        {
+            payout.Amount = disburseAmount;
+            payout.Status = "Completed";
+            payout.Reference = storedReference;
+            _unitOfWork.Payouts.Update(payout);
+        }
+        else
+        {
+            payout = new Payout
+            {
+                ChefProfileId = chef.Id,
+                Amount = disburseAmount,
+                Status = "Completed",
+                Reference = storedReference,
+                IdempotencyKey = Guid.NewGuid().ToString("N")
+            };
+            await _unitOfWork.Payouts.AddAsync(payout);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        await _unitOfWork.LedgerEntries.AddAsync(new LedgerEntry
+        {
+            ChefProfileId = chef.Id,
+            PayoutId = payout.Id,
+            Type = "Payout",
+            Amount = -disburseAmount,
+            CreatedAt = DateTime.UtcNow
+        });
+
+        await _unitOfWork.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Disbursed {disburseAmount:N2} EGP to {chef.KitchenName} via {channelLabel}.";
+        return RedirectBack();
+    }
 
     [HttpGet]
     public async Task<IActionResult> Settings(string? faqSearch = null)
@@ -68,14 +283,12 @@ public class AdminController : Controller
         var settingsList = await _unitOfWork.PlatformSettingRepository.GetAllAsync();
         var settings = settingsList.FirstOrDefault() ?? new PlatformSettings();
 
-        IQueryable<Faq> faqQuery = _context.Faqs.AsNoTracking();
-        if (!string.IsNullOrWhiteSpace(faqSearch))
-        {
-            string term = faqSearch.Trim();
-            faqQuery = faqQuery.Where(f => f.Question.Contains(term) || f.Answer.Contains(term));
-        }
+        IEnumerable<Faq> faqs = string.IsNullOrWhiteSpace(faqSearch)
+            ? await _unitOfWork.Faqs.GetAllAsync()
+            : await _unitOfWork.Faqs.FindAsync(f =>
+                f.Question.Contains(faqSearch.Trim()) || f.Answer.Contains(faqSearch.Trim()));
 
-        ViewBag.Faqs = await faqQuery.OrderByDescending(f => f.UpdatedAt).ThenByDescending(f => f.Id).ToListAsync();
+        ViewBag.Faqs = faqs.OrderByDescending(f => f.UpdatedAt).ThenByDescending(f => f.Id).ToList();
         ViewBag.FaqSearch = faqSearch;
         return View(settings);
     }
@@ -103,14 +316,14 @@ public class AdminController : Controller
             string cleanCategory = string.IsNullOrWhiteSpace(category) ? "General" : category.Trim();
             string storedQuestion = $"[{cleanCategory}] {question.Trim()}";
 
-            _context.Faqs.Add(new Faq
+            await _unitOfWork.Faqs.AddAsync(new Faq
             {
                 Question = storedQuestion.Length > 300 ? storedQuestion[..300] : storedQuestion,
                 Answer = answer.Trim(),
                 UpdatedByUserId = adminUserId,
                 UpdatedAt = DateTime.UtcNow
             });
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "FAQ entry added to AI knowledge base.";
             return RedirectToAction(nameof(Settings));
@@ -120,11 +333,11 @@ public class AdminController : Controller
         {
             if (faqId.HasValue)
             {
-                var faq = await _context.Faqs.FindAsync(faqId.Value);
+                var faq = await _unitOfWork.Faqs.GetByIdAsync(faqId.Value);
                 if (faq is not null)
                 {
-                    _context.Faqs.Remove(faq);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.Faqs.Remove(faq);
+                    await _unitOfWork.SaveChangesAsync();
                     TempData["SuccessMessage"] = "FAQ entry removed.";
                     return RedirectToAction(nameof(Settings));
                 }

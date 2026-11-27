@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using depiR5gp.Data;
 using depiR5gp.Models.Orders;
+using depiR5gp.Models.Payments;
 using depiR5gp.Repositories.Interfaces;
 
 namespace depiR5gp.Repositories.Implementations;
@@ -13,6 +14,7 @@ public class OrderRepository(ApplicationDbContext context) : GenericRepository<O
             .AsNoTracking()
             .Where(o => o.Status != "Cancelled" && o.Status != "Rejected")
             .Include(o => o.ChefProfile)
+            .Include(o => o.User)
             .AsQueryable();
 
         if (startDate.HasValue)
@@ -20,7 +22,17 @@ public class OrderRepository(ApplicationDbContext context) : GenericRepository<O
             query = query.Where(o => o.CreatedAt >= startDate.Value);
         }
 
-        return await query.ToListAsync(cancellationToken);
+        return await query.OrderByDescending(o => o.CreatedAt).ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Payout>> GetPayoutsWithDetailsAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Payouts
+            .AsNoTracking()
+            .Include(p => p.ChefProfile)
+            .Include(p => p.LedgerEntries)
+            .OrderByDescending(p => p.Id)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<decimal> GetTotalRevenueAsync(DateTime? startDate = null, CancellationToken cancellationToken = default)

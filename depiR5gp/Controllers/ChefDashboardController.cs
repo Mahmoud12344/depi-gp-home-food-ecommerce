@@ -478,6 +478,7 @@ public class ChefDashboardController(
 
         var payouts = await context.Payouts
             .AsNoTracking()
+            .Include(p => p.LedgerEntries)
             .Where(p => p.ChefProfileId == chef.Id && p.Status != "Rejected")
             .OrderBy(p => p.Id)
             .ToListAsync();
@@ -510,8 +511,13 @@ public class ChefDashboardController(
 
         foreach (var p in payouts)
         {
+            var occurredAt = p.LedgerEntries
+                .OrderByDescending(l => l.CreatedAt)
+                .Select(l => (DateTime?)l.CreatedAt)
+                .FirstOrDefault() ?? DateTime.UtcNow;
+
             rawEvents.Add((
-                DateTime.UtcNow,
+                occurredAt,
                 p.Reference ?? $"PAYOUT-{p.Id:D4}",
                 $"Payout ({p.Status})",
                 null,
