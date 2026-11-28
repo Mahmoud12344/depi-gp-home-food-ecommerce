@@ -1,6 +1,303 @@
+@model depiR5gp.ViewModels.Menu.DishCreateVM
+
 @{
-    ViewData["Title"] = "Add New Dish";
+    ViewData["Title"] = "Add Dish";
+    ViewData["Subtitle"] = "Fill in the details below to add a new dish to your menu.";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+
+@* ── Breadcrumb banner (matches the project's standard header pattern) ── *@
+<partial name="Partials/_BreadcrumbBanner" />
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    @* ── Success / Error TempData toasts (shown after a redirect, e.g. from Index) ── *@
+    @if (TempData["Success"] is string successMsg)
+    {
+        <div role="alert"
+             class="mb-6 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <use href="#check-circle" />
+            </svg>
+            <span>@successMsg</span>
+        </div>
+    }
+
+    @* ── Model-level validation summary ── *@
+    <div asp-validation-summary="ModelOnly"
+         class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300 [&:empty]:hidden">
+    </div>
+
+    @* ══════════════════════════════════════
+       FORM
+       enctype is mandatory for ImageFile upload.
+       The form tag helper injects the anti-forgery token automatically.
+       ══════════════════════════════════════ *@
+    <form asp-controller="MenuManagement" asp-action="Create"
+          method="post" enctype="multipart/form-data"
+          class="space-y-6"
+          x-data="dishCreateForm()"
+          novalidate>
+
+        @* ── Card wrapper ── *@
+        <div class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm divide-y divide-[var(--color-border)]">
+
+            @* ── Section: Dish Details ── *@
+            <div class="px-6 py-5">
+                <h2 class="text-base font-semibold text-[var(--color-text)] mb-4">Dish Details</h2>
+
+                <div class="grid grid-cols-1 gap-y-5">
+
+                    @* ── Name ── *@
+                    <div>
+                        <label asp-for="Name"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Dish Name <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <input asp-for="Name"
+                               type="text"
+                               placeholder="e.g. Kofta with Rice"
+                               maxlength="100"
+                               autocomplete="off"
+                               class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)]
+                                      transition-colors focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20
+                                      aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200" />
+                        <span asp-validation-for="Name"
+                              class="mt-1 block text-xs text-red-600 dark:text-red-400"></span>
+                    </div>
+
+                    @* ── Description ── *@
+                    <div>
+                        <label asp-for="Description"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Description <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <textarea asp-for="Description"
+                                  rows="4"
+                                  maxlength="1000"
+                                  placeholder="Describe the ingredients, portion size, or what makes this dish special…"
+                                  class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)] resize-y
+                                         transition-colors focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20
+                                         aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200"></textarea>
+                        <span asp-validation-for="Description"
+                              class="mt-1 block text-xs text-red-600 dark:text-red-400"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            @* ── Section: Pricing & Classification ── *@
+            <div class="px-6 py-5">
+                <h2 class="text-base font-semibold text-[var(--color-text)] mb-4">Pricing &amp; Classification</h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+
+                    @* ── Price ── *@
+                    <div>
+                        <label asp-for="Price"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Price (EGP) <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3 text-sm text-[var(--color-text-muted)]">EGP</span>
+                            <input asp-for="Price"
+                                   type="number"
+                                   step="0.01"
+                                   min="0.01"
+                                   max="100000"
+                                   placeholder="0.00"
+                                   class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] ps-11 pe-3 py-2.5 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)]
+                                          transition-colors focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20
+                                          aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200" />
+                        </div>
+                        <span asp-validation-for="Price"
+                              class="mt-1 block text-xs text-red-600 dark:text-red-400"></span>
+                    </div>
+
+                    @* ── Category ── *@
+                    <div>
+                        <label asp-for="CategoryId"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Category <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <select asp-for="CategoryId"
+                                asp-items="Model.Categories"
+                                class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]
+                                       transition-colors focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20
+                                       aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200">
+                            @* value="0" so the non-nullable int stays at 0 and triggers the [Range(1,…)] message *@
+                            <option value="0" disabled>Select a category</option>
+                        </select>
+                        <span asp-validation-for="CategoryId"
+                              class="mt-1 block text-xs text-red-600 dark:text-red-400"></span>
+                    </div>
+
+                    @* ── Cuisine ── *@
+                    <div>
+                        <label asp-for="CuisineId"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Cuisine <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <select asp-for="CuisineId"
+                                asp-items="Model.Cuisines"
+                                class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]
+                                       transition-colors focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20
+                                       aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200">
+                            <option value="0" disabled>Select a cuisine</option>
+                        </select>
+                        <span asp-validation-for="CuisineId"
+                              class="mt-1 block text-xs text-red-600 dark:text-red-400"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            @* ── Section: Dish Photo ── *@
+            <div class="px-6 py-5">
+                <h2 class="text-base font-semibold text-[var(--color-text)] mb-1">Dish Photo <span class="text-xs font-normal text-[var(--color-text-muted)]">(optional)</span></h2>
+                <p class="text-xs text-[var(--color-text-muted)] mb-4">JPG, PNG or WEBP · up to 2 MB. If the form has errors after submission, please re-select the image.</p>
+
+                @* Image preview (Alpine.js, no library) *@
+                <div class="space-y-4">
+
+                    @* Preview area — hidden until a file is chosen *@
+                    <div x-show="previewUrl"
+                         x-transition
+                         class="relative w-40 h-40 rounded-xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface-subtle)] shadow-sm">
+                        <img :src="previewUrl" alt="Dish preview"
+                             class="h-full w-full object-cover" />
+                        <button type="button"
+                                @@click="clearImage()"
+                                class="absolute top-1.5 end-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                                aria-label="Remove selected image">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                                <use href="#x" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    @* Drop-zone / file picker *@
+                    <label for="ImageFile"
+                           class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-6 py-8
+                                  transition-colors hover:border-[var(--color-primary)]/60 hover:bg-[var(--color-primary)]/5"
+                           :class="previewUrl ? 'hidden' : ''">
+                        <svg class="h-8 w-8 text-[var(--color-text-muted)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <use href="#image" />
+                        </svg>
+                        <span class="text-sm font-medium text-[var(--color-text)]">Click to upload a photo</span>
+                        <span class="text-xs text-[var(--color-text-muted)]">JPG, PNG, WEBP · max 2 MB</span>
+                    </label>
+
+                    <input asp-for="ImageFile"
+                           id="ImageFile"
+                           type="file"
+                           accept=".jpg,.jpeg,.png,.webp"
+                           class="sr-only"
+                           x-ref="fileInput"
+                           @@change="handleFile($event)" />
+
+                    @* Client-side type/size error (server remains the source of truth) *@
+                    <p x-show="fileError"
+                       x-text="fileError"
+                       class="text-xs text-red-600 dark:text-red-400"
+                       role="alert"></p>
+
+                    <span asp-validation-for="ImageFile"
+                          class="mt-1 block text-xs text-red-600 dark:text-red-400"></span>
+                </div>
+            </div>
+
+        </div>
+        @* ── end card ── *@
+
+        @* ── Required-fields legend ── *@
+        <p class="text-xs text-[var(--color-text-muted)]">
+            Fields marked <span class="text-red-500 font-semibold" aria-hidden="true">*</span> are required.
+        </p>
+
+        @* ── Action buttons ── *@
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <a asp-controller="MenuManagement" asp-action="Index"
+               class="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-2.5 text-sm font-medium text-[var(--color-text)]
+                      transition-colors hover:bg-[var(--color-surface-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="#arrow-left" />
+                </svg>
+                Cancel
+            </a>
+            <button type="submit"
+                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm
+                           transition-colors hover:bg-[var(--color-primary-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40 disabled:opacity-60">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="#check" />
+                </svg>
+                Save Dish
+            </button>
+        </div>
+
+    </form>
 </div>
+
+@* ── Client-side validation scripts (partial exists — confirmed) ── *@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        /**
+         * Alpine.js component for the "Add Dish" form.
+         * Responsibilities:
+         *   1. Live image preview after file selection.
+         *   2. Quick client-side guard for file type & size
+         *      (server validation is the source of truth).
+         *   3. Clear-image button that also resets the hidden <input type="file">.
+         *
+         * No external libraries. Alpine.js is already loaded by the layout.
+         */
+        function dishCreateForm() {
+            return {
+                previewUrl: '',
+                fileError: '',
+
+                handleFile(event) {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                    const maxBytes = 2 * 1024 * 1024; // 2 MB
+
+                    // Client-side type check
+                    if (!allowedTypes.includes(file.type)) {
+                        this.fileError = 'Only JPG, PNG, or WEBP images are allowed.';
+                        this.clearImage();
+                        return;
+                    }
+
+                    // Client-side size check
+                    if (file.size > maxBytes) {
+                        this.fileError = 'The image must be 2 MB or smaller.';
+                        this.clearImage();
+                        return;
+                    }
+
+                    this.fileError = '';
+
+                    // Generate object URL for instant preview
+                    if (this.previewUrl) {
+                        URL.revokeObjectURL(this.previewUrl);
+                    }
+                    this.previewUrl = URL.createObjectURL(file);
+                },
+
+                clearImage() {
+                    if (this.previewUrl) {
+                        URL.revokeObjectURL(this.previewUrl);
+                        this.previewUrl = '';
+                    }
+                    // Reset the actual file input so the browser no longer holds the file
+                    if (this.$refs.fileInput) {
+                        this.$refs.fileInput.value = '';
+                    }
+                }
+            };
+        }
+    </script>
+}

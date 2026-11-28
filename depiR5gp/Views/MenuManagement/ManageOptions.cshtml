@@ -1,6 +1,640 @@
+@model depiR5gp.ViewModels.Menu.ManageOptionsVM
+
 @{
-    ViewData["Title"] = "Manage Dish Options";
+    ViewData["Title"] = "Manage Options";
+    ViewData["Subtitle"] = "Add and edit option groups (size, extras, add-ons) for this dish.";
 }
-<div class="container py-4">
-    <h2>@ViewData["Title"]</h2>
+
+@* ── Breadcrumb / page-title banner ── *@
+<partial name="Partials/_BreadcrumbBanner" />
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    @* ════════════════════════════════════════
+       TempData alerts
+       (layout does not render these globally)
+       ════════════════════════════════════════ *@
+    @if (TempData["Success"] is string successMsg)
+    {
+        <div role="alert"
+             class="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50
+                    px-4 py-3 text-sm text-emerald-800
+                    dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24" aria-hidden="true"><use href="#check-circle" /></svg>
+            <span>@successMsg</span>
+        </div>
+    }
+    @if (TempData["Error"] is string errorMsg)
+    {
+        <div role="alert"
+             class="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50
+                    px-4 py-3 text-sm text-red-700
+                    dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
+            <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24" aria-hidden="true"><use href="#alert-circle" /></svg>
+            <span>@errorMsg</span>
+        </div>
+    }
+
+    @* ════════════════════════════════════════
+       Page header — dish name + back link
+       ════════════════════════════════════════ *@
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <p class="text-xs font-medium uppercase tracking-wide text-[var(--color-text-muted)]">Managing options for</p>
+            <h1 class="mt-0.5 text-xl font-bold text-[var(--color-text)]">@Model.DishName</h1>
+        </div>
+        <a asp-controller="MenuManagement" asp-action="Index"
+           class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[var(--color-border)]
+                  bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-text)]
+                  hover:bg-[var(--color-surface-subtle)] focus:outline-none
+                  focus:ring-2 focus:ring-[var(--color-primary)]/30 transition-colors">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24" aria-hidden="true"><use href="#arrow-left" /></svg>
+            Back to Menu
+        </a>
+    </div>
+
+    @* ════════════════════════════════════════
+       EXISTING OPTIONS TABLE / EMPTY STATE
+       ════════════════════════════════════════ *@
+    <section aria-labelledby="options-heading">
+        <div class="flex items-center justify-between mb-3">
+            <h2 id="options-heading"
+                class="text-base font-semibold text-[var(--color-text)]">Current Options</h2>
+            @if (Model.HasOptions)
+            {
+                <span class="rounded-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)]
+                             px-2.5 py-0.5 text-xs font-medium text-[var(--color-text-muted)]">
+                    @Model.Options.Count @(Model.Options.Count == 1 ? "option" : "options")
+                </span>
+            }
+        </div>
+
+        @if (!Model.HasOptions)
+        {
+            <div class="flex flex-col items-center justify-center gap-4 rounded-2xl
+                        border border-dashed border-[var(--color-border)]
+                        bg-[var(--color-surface-subtle)] px-8 py-12 text-center">
+                <svg class="h-10 w-10 text-[var(--color-text-muted)]" fill="none" stroke="currentColor"
+                     stroke-width="1.2" viewBox="0 0 24 24" aria-hidden="true"><use href="#sliders-horizontal" /></svg>
+                <div>
+                    <p class="text-sm font-semibold text-[var(--color-text)]">No options yet</p>
+                    <p class="mt-1 text-xs text-[var(--color-text-muted)]">
+                        Use the form below to add size choices, extras, or add-ons.
+                    </p>
+                </div>
+            </div>
+        }
+        else
+        {
+            @* ── Responsive options table ── *@
+            <div class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]
+                        shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm" aria-label="Dish options">
+                        <thead>
+                            <tr class="border-b border-[var(--color-border)]
+                                       bg-[var(--color-surface-subtle)] text-left">
+                                <th scope="col"
+                                    class="px-4 py-3 text-xs font-semibold uppercase tracking-wide
+                                           text-[var(--color-text-muted)]">Group</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-xs font-semibold uppercase tracking-wide
+                                           text-[var(--color-text-muted)]">Option Name</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-xs font-semibold uppercase tracking-wide
+                                           text-[var(--color-text-muted)]">Extra Price</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-xs font-semibold uppercase tracking-wide
+                                           text-[var(--color-text-muted)]">Required</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-xs font-semibold uppercase tracking-wide
+                                           text-[var(--color-text-muted)] text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--color-border)]">
+                            @foreach (var opt in Model.Options)
+                            {
+                                <tr class="transition-colors hover:bg-[var(--color-surface-subtle)]">
+                                    <td class="px-4 py-3 font-medium text-[var(--color-text)]">
+                                        @opt.GroupName
+                                    </td>
+                                    <td class="px-4 py-3 text-[var(--color-text-muted)]">
+                                        @opt.Name
+                                    </td>
+                                    <td class="px-4 py-3 text-[var(--color-text)]">
+                                        @if (opt.ExtraPrice > 0)
+                                        {
+                                            <span>+&nbsp;EGP&nbsp;@opt.ExtraPrice.ToString("0.00")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-[var(--color-text-muted)]">—</span>
+                                        }
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        @if (opt.IsRequired)
+                                        {
+                                            <span class="inline-flex items-center gap-1.5 rounded-full border
+                                                         border-amber-300 bg-amber-100 px-2 py-0.5
+                                                         text-[11px] font-semibold text-amber-800
+                                                         dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true"></span>
+                                                Required
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center gap-1.5 rounded-full border
+                                                         border-neutral-300 bg-neutral-100 px-2 py-0.5
+                                                         text-[11px] font-semibold text-neutral-600
+                                                         dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
+                                                Optional
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center justify-end gap-2">
+
+                                            @* Edit — opens the shared edit modal *@
+                                            <button type="button"
+                                                    aria-label="Edit @opt.Name"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editOptionModal"
+                                                    data-opt-id="@opt.Id"
+                                                    data-opt-dish-id="@Model.DishId"
+                                                    data-opt-group="@opt.GroupName"
+                                                    data-opt-name="@opt.Name"
+                                                    data-opt-price="@opt.ExtraPrice.ToString("0.00")"
+                                                    data-opt-required="@opt.IsRequired.ToString().ToLower()"
+                                                    class="inline-flex items-center gap-1.5 rounded-lg
+                                                           border border-[var(--color-border)] px-3 py-1.5
+                                                           text-xs font-medium text-[var(--color-text)]
+                                                           hover:bg-[var(--color-surface-subtle)] focus:outline-none
+                                                           focus:ring-2 focus:ring-[var(--color-primary)]/30
+                                                           transition-colors">
+                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor"
+                                                     stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <use href="#pencil" />
+                                                </svg>
+                                                Edit
+                                            </button>
+
+                                            @* Delete — opens the shared delete confirm modal *@
+                                            <button type="button"
+                                                    aria-label="Delete option @opt.Name"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteOptionModal"
+                                                    data-opt-id="@opt.Id"
+                                                    data-opt-name="@opt.Name"
+                                                    class="inline-flex items-center justify-center rounded-lg
+                                                           border border-transparent p-1.5 text-[var(--color-text-muted)]
+                                                           hover:border-red-300 hover:bg-red-50 hover:text-red-600
+                                                           dark:hover:border-red-800 dark:hover:bg-red-950/40
+                                                           dark:hover:text-red-400 focus:outline-none
+                                                           focus:ring-2 focus:ring-red-500/30 transition-colors">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor"
+                                                     stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <use href="#trash-2" />
+                                                </svg>
+                                            </button>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </section>
+
+    @* ════════════════════════════════════════
+       ADD OPTION FORM
+       POST → AddOption, anti-forgery via form tag helper.
+       Fields are prefixed with "NewOption." to match the
+       DishOptionFormVM nested inside ManageOptionsVM.
+       ════════════════════════════════════════ *@
+    <section aria-labelledby="add-option-heading">
+        <h2 id="add-option-heading"
+            class="text-base font-semibold text-[var(--color-text)] mb-3">Add New Option</h2>
+
+        <form asp-controller="MenuManagement"
+              asp-action="AddOption"
+              method="post"
+              class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]
+                     shadow-sm divide-y divide-[var(--color-border)]"
+              novalidate>
+
+            @* DishId must be posted so the controller knows which dish owns this option *@
+            <input type="hidden" name="NewOption.DishId" value="@Model.DishId" />
+
+            <div class="px-6 py-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                    @* ── Group Name ── *@
+                    <div>
+                        <label for="NewOption_GroupName"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Group Name <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <input id="NewOption_GroupName"
+                               type="text"
+                               name="NewOption.GroupName"
+                               maxlength="100"
+                               placeholder="e.g. Size, Extras, Sauce"
+                               value="@Model.NewOption.GroupName"
+                               class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]
+                                      px-3 py-2.5 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)]
+                                      transition-colors focus:border-[var(--color-primary)] focus:outline-none
+                                      focus:ring-2 focus:ring-[var(--color-primary)]/20
+                                      aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200" />
+                        <span class="mt-1 block text-xs text-red-600 dark:text-red-400"
+                              data-valmsg-for="NewOption.GroupName"
+                              data-valmsg-replace="true"></span>
+                    </div>
+
+                    @* ── Option Name ── *@
+                    <div>
+                        <label for="NewOption_Name"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Option Name <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <input id="NewOption_Name"
+                               type="text"
+                               name="NewOption.Name"
+                               maxlength="100"
+                               placeholder="e.g. Large, Extra Cheese, Spicy"
+                               value="@Model.NewOption.Name"
+                               class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]
+                                      px-3 py-2.5 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)]
+                                      transition-colors focus:border-[var(--color-primary)] focus:outline-none
+                                      focus:ring-2 focus:ring-[var(--color-primary)]/20
+                                      aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200" />
+                        <span class="mt-1 block text-xs text-red-600 dark:text-red-400"
+                              data-valmsg-for="NewOption.Name"
+                              data-valmsg-replace="true"></span>
+                    </div>
+
+                    @* ── Extra Price ── *@
+                    <div>
+                        <label for="NewOption_ExtraPrice"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Extra Price <span class="text-xs font-normal text-[var(--color-text-muted)]">(EGP, 0 = included)</span>
+                        </label>
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3
+                                         text-sm text-[var(--color-text-muted)]">EGP</span>
+                            <input id="NewOption_ExtraPrice"
+                                   type="number"
+                                   name="NewOption.ExtraPrice"
+                                   step="0.01"
+                                   min="0"
+                                   max="100000"
+                                   placeholder="0.00"
+                                   value="@Model.NewOption.ExtraPrice.ToString("0.00")"
+                                   class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]
+                                          ps-11 pe-3 py-2.5 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)]
+                                          transition-colors focus:border-[var(--color-primary)] focus:outline-none
+                                          focus:ring-2 focus:ring-[var(--color-primary)]/20
+                                          aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200" />
+                        </div>
+                        <span class="mt-1 block text-xs text-red-600 dark:text-red-400"
+                              data-valmsg-for="NewOption.ExtraPrice"
+                              data-valmsg-replace="true"></span>
+                    </div>
+
+                    @* ── Is Required toggle ── *@
+                    <div class="flex items-start sm:items-end pb-1">
+                        <label class="relative inline-flex cursor-pointer items-center gap-3">
+                            <input id="NewOption_IsRequired"
+                                   type="checkbox"
+                                   name="NewOption.IsRequired"
+                                   value="true"
+                                   @(Model.NewOption.IsRequired ? "checked" : "")
+                                   class="peer sr-only" />
+                            @* Hidden "false" value so unchecked checkbox still posts false *@
+                            <input type="hidden" name="NewOption.IsRequired" value="false" />
+                            <span class="relative h-5 w-9 rounded-full border border-[var(--color-border)]
+                                         bg-[var(--color-surface-subtle)] transition-colors
+                                         peer-checked:border-[var(--color-primary)] peer-checked:bg-[var(--color-primary)]
+                                         peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-primary)]/30
+                                         after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4
+                                         after:rounded-full after:bg-white after:transition-all
+                                         peer-checked:after:translate-x-4" aria-hidden="true"></span>
+                            <div>
+                                <span class="text-sm font-medium text-[var(--color-text)]">Required choice</span>
+                                <p class="text-xs text-[var(--color-text-muted)]">
+                                    Customer must select an option from this group before adding to cart.
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+
+            @* ── Form footer ── *@
+            <div class="px-6 py-4 flex justify-end">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)]
+                               px-5 py-2.5 text-sm font-semibold text-white shadow-sm
+                               hover:bg-[var(--color-primary-hover)] focus:outline-none
+                               focus:ring-2 focus:ring-[var(--color-primary)]/40 transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"
+                         viewBox="0 0 24 24" aria-hidden="true"><use href="#plus" /></svg>
+                    Add Option
+                </button>
+            </div>
+
+        </form>
+    </section>
+
 </div>
+
+@* ════════════════════════════════════════════════════════════════
+   SHARED EDIT OPTION MODAL (Bootstrap 5)
+   Triggered by each row's "Edit" button via data-bs-toggle.
+   JS fills the form fields from data-* attributes before the
+   modal opens — one modal for all rows, no per-row duplicates.
+   ════════════════════════════════════════════════════════════════ *@
+<div class="modal fade"
+     id="editOptionModal"
+     tabindex="-1"
+     aria-labelledby="editOptionModalLabel"
+     aria-modal="true"
+     role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-2xl border-0 shadow-xl
+                    bg-[var(--color-surface)] text-[var(--color-text)]">
+
+            <div class="modal-header border-b border-[var(--color-border)] px-6 pt-5 pb-4">
+                <h5 class="modal-title text-base font-semibold text-[var(--color-text)]"
+                    id="editOptionModalLabel">Edit Option</h5>
+                <button type="button"
+                        class="ms-auto inline-flex items-center justify-center rounded-lg p-1.5
+                               text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)]
+                               focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 transition-colors"
+                        data-bs-dismiss="modal" aria-label="Close">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"
+                         viewBox="0 0 24 24" aria-hidden="true"><use href="#x" /></svg>
+                </button>
+            </div>
+
+            <form asp-controller="MenuManagement"
+                  asp-action="UpdateOption"
+                  method="post"
+                  id="editOptionForm">
+
+                <div class="modal-body px-6 py-5 space-y-4">
+
+                    @* Hidden ids (populated by JS) *@
+                    <input type="hidden" id="editOptId"     name="Id"     value="" />
+                    <input type="hidden" id="editOptDishId" name="DishId" value="" />
+
+                    @* ── Group Name ── *@
+                    <div>
+                        <label for="editOptGroupName"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Group Name <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <input id="editOptGroupName"
+                               type="text"
+                               name="GroupName"
+                               maxlength="100"
+                               class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]
+                                      px-3 py-2.5 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)]
+                                      transition-colors focus:border-[var(--color-primary)] focus:outline-none
+                                      focus:ring-2 focus:ring-[var(--color-primary)]/20" />
+                    </div>
+
+                    @* ── Option Name ── *@
+                    <div>
+                        <label for="editOptName"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Option Name <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <input id="editOptName"
+                               type="text"
+                               name="Name"
+                               maxlength="100"
+                               class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]
+                                      px-3 py-2.5 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)]
+                                      transition-colors focus:border-[var(--color-primary)] focus:outline-none
+                                      focus:ring-2 focus:ring-[var(--color-primary)]/20" />
+                    </div>
+
+                    @* ── Extra Price ── *@
+                    <div>
+                        <label for="editOptExtraPrice"
+                               class="mb-1.5 block text-sm font-medium text-[var(--color-text)]">
+                            Extra Price <span class="text-xs font-normal text-[var(--color-text-muted)]">(EGP)</span>
+                        </label>
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3
+                                         text-sm text-[var(--color-text-muted)]">EGP</span>
+                            <input id="editOptExtraPrice"
+                                   type="number"
+                                   name="ExtraPrice"
+                                   step="0.01"
+                                   min="0"
+                                   max="100000"
+                                   class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]
+                                          ps-11 pe-3 py-2.5 text-sm text-[var(--color-text)]
+                                          transition-colors focus:border-[var(--color-primary)] focus:outline-none
+                                          focus:ring-2 focus:ring-[var(--color-primary)]/20" />
+                        </div>
+                    </div>
+
+                    @* ── Is Required ── *@
+                    <label class="relative inline-flex cursor-pointer items-center gap-3">
+                        <input id="editOptIsRequired"
+                               type="checkbox"
+                               name="IsRequired"
+                               value="true"
+                               class="peer sr-only" />
+                        <input type="hidden" name="IsRequired" value="false" />
+                        <span class="relative h-5 w-9 rounded-full border border-[var(--color-border)]
+                                     bg-[var(--color-surface-subtle)] transition-colors
+                                     peer-checked:border-[var(--color-primary)] peer-checked:bg-[var(--color-primary)]
+                                     peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-primary)]/30
+                                     after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4
+                                     after:rounded-full after:bg-white after:transition-all
+                                     peer-checked:after:translate-x-4" aria-hidden="true"></span>
+                        <span class="text-sm font-medium text-[var(--color-text)]">Required choice</span>
+                    </label>
+
+                </div>
+
+                <div class="modal-footer border-t border-[var(--color-border)] px-6 pb-5 pt-4
+                            flex justify-end gap-3">
+                    <button type="button"
+                            data-bs-dismiss="modal"
+                            class="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)]
+                                   bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-text)]
+                                   hover:bg-[var(--color-surface-subtle)] focus:outline-none
+                                   focus:ring-2 focus:ring-[var(--color-primary)]/30 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)]
+                                   px-4 py-2 text-sm font-semibold text-white shadow-sm
+                                   hover:bg-[var(--color-primary-hover)] focus:outline-none
+                                   focus:ring-2 focus:ring-[var(--color-primary)]/40 transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"
+                             viewBox="0 0 24 24" aria-hidden="true"><use href="#check" /></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* ════════════════════════════════════════════════════════════════
+   SHARED DELETE OPTION MODAL (Bootstrap 5)
+   ════════════════════════════════════════════════════════════════ *@
+<div class="modal fade"
+     id="deleteOptionModal"
+     tabindex="-1"
+     aria-labelledby="deleteOptionModalLabel"
+     aria-modal="true"
+     role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-2xl border-0 shadow-xl
+                    bg-[var(--color-surface)] text-[var(--color-text)]">
+
+            <div class="modal-header border-b border-[var(--color-border)] px-6 pt-5 pb-4">
+                <h5 class="modal-title text-base font-semibold text-[var(--color-text)]"
+                    id="deleteOptionModalLabel">Delete option?</h5>
+                <button type="button"
+                        class="ms-auto inline-flex items-center justify-center rounded-lg p-1.5
+                               text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)]
+                               focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 transition-colors"
+                        data-bs-dismiss="modal" aria-label="Close">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"
+                         viewBox="0 0 24 24" aria-hidden="true"><use href="#x" /></svg>
+                </button>
+            </div>
+
+            <div class="modal-body px-6 py-4 text-sm text-[var(--color-text-muted)]">
+                <p>
+                    You are about to delete the option
+                    <strong id="deleteOptName" class="text-[var(--color-text)]"></strong>.
+                </p>
+                <p class="mt-2">
+                    If this option is currently in any customer's cart, the deletion will be blocked and you'll
+                    see an error message.
+                </p>
+            </div>
+
+            <div class="modal-footer border-t border-[var(--color-border)] px-6 pb-5 pt-4
+                        flex justify-end gap-3">
+                <button type="button"
+                        data-bs-dismiss="modal"
+                        class="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)]
+                               bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-text)]
+                               hover:bg-[var(--color-surface-subtle)] focus:outline-none
+                               focus:ring-2 focus:ring-[var(--color-primary)]/30 transition-colors">
+                    Cancel
+                </button>
+
+                <form asp-controller="MenuManagement"
+                      asp-action="DeleteOption"
+                      method="post"
+                      id="deleteOptionForm"
+                      class="inline">
+                    <input type="hidden" id="deleteOptId" name="id" value="" />
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2
+                                   text-sm font-semibold text-white shadow-sm
+                                   hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/40
+                                   transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"
+                             viewBox="0 0 24 24" aria-hidden="true"><use href="#trash-2" /></svg>
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        /**
+         * ManageOptions page — modal wiring.
+         *
+         * EDIT MODAL
+         * When a row's "Edit" button fires "show.bs.modal", we read its
+         * data-opt-* attributes and populate every field in the shared
+         * #editOptionModal form BEFORE the modal becomes visible.
+         * No per-row modals, no Html.Raw on user data (textContent is safe).
+         *
+         * DELETE MODAL
+         * Same pattern: read data-opt-id / data-opt-name from the trigger
+         * button, fill the hidden <input name="id"> and the dish-name label.
+         */
+        (function () {
+
+            // ── EDIT MODAL ──────────────────────────────────────────────
+            const editModal = document.getElementById('editOptionModal');
+            if (editModal) {
+                editModal.addEventListener('show.bs.modal', function (event) {
+                    const btn = event.relatedTarget;
+                    if (!btn) return;
+
+                    document.getElementById('editOptId').value          = btn.dataset.optId     ?? '';
+                    document.getElementById('editOptDishId').value      = btn.dataset.optDishId ?? '';
+                    document.getElementById('editOptGroupName').value   = btn.dataset.optGroup  ?? '';
+                    document.getElementById('editOptName').value        = btn.dataset.optName   ?? '';
+                    document.getElementById('editOptExtraPrice').value  = btn.dataset.optPrice  ?? '0.00';
+
+                    const reqCheckbox = document.getElementById('editOptIsRequired');
+                    if (reqCheckbox) {
+                        reqCheckbox.checked = btn.dataset.optRequired === 'true';
+                    }
+                });
+
+                editModal.addEventListener('hidden.bs.modal', function () {
+                    document.getElementById('editOptId').value         = '';
+                    document.getElementById('editOptDishId').value     = '';
+                    document.getElementById('editOptGroupName').value  = '';
+                    document.getElementById('editOptName').value       = '';
+                    document.getElementById('editOptExtraPrice').value = '';
+                    const reqCheckbox = document.getElementById('editOptIsRequired');
+                    if (reqCheckbox) reqCheckbox.checked = false;
+                });
+            }
+
+            // ── DELETE MODAL ─────────────────────────────────────────────
+            const deleteModal = document.getElementById('deleteOptionModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+                    const btn = event.relatedTarget;
+                    if (!btn) return;
+
+                    const nameEl = document.getElementById('deleteOptName');
+                    const idInput = document.getElementById('deleteOptId');
+
+                    // textContent is XSS-safe — no Html.Raw needed
+                    if (nameEl)  nameEl.textContent = btn.dataset.optName ?? 'this option';
+                    if (idInput) idInput.value      = btn.dataset.optId   ?? '';
+                });
+
+                deleteModal.addEventListener('hidden.bs.modal', function () {
+                    const nameEl  = document.getElementById('deleteOptName');
+                    const idInput = document.getElementById('deleteOptId');
+                    if (nameEl)  nameEl.textContent = '';
+                    if (idInput) idInput.value      = '';
+                });
+            }
+
+        })();
+    </script>
+}

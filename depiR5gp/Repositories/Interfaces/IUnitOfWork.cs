@@ -1,4 +1,4 @@
-namespace depiR5gp.Repositories.Interfaces;
+﻿namespace depiR5gp.Repositories.Interfaces;
 
 //Transaction manager & repository aggregator
 public interface IUnitOfWork : IDisposable
@@ -13,4 +13,3 @@ public interface IUnitOfWork : IDisposable
 
     Task<int> CompleteAsync();
 }
-

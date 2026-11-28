@@ -1,0 +1,389 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\depi-gp-home-food-ecommerce\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\controllers\\menumanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\controllers\\menumanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\views\\menumanagement\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\views\\menumanagement\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\views\\menumanagement\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\views\\menumanagement\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\views\\menumanagement\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\views\\menumanagement\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\views\\menumanagement\\manageoptions.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\views\\menumanagement\\manageoptions.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\migrations\\20261110143655_migrationname.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\migrations\\20261110143655_migrationname.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\appsettings.local.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\appsettings.local.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\directory.packages.props||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\directory.packages.props||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\viewmodels\\menu\\menuviewmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\viewmodels\\menu\\menuviewmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\repositories\\implementations\\dishrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\repositories\\implementations\\dishrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\repositories\\interfaces\\idishrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\repositories\\interfaces\\idishrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\depir5gp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\depir5gp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\repositories\\interfaces\\iunitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\repositories\\interfaces\\iunitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\repositories\\implementations\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\repositories\\implementations\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\models\\chefs\\chefprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\models\\chefs\\chefprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\models\\menu\\dishoption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\models\\menu\\dishoption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\models\\menu\\dish.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\models\\menu\\dish.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\models\\menu\\cuisine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\models\\menu\\cuisine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|d:\\depi-gp-home-food-ecommerce\\depir5gp\\models\\menu\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B9336CF8-03C3-4E3A-A011-26C6DFA5939D}|depiR5gp\\depiR5gp.csproj|solutionrelative:depir5gp\\models\\menu\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Views\\MenuManagement\\Index.cshtml",
+              "RelativeDocumentMoniker": "depiR5gp\\Views\\MenuManagement\\Index.cshtml",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Views\\MenuManagement\\Index.cshtml",
+              "RelativeToolTip": "depiR5gp\\Views\\MenuManagement\\Index.cshtml",
+              "ViewState": "AgIAALQBAAAAAAAAAAAEwL4BAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-10T18:52:54.705Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MenuManagementController.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Controllers\\MenuManagementController.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Controllers\\MenuManagementController.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Controllers\\MenuManagementController.cs",
+              "RelativeToolTip": "depiR5gp\\Controllers\\MenuManagementController.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAmwDkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T20:16:53.93Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ManageOptions.cshtml",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Views\\MenuManagement\\ManageOptions.cshtml",
+              "RelativeDocumentMoniker": "depiR5gp\\Views\\MenuManagement\\ManageOptions.cshtml",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Views\\MenuManagement\\ManageOptions.cshtml",
+              "RelativeToolTip": "depiR5gp\\Views\\MenuManagement\\ManageOptions.cshtml",
+              "ViewState": "AgIAANUAAAAAAAAAAAAAAOoAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-10T20:19:11.083Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Views\\MenuManagement\\Create.cshtml",
+              "RelativeDocumentMoniker": "depiR5gp\\Views\\MenuManagement\\Create.cshtml",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Views\\MenuManagement\\Create.cshtml",
+              "RelativeToolTip": "depiR5gp\\Views\\MenuManagement\\Create.cshtml",
+              "ViewState": "AgIAAIwAAAAAAAAAAAAiwJcAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-10-27T18:51:24.653Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "20261110143655_MigrationName.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Migrations\\20261110143655_MigrationName.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Migrations\\20261110143655_MigrationName.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Migrations\\20261110143655_MigrationName.cs",
+              "RelativeToolTip": "depiR5gp\\Migrations\\20261110143655_MigrationName.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-10T14:36:55.785Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "appsettings.Local.json",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\appsettings.Local.json",
+              "RelativeDocumentMoniker": "depiR5gp\\appsettings.Local.json",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\appsettings.Local.json",
+              "RelativeToolTip": "depiR5gp\\appsettings.Local.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-11-10T12:30:14.157Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Edit.cshtml",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Views\\MenuManagement\\Edit.cshtml",
+              "RelativeDocumentMoniker": "depiR5gp\\Views\\MenuManagement\\Edit.cshtml",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Views\\MenuManagement\\Edit.cshtml",
+              "RelativeToolTip": "depiR5gp\\Views\\MenuManagement\\Edit.cshtml",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-10-27T18:51:19.003Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "depiR5gp\\appsettings.Development.json",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\appsettings.Development.json",
+              "RelativeToolTip": "depiR5gp\\appsettings.Development.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-11-10T13:29:43.066Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Program.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Program.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Program.cs",
+              "RelativeToolTip": "depiR5gp\\Program.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAswEsAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-10T13:20:02.609Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\appsettings.json",
+              "RelativeDocumentMoniker": "depiR5gp\\appsettings.json",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\appsettings.json",
+              "RelativeToolTip": "depiR5gp\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-11-10T13:29:44.712Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "DishRepository.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Repositories\\Implementations\\DishRepository.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Repositories\\Implementations\\DishRepository.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Repositories\\Implementations\\DishRepository.cs",
+              "RelativeToolTip": "depiR5gp\\Repositories\\Implementations\\DishRepository.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAowDoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T19:16:43.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "IDishRepository.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Repositories\\Interfaces\\IDishRepository.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Repositories\\Interfaces\\IDishRepository.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Repositories\\Interfaces\\IDishRepository.cs",
+              "RelativeToolTip": "depiR5gp\\Repositories\\Interfaces\\IDishRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T19:22:40.437Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Directory.Packages.props",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Directory.Packages.props",
+              "RelativeDocumentMoniker": "depiR5gp\\Directory.Packages.props",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Directory.Packages.props",
+              "RelativeToolTip": "depiR5gp\\Directory.Packages.props",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2026-11-08T19:22:48.624Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "depiR5gp.csproj",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\depiR5gp.csproj",
+              "RelativeDocumentMoniker": "depiR5gp\\depiR5gp.csproj",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\depiR5gp.csproj",
+              "RelativeToolTip": "depiR5gp\\depiR5gp.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-08T19:22:08.888Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "MenuViewModels.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\ViewModels\\Menu\\MenuViewModels.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\ViewModels\\Menu\\MenuViewModels.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\ViewModels\\Menu\\MenuViewModels.cs",
+              "RelativeToolTip": "depiR5gp\\ViewModels\\Menu\\MenuViewModels.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAG8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-07T15:03:57.158Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "depiR5gp\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAAA2wE0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-08T18:40:05.464Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "IUnitOfWork.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Repositories\\Interfaces\\IUnitOfWork.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Repositories\\Interfaces\\IUnitOfWork.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Repositories\\Interfaces\\IUnitOfWork.cs",
+              "RelativeToolTip": "depiR5gp\\Repositories\\Interfaces\\IUnitOfWork.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:09:20.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "ChefProfile.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Chefs\\ChefProfile.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Models\\Chefs\\ChefProfile.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Chefs\\ChefProfile.cs",
+              "RelativeToolTip": "depiR5gp\\Models\\Chefs\\ChefProfile.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAowCYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-02T12:36:35.708Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "UnitOfWork.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Repositories\\Implementations\\UnitOfWork.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Repositories\\Implementations\\UnitOfWork.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Repositories\\Implementations\\UnitOfWork.cs",
+              "RelativeToolTip": "depiR5gp\\Repositories\\Implementations\\UnitOfWork.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAqwCkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-02T12:47:58.984Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "DishOption.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Menu\\DishOption.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Models\\Menu\\DishOption.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Menu\\DishOption.cs",
+              "RelativeToolTip": "depiR5gp\\Models\\Menu\\DishOption.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAwwBIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:35:13.432Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "Dish.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Menu\\Dish.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Models\\Menu\\Dish.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Menu\\Dish.cs",
+              "RelativeToolTip": "depiR5gp\\Models\\Menu\\Dish.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAswBwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:35:00.998Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "Category.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Menu\\Category.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Models\\Menu\\Category.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Menu\\Category.cs",
+              "RelativeToolTip": "depiR5gp\\Models\\Menu\\Category.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:34:38.656Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "Cuisine.cs",
+              "DocumentMoniker": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Menu\\Cuisine.cs",
+              "RelativeDocumentMoniker": "depiR5gp\\Models\\Menu\\Cuisine.cs",
+              "ToolTip": "D:\\depi-gp-home-food-ecommerce\\depiR5gp\\Models\\Menu\\Cuisine.cs",
+              "RelativeToolTip": "depiR5gp\\Models\\Menu\\Cuisine.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:34:53.763Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
